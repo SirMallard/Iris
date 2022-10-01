@@ -1,275 +1,82 @@
 local Iris = {}
-Iris.__index = Iris
 
-local widgets = require(script.widgets)
+local started = false
 
--- private
+local widgets = {}
+Iris.widgets = widgets
 
--- https://web.archive.org/web/20131225070434/http://snippets.luacode.org/snippets/Deep_Comparison_of_Two_Values_3
+local rootStyle = {}
+Iris._style = rootStyle
+
+local rootInstance
+
+local rootWidget = {
+    ID = "R",
+    type = "Root",
+    Instance = rootInstance,
+    ZIndex = 0
+}
+
+local function GenerateEmptyVDOM()
+    return {
+        ["R"] = rootWidget
+    }
+end
+
+local lastVDOM = GenerateEmptyVDOM()
+local VDOM = GenerateEmptyVDOM()
+
+local storedStates = {}
+
+local IDStack = {"R"}
+local stackIndex = 1
+
+local tick = 0
+local widgetCount = 0
+
 function deepcompare(t1,t2)
-    local ty1 = type(t1)
-    local ty2 = type(t2)
-    if ty1 ~= ty2 then return false end
-    -- non-table types can be directly compared
-    if ty1 ~= 'table' and ty2 ~= 'table' then return t1 == t2 end
-    if #t1 ~= #t2 then return false end
-    for i = 1, #t1 do
-        local v1 = t1[i]
+    -- unoptimized
+    for i,v1 in t1 do
         local v2 = t2[i]
-        -- TODO, does this like actually recurse
-        if v2 ~= v1 or not deepcompare(v1,v2) then return false end
+        if type(v1) == "table" then
+            if v2 and type(v2) == "table" then
+                if deepcompare(v1,v2) == false then
+                    return false
+                end
+            else
+                return false
+            end
+        else
+            if type(v1) ~= type(v2) or v1 ~= v2 then
+                return false
+            end
+        end
     end
 
     return true
 end
 
-function Iris:_GenerateRoot()
-    return {Id = "Root", Children = {}, Instance = self.root}
-end
+local Cycle = function(callback)
+    tick += 1
+    widgetCount = 0
+    rootWidget.lastTick = tick
 
-function Iris:_InsertIntoTree(Widget, ...)
-    -- TODO this entire function should be revised.
-
-    self._WidgetsThisCycle += 1
-    local indexArguments = {}
-    for i,v in pairs({...}) do
-        if type(v) == "table" then
-            indexArguments[v[1]] = v[2]
-        else
-            indexArguments[i] = v
-        end
-    end
-    local newArguments = {}
-    for i,v in pairs(indexArguments) do
-        newArguments[widgets.widgetArgumentIndicies[Widget.Id][i]] = v
-    end
-
-    local parentWidget = self._WidgetStack[self._StackPointer]
-    local EventBin = {}
-
-    local widgetMayHaveChildren = widgets.widgetsWhichMayHaveChildren[Widget.Id]
-    local widgetHasState = widgets.widgetsWhichHaveState[Widget.Id]
-
-    local PointedStackWidget = self._LastWidgetTree
-
-    -- this section attempts to find the widget in the last frame.
-    -- it navigates through the stack, aborting if they have deviated.
-    for StackIndex = 2, self._StackPointer do
-        local PossibleStackChild = PointedStackWidget.Children[self._IndexWidgetStack[StackIndex]]
-        if PossibleStackChild then
-            PointedStackWidget = PossibleStackChild
-        else
-            PointedStackWidget = false
-            break
-        end
-    end
-
-    -- if a window is index #3 last frame, but this frame window #2 is not rendered, the window will take the index #2.
-    -- the issue is that for state like window position, or isCollapsed, they will inherit from last frames window #2 instead of #3.
-    -- the solution for DearImGui is pushID and popID, as well as defining Id based on arguments, like Title or text. it works pretty well so we will do that
-    -- in Iris have a table with every Id and the state ascociated with it.
-
-    if widgetHasState then
-        Widget.StateId = debug.info(3,"l") .. self._StoredStatePostfixId
-    end
-
-    local IsGenerated = false
-    if PointedStackWidget then
-        local LastFrameWidget = PointedStackWidget.Children[#parentWidget.Children + 1]
-        if LastFrameWidget then
-            local StateMatches
-            if widgetHasState and widgets.widgetsWhichHaveState[LastFrameWidget.Id] and LastFrameWidget.StateId then
-                StateMatches = (LastFrameWidget.StateId == Widget.StateId)
-            else
-                StateMatches = true
-            end
-    
-            if StateMatches and Widget.Id == LastFrameWidget.Id then
-                -- checking if widget arguments changed
-                local ArgumentsChanged = not deepcompare(LastFrameWidget.IndexArguments, indexArguments)
-
-                Widget.Arguments = newArguments
-                Widget.IndexArguments = indexArguments
-                if widgetMayHaveChildren then
-                    Widget.Children = table.create(#LastFrameWidget.Children)
-                end
-                Widget.Instance = LastFrameWidget.Instance
-                if widgetHasState then
-                    Widget.State = LastFrameWidget.State
-                end
-                if ArgumentsChanged then
-                    widgets.widgets[Widget.Id].Update(self, Widget)
-                end
-                
-                -- collecting and emptying the bin
-                Widget.EventBin = LastFrameWidget.EventBin -- have to be careful not to override reference to this table. Widget Events will reference it.
-                -- TODO: doing some shit with __newindex to maintain reference should be more efficient than cloning
-                EventBin = table.clone(Widget.EventBin)
-                table.clear(Widget.EventBin)
-    
-                LastFrameWidget.Fresh = true
-    
-                IsGenerated = true
-
-            end
-        end
-    end
-
-    if not IsGenerated then
-        Widget.Arguments = newArguments
-        Widget.EventBin = {}
-        if widgetHasState then
-            Widget.State = self._StoredStates[Widget.StateId] or widgets.widgets[Widget.Id].GenerateNewState(Iris, Widget)
-        end
-        if widgetMayHaveChildren then
-            Widget.Children = {}
-        end
-
-        Widget.Instance = widgets.widgets[Widget.Id].Generate(self, Widget)
-        widgets.widgets[Widget.Id].Update(self, Widget)
-        
-        Widget.Instance.Parent = widgets.widgets[parentWidget.Id].GetParentableInstance(parentWidget, Widget)
-    end
-
-    if widgetHasState then
-        self._StoredStates[Widget.StateId] = Widget.State
-    end
-    table.insert(parentWidget.Children, Widget)
-
-    if widgetMayHaveChildren then
-        -- TODO, add an optimization where the widget can say here that its children shouldnt be inserted into the tree.
-        -- in cases like if window is collapsed/closed or tree is collapsed.
-
-        -- begin in the context of new GUI scope, where Dear ImGui functions may be prefix with "Begin"
-        -- takes last inserted widget and pushes it onto _WidgetStack
-        local lastWidgetIndex = #self._WidgetStack[self._StackPointer].Children
-        local lastWidget = self._WidgetStack[self._StackPointer].Children[lastWidgetIndex]
-        self._WidgetStack[self._StackPointer + 1] = lastWidget
-        self._IndexWidgetStack[self._StackPointer + 1] = lastWidgetIndex
-        self._StackPointer += 1
-    end
-
-    self._StoredStatePostfixId = ""
-
-    return EventBin
-end
-
-function Iris:_DiscardOldWidgets()
-
-    local function LoopWidgetTree(ParentWidget)
-        for _, currentWidget in pairs(ParentWidget.Children) do
-            if widgets.widgetsWhichMayHaveChildren[currentWidget.Id] then
-                LoopWidgetTree(currentWidget)
-            end
-            if not currentWidget.Fresh then
-                --print(string.format("a %s was discarded", currentWidget.Id))
-                widgets.widgets[currentWidget.Id].Discard(self, currentWidget)
-            end
-        end
-    end
-    LoopWidgetTree(self._LastWidgetTree)
-end
-
-function Iris:_Cycle(callback)
-    debug.profilebegin("Iris Cycle")
-
-    self._StackPointer = 1
-    self._WidgetsThisCycle = 0
-    self._WidgetStack[self._StackPointer] = self._WidgetTree
-
-    debug.profilebegin("Iris Callback")
-    -- TODO, put a pcall or other error handling idiom here to prevent the bug where widgets are generated but never discarded every frame when it errors.
+    debug.profilebegin("Iris")
     callback()
     debug.profileend()
 
-    -- checking if last frame widgets arent rendered anymore
-    debug.profilebegin("Iris DiscardOldWidgets")
-    self:_DiscardOldWidgets()
-    debug.profileend()
-
-    assert(self._StackPointer == 1, "wrong amount of Iris:End()")
-
-    self._LastWidgetTree = self._WidgetTree
-    self._WidgetTree = self:_GenerateRoot()
-
-    if self._ForceRefresh then
-        self._ForceRefresh = false
-        self.root:ClearAllChildren()
-        widgets.widgets["Root"].Generate(self).Parent = self.root
-        self._LastWidgetTree = self:_GenerateRoot()
-    end
-
-    debug.profileend()
-end
-
--- public
-
-function Iris:Connect(eventConnection, callback)
-    -- TODO, throw an error if Connect is called more than once
-    self.root:ClearAllChildren() -- dont get mad when you forget about this line
-    widgets.widgets["Root"].Generate(self).Parent = self.root
-
-    task.spawn(function()
-        if eventConnection.Connect then
-            eventConnection:Connect(function()
-                self:_Cycle(callback)
-            end)
-        else
-            while eventConnection() do
-                self:_Cycle(callback)
-            end
+    for _,v in lastVDOM do
+        if v.lastTick ~= tick then
+            widgets[v.type].Discard(v)
         end
-    end)
-end
-
-function Iris:SetStyle(NewStyle)
-    local NeedsRefresh = false
-    for Name, Value in pairs(NewStyle) do
-        assert(self._Style[Name], "Invalid Style Property")
-        assert(typeof(self._Style[Name]) == typeof(Value), "Invalid Type for Style")
-        NeedsRefresh = NeedsRefresh or (self._Style[Name] ~= Value)
-        self._Style[Name] = Value
     end
-    if NeedsRefresh then
-        self._ForceRefresh = true
-    end
+    
+    lastVDOM = VDOM
+    VDOM = GenerateEmptyVDOM()
 end
 
-function Iris:Text(...)
-    return self:_InsertIntoTree({Id = "Text"}, ...)
-end
-
-function Iris:Button(...)
-    return self:_InsertIntoTree({Id = "Button"}, ...)
-end
-
-function Iris:Tree(...)
-    return self:_InsertIntoTree({Id = "Tree"}, ...)
-end
-
-function Iris:Window(...)
-    return self:_InsertIntoTree({Id = "Window"}, ...)
-end
-
--- TODO, this might need to be changed in favor of the Dear ImGui PopId and PushId system,
--- consider the case where 2 windows are called from the same line, both containing 5 tree nodes called from the same line
-function Iris:UseId(StringId)
-    self._StoredStatePostfixId = StringId
-end
-
-function Iris:End()
-    self._StackPointer -= 1
-end
-
-Iris.Args = widgets.Args
-
-return function(rootInstance)
-    local self = setmetatable({
-        root = rootInstance
-    }, Iris)
-
-    self._Style = {
-        -- TODO, split this into its own static table of template styles, along with a light theme and more, then use the self.SetStyle method to copy it into self._Style
+Iris.templateStyles = {
+    classic = {
         WindowPadding = Vector2.new(8,8),
         FramePadding = Vector2.new(4,3),
         ItemSpacing = Vector2.new(8,4),
@@ -310,33 +117,207 @@ return function(rootInstance)
         HeaderActiveColor = Color3.fromRGB(66,150,250),
         HeaderActiveTransparency = 0,
     }
+}
 
-    self._LastWidgetTree = self:_GenerateRoot()
-    self._WidgetTree = self:_GenerateRoot()
+Iris.Args = {}
 
-    -- for traversing the WidgetTree and for validating that the user manages parent widgets correctly
-    self._StackPointer = 1
-    
-    -- used for counting widgets and for determining z index as widgets generate
-    self._WidgetsThisCycle = 0
+function Iris.WidgetConstructor(type: string, hasState: boolean, hasChildren: boolean)
+    local requiredFields = {
+        "Generate",
+        "Update",
+        "Discard",
+        "ArgNames", -- not a function !
+        "Args" -- also not a function !
+    }
+    local requiredFieldsIfState = {
+        "GenerateState",
+        "UpdateState"
+    }
+    local requiredFieldsIfChildren = {
+        "GetParentInstance"
+    }
 
-    -- Stack trace of widgets, used when generating
-    self._WidgetStack = {}
-
-    -- Numeric indicies of _WidgetStack
-    self._IndexWidgetStack = {}
-
-    -- for widgets which have state, their State object is stored using their stateId in here, for retrival when they are generated
-    self._StoredStates = {}
-
-    -- flag which is checked after every cycle, used by SetStyle to reset the widgets according to style
-    self._ForceRefresh = false
-
-    -- TODO this should be removed in favor of new method eventually
-    -- diy solution to mimic Dear ImGui's PushId and PopId methods
-    self._StoredStatePostfixId = ""
-
-    -- root instance
-    self.root = rootInstance
-    return self
+    return function (widgetFunctions: {})
+        local thisWidget = {}
+        for _,v in requiredFields do
+            assert(widgetFunctions[v], v .. " is required for all widgets")
+            thisWidget[v] = widgetFunctions[v]
+        end
+        if hasState then
+            for _,v in requiredFieldsIfState do
+                assert(widgetFunctions[v], v .. " is required for all widgets with state")
+                thisWidget[v] = widgetFunctions[v]
+            end
+        end
+        if hasChildren then
+            for _,v in requiredFieldsIfChildren do
+                assert(widgetFunctions[v], v .. " is required for all widgets with children")
+                thisWidget[v] = widgetFunctions[v]
+            end
+        end
+        thisWidget.hasState = hasState
+        thisWidget.hasChildren = hasChildren
+        -- making the decision not to automatically add widget constructors into Iris, because then they would be closures
+        -- (bad for performance)
+        -- what?
+        widgets[type] = thisWidget
+        Iris.Args[type] = thisWidget.Args
+    end
 end
+
+function Iris.UpdateGlobalStyle(deltaStyle: table)
+    for i,v in deltaStyle do
+        rootStyle[i] = v
+    end
+end
+
+function Iris.PushStyle(deltaStyle: table)
+    Iris._style = setmetatable(deltaStyle, {
+        __index = Iris._style,
+        __iter = function(t)
+            assert(t == rootStyle, "cannot iterate Iris._style in this state.")
+            return next, t
+        end
+    })
+end
+
+function Iris.PopStyle()
+    Iris._style = getmetatable(Iris._style).__index
+end
+
+function Iris.Connect(parentInstance, eventConnection, callback)
+    assert(not started, "Iris.Connect should only be called once.")
+    started = true
+
+    rootInstance = widgets["Root"].Generate()
+    rootInstance.Parent = parentInstance
+    VDOM["R"].Instance = rootInstance
+    lastVDOM["R"].Instance = rootInstance
+    
+    task.spawn(function()
+        if eventConnection.Connect then
+            eventConnection:Connect(function()
+                Cycle(callback)
+            end)
+        else
+            while eventConnection() do
+                Cycle(callback)
+            end
+        end
+    end)
+end
+
+function Iris._Insert(type, ...)
+    assert(widgets[type], type .. " is not a valid widget.")
+    widgetCount += 1
+
+    local localId = "L" .. debug.info(3,"l") 
+    -- possible optimization to remove this L, which is mostly for debugging
+    -- the L does serve a purpose. there is a very ugly potential glitch in this ID configuration.
+    -- if the user sets nextWidgetId to an integer which is already occupied in code by a line which calls a widget,
+    -- the localId will be equivalent. "L" adds specificity.
+
+    local thisWidget
+    local thisWidgetClass = widgets[type]
+    local parentId = IDStack[stackIndex]
+    local parentWidget = VDOM[parentId]
+    local ID = parentId .. "-" .. localId
+    -- approx. 0.2μs for this concatenation
+
+    assert(not VDOM[ID], "Multiple widgets cannot occupy the same ID.")
+
+    local arguments = {}
+    for i,v in {...} do
+        if typeof(v) == "table" and table.isfrozen(v) then
+            -- isfrozen is technically the fastest way to store a boolean metadata parameter for a table.
+            -- its faster than indexing an arbitrary index, like 0
+            -- its also faster than getmetatable()
+
+            -- in this case isfrozen signifies that the table was returned by an Iris.Args function
+            -- meaning its index position in the table is irrelivant for knowing what its parameter is
+            arguments[thisWidgetClass.ArgNames[v[1]]] = v[2]
+            continue
+        end
+        arguments[thisWidgetClass.ArgNames[i]] = v
+    end
+
+    if lastVDOM[ID] then
+        -- found a matching widget from last frame!
+        assert(type == lastVDOM[ID].type, "ID type mismatch.")
+
+        thisWidget = lastVDOM[ID]
+    else
+        -- didnt find a match, lets generate a new one.
+        thisWidget = {}
+        thisWidget.ID = ID
+        thisWidget.type = type
+        thisWidget.events = {}
+        thisWidget.ZIndex = parentWidget.ZIndex + 0xFFFFF + (widgetCount * 0x40)
+        -- ZIndex (and LayoutOrder) limit is 2^31-1
+        -- this configuration means ZIndex can handle children 2^11-1 deep and can handle 2^14-1 widgets
+        -- (and each widget gets 63 ZIndex to handle individual instances)
+    
+        thisWidget.Instance = thisWidgetClass.Generate(thisWidget)
+        thisWidget.Instance.Parent = widgets[parentWidget.type].GetParentInstance(parentWidget, thisWidget)
+
+        thisWidget.arguments = arguments
+        thisWidgetClass.Update(thisWidget)
+
+        if widgets[type].hasState then
+            if storedStates[ID] == nil then
+                storedStates[ID] = thisWidgetClass.GenerateState(thisWidget)
+            end
+            thisWidget.state = storedStates[ID]
+
+            thisWidgetClass.UpdateState(thisWidget)
+        end
+    end
+
+    if thisWidget.arguments ~= arguments and deepcompare(thisWidget.arguments, arguments) == false then
+        -- the widgets arguments have changed; the widget should update to reflect changes.
+        thisWidget.arguments = arguments
+        thisWidgetClass.Update(thisWidget)
+    end
+
+    local events = thisWidget.events
+    thisWidget.events = {}
+    thisWidget.lastTick = tick
+
+    if widgets[type].hasChildren then
+        stackIndex += 1
+        IDStack[stackIndex] = thisWidget.ID
+    end
+
+    VDOM[ID] = thisWidget
+    Iris.LastWidget = thisWidget
+
+    return setmetatable(thisWidget, {__index = events}) -- not optimal
+end
+
+function Iris.End()
+    IDStack[stackIndex] = nil
+    stackIndex -= 1
+end
+
+function Iris.SetState(ThisWidget, deltaState: {})
+    for i,v in deltaState do
+        ThisWidget.state[i] = v
+    end
+    Iris.widgets[ThisWidget.type].UpdateState(ThisWidget)
+end
+
+function Iris.PushId(ID: string | number)
+    local ParentId = IDStack[stackIndex]
+    ID = ParentId .. "-" .. tostring(ID)
+
+    stackIndex += 1
+    IDStack[stackIndex] = ID
+    
+    -- this is elegant
+    VDOM[ID] = VDOM[ParentId]
+end
+
+require(script.widgets)(Iris)
+Iris.UpdateGlobalStyle(Iris.templateStyles.classic)
+
+return Iris
