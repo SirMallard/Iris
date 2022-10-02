@@ -3,22 +3,24 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Iris = require(ReplicatedStorage.Common.Iris)
 
 local Player = game:GetService("Players").LocalPlayer
+local Workspace = game:GetService("Workspace")
 local PlayerGui = Player:WaitForChild("PlayerGui")
 local ScreenGui = Instance.new("ScreenGui");
 ScreenGui.Parent = PlayerGui;
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 local count = 0
 local lastT = os.clock()
 local rollingDT = 0
 local new = true;
 
-function showDemoWindow(Index)
+function showDemoWindow(Index, Position)
     Iris.PushId(Index)
-        local thisWindow = Iris.Window("Iris Demo - " .. Index)
+        local thisWindow = Iris.Window("Iris Demo - ")
 
             if new then
                 Iris.SetState(thisWindow,{
-                    Position = Vector2.new(35,60) * Index,
+                    Position = Position,
                     Size = Vector2.new(400,250)
                 })
             end
@@ -40,6 +42,8 @@ function showDemoWindow(Index)
 
         Iris.End()
     Iris.End()
+
+    return thisWindow
 end
 
 Iris.Connect(ScreenGui, RunService.Heartbeat, function()
@@ -56,6 +60,15 @@ Iris.Connect(ScreenGui, RunService.Heartbeat, function()
     lastT = t
     Iris.Text(string.format("Average %.3f ms/frame (%.1f FPS)", rollingDT*1000, 1/rollingDT))
 
-    showDemoWindow(5)
+    local demoWindow = showDemoWindow(1, Vector2.new(200,300))
+    --showDemoWindow(2, Vector2.new(515,315))
+
+    if Iris.Button("Open demo window").Clicked then
+        Iris.SetState(demoWindow, {Closed = false, Collapsed = false})
+    end
+
+    if Iris.Button("Collapse demo window").Clicked then
+        Iris.SetState(demoWindow, {Collapsed = true})
+    end
     new = false
 end)

@@ -10,6 +10,8 @@
         thats a lot of configuration to do but holy shit gradients look good, its worth it.
 ]]
 
+local UserInputService = game:GetService("UserInputService")
+
 local function PadInstance(PadParent, PxPadding)
     local Padding = Instance.new("UIPadding")
     Padding.PaddingLeft = UDim.new(0,PxPadding.X)
@@ -18,6 +20,12 @@ local function PadInstance(PadParent, PxPadding)
     Padding.PaddingBottom = UDim.new(0,PxPadding.Y)
     Padding.Parent = PadParent
     return Padding
+end
+
+local function Folder(FolderParent)
+    local ThisFolder = Instance.new("Folder")
+    ThisFolder.Parent = FolderParent
+    return ThisFolder
 end
 
 local function SizeConstraint(Parent, MinSize, MaxSize)
@@ -56,41 +64,28 @@ local function ApplyInteractionHighlights(Iris, Button, Highlightee, Colors)
         Highlightee.BackgroundTransparency = Colors.ButtonTransparency
     end)
 
-    Button.MouseButton1Down:Connect(function()
+    Button.InputBegan:Connect(function(input)
+        if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) then
+            return
+        end
         Highlightee.BackgroundColor3 = Colors.ButtonActiveColor
         Highlightee.BackgroundTransparency = Colors.ButtonActiveTransparency
     end)
 
-    Button.MouseButton1Up:Connect(function()
-        Highlightee.BackgroundColor3 = Colors.ButtonHoveredColor
-        Highlightee.BackgroundTransparency = Colors.ButtonHoveredTransparency
+    Button.InputEnded:Connect(function(input)
+        if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) then
+            return
+        end
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            Highlightee.BackgroundColor3 = Colors.ButtonHoveredColor
+            Highlightee.BackgroundTransparency = Colors.ButtonHoveredTransparency
+        end
+        if input.UserInputType == Enum.UserInputType.Gamepad1 then
+            Highlightee.BackgroundColor3 = Colors.ButtonColor
+            Highlightee.BackgroundTransparency = Colors.ButtonTransparency
+        end
     end)
-end
-
-local function TitleBarButton(Iris, ThisWidget, ButtonParent)
-    local TitleBarButton = Instance.new("TextButton")
-    TitleBarButton.AutoButtonColor = false
-    TitleBarButton.BorderSizePixel = 0
-    TitleBarButton.BackgroundTransparency = 1
-    TitleBarButton.Position = UDim2.fromScale(.5, .5)
-    TitleBarButton.AnchorPoint = Vector2.new(.5,.5)
-    local TitleBarButtonSize = Iris._style.FontSize + (Iris._style.FramePadding.Y-1) * 2 -- this is bigger than Dear ImGui's. Intentionally.
-    TitleBarButton.Size = UDim2.fromOffset(TitleBarButtonSize, TitleBarButtonSize)
-    TitleBarButton.ZIndex = ThisWidget.ZIndex + 2
-    TitleBarButton.Text = ""
-    TitleBarButton.Parent = ButtonParent
-
-    RoundInstance(TitleBarButton, 100)
-
-    ApplyInteractionHighlights(Iris, TitleBarButton, TitleBarButton, {
-        ButtonColor = Iris._style.ButtonColor,
-        ButtonTransparency = 1,
-        ButtonHoveredColor = Iris._style.ButtonHoveredColor,
-        ButtonHoveredTransparency = Iris._style.ButtonHoveredTransparency,
-        ButtonActiveColor = Iris._style.ButtonActiveColor,
-        ButtonActiveTransparency = Iris._style.ButtonActiveTransparency,
-    })
-    return TitleBarButton
+    
 end
 
 local Icons = {
@@ -417,241 +412,346 @@ Iris.Tree = function(...)
     return Iris._Insert("Tree", ...)
 end
 
-Iris.WidgetConstructor("Window", true, true){
-    ArgNames = {[1] = "Title"},
+-- THINGS TODO:
+-- Window Resizing and Mouse icons for resizing
+-- global window sortOrder
+-- somehow sync instance ZIndex to window sortOrder
+-- Ctrl+Tab window focus hotkey
+-- Window Dragging
+-- Gamepad support for Window Resizing and window dragging... somehow
 
-    Args = {
-        ["Title"] = function(_Title: string)
-            return table.freeze({1, _Title})
-        end
-    },
+do -- Window
+    local AnyFocusedWindow = false
+    local FocusedWindow = nil
+    local ZIndexIncrement = 0
 
-    UpdateState = function(ThisWidget)
-        ThisWidget.Instance.Size = UDim2.fromOffset(ThisWidget.state.Size.X, ThisWidget.state.Size.Y)
-        ThisWidget.Instance.Position = UDim2.fromOffset(ThisWidget.state.Position.X, ThisWidget.state.Position.Y)
-
-        local TitleBar = ThisWidget.Instance["Window-TitleBar"]
-        local TitleBarColor
-        local TitleBarTransparency
-
-        if ThisWidget.state.Closed then
-            ThisWidget.Instance.Visible = false
-        else
-            ThisWidget.Instance.Visible = true
-        end
-
-        if ThisWidget.state.Collapsed then
-            TitleBarColor = Iris._style.TitleBgCollapsedColor
-            TitleBarTransparency = Iris._style.TitleBgCollapsedTransparency
-
-            TitleBar["TitleBar-CollapseArrow"].Text = Icons.RightPointingTriangle
-
-            ThisWidget.Instance["Window-ChildContainer"].Visible = false
-            ThisWidget.Instance.Size = UDim2.fromOffset(ThisWidget.state.Size.X,0)
-            ThisWidget.Instance.AutomaticSize = Enum.AutomaticSize.Y
-        else
-
-            ThisWidget.Instance["Window-ChildContainer"].Visible = true
-            ThisWidget.Instance.AutomaticSize = Enum.AutomaticSize.None
-
-            TitleBar["TitleBar-CollapseArrow"].Text = Icons.DownPointingTriangle
-
-            if ThisWidget.state.Focused then
-                TitleBarColor = Iris._style.TitleBgActiveColor
-                TitleBarTransparency = Iris._style.TitleBgActiveTransparency
+    Iris.SetFocusedWindow = function(ThisWidget: table | nil)
+        if AnyFocusedWindow then
+            -- update appearance to unfocus
+            local TitleBar = FocusedWindow.Instance["Window-TitleBar"]
+            if FocusedWindow.state.Collapsed then
+                TitleBar.BackgroundColor3 = Iris._style.TitleBgCollapsedColor
+                TitleBar.BackgroundTransparency = Iris._style.TitleBgCollapsedTransparency
             else
-                TitleBarColor = Iris._style.TitleBgColor
-                TitleBarTransparency = Iris._style.TitleBgTransparency
-
+                TitleBar.BackgroundColor3 = Iris._style.TitleBgColor
+                TitleBar.BackgroundTransparency = Iris._style.TitleBgTransparency
             end
-        end
-        TitleBar.BackgroundColor3 = TitleBarColor
-        TitleBar.BackgroundTransparency = TitleBarTransparency
-    end,
+            FocusedWindow.Instance["UIStroke"].Color = Iris._style.BorderColor
 
-    Generate = function(ThisWidget)
-        local Window = Instance.new("Frame")
-        Window.Name = "Iris:Window"
-        Window.Size = UDim2.fromOffset(0,0)
-        Window.BackgroundTransparency = 1
-        Window.BorderSizePixel = 0
-        Window.ZIndex = ThisWidget.ZIndex
-        Window.LayoutOrder = ThisWidget.ZIndex
-        Window.Size = UDim2.fromOffset(0,0)
-        Window.AutomaticSize = Enum.AutomaticSize.None
-        Window.ClipsDescendants = true
-
-        local UIStroke = Instance.new("UIStroke")
-        UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-        UIStroke.LineJoinMode = Enum.LineJoinMode.Miter
-        UIStroke.Color = Iris._style.BorderColor
-        UIStroke.Thickness = Iris._style.WindowBorderSize
-
-        UIStroke.Parent = Window
-
-        local UIList = Instance.new("UIListLayout")
-        UIList.FillDirection = Enum.FillDirection.Vertical
-        UIList.SortOrder = Enum.SortOrder.LayoutOrder
-        UIList.Padding = UDim.new(0,0)
-        UIList.Parent = Window
-
-        local ChildContainer = Instance.new("Frame")
-        ChildContainer.Name = "Window-ChildContainer"
-        ChildContainer.Position = UDim2.fromOffset(0,0)
-        ChildContainer.BorderSizePixel = 0
-        ChildContainer.ZIndex = ThisWidget.ZIndex + 1
-        ChildContainer.LayoutOrder = ThisWidget.ZIndex + 1
-        ChildContainer.AutomaticSize = Enum.AutomaticSize.None
-        ChildContainer.Size = UDim2.fromScale(1,1)
-        
-        ChildContainer.BackgroundColor3 = Iris._style.WindowBgColor
-        ChildContainer.BackgroundTransparency = Iris._style.WindowBgTransparency
-        ChildContainer.Parent = Window
-
-        PadInstance(ChildContainer, Iris._style.WindowPadding)
-
-        local UIList = Instance.new("UIListLayout")
-        UIList.SortOrder = Enum.SortOrder.LayoutOrder
-        UIList.FillDirection = Enum.FillDirection.Vertical
-        UIList.VerticalAlignment = Enum.VerticalAlignment.Top
-        UIList.Padding = UDim.new(0, Iris._style.ItemSpacing.Y)
-        UIList.Parent = ChildContainer
-
-        local TitleBar = Instance.new("Frame")
-        TitleBar.Name = "Window-TitleBar"
-        TitleBar.BorderSizePixel = 0
-        TitleBar.ZIndex = ThisWidget.ZIndex
-        TitleBar.LayoutOrder = ThisWidget.ZIndex
-        TitleBar.AutomaticSize = Enum.AutomaticSize.Y
-        TitleBar.Size = UDim2.fromScale(1,0)
-        TitleBar.Parent = Window
-
-        local CollapseArrow = Instance.new("TextLabel")
-        CollapseArrow.Name = "TitleBar-CollapseArrow"
-        CollapseArrow.Size = UDim2.fromOffset(Iris._style.FontSize,0)
-        CollapseArrow.Position = UDim2.new(0, Iris._style.FramePadding.X + 1, 0.5, 0)
-        CollapseArrow.BackgroundTransparency = 1
-        CollapseArrow.BorderSizePixel = 0
-        CollapseArrow.ZIndex = ThisWidget.ZIndex + 3
-        CollapseArrow.AutomaticSize = Enum.AutomaticSize.None
-        ApplyTextStyle(Iris, CollapseArrow)
-        CollapseArrow.TextSize = Iris._style.FontSize
-        CollapseArrow.Parent = TitleBar
-
-        local ArrowButton = TitleBarButton(Iris, ThisWidget, CollapseArrow)
-        ArrowButton.Name = "CollapseArrow-ArrowButton"
-
-        ArrowButton.MouseButton1Click:Connect(function()
-            ThisWidget.state.Collapsed = not ThisWidget.state.Collapsed
-            if ThisWidget.state.Collapsed then
-                ThisWidget.events.Collapsed = true
-            else
-                ThisWidget.events.Opened = true
-            end
-            Iris.widgets.Window.UpdateState(ThisWidget)
-        end)
-
-        local CloseIcon = Instance.new("TextLabel")
-        CloseIcon.Name = "TitleBar-CloseIcon"
-        CloseIcon.Size = UDim2.fromOffset(Iris._style.FontSize,0)
-        CloseIcon.Position = UDim2.new(1, -(Iris._style.FramePadding.X + 1), 0.5, 0)
-        CloseIcon.AnchorPoint = Vector2.new(1,0)
-        CloseIcon.BackgroundTransparency = 1
-        CloseIcon.BorderSizePixel = 0
-        CloseIcon.ZIndex = ThisWidget.ZIndex + 3
-        CloseIcon.AutomaticSize = Enum.AutomaticSize.None
-        ApplyTextStyle(Iris, CloseIcon)
-        CloseIcon.Font = Enum.Font.Code
-        CloseIcon.TextSize = Iris._style.FontSize * 2
-        CloseIcon.Text = Icons.MultiplicationSign
-        CloseIcon.Parent = TitleBar
-
-        local IconButton = TitleBarButton(Iris, ThisWidget, CloseIcon)
-        IconButton.Name = "CloseIcon-IconButton"
-
-        IconButton.MouseButton1Click:Connect(function()
-            ThisWidget.state.Closed = true
-            ThisWidget.events.Closed = true
-            Iris.widgets.Window.UpdateState(ThisWidget)
-        end)
-
-        -- omitting some style functionality in this implimentation.
-        -- allowing fractional titlebar title location dosent seem useful, as opposed to Enum.LeftRight.
-        -- choosing which side to place the collapse icon may be useful, but implimenting it "elegantly" adds 4 more instances.
-
-        local Title = Instance.new("TextLabel")
-        Title.Name = "TitleBar-Title"
-        Title.Text = "hello"
-        Title.BorderSizePixel = 0
-        Title.BackgroundTransparency = 1
-        Title.ZIndex = ThisWidget.ZIndex + 2
-        Title.AutomaticSize = Enum.AutomaticSize.XY
-        ApplyTextStyle(Iris, Title)
-        Title.Parent = TitleBar
-        local TitleAlign = Iris._style.WindowTitleAlign == Enum.LeftRight.Left and 0 or Iris._style.WindowTitleAlign == Enum.LeftRight.Center and .5 or 1
-        Title.Position = UDim2.fromScale(TitleAlign, 0)
-        Title.AnchorPoint = Vector2.new(TitleAlign, 0)
-
-        PadInstance(Title, Iris._style.FramePadding)
-
-        return Window
-    end,
-
-    Update = function(ThisWidget)
-        local TitleBar = ThisWidget.Instance["Window-TitleBar"]
-
-        if ThisWidget.arguments.NoTitleBar then
-            TitleBar.Visible = false
-        else
-            TitleBar.Visible = true
-        end
-        if ThisWidget.arguments.NoBackground then
-            ThisWidget.Instance["Window-ChildContainer"].BackgroundTransparency = 1
-        else
-            ThisWidget.Instance["Window-ChildContainer"].BackgroundTransparency = Iris._style.WindowBgTransparency
-        end
-        local TitleButtonPaddingSize = Iris._style.FramePadding.X + Iris._style.FontSize + Iris._style.FramePadding.X * 2
-        if ThisWidget.arguments.NoCollapse then
-            TitleBar["TitleBar-CollapseArrow"].Visible = false
-            TitleBar["TitleBar-Title"]["UIPadding"].PaddingLeft = UDim.new(0, Iris._style.FramePadding.X)
-        else
-            TitleBar["TitleBar-CollapseArrow"].Visible = true
-            TitleBar["TitleBar-Title"]["UIPadding"].PaddingLeft = UDim.new(0, TitleButtonPaddingSize)
-        end
-        if ThisWidget.arguments.NoClose then
-            TitleBar["TitleBar-CloseIcon"].Visible = false
-            TitleBar["TitleBar-Title"]["UIPadding"].PaddingRight = UDim.new(0, Iris._style.FramePadding.X)
-        else
-            TitleBar["TitleBar-CloseIcon"].Visible = true
-            TitleBar["TitleBar-Title"]["UIPadding"].PaddingRight = UDim.new(0, TitleButtonPaddingSize)
+            AnyFocusedWindow = false
+            FocusedWindow = nil
         end
 
-        local Title = ThisWidget.Instance["Window-TitleBar"]["TitleBar-Title"]
-        Title.Text = ThisWidget.arguments.Title or ""
-    end,
-
-    Discard = function(ThisWidget)
-        ThisWidget.Instance:Destroy()
-    end,
-
-    GetParentInstance = function(ThisWidget)
-        return ThisWidget.Instance["Window-ChildContainer"]
-    end,
-
-    GenerateState = function(ThisWidget)
-        return {
-            Title = "",
-            Size = Vector2.new(250,300),
-            Position = Vector2.new(300,100),
-            Collapsed = false,
-            Focused = true,
-            Closed = false
-        }
+        if ThisWidget ~= nil then
+            AnyFocusedWindow = true
+            FocusedWindow = ThisWidget
+            -- update appearance to focus
+            local TitleBar = FocusedWindow.Instance["Window-TitleBar"]
+            TitleBar.BackgroundColor3 = Iris._style.TitleBgActiveColor
+            TitleBar.BackgroundTransparency = Iris._style.TitleBgActiveTransparency
+            FocusedWindow.Instance["UIStroke"].Color = Iris._style.BorderActiveColor
+        end
     end
-}
 
-Iris.Window = function(...)
-    return Iris._Insert("Window", ...)
+    Iris.WidgetConstructor("Window", true, true){
+        ArgNames = {
+            [1] = "Title",
+            [2] = "NoTitleBar",
+            [3] = "NoBackground",
+            [4] = "NoCollapse",
+            [5] = "NoClose"
+        },
+
+        Args = {
+            ["Title"] = function(_Title: string)
+                return table.freeze({1, _Title})
+            end,
+            ["NoTitleBar"] = function(_NoTitleBar: boolean)
+                return table.freeze({2, _NoTitleBar})
+            end,
+            ["NoBackground"] = function(_NoBackground: boolean)
+                return table.freeze({3, _NoBackground})
+            end,
+            ["NoCollapse"] = function(_NoCollapse: boolean)
+                return table.freeze({4, _NoCollapse})
+            end,
+            ["NoClose"] = function(_NoClose: boolean)
+                return table.freeze({5, _NoClose})
+            end
+        },
+
+        UpdateState = function(ThisWidget)
+            ThisWidget.Instance.Size = UDim2.fromOffset(ThisWidget.state.Size.X, ThisWidget.state.Size.Y)
+            ThisWidget.Instance.Position = UDim2.fromOffset(ThisWidget.state.Position.X, ThisWidget.state.Position.Y)
+
+            local TitleBar = ThisWidget.Instance["Window-TitleBar"]
+
+            if ThisWidget.state.Closed then
+                ThisWidget.Instance.Visible = false
+            else
+                ThisWidget.Instance.Visible = true
+            end
+
+            if ThisWidget.state.Collapsed then
+                TitleBar["TitleBar-CollapseArrow"].Text = Icons.RightPointingTriangle
+
+                ThisWidget.Instance["Window-ChildContainer"].Visible = false
+                ThisWidget.Instance.Size = UDim2.fromOffset(ThisWidget.state.Size.X,0)
+                ThisWidget.Instance.AutomaticSize = Enum.AutomaticSize.Y
+            else
+                ThisWidget.Instance["Window-ChildContainer"].Visible = true
+                ThisWidget.Instance.AutomaticSize = Enum.AutomaticSize.None
+
+                TitleBar["TitleBar-CollapseArrow"].Text = Icons.DownPointingTriangle
+            end
+
+            if not ThisWidget.state.Closed and not ThisWidget.state.Collapsed then
+                Iris.SetFocusedWindow(ThisWidget)
+            else
+                TitleBar.BackgroundColor3 = Iris._style.TitleBgCollapsedColor
+                TitleBar.BackgroundTransparency = Iris._style.TitleBgCollapsedTransparency
+                Iris.SetFocusedWindow(nil)
+            end
+        end,
+
+        Generate = function(ThisWidget)
+            local Window = Instance.new("TextButton")
+            Window.Name = "Iris:Window"
+            Window.Size = UDim2.fromOffset(0,0)
+            Window.BackgroundTransparency = 1
+            Window.BorderSizePixel = 0
+            Window.ZIndex = ThisWidget.ZIndex
+            Window.LayoutOrder = ThisWidget.ZIndex
+            Window.Size = UDim2.fromOffset(0,0)
+            Window.AutomaticSize = Enum.AutomaticSize.None
+            Window.ClipsDescendants = true
+            Window.Text = ""
+            Window.AutoButtonColor = false
+            
+            Window.MouseButton1Click:Connect(function()
+                if not ThisWidget.state.Collapsed then
+                    Iris.SetFocusedWindow(ThisWidget)
+                end
+            end)
+
+            local UIStroke = Instance.new("UIStroke")
+            UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            UIStroke.LineJoinMode = Enum.LineJoinMode.Miter
+            UIStroke.Color = Iris._style.BorderColor
+            UIStroke.Thickness = Iris._style.WindowBorderSize
+
+            UIStroke.Parent = Window
+
+            local UIList = Instance.new("UIListLayout")
+            UIList.FillDirection = Enum.FillDirection.Vertical
+            UIList.SortOrder = Enum.SortOrder.LayoutOrder
+            UIList.Padding = UDim.new(0,0)
+            UIList.Parent = Window
+
+            local ChildContainer = Instance.new("Frame")
+            ChildContainer.Name = "Window-ChildContainer"
+            ChildContainer.Position = UDim2.fromOffset(0,0)
+            ChildContainer.BorderSizePixel = 0
+            ChildContainer.ZIndex = ThisWidget.ZIndex + 1
+            ChildContainer.LayoutOrder = ThisWidget.ZIndex + 1
+            ChildContainer.AutomaticSize = Enum.AutomaticSize.None
+            ChildContainer.Size = UDim2.fromScale(1,1)
+            
+            ChildContainer.BackgroundColor3 = Iris._style.WindowBgColor
+            ChildContainer.BackgroundTransparency = Iris._style.WindowBgTransparency
+            ChildContainer.Parent = Window
+
+            PadInstance(ChildContainer, Iris._style.WindowPadding)
+
+            local UIList = Instance.new("UIListLayout")
+            UIList.SortOrder = Enum.SortOrder.LayoutOrder
+            UIList.FillDirection = Enum.FillDirection.Vertical
+            UIList.VerticalAlignment = Enum.VerticalAlignment.Top
+            UIList.Padding = UDim.new(0, Iris._style.ItemSpacing.Y)
+            UIList.Parent = ChildContainer
+
+            local TitleBar = Instance.new("Frame")
+            TitleBar.Name = "Window-TitleBar"
+            TitleBar.BorderSizePixel = 0
+            TitleBar.ZIndex = ThisWidget.ZIndex
+            TitleBar.LayoutOrder = ThisWidget.ZIndex
+            TitleBar.AutomaticSize = Enum.AutomaticSize.Y
+            TitleBar.Size = UDim2.fromScale(1,0)
+            TitleBar.Parent = Window
+
+            local TitleButtonSize = Iris._style.FontSize + ((Iris._style.FramePadding.Y - 1) * 2)
+
+            local CollapseArrow = Instance.new("TextButton")
+            CollapseArrow.Name = "TitleBar-CollapseArrow"
+            CollapseArrow.Size = UDim2.fromOffset(TitleButtonSize,TitleButtonSize)
+            CollapseArrow.Position = UDim2.new(0, Iris._style.FramePadding.X + 1, 0.5, 0)
+            CollapseArrow.AnchorPoint = Vector2.new(0,.5)
+            CollapseArrow.AutoButtonColor = false
+            CollapseArrow.BackgroundTransparency = 1
+            CollapseArrow.BorderSizePixel = 0
+            CollapseArrow.ZIndex = ThisWidget.ZIndex + 3
+            CollapseArrow.AutomaticSize = Enum.AutomaticSize.None
+            ApplyTextStyle(Iris, CollapseArrow)
+            CollapseArrow.TextSize = Iris._style.FontSize
+            CollapseArrow.Parent = TitleBar
+
+            CollapseArrow.MouseButton1Click:Connect(function()
+                ThisWidget.state.Collapsed = not ThisWidget.state.Collapsed
+                if ThisWidget.state.Collapsed then
+                    ThisWidget.events.Collapsed = true
+                else
+                    ThisWidget.events.Opened = true
+                end
+                Iris.widgets.Window.UpdateState(ThisWidget)
+            end)
+
+            RoundInstance(CollapseArrow, 1e9)
+
+            ApplyInteractionHighlights(Iris, CollapseArrow, CollapseArrow, {
+                ButtonColor = Iris._style.ButtonColor,
+                ButtonTransparency = 1,
+                ButtonHoveredColor = Iris._style.ButtonHoveredColor,
+                ButtonHoveredTransparency = Iris._style.ButtonHoveredTransparency,
+                ButtonActiveColor = Iris._style.ButtonActiveColor,
+                ButtonActiveTransparency = Iris._style.ButtonActiveTransparency,
+            })
+
+            local CloseIcon = Instance.new("TextButton")
+            CloseIcon.Name = "TitleBar-CloseIcon"
+            CloseIcon.Size = UDim2.fromOffset(TitleButtonSize, TitleButtonSize)
+            CloseIcon.Position = UDim2.new(1, -(Iris._style.FramePadding.X + 1), 0.5, 0)
+            CloseIcon.AnchorPoint = Vector2.new(1,.5)
+            CloseIcon.AutoButtonColor = false
+            CloseIcon.BackgroundTransparency = 1
+            CloseIcon.BorderSizePixel = 0
+            CloseIcon.ZIndex = ThisWidget.ZIndex + 3
+            CloseIcon.AutomaticSize = Enum.AutomaticSize.None
+            ApplyTextStyle(Iris, CloseIcon)
+            CloseIcon.Font = Enum.Font.Code
+            CloseIcon.TextSize = Iris._style.FontSize * 2
+            CloseIcon.Text = Icons.MultiplicationSign
+            CloseIcon.Parent = TitleBar
+
+            RoundInstance(CloseIcon, 1e9)
+
+            CloseIcon.MouseButton1Click:Connect(function()
+                ThisWidget.state.Closed = true
+                ThisWidget.events.Closed = true
+                Iris.widgets.Window.UpdateState(ThisWidget)
+            end)
+
+            ApplyInteractionHighlights(Iris, CloseIcon, CloseIcon, {
+                ButtonColor = Iris._style.ButtonColor,
+                ButtonTransparency = 1,
+                ButtonHoveredColor = Iris._style.ButtonHoveredColor,
+                ButtonHoveredTransparency = Iris._style.ButtonHoveredTransparency,
+                ButtonActiveColor = Iris._style.ButtonActiveColor,
+                ButtonActiveTransparency = Iris._style.ButtonActiveTransparency,
+            })
+
+            -- omitting some style functionality in this implimentation.
+            -- allowing fractional titlebar title location dosent seem useful, as opposed to Enum.LeftRight.
+            -- choosing which side to place the collapse icon may be useful, but implimenting it "elegantly" adds 4 more instances.
+
+            local Title = Instance.new("TextLabel")
+            Title.Name = "TitleBar-Title"
+            Title.Text = "hello"
+            Title.BorderSizePixel = 0
+            Title.BackgroundTransparency = 1
+            Title.ZIndex = ThisWidget.ZIndex + 2
+            Title.AutomaticSize = Enum.AutomaticSize.XY
+            ApplyTextStyle(Iris, Title)
+            Title.Parent = TitleBar
+            local TitleAlign = Iris._style.WindowTitleAlign == Enum.LeftRight.Left and 0 or Iris._style.WindowTitleAlign == Enum.LeftRight.Center and .5 or 1
+            Title.Position = UDim2.fromScale(TitleAlign, 0)
+            Title.AnchorPoint = Vector2.new(TitleAlign, 0)
+
+            PadInstance(Title, Iris._style.FramePadding)
+
+            return Window
+        end,
+
+        Update = function(ThisWidget)
+            local TitleBar = ThisWidget.Instance["Window-TitleBar"]
+
+            if ThisWidget.arguments.NoTitleBar then
+                TitleBar.Visible = false
+            else
+                TitleBar.Visible = true
+            end
+            if ThisWidget.arguments.NoBackground then
+                ThisWidget.Instance["Window-ChildContainer"].BackgroundTransparency = 1
+            else
+                ThisWidget.Instance["Window-ChildContainer"].BackgroundTransparency = Iris._style.WindowBgTransparency
+            end
+            local TitleButtonPaddingSize = Iris._style.FramePadding.X + Iris._style.FontSize + Iris._style.FramePadding.X * 2
+            if ThisWidget.arguments.NoCollapse then
+                TitleBar["TitleBar-CollapseArrow"].Visible = false
+                TitleBar["TitleBar-Title"]["UIPadding"].PaddingLeft = UDim.new(0, Iris._style.FramePadding.X)
+            else
+                TitleBar["TitleBar-CollapseArrow"].Visible = true
+                TitleBar["TitleBar-Title"]["UIPadding"].PaddingLeft = UDim.new(0, TitleButtonPaddingSize)
+            end
+            if ThisWidget.arguments.NoClose then
+                TitleBar["TitleBar-CloseIcon"].Visible = false
+                TitleBar["TitleBar-Title"]["UIPadding"].PaddingRight = UDim.new(0, Iris._style.FramePadding.X)
+            else
+                TitleBar["TitleBar-CloseIcon"].Visible = true
+                TitleBar["TitleBar-Title"]["UIPadding"].PaddingRight = UDim.new(0, TitleButtonPaddingSize)
+            end
+
+            local Title = ThisWidget.Instance["Window-TitleBar"]["TitleBar-Title"]
+            Title.Text = ThisWidget.arguments.Title or ""
+        end,
+
+        Discard = function(ThisWidget)
+            ThisWidget.Instance:Destroy()
+        end,
+
+        GetParentInstance = function(ThisWidget)
+            return ThisWidget.Instance["Window-ChildContainer"]
+        end,
+
+        GenerateState = function(ThisWidget)
+            return {
+                Size = Vector2.new(250,300),
+                Position = Vector2.new(300,100),
+                Collapsed = false,
+                Closed = false
+            }
+        end
+    }
+
+    Iris.Window = function(...)
+        return Iris._Insert("Window", ...)
+    end
+
+    UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Focus then return end
+        if not gameProcessedEvent then
+            Iris.SetFocusedWindow(nil)
+        end
+    end)
+end
+
+do -- SelectionImageObject
+    local SelectionImageObject = Instance.new("Frame")
+    SelectionImageObject.Position = UDim2.fromOffset(-1,-1)
+    SelectionImageObject.Size = UDim2.new(1,2,1,2)
+    SelectionImageObject.BackgroundTransparency = .8
+    SelectionImageObject.BorderSizePixel = 0
+
+    local UIStroke = Instance.new("UIStroke")
+    UIStroke.Thickness = 1
+    UIStroke.Color = Color3.new(255,255,255)
+    UIStroke.LineJoinMode = Enum.LineJoinMode.Round
+    UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    UIStroke.Parent = SelectionImageObject
+
+    RoundInstance(SelectionImageObject, 2)
+
+    local PlayerGui = game:GetService("Players").LocalPlayer.PlayerGui
+    PlayerGui.SelectionImageObject = SelectionImageObject
 end
 
 end;

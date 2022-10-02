@@ -90,8 +90,14 @@ Iris.templateStyles = {
         TextColor = Color3.fromRGB(255,255,255),
         TextTransparency = 0,
 
-        BorderColor = Color3.fromRGB(110, 110, 125), -- 110, 110, 125
-        --BorderTransparency = 0.5, --will be problematic for non UIStroke border implimentations, could get around limitation using some color blending with WindowBg or FrameBg
+        BorderColor = Color3.fromRGB(110, 110, 125), 
+        -- Dear ImGui uses 110, 110, 125
+        -- The Roblox window selection highlight is 67, 191, 254
+        BorderActiveColor = Color3.fromRGB(160, 160, 175), -- does not exist in Dear ImGui
+
+        -- BorderTransparency = 0.5, 
+        -- BorderTransparency will be problematic for non UIStroke border implimentations
+        -- and who really cares about it anyways? we're not implimenting BorderTransparency at all.
 
         WindowBgColor = Color3.fromRGB(15,15,15),
         WindowBgTransparency = 0.072,
@@ -249,6 +255,8 @@ function Iris._Insert(type, ...)
     else
         -- didnt find a match, lets generate a new one.
         thisWidget = {}
+        setmetatable(thisWidget,thisWidget)
+
         thisWidget.ID = ID
         thisWidget.type = type
         thisWidget.events = {}
@@ -281,6 +289,7 @@ function Iris._Insert(type, ...)
 
     local events = thisWidget.events
     thisWidget.events = {}
+    thisWidget.__index = events
     thisWidget.lastTick = tick
 
     if widgets[type].hasChildren then
@@ -291,7 +300,7 @@ function Iris._Insert(type, ...)
     VDOM[ID] = thisWidget
     Iris.LastWidget = thisWidget
 
-    return setmetatable(thisWidget, {__index = events}) -- not optimal
+    return thisWidget -- not optimal
 end
 
 function Iris.End()
