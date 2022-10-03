@@ -3,27 +3,31 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Iris = require(ReplicatedStorage.Common.Iris)
 
 local Player = game:GetService("Players").LocalPlayer
-local Workspace = game:GetService("Workspace")
 local PlayerGui = Player:WaitForChild("PlayerGui")
 local ScreenGui = Instance.new("ScreenGui");
 ScreenGui.Parent = PlayerGui;
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 local count = 0
 local lastT = os.clock()
 local rollingDT = 0
-local new = true;
+local TextCounts = {}
+local numDemoWindows = 0
 
-function showDemoWindow(Index, Position)
+local DemoWindowArguments = {
+    ["NoTitleBar"] = false,
+    ["NoBackground"] = false,
+    ["NoCollapse"] = false,
+    ["NoClose"] = false
+}
+
+function showDemoWindow(Index)
     Iris.PushId(Index)
-        local thisWindow = Iris.Window("Iris Demo - ")
-
-            if new then
-                Iris.SetState(thisWindow,{
-                    Position = Position,
-                    Size = Vector2.new(400,250)
-                })
-            end
+        local thisWindow = Iris.Window("Iris Demo - " .. Index,
+            Iris.Args.Window.NoTitleBar(DemoWindowArguments.NoTitleBar),
+            Iris.Args.Window.NoBackground(DemoWindowArguments.NoBackground),
+            Iris.Args.Window.NoCollapse(DemoWindowArguments.NoCollapse),
+            Iris.Args.Window.NoClose(DemoWindowArguments.NoClose)
+        )
 
             Iris.Text("This is a demo window!")
             local tree1 = Iris.Tree("first tree")
@@ -39,6 +43,22 @@ function showDemoWindow(Index, Position)
                     Collapsed = not tree1.state.Collapsed
                 })
             end
+
+            if Iris.Button("Add a text").Clicked then
+                if not TextCounts[Index] then
+                    TextCounts[Index] = 1
+                else
+                    TextCounts[Index] = (TextCounts[Index] + 1) % 11
+                end
+            end
+
+            Iris.Tree("List of text")
+                for i = 1,TextCounts[Index] or 0 do
+                    Iris.PushId(i)
+                        Iris.Text(string.format("Text #%d", i))
+                    Iris.End()
+                end
+            Iris.End()
 
         Iris.End()
     Iris.End()
@@ -60,15 +80,43 @@ Iris.Connect(ScreenGui, RunService.Heartbeat, function()
     lastT = t
     Iris.Text(string.format("Average %.3f ms/frame (%.1f FPS)", rollingDT*1000, 1/rollingDT))
 
-    local demoWindow = showDemoWindow(1, Vector2.new(200,300))
-    --showDemoWindow(2, Vector2.new(515,315))
+    local demoWindow = showDemoWindow(1)
 
-    if Iris.Button("Open demo window").Clicked then
+    Iris.Text("")
+
+    if Iris.Button("Open main demo window").Clicked then
         Iris.SetState(demoWindow, {Closed = false, Collapsed = false})
+    end
+
+    local IsNewWindow = Iris.Button("Open a new demo window").Clicked 
+    if IsNewWindow then
+        numDemoWindows += 1
+    end
+
+    for i = 1,numDemoWindows do
+        local iWindow = showDemoWindow(i + 1)
+        if IsNewWindow and i == numDemoWindows then
+            Iris.SetState(iWindow, {
+                Size = Vector2.new(400,300),
+                Position = Vector2.new(415 + (i * 25), 115 + (i * 25))
+            })
+        end
+
     end
 
     if Iris.Button("Collapse demo window").Clicked then
         Iris.SetState(demoWindow, {Collapsed = true})
     end
-    new = false
+
+    Iris.Tree("demo window arguments")
+        for i,v in DemoWindowArguments do
+            Iris.PushId(i)
+            if Iris.Button(i).Clicked then
+                DemoWindowArguments[i] = not DemoWindowArguments[i]
+            end
+            Iris.End()
+        end
+    Iris.End()
+
+    Iris.Text(string.format("Demo window Position: (%d, %d)", demoWindow.state.Position.X, demoWindow.state.Position.Y))
 end)

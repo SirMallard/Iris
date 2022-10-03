@@ -10,6 +10,7 @@
         thats a lot of configuration to do but holy shit gradients look good, its worth it.
 ]]
 
+local GuiService = game:GetService("GuiService")
 local UserInputService = game:GetService("UserInputService")
 
 local function PadInstance(PadParent, PxPadding)
@@ -42,6 +43,25 @@ local function RoundInstance(RoundParent, PxRounding)
     Rounding.Parent = RoundParent
     return Rounding
 end
+
+local SelectionImageObject
+do
+    SelectionImageObject = Instance.new("Frame")
+    SelectionImageObject.Position = UDim2.fromOffset(-1,-1)
+    SelectionImageObject.Size = UDim2.new(1,2,1,2)
+    SelectionImageObject.BackgroundTransparency = .8
+    SelectionImageObject.BorderSizePixel = 0
+
+    local UIStroke = Instance.new("UIStroke")
+    UIStroke.Thickness = 1
+    UIStroke.Color = Color3.new(255,255,255)
+    UIStroke.LineJoinMode = Enum.LineJoinMode.Round
+    UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    UIStroke.Parent = SelectionImageObject
+
+    RoundInstance(SelectionImageObject, 2)
+end
+
 
 local function ApplyTextStyle(Iris, TextParent)
     TextParent.Font = Iris._style.Font
@@ -86,6 +106,7 @@ local function ApplyInteractionHighlights(Iris, Button, Highlightee, Colors)
         end
     end)
     
+    Button.SelectionImageObject = SelectionImageObject
 end
 
 local Icons = {
@@ -413,19 +434,36 @@ Iris.Tree = function(...)
 end
 
 -- THINGS TODO:
--- Window Resizing and Mouse icons for resizing
--- global window sortOrder
--- somehow sync instance ZIndex to window sortOrder
--- Ctrl+Tab window focus hotkey
--- Window Dragging
--- Gamepad support for Window Resizing and window dragging... somehow
+-- Window Resizing and Mouse icons for resizing             |
+-- global window sortOrder                                  | done
+-- somehow sync instance ZIndex to window sortOrder         | half done
+-- Ctrl+Tab window focus hotkey                             |
+-- Window Dragging                                          | done!
+-- Gamepad support for Window Resizing and window dragging  |
 
 do -- Window
     local AnyFocusedWindow = false
     local FocusedWindow = nil
-    local ZIndexIncrement = 0
+    local ZIndexSortLayer = 0
+
+    local DraggedWindow = nil
+    local isDragging = false
+    local deltaCursorPosition = nil
+
+    local function IncrementSortLayer()
+        ZIndexSortLayer += 1
+        if ZIndexSortLayer > 0x400 then
+            -- what we should do here, is to take every window, get its sort order
+            -- and read just the sort order to start from 0. then if there are too
+            -- many windows to comfortable handle with ZIndex, error out
+            -- TODO
+            error("panic")
+        end
+    end
 
     Iris.SetFocusedWindow = function(ThisWidget: table | nil)
+        if FocusedWindow == ThisWidget then return end
+
         if AnyFocusedWindow then
             -- update appearance to unfocus
             local TitleBar = FocusedWindow.Instance["Window-TitleBar"]
@@ -450,6 +488,22 @@ do -- Window
             TitleBar.BackgroundColor3 = Iris._style.TitleBgActiveColor
             TitleBar.BackgroundTransparency = Iris._style.TitleBgActiveTransparency
             FocusedWindow.Instance["UIStroke"].Color = Iris._style.BorderActiveColor
+            if GuiService.SelectedObject ~= nil then
+                GuiService.SelectedObject = FocusedWindow.Instance
+            end
+
+            IncrementSortLayer()
+
+            local OldZIndex = ThisWidget.ZIndex
+            local NewZIndex = ThisWidget.ZIndex - (ThisWidget.SortLayer * 0xFFFFF) + (ZIndexSortLayer * 0xFFFFF)
+            ThisWidget.Instance.ZIndex = NewZIndex
+            ThisWidget.ZIndex = NewZIndex
+            ThisWidget.SortLayer = ZIndexSortLayer
+            for i,v in ThisWidget.Instance:GetDescendants() do
+                if v:IsA("GuiObject") then
+                    v.ZIndex = (v.ZIndex - OldZIndex) + NewZIndex
+                end
+            end
         end
     end
 
@@ -485,6 +539,7 @@ do -- Window
             ThisWidget.Instance.Position = UDim2.fromOffset(ThisWidget.state.Position.X, ThisWidget.state.Position.Y)
 
             local TitleBar = ThisWidget.Instance["Window-TitleBar"]
+            local ChildContainer = ThisWidget.Instance["Window-ChildContainer"]
 
             if ThisWidget.state.Closed then
                 ThisWidget.Instance.Visible = false
@@ -495,11 +550,11 @@ do -- Window
             if ThisWidget.state.Collapsed then
                 TitleBar["TitleBar-CollapseArrow"].Text = Icons.RightPointingTriangle
 
-                ThisWidget.Instance["Window-ChildContainer"].Visible = false
+                ChildContainer.Visible = false
                 ThisWidget.Instance.Size = UDim2.fromOffset(ThisWidget.state.Size.X,0)
                 ThisWidget.Instance.AutomaticSize = Enum.AutomaticSize.Y
             else
-                ThisWidget.Instance["Window-ChildContainer"].Visible = true
+                ChildContainer.Visible = true
                 ThisWidget.Instance.AutomaticSize = Enum.AutomaticSize.None
 
                 TitleBar["TitleBar-CollapseArrow"].Text = Icons.DownPointingTriangle
@@ -510,11 +565,17 @@ do -- Window
             else
                 TitleBar.BackgroundColor3 = Iris._style.TitleBgCollapsedColor
                 TitleBar.BackgroundTransparency = Iris._style.TitleBgCollapsedTransparency
+                ThisWidget.Instance["UIStroke"].Color = Iris._style.BorderColor
+
                 Iris.SetFocusedWindow(nil)
             end
         end,
 
         Generate = function(ThisWidget)
+            IncrementSortLayer()
+            ThisWidget.ZIndex += ZIndexSortLayer * 0xFFFFF
+            ThisWidget.SortLayer = ZIndexSortLayer
+
             local Window = Instance.new("TextButton")
             Window.Name = "Iris:Window"
             Window.Size = UDim2.fromOffset(0,0)
@@ -527,8 +588,32 @@ do -- Window
             Window.ClipsDescendants = true
             Window.Text = ""
             Window.AutoButtonColor = false
+            Window.Selectable = true
+            Window.SelectionImageObject = SelectionImageObject
             
-            Window.MouseButton1Click:Connect(function()
+            Window.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseMovement then return end
+                if not ThisWidget.state.Collapsed then
+                    Iris.SetFocusedWindow(ThisWidget)
+                end
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    DraggedWindow = ThisWidget
+                    isDragging = true
+                    deltaCursorPosition = UserInputService:GetMouseLocation() - ThisWidget.state.Position
+                end
+
+                if input.UserInputType == Enum.UserInputType.Gamepad1 then
+                    -- this is Dear ImGui doubleClick functionallity aswell
+                    ThisWidget.state.Collapsed = not ThisWidget.state.Collapsed
+                    Iris.widgets.Window.UpdateState(ThisWidget)
+                    if GuiService.SelectedObject ~= nil then
+                        GuiService.SelectedObject = ThisWidget.Instance
+                    end
+                end
+            end)
+
+
+            Window.SelectionGained:Connect(function()
                 if not ThisWidget.state.Collapsed then
                     Iris.SetFocusedWindow(ThisWidget)
                 end
@@ -548,7 +633,7 @@ do -- Window
             UIList.Padding = UDim.new(0,0)
             UIList.Parent = Window
 
-            local ChildContainer = Instance.new("Frame")
+            local ChildContainer = Instance.new("ScrollingFrame")
             ChildContainer.Name = "Window-ChildContainer"
             ChildContainer.Position = UDim2.fromOffset(0,0)
             ChildContainer.BorderSizePixel = 0
@@ -556,12 +641,27 @@ do -- Window
             ChildContainer.LayoutOrder = ThisWidget.ZIndex + 1
             ChildContainer.AutomaticSize = Enum.AutomaticSize.None
             ChildContainer.Size = UDim2.fromScale(1,1)
+            ChildContainer.Selectable = false
+
+            ChildContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
+            ChildContainer.ScrollBarThickness = Iris._style.ScrollbarSize
+            ChildContainer.ScrollBarImageTransparency = Iris._style.ScrollbarGrabTransparency
+            ChildContainer.ScrollBarImageColor3 = Iris._style.ScrollbarGrabColor
+            ChildContainer.CanvasSize = UDim2.fromScale(0,1)
             
             ChildContainer.BackgroundColor3 = Iris._style.WindowBgColor
             ChildContainer.BackgroundTransparency = Iris._style.WindowBgTransparency
             ChildContainer.Parent = Window
 
             PadInstance(ChildContainer, Iris._style.WindowPadding)
+
+            local TerminatingFrame = Instance.new("Frame");
+            TerminatingFrame.Name = "ChildContainer-TerminatingFrame"
+            TerminatingFrame.BackgroundTransparency = 1
+            TerminatingFrame.LayoutOrder = 0x7FFFFFF0
+            TerminatingFrame.Size = UDim2.fromOffset(0,0)
+            TerminatingFrame.BorderSizePixel = 0
+            TerminatingFrame.Parent = ChildContainer
 
             local UIList = Instance.new("UIListLayout")
             UIList.SortOrder = Enum.SortOrder.LayoutOrder
@@ -673,11 +773,14 @@ do -- Window
 
         Update = function(ThisWidget)
             local TitleBar = ThisWidget.Instance["Window-TitleBar"]
-
+            local TerminatingFrame = ThisWidget.Instance["Window-ChildContainer"]["ChildContainer-TerminatingFrame"]
+            local EndPadding = Iris._style.WindowPadding.Y + Iris._style.FramePadding.Y
             if ThisWidget.arguments.NoTitleBar then
                 TitleBar.Visible = false
+                TerminatingFrame.Size = UDim2.fromOffset(0,EndPadding)
             else
                 TitleBar.Visible = true
+                TerminatingFrame.Size = UDim2.fromOffset(0,EndPadding + (Iris._style.FontSize + Iris._style.FramePadding.Y * 2))
             end
             if ThisWidget.arguments.NoBackground then
                 ThisWidget.Instance["Window-ChildContainer"].BackgroundTransparency = 1
@@ -705,6 +808,10 @@ do -- Window
         end,
 
         Discard = function(ThisWidget)
+            if FocusedWindow == ThisWidget then
+                FocusedWindow = nil
+                AnyFocusedWindow = false
+            end
             ThisWidget.Instance:Destroy()
         end,
 
@@ -717,7 +824,7 @@ do -- Window
                 Size = Vector2.new(250,300),
                 Position = Vector2.new(300,100),
                 Collapsed = false,
-                Closed = false
+                Closed = false,
             }
         end
     }
@@ -727,31 +834,45 @@ do -- Window
     end
 
     UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Focus then return end
-        if not gameProcessedEvent then
-            Iris.SetFocusedWindow(nil)
+        local invalid = (gameProcessedEvent
+        or input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Focus
+        or input.UserInputType == Enum.UserInputType.MouseButton2
+        or input.UserInputType == Enum.UserInputType.Keyboard)
+
+        if invalid then return end
+        Iris.SetFocusedWindow(nil)
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if isDragging then
+            local mouseLocation = UserInputService:GetMouseLocation()
+            local newPosX, newPosY = 
+            math.min(
+                math.max(mouseLocation.X - deltaCursorPosition.X, Iris._style.WindowBorderSize),
+                Iris.parentInstance.AbsoluteSize.X - DraggedWindow.Instance.AbsoluteSize.X - Iris._style.WindowBorderSize
+            ),
+            math.min(
+                math.max(mouseLocation.Y - deltaCursorPosition.Y, Iris._style.WindowBorderSize),
+                Iris.parentInstance.AbsoluteSize.Y - DraggedWindow.Instance.AbsoluteSize.Y - Iris._style.WindowBorderSize
+            )
+
+            DraggedWindow.Instance.Position = UDim2.fromOffset(newPosX, newPosY)
+            DraggedWindow.state.Position = Vector2.new(newPosX, newPosY)
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input, gameProcessedEvent)
+        if input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+            return
+        end
+        if isDragging then
+            isDragging = false
+            DraggedWindow.state.Position = DraggedWindow.Instance.AbsolutePosition
+            DraggedWindow = nil
+            deltaCursorPosition = nil
         end
     end)
 end
 
-do -- SelectionImageObject
-    local SelectionImageObject = Instance.new("Frame")
-    SelectionImageObject.Position = UDim2.fromOffset(-1,-1)
-    SelectionImageObject.Size = UDim2.new(1,2,1,2)
-    SelectionImageObject.BackgroundTransparency = .8
-    SelectionImageObject.BorderSizePixel = 0
-
-    local UIStroke = Instance.new("UIStroke")
-    UIStroke.Thickness = 1
-    UIStroke.Color = Color3.new(255,255,255)
-    UIStroke.LineJoinMode = Enum.LineJoinMode.Round
-    UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    UIStroke.Parent = SelectionImageObject
-
-    RoundInstance(SelectionImageObject, 2)
-
-    local PlayerGui = game:GetService("Players").LocalPlayer.PlayerGui
-    PlayerGui.SelectionImageObject = SelectionImageObject
 end
-
-end;

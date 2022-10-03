@@ -77,17 +77,19 @@ end
 
 Iris.templateStyles = {
     classic = {
-        WindowPadding = Vector2.new(8,8),
-        FramePadding = Vector2.new(4,3),
-        ItemSpacing = Vector2.new(8,4),
+        WindowPadding = Vector2.new(8, 8),
+        FramePadding = Vector2.new(4, 3),
+        ItemSpacing = Vector2.new(8, 4),
         IndentSpacing = 21,
         Font = Enum.Font.Code,
         FontSize = 13,
         FrameBorderSize = 0,
         WindowBorderSize = 1,
         WindowTitleAlign = Enum.LeftRight.Left,
+
+        ScrollbarSize = 8,
         
-        TextColor = Color3.fromRGB(255,255,255),
+        TextColor = Color3.fromRGB(255, 255, 255),
         TextTransparency = 0,
 
         BorderColor = Color3.fromRGB(110, 110, 125), 
@@ -99,8 +101,11 @@ Iris.templateStyles = {
         -- BorderTransparency will be problematic for non UIStroke border implimentations
         -- and who really cares about it anyways? we're not implimenting BorderTransparency at all.
 
-        WindowBgColor = Color3.fromRGB(15,15,15),
+        WindowBgColor = Color3.fromRGB(15, 15, 15),
         WindowBgTransparency = 0.072,
+
+        ScrollbarGrabColor = Color3.fromRGB(128, 128, 128),
+        ScrollbarGrabTransparency = 0,
 
         TitleBgColor = Color3.fromRGB(10, 10, 10),
         TitleBgTransparency = 0,
@@ -126,6 +131,10 @@ Iris.templateStyles = {
 }
 
 Iris.Args = {}
+
+function Iris._GetVDOM()
+    return lastVDOM
+end
 
 function Iris.WidgetConstructor(type: string, hasState: boolean, hasChildren: boolean)
     local requiredFields = {
@@ -192,6 +201,8 @@ function Iris.PopStyle()
 end
 
 function Iris.Connect(parentInstance, eventConnection, callback)
+    Iris.parentInstance = parentInstance
+
     assert(not started, "Iris.Connect should only be called once.")
     started = true
 
@@ -260,13 +271,16 @@ function Iris._Insert(type, ...)
         thisWidget.ID = ID
         thisWidget.type = type
         thisWidget.events = {}
-        thisWidget.ZIndex = parentWidget.ZIndex + 0xFFFFF + (widgetCount * 0x40)
+
+        local ParentWidgetInstance = widgets[parentWidget.type].GetParentInstance(parentWidget, thisWidget)
+        if ParentWidgetInstance:IsA("GuiObject") then
+            parentWidget.ZIndex = ParentWidgetInstance.ZIndex -- this fucking sucks. Instance-authoritative state????
+        end
+        thisWidget.ZIndex = parentWidget.ZIndex + (widgetCount * 0x40)
         -- ZIndex (and LayoutOrder) limit is 2^31-1
-        -- this configuration means ZIndex can handle children 2^11-1 deep and can handle 2^14-1 widgets
-        -- (and each widget gets 63 ZIndex to handle individual instances)
     
         thisWidget.Instance = thisWidgetClass.Generate(thisWidget)
-        thisWidget.Instance.Parent = widgets[parentWidget.type].GetParentInstance(parentWidget, thisWidget)
+        thisWidget.Instance.Parent = ParentWidgetInstance
 
         thisWidget.arguments = arguments
         thisWidgetClass.Update(thisWidget)
@@ -309,10 +323,15 @@ function Iris.End()
 end
 
 function Iris.SetState(ThisWidget, deltaState: {})
+    local changesMade = false
     for i,v in deltaState do
+        -- no provision againt users adding things to state that dont exist
+        changesMade = changesMade or ((not ThisWidget.state[i]) or ThisWidget.state[i] ~= v)
         ThisWidget.state[i] = v
     end
-    Iris.widgets[ThisWidget.type].UpdateState(ThisWidget)
+    if changesMade then
+        Iris.widgets[ThisWidget.type].UpdateState(ThisWidget)
+    end
 end
 
 function Iris.PushId(ID: string | number)
