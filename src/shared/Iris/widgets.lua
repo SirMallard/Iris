@@ -44,24 +44,6 @@ local function RoundInstance(RoundParent, PxRounding)
     return Rounding
 end
 
-local SelectionImageObject
-do
-    SelectionImageObject = Instance.new("Frame")
-    SelectionImageObject.Position = UDim2.fromOffset(-1,-1)
-    SelectionImageObject.Size = UDim2.new(1,2,1,2)
-    SelectionImageObject.BackgroundTransparency = .8
-    SelectionImageObject.BorderSizePixel = 0
-
-    local UIStroke = Instance.new("UIStroke")
-    UIStroke.Thickness = 1
-    UIStroke.Color = Color3.new(255,255,255)
-    UIStroke.LineJoinMode = Enum.LineJoinMode.Round
-    UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    UIStroke.Parent = SelectionImageObject
-
-    RoundInstance(SelectionImageObject, 2)
-end
-
 local function ApplyTextStyle(Iris, TextParent)
     TextParent.Font = Iris._style.Font
     TextParent.TextSize = Iris._style.FontSize
@@ -105,13 +87,14 @@ local function ApplyInteractionHighlights(Iris, Button, Highlightee, Colors)
         end
     end)
     
-    Button.SelectionImageObject = SelectionImageObject
+    Button.SelectionImageObject = Iris.SelectionImageObject
 end
 
 local Icons = {
     RightPointingTriangle = "\u{25BA}",
     DownPointingTriangle = "\u{25BC}",
-    MultiplicationSign = "\u{00D7}" -- best approximation for a close X which roblox supports, needs to be scaled about 2x
+    MultiplicationSign = "\u{00D7}", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
+    BottomRightCorner = "\u{25E2}", -- used in window resize icon in bottom right
 }
 
 return function(Iris)
@@ -231,7 +214,7 @@ Iris.WidgetConstructor("Button", false, false){
 
         ApplyTextStyle(Iris, Button)
         Button.AutomaticSize = Enum.AutomaticSize.XY
-        PadInstance(Button, Iris._style.FramePadding)
+        PadInstance(Button, Iris._style.FramePadding - Vector2.new(Iris._style.FrameBorderSize, Iris._style.FrameBorderSize))
 
         Button.MouseButton1Click:Connect(function()
             thisWidget.events.Clicked = true
@@ -453,8 +436,8 @@ do -- Window
         ZIndexSortLayer += 1
         if ZIndexSortLayer > 0x400 then
             -- what we should do here, is to take every window, get its sort order
-            -- and read just the sort order to start from 0. then if there are too
-            -- many windows to comfortable handle with ZIndex, error out
+            -- and readjust the sort order to start from 0. then if there are too
+            -- many windows to comfortably handle with ZIndex, error out
             -- TODO
             error("panic")
         end
@@ -512,7 +495,8 @@ do -- Window
             [2] = "NoTitleBar",
             [3] = "NoBackground",
             [4] = "NoCollapse",
-            [5] = "NoClose"
+            [5] = "NoClose",
+            [6] = "NoMove"
         },
 
         Args = {
@@ -530,6 +514,9 @@ do -- Window
             end,
             ["NoClose"] = function(_NoClose: boolean)
                 return table.freeze({5, _NoClose})
+            end,
+            ["NoMove"] = function(_NoMove: boolean)
+                return table.freeze({6, _NoMove})
             end
         },
 
@@ -587,15 +574,16 @@ do -- Window
             Window.ClipsDescendants = true
             Window.Text = ""
             Window.AutoButtonColor = false
+            Window.Active = false
             Window.Selectable = true
-            Window.SelectionImageObject = SelectionImageObject
+            Window.SelectionImageObject = Iris.SelectionImageObject
             
             Window.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseMovement then return end
                 if not thisWidget.state.Collapsed then
                     Iris.SetFocusedWindow(thisWidget)
                 end
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                if not thisWidget.arguments.NoMove and input.UserInputType == Enum.UserInputType.MouseButton1 then
                     DraggedWindow = thisWidget
                     isDragging = true
                     deltaCursorPosition = UserInputService:GetMouseLocation() - thisWidget.state.Position
@@ -660,6 +648,7 @@ do -- Window
             TerminatingFrame.LayoutOrder = 0x7FFFFFF0
             TerminatingFrame.Size = UDim2.fromOffset(0,0)
             TerminatingFrame.BorderSizePixel = 0
+            TerminatingFrame.Size = UDim2.fromOffset(0,Iris._style.WindowPadding.Y + Iris._style.FramePadding.Y)
             TerminatingFrame.Parent = ChildContainer
 
             local UIList = Instance.new("UIListLayout")
@@ -772,19 +761,21 @@ do -- Window
 
         Update = function(thisWidget)
             local TitleBar = thisWidget.Instance["Window-TitleBar"]
-            local TerminatingFrame = thisWidget.Instance["Window-ChildContainer"]["ChildContainer-TerminatingFrame"]
-            local EndPadding = Iris._style.WindowPadding.Y + Iris._style.FramePadding.Y
+            local ChildContainer = thisWidget.Instance["Window-ChildContainer"]
+            local TitleBarWidth = Iris._style.FontSize   + Iris._style.FramePadding.Y * 2
             if thisWidget.arguments.NoTitleBar then
                 TitleBar.Visible = false
-                TerminatingFrame.Size = UDim2.fromOffset(0,EndPadding)
+                ChildContainer.Size = UDim2.new(1,0,1,0)
+                ChildContainer.CanvasSize = UDim2.new(0,0,1,0)
             else
                 TitleBar.Visible = true
-                TerminatingFrame.Size = UDim2.fromOffset(0,EndPadding + (Iris._style.FontSize + Iris._style.FramePadding.Y * 2))
+                ChildContainer.Size = UDim2.new(1,0,1,-TitleBarWidth)
+                ChildContainer.CanvasSize = UDim2.new(0,0,1,-TitleBarWidth)
             end
             if thisWidget.arguments.NoBackground then
-                thisWidget.Instance["Window-ChildContainer"].BackgroundTransparency = 1
+                ChildContainer.BackgroundTransparency = 1
             else
-                thisWidget.Instance["Window-ChildContainer"].BackgroundTransparency = Iris._style.WindowBgTransparency
+                ChildContainer.BackgroundTransparency = Iris._style.WindowBgTransparency
             end
             local TitleButtonPaddingSize = Iris._style.FramePadding.X + Iris._style.FontSize + Iris._style.FramePadding.X * 2
             if thisWidget.arguments.NoCollapse then
@@ -820,7 +811,7 @@ do -- Window
 
         GenerateState = function(thisWidget)
             return {
-                Size = Vector2.new(250,300),
+                Size = Vector2.new(400,300),
                 Position = Vector2.new(300,100),
                 Collapsed = false,
                 Closed = false,

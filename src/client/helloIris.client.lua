@@ -18,7 +18,8 @@ local DemoWindowArguments = {
     ["NoTitleBar"] = false,
     ["NoBackground"] = false,
     ["NoCollapse"] = false,
-    ["NoClose"] = false
+    ["NoClose"] = false,
+    ["NoMove"] = false
 }
 
 function showDemoWindow(Index)
@@ -27,7 +28,8 @@ function showDemoWindow(Index)
             Iris.Args.Window.NoTitleBar(DemoWindowArguments.NoTitleBar),
             Iris.Args.Window.NoBackground(DemoWindowArguments.NoBackground),
             Iris.Args.Window.NoCollapse(DemoWindowArguments.NoCollapse),
-            Iris.Args.Window.NoClose(DemoWindowArguments.NoClose)
+            Iris.Args.Window.NoClose(DemoWindowArguments.NoClose),
+            Iris.Args.Window.NoMove(DemoWindowArguments.NoMove)
         )
 
             Iris.Text("This is a demo window!")
@@ -49,7 +51,7 @@ function showDemoWindow(Index)
                 if not TextCounts[Index] then
                     TextCounts[Index] = 1
                 else
-                    TextCounts[Index] = (TextCounts[Index] + 1) % 11
+                    TextCounts[Index] = (TextCounts[Index] + 1) % 21
                 end
             end
 
@@ -68,6 +70,14 @@ function showDemoWindow(Index)
                 end
                 if Iris.Button("Decrease FontSize").Clicked then
                     Iris.UpdateGlobalStyle({FontSize = Iris._style.FontSize - 1})
+                    Iris.ForceRefresh()
+                end
+                if Iris.Button("Use light mode").Clicked then
+                    Iris.UpdateGlobalStyle(Iris.TemplateStyles.light)
+                    Iris.ForceRefresh()
+                end
+                if Iris.Button("Use dark mode").Clicked then
+                    Iris.UpdateGlobalStyle(Iris.TemplateStyles.classic)
                     Iris.ForceRefresh()
                 end
             Iris.End()

@@ -18,6 +18,31 @@ local rootWidget = {
     ZIndex = 0
 }
 
+local function GenerateSelectionImageObject()
+    if Iris.SelectionImageObject then
+        Iris.SelectionImageObject:Destroy()
+    end
+    local SelectionImageObject = Instance.new("Frame")
+    Iris.SelectionImageObject = SelectionImageObject
+    SelectionImageObject.BackgroundColor3 = Iris._style.SelectionImageObjectColor
+    SelectionImageObject.BackgroundTransparency = Iris._style.SelectionImageObjectTransparency
+    SelectionImageObject.Position = UDim2.fromOffset(-1,-1)
+    SelectionImageObject.Size = UDim2.new(1,2,1,2)
+    SelectionImageObject.BorderSizePixel = 0
+
+    local UIStroke = Instance.new("UIStroke")
+    UIStroke.Thickness = 1
+    UIStroke.Color = Iris._style.SelectionImageObjectBorderColor
+    UIStroke.Transparency = Iris._style.SelectionImageObjectBorderColor
+    UIStroke.LineJoinMode = Enum.LineJoinMode.Round
+    UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    UIStroke.Parent = SelectionImageObject
+
+    local Rounding = Instance.new("UICorner")
+    Rounding.CornerRadius = UDim.new(0, 2)
+    Rounding.Parent = SelectionImageObject
+end
+
 local function GenerateEmptyVDOM()
     return {
         ["R"] = rootWidget
@@ -67,11 +92,12 @@ end
 local cycle = function(callback)
     if refreshRequested then
         debug.profilebegin("Iris Refresh")
+        GenerateSelectionImageObject()
         refreshRequested = false
         for i,v in lastVDOM do
             widgets[v.type].Discard(v)
-            GenerateRootInstance()
         end
+        GenerateRootInstance()
         lastVDOM = GenerateEmptyVDOM()
         debug.profileend()
     end
@@ -145,6 +171,11 @@ Iris.TemplateStyles = {
         HeaderHoveredTransparency = 0.2,
         HeaderActiveColor = Color3.fromRGB(66,150,250),
         HeaderActiveTransparency = 0,
+
+        SelectionImageObjectColor = Color3.fromRGB(255, 255, 255),
+        SelectionImageObjectTransparency = .8,
+        SelectionImageObjectBorderColor = Color3.fromRGB(255, 255, 255),
+        SelectionImageObjectBorderTransparency = 0
     },
     
     light = {
@@ -163,10 +194,10 @@ Iris.TemplateStyles = {
         TextColor = Color3.fromRGB(0, 0, 0),
         TextTransparency = 0,
 
-        BorderColor = Color3.fromRGB(192, 192, 192),
+        BorderColor = Color3.fromRGB(64, 64, 64),
         -- Dear ImGui uses 0, 0, 0, 77
         -- The Roblox window selection highlight is 67, 191, 254
-        BorderActiveColor = Color3.fromRGB(160, 160, 175), -- does not exist in Dear ImGui
+        BorderActiveColor = Color3.fromRGB(64, 64, 64), -- does not exist in Dear ImGui
 
         -- BorderTransparency = 0.5,
         -- BorderTransparency will be problematic for non UIStroke border implimentations
@@ -198,6 +229,11 @@ Iris.TemplateStyles = {
         HeaderHoveredTransparency = 0.2,
         HeaderActiveColor = Color3.fromRGB(66,150,250),
         HeaderActiveTransparency = 0,
+
+        SelectionImageObjectColor = Color3.fromRGB(0, 0, 0),
+        SelectionImageObjectTransparency = .8,
+        SelectionImageObjectBorderColor = Color3.fromRGB(0, 0, 0),
+        SelectionImageObjectBorderTransparency = 0
     }
 }
 
@@ -281,6 +317,7 @@ function Iris.Connect(parentInstance, eventConnection, callback)
     started = true
 
     GenerateRootInstance()
+    GenerateSelectionImageObject()
     
     task.spawn(function()
         if eventConnection.Connect then
