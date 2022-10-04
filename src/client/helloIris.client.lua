@@ -12,6 +12,7 @@ local lastT = os.clock()
 local rollingDT = 0
 local TextCounts = {}
 local numDemoWindows = 0
+local new = true
 
 local DemoWindowArguments = {
     ["NoTitleBar"] = false,
@@ -57,6 +58,17 @@ function showDemoWindow(Index)
                     Iris.PushId(i)
                         Iris.Text(string.format("Text #%d", i))
                     Iris.End()
+                end
+            Iris.End()
+
+            Iris.Tree("Style Editor")
+                if Iris.Button("Increase FontSize").Clicked then
+                    Iris.UpdateGlobalStyle({FontSize = Iris._style.FontSize + 1})
+                    Iris.ForceRefresh()
+                end
+                if Iris.Button("Decrease FontSize").Clicked then
+                    Iris.UpdateGlobalStyle({FontSize = Iris._style.FontSize - 1})
+                    Iris.ForceRefresh()
                 end
             Iris.End()
 
@@ -119,4 +131,5 @@ Iris.Connect(ScreenGui, RunService.Heartbeat, function()
     Iris.End()
 
     Iris.Text(string.format("Demo window Position: (%d, %d)", demoWindow.state.Position.X, demoWindow.state.Position.Y))
+    new = false
 end)

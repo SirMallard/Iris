@@ -1,6 +1,7 @@
 local Iris = {}
 
 local started = false
+local refreshRequested = false
 
 local widgets = {}
 Iris.widgets = widgets
@@ -25,6 +26,13 @@ end
 
 local lastVDOM = GenerateEmptyVDOM()
 local VDOM = GenerateEmptyVDOM()
+
+local function GenerateRootInstance()
+    -- unsafe to call before Iris.connect
+    rootInstance = widgets["Root"].Generate()
+    rootInstance.Parent = Iris.parentInstance
+    rootWidget.Instance = rootInstance
+end
 
 local storedStates = {}
 
@@ -56,12 +64,22 @@ function deepcompare(t1,t2)
     return true
 end
 
-local Cycle = function(callback)
+local cycle = function(callback)
+    if refreshRequested then
+        debug.profilebegin("Iris Refresh")
+        refreshRequested = false
+        for i,v in lastVDOM do
+            widgets[v.type].Discard(v)
+            GenerateRootInstance()
+        end
+        lastVDOM = GenerateEmptyVDOM()
+        debug.profileend()
+    end
     tick += 1
     widgetCount = 0
     rootWidget.lastTick = tick
 
-    debug.profilebegin("Iris")
+    debug.profilebegin("Iris Generate")
     callback()
     debug.profileend()
 
@@ -75,7 +93,7 @@ local Cycle = function(callback)
     VDOM = GenerateEmptyVDOM()
 end
 
-Iris.templateStyles = {
+Iris.TemplateStyles = {
     classic = {
         WindowPadding = Vector2.new(8, 8),
         FramePadding = Vector2.new(4, 3),
@@ -87,7 +105,7 @@ Iris.templateStyles = {
         WindowBorderSize = 1,
         WindowTitleAlign = Enum.LeftRight.Left,
 
-        ScrollbarSize = 8,
+        ScrollbarSize = 7, -- Dear ImGui is 14, but these are equal, due to how ScrollbarSize is digested by roblox
         
         TextColor = Color3.fromRGB(255, 255, 255),
         TextTransparency = 0,
@@ -134,6 +152,10 @@ Iris.Args = {}
 
 function Iris._GetVDOM()
     return lastVDOM
+end
+
+function Iris.ForceRefresh()
+    refreshRequested = true
 end
 
 function Iris.WidgetConstructor(type: string, hasState: boolean, hasChildren: boolean)
@@ -202,23 +224,19 @@ end
 
 function Iris.Connect(parentInstance, eventConnection, callback)
     Iris.parentInstance = parentInstance
-
     assert(not started, "Iris.Connect should only be called once.")
     started = true
 
-    rootInstance = widgets["Root"].Generate()
-    rootInstance.Parent = parentInstance
-    VDOM["R"].Instance = rootInstance
-    lastVDOM["R"].Instance = rootInstance
+    GenerateRootInstance()
     
     task.spawn(function()
         if eventConnection.Connect then
             eventConnection:Connect(function()
-                Cycle(callback)
+                cycle(callback)
             end)
         else
             while eventConnection() do
-                Cycle(callback)
+                cycle(callback)
             end
         end
     end)
@@ -272,15 +290,15 @@ function Iris._Insert(type, ...)
         thisWidget.type = type
         thisWidget.events = {}
 
-        local ParentWidgetInstance = widgets[parentWidget.type].GetParentInstance(parentWidget, thisWidget)
-        if ParentWidgetInstance:IsA("GuiObject") then
-            parentWidget.ZIndex = ParentWidgetInstance.ZIndex -- this fucking sucks. Instance-authoritative state????
+        local widgetInstanceParent = widgets[parentWidget.type].GetParentInstance(parentWidget, thisWidget)
+        if widgetInstanceParent:IsA("GuiObject") then
+            parentWidget.ZIndex = widgetInstanceParent.ZIndex -- this fucking sucks. Instance-authoritative state????
         end
         thisWidget.ZIndex = parentWidget.ZIndex + (widgetCount * 0x40)
         -- ZIndex (and LayoutOrder) limit is 2^31-1
     
         thisWidget.Instance = thisWidgetClass.Generate(thisWidget)
-        thisWidget.Instance.Parent = ParentWidgetInstance
+        thisWidget.Instance.Parent = widgetInstanceParent
 
         thisWidget.arguments = arguments
         thisWidgetClass.Update(thisWidget)
@@ -322,15 +340,15 @@ function Iris.End()
     stackIndex -= 1
 end
 
-function Iris.SetState(ThisWidget, deltaState: {})
+function Iris.SetState(thisWidget, deltaState: {})
     local changesMade = false
     for i,v in deltaState do
         -- no provision againt users adding things to state that dont exist
-        changesMade = changesMade or ((not ThisWidget.state[i]) or ThisWidget.state[i] ~= v)
-        ThisWidget.state[i] = v
+        changesMade = changesMade or ((not thisWidget.state[i]) or thisWidget.state[i] ~= v)
+        thisWidget.state[i] = v
     end
     if changesMade then
-        Iris.widgets[ThisWidget.type].UpdateState(ThisWidget)
+        Iris.widgets[thisWidget.type].UpdateState(thisWidget)
     end
 end
 
@@ -346,6 +364,6 @@ function Iris.PushId(ID: string | number)
 end
 
 require(script.widgets)(Iris)
-Iris.UpdateGlobalStyle(Iris.templateStyles.classic)
+Iris.UpdateGlobalStyle(Iris.TemplateStyles.classic)
 
 return Iris
