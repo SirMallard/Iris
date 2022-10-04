@@ -145,6 +145,59 @@ Iris.TemplateStyles = {
         HeaderHoveredTransparency = 0.2,
         HeaderActiveColor = Color3.fromRGB(66,150,250),
         HeaderActiveTransparency = 0,
+    },
+    
+    light = {
+        WindowPadding = Vector2.new(8, 8),
+        FramePadding = Vector2.new(4, 3),
+        ItemSpacing = Vector2.new(8, 4),
+        IndentSpacing = 21,
+        Font = Enum.Font.Code,
+        FontSize = 13,
+        FrameBorderSize = 1,
+        WindowBorderSize = 1,
+        WindowTitleAlign = Enum.LeftRight.Left,
+
+        ScrollbarSize = 7, -- Dear ImGui is 14, but these are equal, due to how ScrollbarSize is digested by roblox
+        
+        TextColor = Color3.fromRGB(0, 0, 0),
+        TextTransparency = 0,
+
+        BorderColor = Color3.fromRGB(192, 192, 192),
+        -- Dear ImGui uses 0, 0, 0, 77
+        -- The Roblox window selection highlight is 67, 191, 254
+        BorderActiveColor = Color3.fromRGB(160, 160, 175), -- does not exist in Dear ImGui
+
+        -- BorderTransparency = 0.5,
+        -- BorderTransparency will be problematic for non UIStroke border implimentations
+        -- and who really cares about it anyways? we're not implimenting BorderTransparency at all.
+
+        WindowBgColor = Color3.fromRGB(240, 240, 240),
+        WindowBgTransparency = 0,
+
+        TitleBgColor = Color3.fromRGB(245, 245, 245),
+        TitleBgTransparency = 0,
+        TitleBgActiveColor = Color3.fromRGB(209, 209, 209),
+        TitleBgActiveTransparency = 0,
+        TitleBgCollapsedColor = Color3.fromRGB(255, 255, 255),
+        TitleBgCollapsedTransparency = .5,
+
+        ScrollbarGrabColor = Color3.fromRGB(96, 96, 96),
+        ScrollbarGrabTransparency = 0,
+
+        ButtonColor = Color3.fromRGB(66,150,250),
+        ButtonTransparency = 0.6,
+        ButtonHoveredColor = Color3.fromRGB(66,150,250),
+        ButtonHoveredTransparency = 0,
+        ButtonActiveColor = Color3.fromRGB(15,135,250),
+        ButtonActiveTransparency = 0,
+
+        HeaderColor = Color3.fromRGB(66,150,250),
+        HeaderTransparency = 0.31,
+        HeaderHoveredColor = Color3.fromRGB(66,150,250),
+        HeaderHoveredTransparency = 0.2,
+        HeaderActiveColor = Color3.fromRGB(66,150,250),
+        HeaderActiveTransparency = 0,
     }
 }
 
