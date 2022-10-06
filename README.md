@@ -14,10 +14,10 @@
 - - [X]	Iris.Args.Tree.SpanAvailWidth
 	
 - [ ]	Iris.Window
--	- [X]	Iris.Args.Window.NoTitlebar
-- - [ ]	Iris.Args.Window.NoScrollbar
+- - [X]	Iris.Args.Window.NoTitlebar
+- - [X]	Iris.Args.Window.NoScrollbar
 - - [X]	Iris.Args.Window.NoMove
-- - [ ] Iris.Args.Window.NoResize
+- - [X] Iris.Args.Window.NoResize
 - - [X] Iris.Args.Window.NoCollapse
 - - [X] Iris.Args.Window.NoClose
 - - [X] Iris.Args.Window.NoBackground

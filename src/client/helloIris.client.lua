@@ -19,19 +19,26 @@ local DemoWindowArguments = {
     ["NoBackground"] = false,
     ["NoCollapse"] = false,
     ["NoClose"] = false,
-    ["NoMove"] = false
+    ["NoMove"] = false,
+    ["NoScrollbar"] = false,
+    ["NoResize"] = false
 }
 
 function showDemoWindow(Index)
+    if not TextCounts[Index] then
+        TextCounts[Index] = 0
+    end
     Iris.PushId(Index)
         local thisWindow = Iris.Window("Iris Demo - " .. Index,
             Iris.Args.Window.NoTitleBar(DemoWindowArguments.NoTitleBar),
             Iris.Args.Window.NoBackground(DemoWindowArguments.NoBackground),
             Iris.Args.Window.NoCollapse(DemoWindowArguments.NoCollapse),
             Iris.Args.Window.NoClose(DemoWindowArguments.NoClose),
-            Iris.Args.Window.NoMove(DemoWindowArguments.NoMove)
+            Iris.Args.Window.NoMove(DemoWindowArguments.NoMove),
+            Iris.Args.Window.NoScrollbar(DemoWindowArguments.NoScrollbar),
+            Iris.Args.Window.NoResize(DemoWindowArguments.NoResize)
         )
-
+        
             Iris.Text("This is a demo window!")
             local tree1 = Iris.Tree("first tree")
                 Iris.Text("Im inside the first tree!")
@@ -48,11 +55,7 @@ function showDemoWindow(Index)
             end
 
             if Iris.Button("Add a text").Clicked then
-                if not TextCounts[Index] then
-                    TextCounts[Index] = 1
-                else
-                    TextCounts[Index] = (TextCounts[Index] + 1) % 21
-                end
+                TextCounts[Index] = (TextCounts[Index] + 1) % 21
             end
 
             Iris.Tree("List of text")
@@ -123,7 +126,6 @@ Iris.Connect(ScreenGui, RunService.Heartbeat, function()
                 Position = Vector2.new(415 + (i * 25), 115 + (i * 25))
             })
         end
-
     end
 
     if Iris.Button("Collapse demo window").Clicked then

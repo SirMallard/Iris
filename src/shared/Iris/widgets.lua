@@ -54,36 +54,64 @@ local function ApplyTextStyle(Iris, TextParent)
     TextParent.RichText = false
 end
 
-local function ApplyInteractionHighlights(Iris, Button, Highlightee, Colors)
+local function ApplyInteractionHighlights(Iris, Button, Highlightee, Colors, Mode: "Text" | "Background" | nil)
+    local leftTheButton = false
     Button.MouseEnter:Connect(function()
-        Highlightee.BackgroundColor3 = Colors.ButtonHoveredColor
-        Highlightee.BackgroundTransparency = Colors.ButtonHoveredTransparency
+        if Mode == "Text" then
+            Highlightee.TextColor3 = Colors.ButtonHoveredColor
+            Highlightee.TextTransparency = Colors.ButtonHoveredTransparency
+        else
+            Highlightee.BackgroundColor3 = Colors.ButtonHoveredColor
+            Highlightee.BackgroundTransparency = Colors.ButtonHoveredTransparency
+        end
+        leftTheButton = false
     end)
 
     Button.MouseLeave:Connect(function()
-        Highlightee.BackgroundColor3 = Colors.ButtonColor
-        Highlightee.BackgroundTransparency = Colors.ButtonTransparency
+        if Mode == "Text" then
+            Highlightee.TextColor3 = Colors.ButtonColor
+            Highlightee.TextTransparency = Colors.ButtonTransparency
+        else
+            Highlightee.BackgroundColor3 = Colors.ButtonColor
+            Highlightee.BackgroundTransparency = Colors.ButtonTransparency
+        end
+        leftTheButton = true
     end)
 
     Button.InputBegan:Connect(function(input)
         if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) then
             return
         end
-        Highlightee.BackgroundColor3 = Colors.ButtonActiveColor
-        Highlightee.BackgroundTransparency = Colors.ButtonActiveTransparency
+        if Mode == "Text" then
+            Highlightee.TextColor3 = Colors.ButtonActiveColor
+            Highlightee.TextTransparency = Colors.ButtonActiveTransparency
+        else
+            Highlightee.BackgroundColor3 = Colors.ButtonActiveColor
+            Highlightee.BackgroundTransparency = Colors.ButtonActiveTransparency
+        end
     end)
 
     Button.InputEnded:Connect(function(input)
-        if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) then
+        if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) or leftTheButton then
             return
         end
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            Highlightee.BackgroundColor3 = Colors.ButtonHoveredColor
-            Highlightee.BackgroundTransparency = Colors.ButtonHoveredTransparency
+            if Mode == "Text" then
+                Highlightee.TextColor3 = Colors.ButtonHoveredColor
+                Highlightee.TextTransparency = Colors.ButtonHoveredTransparency
+            else
+                Highlightee.BackgroundColor3 = Colors.ButtonHoveredColor
+                Highlightee.BackgroundTransparency = Colors.ButtonHoveredTransparency
+            end
         end
         if input.UserInputType == Enum.UserInputType.Gamepad1 then
-            Highlightee.BackgroundColor3 = Colors.ButtonColor
-            Highlightee.BackgroundTransparency = Colors.ButtonTransparency
+            if Mode == "Text" then
+                Highlightee.TextColor3 = Colors.ButtonColor
+                Highlightee.TextTransparency = Colors.ButtonTransparency
+            else
+                Highlightee.BackgroundColor3 = Colors.ButtonColor
+                Highlightee.BackgroundTransparency = Colors.ButtonTransparency
+            end
         end
     end)
     
@@ -416,7 +444,7 @@ Iris.Tree = function(...)
 end
 
 -- THINGS TODO:
--- Window Resizing and Mouse icons for resizing             |
+-- Window Resizing and Mouse icons for resizing             | done... no icons
 -- global window sortOrder                                  | done
 -- somehow sync instance ZIndex to window sortOrder         | half done
 -- Ctrl+Tab window focus hotkey                             |
@@ -428,9 +456,12 @@ do -- Window
     local FocusedWindow = nil
     local ZIndexSortLayer = 0
 
-    local DraggedWindow = nil
+    local dragWindow = nil
     local isDragging = false
+    local resizeWindow = nil
+    local isResizing = false
     local deltaCursorPosition = nil
+    local resizeDeltaCursorPosition = nil
 
     local function IncrementSortLayer()
         ZIndexSortLayer += 1
@@ -496,7 +527,9 @@ do -- Window
             [3] = "NoBackground",
             [4] = "NoCollapse",
             [5] = "NoClose",
-            [6] = "NoMove"
+            [6] = "NoMove",
+            [7] = "NoScrollbar",
+            [8] = "NoResize"
         },
 
         Args = {
@@ -517,6 +550,12 @@ do -- Window
             end,
             ["NoMove"] = function(_NoMove: boolean)
                 return table.freeze({6, _NoMove})
+            end,
+            ["NoScrollbar"] = function(_NoScrollbar: boolean)
+                return table.freeze({7, _NoScrollbar})
+            end,
+            ["NoResize"] = function(_NoResize: boolean)
+                return table.freeze({8, _NoResize})
             end
         },
 
@@ -526,6 +565,7 @@ do -- Window
 
             local TitleBar = thisWidget.Instance["Window-TitleBar"]
             local ChildContainer = thisWidget.Instance["Window-ChildContainer"]
+            local ResizeGrip = thisWidget.Instance["Window-ResizeGripFolder"]["ResizeGripFolder-ResizeGrip"]
 
             if thisWidget.state.Closed then
                 thisWidget.Instance.Visible = false
@@ -537,10 +577,14 @@ do -- Window
                 TitleBar["TitleBar-CollapseArrow"].Text = Icons.RightPointingTriangle
 
                 ChildContainer.Visible = false
+                ResizeGrip.Visible = false
                 thisWidget.Instance.Size = UDim2.fromOffset(thisWidget.state.Size.X,0)
                 thisWidget.Instance.AutomaticSize = Enum.AutomaticSize.Y
             else
                 ChildContainer.Visible = true
+                if thisWidget.arguments.NoResize == false then
+                    ResizeGrip.Visible = true
+                end
                 thisWidget.Instance.AutomaticSize = Enum.AutomaticSize.None
 
                 TitleBar["TitleBar-CollapseArrow"].Text = Icons.DownPointingTriangle
@@ -584,7 +628,7 @@ do -- Window
                     Iris.SetFocusedWindow(thisWidget)
                 end
                 if not thisWidget.arguments.NoMove and input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    DraggedWindow = thisWidget
+                    dragWindow = thisWidget
                     isDragging = true
                     deltaCursorPosition = UserInputService:GetMouseLocation() - thisWidget.state.Position
                 end
@@ -598,7 +642,6 @@ do -- Window
                     end
                 end
             end)
-
 
             Window.SelectionGained:Connect(function()
                 if not thisWidget.state.Collapsed then
@@ -631,7 +674,6 @@ do -- Window
             ChildContainer.Selectable = false
 
             ChildContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
-            ChildContainer.ScrollBarThickness = Iris._style.ScrollbarSize
             ChildContainer.ScrollBarImageTransparency = Iris._style.ScrollbarGrabTransparency
             ChildContainer.ScrollBarImageColor3 = Iris._style.ScrollbarGrabColor
             ChildContainer.CanvasSize = UDim2.fromScale(0,1)
@@ -756,13 +798,61 @@ do -- Window
 
             PadInstance(Title, Iris._style.FramePadding)
 
+            local ResizeGripFolder = Folder(Window)
+            ResizeGripFolder.Name = "Window-ResizeGripFolder"
+
+            local ResizeButtonSize = Iris._style.FontSize + Iris._style.FramePadding.X
+
+            local ResizeGrip = Instance.new("TextButton")
+            ResizeGrip.Name = "ResizeGripFolder-ResizeGrip"
+            ResizeGrip.AnchorPoint = Vector2.new(1,1)
+            ResizeGrip.Size = UDim2.fromOffset(ResizeButtonSize, ResizeButtonSize)
+            ResizeGrip.AutoButtonColor = false
+            ResizeGrip.BorderSizePixel = 0
+            ResizeGrip.BackgroundTransparency = 1
+            ResizeGrip.Text = Icons.BottomRightCorner
+            ResizeGrip.ZIndex = thisWidget.ZIndex + 2
+            ResizeGrip.Position = UDim2.fromScale(1,1)
+            ResizeGrip.TextSize = ResizeButtonSize
+            ResizeGrip.TextColor3 = Iris._style.ButtonColor
+            ResizeGrip.TextTransparency = Iris._style.ButtonTransparency
+            ResizeGrip.Selectable = false
+            
+            ApplyInteractionHighlights(Iris, ResizeGrip, ResizeGrip, {
+                ButtonColor = Iris._style.ButtonColor,
+                ButtonTransparency = Iris._style.ButtonTransparency,
+                ButtonHoveredColor = Iris._style.ButtonHoveredColor,
+                ButtonHoveredTransparency = Iris._style.ButtonHoveredTransparency,
+                ButtonActiveColor = Iris._style.ButtonActiveColor,
+                ButtonActiveTransparency = Iris._style.ButtonActiveTransparency,
+            }, "Text")
+
+            ResizeGrip.MouseButton1Down:Connect(function()
+                isResizing = true
+                resizeWindow = thisWidget
+                resizeDeltaCursorPosition = UserInputService:GetMouseLocation() - thisWidget.state.Position - thisWidget.state.Size - Vector2.new(0,36)
+            end)
+
+            ResizeGrip.Parent = ResizeGripFolder
+
             return Window
         end,
 
         Update = function(thisWidget)
             local TitleBar = thisWidget.Instance["Window-TitleBar"]
             local ChildContainer = thisWidget.Instance["Window-ChildContainer"]
-            local TitleBarWidth = Iris._style.FontSize   + Iris._style.FramePadding.Y * 2
+            local ResizeGrip = thisWidget.Instance["Window-ResizeGripFolder"]["ResizeGripFolder-ResizeGrip"]
+            local TitleBarWidth = Iris._style.FontSize + Iris._style.FramePadding.Y * 2
+            if thisWidget.arguments.NoResize then
+                ResizeGrip.Visible = false
+            else
+                ResizeGrip.Visible = true
+            end
+            if thisWidget.arguments.NoScrollbar then
+                ChildContainer.ScrollBarThickness = 0
+            else
+                ChildContainer.ScrollBarThickness = Iris._style.ScrollbarSize
+            end
             if thisWidget.arguments.NoTitleBar then
                 TitleBar.Visible = false
                 ChildContainer.Size = UDim2.new(1,0,1,0)
@@ -835,32 +925,39 @@ do -- Window
     end)
 
     UserInputService.InputChanged:Connect(function(input)
+        local MinWindowSize = (Iris._style.FontSize + Iris._style.FramePadding.Y * 2) * 2
         if isDragging then
             local mouseLocation = UserInputService:GetMouseLocation()
             local newPosX, newPosY = 
             math.min(
                 math.max(mouseLocation.X - deltaCursorPosition.X, Iris._style.WindowBorderSize),
-                Iris.parentInstance.AbsoluteSize.X - DraggedWindow.Instance.AbsoluteSize.X - Iris._style.WindowBorderSize
+                Iris.parentInstance.AbsoluteSize.X - dragWindow.Instance.AbsoluteSize.X - Iris._style.WindowBorderSize
             ),
             math.min(
                 math.max(mouseLocation.Y - deltaCursorPosition.Y, Iris._style.WindowBorderSize),
-                Iris.parentInstance.AbsoluteSize.Y - DraggedWindow.Instance.AbsoluteSize.Y - Iris._style.WindowBorderSize
+                Iris.parentInstance.AbsoluteSize.Y - dragWindow.Instance.AbsoluteSize.Y - Iris._style.WindowBorderSize
             )
 
-            DraggedWindow.Instance.Position = UDim2.fromOffset(newPosX, newPosY)
-            DraggedWindow.state.Position = Vector2.new(newPosX, newPosY)
+            dragWindow.Instance.Position = UDim2.fromOffset(newPosX, newPosY)
+            dragWindow.state.Position = Vector2.new(newPosX, newPosY)
+        end
+        if isResizing then
+            local mouseLocation = UserInputService:GetMouseLocation()
+            local newSize = (mouseLocation - resizeWindow.state.Position) - Vector2.new(0,36) - resizeDeltaCursorPosition
+            newSize = Vector2.new(math.max(MinWindowSize, newSize.X), math.max(MinWindowSize, newSize.Y))
+            resizeWindow.Instance.Size = UDim2.fromOffset(newSize.X, newSize.Y)
+            resizeWindow.state.Size = newSize
         end
     end)
 
     UserInputService.InputEnded:Connect(function(input, gameProcessedEvent)
-        if input.UserInputType ~= Enum.UserInputType.MouseButton1 then
-            return
-        end
-        if isDragging then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 and isDragging then
             isDragging = false
-            DraggedWindow.state.Position = DraggedWindow.Instance.AbsolutePosition
-            DraggedWindow = nil
-            deltaCursorPosition = nil
+            dragWindow.state.Position = dragWindow.Instance.AbsolutePosition
+        end
+        if input.UserInputType == Enum.UserInputType.MouseButton1 and isResizing then
+            isResizing = false
+            resizeWindow.state.Size = resizeWindow.Instance.AbsoluteSize
         end
     end)
 end

@@ -1,3 +1,4 @@
+--!optimize 2
 local Iris = {}
 
 local started = false
