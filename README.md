@@ -58,7 +58,7 @@
 - [ ]	Iris.NextColumn
 
 ## Methods:
-*May prior to release*
+*May change prior to release*
 - Iris.PushID
 - Iris.UpdateGlobalStyle
 - Iris.PushStyle
