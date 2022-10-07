@@ -452,8 +452,8 @@ end
 -- Gamepad support for Window Resizing and window dragging  |
 
 do -- Window
-    local AnyFocusedWindow = false
-    local FocusedWindow = nil
+    local anyFocusedWindow = false
+    local focusedWindow = nil
     local ZIndexSortLayer = 0
 
     local dragWindow = nil
@@ -463,49 +463,76 @@ do -- Window
     local deltaCursorPosition = nil
     local resizeDeltaCursorPosition = nil
 
+    local MaxSortLayer = 0x400
+    local MaxNumWindows = 0x200 -- should be less than MaxSortLayer
+
     local function IncrementSortLayer()
         ZIndexSortLayer += 1
-        if ZIndexSortLayer > 0x400 then
-            -- what we should do here, is to take every window, get its sort order
-            -- and readjust the sort order to start from 0. then if there are too
-            -- many windows to comfortably handle with ZIndex, error out
-            -- TODO
-            error("panic")
+        if ZIndexSortLayer > MaxSortLayer then
+            -- this code takes all windows, readjusts the sort order to start from 0. 
+            -- then if there are too many windows to comfortably handle with ZIndex, error out
+            local Windows = {}
+
+            for i,v in Iris._GetVDOM() do
+                if v.type == "Window" then
+                    table.insert(Windows, v)
+                end
+            end
+
+            if #Windows > MaxNumWindows then
+                error("you have too many Iris windows.")
+            end
+
+            table.sort(Windows,function(a,b)
+                return a.SortLayer < b.SortLayer
+            end)
+            
+            ZIndexSortLayer = 1
+            for i,v in Windows do
+                Iris.SetFocusedWindow(v)
+            end
+
+            print("Window Layer rewritten")
+            return true
         end
+        return false
     end
 
     Iris.SetFocusedWindow = function(thisWidget: table | nil)
-        if FocusedWindow == thisWidget then return end
+        if focusedWindow == thisWidget then return end
 
-        if AnyFocusedWindow then
+        if anyFocusedWindow then
             -- update appearance to unfocus
-            local TitleBar = FocusedWindow.Instance["Window-TitleBar"]
-            if FocusedWindow.state.Collapsed then
+            local TitleBar = focusedWindow.Instance["Window-TitleBar"]
+            if focusedWindow.state.Collapsed then
                 TitleBar.BackgroundColor3 = Iris._style.TitleBgCollapsedColor
                 TitleBar.BackgroundTransparency = Iris._style.TitleBgCollapsedTransparency
             else
                 TitleBar.BackgroundColor3 = Iris._style.TitleBgColor
                 TitleBar.BackgroundTransparency = Iris._style.TitleBgTransparency
             end
-            FocusedWindow.Instance["UIStroke"].Color = Iris._style.BorderColor
+            focusedWindow.Instance["UIStroke"].Color = Iris._style.BorderColor
 
-            AnyFocusedWindow = false
-            FocusedWindow = nil
+            anyFocusedWindow = false
+            focusedWindow = nil
         end
 
         if thisWidget ~= nil then
-            AnyFocusedWindow = true
-            FocusedWindow = thisWidget
+            anyFocusedWindow = true
+            focusedWindow = thisWidget
             -- update appearance to focus
-            local TitleBar = FocusedWindow.Instance["Window-TitleBar"]
+            local TitleBar = focusedWindow.Instance["Window-TitleBar"]
             TitleBar.BackgroundColor3 = Iris._style.TitleBgActiveColor
             TitleBar.BackgroundTransparency = Iris._style.TitleBgActiveTransparency
-            FocusedWindow.Instance["UIStroke"].Color = Iris._style.BorderActiveColor
+            focusedWindow.Instance["UIStroke"].Color = Iris._style.BorderActiveColor
             if GuiService.SelectedObject ~= nil then
-                GuiService.SelectedObject = FocusedWindow.Instance
+                GuiService.SelectedObject = focusedWindow.Instance
             end
 
-            IncrementSortLayer()
+            local reallocated = IncrementSortLayer()
+            if reallocated then
+                Iris.SetFocusedWindow(thisWidget)
+            end
 
             local OldZIndex = thisWidget.ZIndex
             local NewZIndex = thisWidget.ZIndex - (thisWidget.SortLayer * 0xFFFFF) + (ZIndexSortLayer * 0xFFFFF)
@@ -828,6 +855,10 @@ do -- Window
             }, "Text")
 
             ResizeGrip.MouseButton1Down:Connect(function()
+                if not anyFocusedWindow then
+                    Iris.SetFocusedWindow(thisWidget)
+                     -- mitigating innacurate focus
+                end
                 isResizing = true
                 resizeWindow = thisWidget
                 resizeDeltaCursorPosition = UserInputService:GetMouseLocation() - thisWidget.state.Position - thisWidget.state.Size - Vector2.new(0,36)
@@ -888,9 +919,9 @@ do -- Window
         end,
 
         Discard = function(thisWidget)
-            if FocusedWindow == thisWidget then
-                FocusedWindow = nil
-                AnyFocusedWindow = false
+            if focusedWindow == thisWidget then
+                focusedWindow = nil
+                anyFocusedWindow = false
             end
             thisWidget.Instance:Destroy()
         end,

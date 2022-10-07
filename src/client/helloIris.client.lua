@@ -143,5 +143,6 @@ Iris.Connect(ScreenGui, RunService.Heartbeat, function()
     Iris.End()
 
     Iris.Text(string.format("Demo window Position: (%d, %d)", demoWindow.state.Position.X, demoWindow.state.Position.Y))
+    Iris.Text(string.format("Demo window Size: (%d, %d)", demoWindow.state.Size.X, demoWindow.state.Size.Y))
     new = false
 end)
