@@ -14,6 +14,7 @@
 - - [X]	Iris.Args.Tree.SpanAvailWidth
 	
 - [ ]	Iris.Window
+- - [X] Iris.Args.Window.Title
 - - [X]	Iris.Args.Window.NoTitlebar
 - - [X]	Iris.Args.Window.NoScrollbar
 - - [X]	Iris.Args.Window.NoMove
