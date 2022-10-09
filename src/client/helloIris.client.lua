@@ -57,7 +57,7 @@ function showDemoWindow(Index)
         
             if Iris.Button("Change the collapsed state of the above tree").Clicked then
                 Iris.SetState(tree1, {
-                    Collapsed = not tree1.state.Collapsed
+                    collapsed = not tree1.state.collapsed
                 })
             end
 
@@ -136,7 +136,7 @@ Iris.Connect(ScreenGui, RunService.Heartbeat, function()
     Iris.Text("")
 
     if Iris.Button("Open main demo window").Clicked then
-        Iris.SetState(demoWindow, {Closed = false, Collapsed = false})
+        Iris.SetState(demoWindow, {closed = false, collapsed = false})
     end
 
     local IsNewWindow = Iris.Button("Open a new demo window").Clicked
@@ -148,14 +148,14 @@ Iris.Connect(ScreenGui, RunService.Heartbeat, function()
         local iWindow = showDemoWindow(i + 1)
         if IsNewWindow and i == numDemoWindows then
             Iris.SetState(iWindow, {
-                Size = Vector2.new(400,300),
-                Position = Vector2.new(415 + (i * 25), 115 + (i * 25))
+                size = Vector2.new(400,300),
+                position = Vector2.new(415 + (i * 25), 115 + (i * 25))
             })
         end
     end
 
     if Iris.Button("Collapse demo window").Clicked then
-        Iris.SetState(demoWindow, {Collapsed = true})
+        Iris.SetState(demoWindow, {collapsed = true})
     end
 
     Iris.Tree("demo window arguments")
@@ -168,7 +168,7 @@ Iris.Connect(ScreenGui, RunService.Heartbeat, function()
         end
     Iris.End()
 
-    Iris.Text(string.format("Demo window Position: (%d, %d)", demoWindow.state.Position.X, demoWindow.state.Position.Y))
-    Iris.Text(string.format("Demo window Size: (%d, %d)", demoWindow.state.Size.X, demoWindow.state.Size.Y))
+    Iris.Text(string.format("Demo window Position: (%d, %d)", demoWindow.state.position.X, demoWindow.state.position.Y))
+    Iris.Text(string.format("Demo window Size: (%d, %d)", demoWindow.state.size.X, demoWindow.state.size.Y))
     new = false
 end)

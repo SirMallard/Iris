@@ -19,7 +19,7 @@ local rootWidget = {
     ZIndex = 0,
 }
 
-local function GenerateSelectionImageObject()
+local function generateSelectionImageObject()
     if Iris.SelectionImageObject then
         Iris.SelectionImageObject:Destroy()
     end
@@ -44,16 +44,16 @@ local function GenerateSelectionImageObject()
     Rounding.Parent = SelectionImageObject
 end
 
-local function GenerateEmptyVDOM()
+local function generateEmptyVDOM()
     return {
         ["R"] = rootWidget
     }
 end
 
-local lastVDOM = GenerateEmptyVDOM()
-local VDOM = GenerateEmptyVDOM()
+local lastVDOM = generateEmptyVDOM()
+local VDOM = generateEmptyVDOM()
 
-local function GenerateRootInstance()
+local function generateRootInstance()
     -- unsafe to call before Iris.connect
     rootInstance = widgets["Root"].Generate()
     rootInstance.Parent = Iris.parentInstance
@@ -93,13 +93,13 @@ end
 local cycle = function(callback)
     if refreshRequested then
         debug.profilebegin("Iris Refresh")
-        GenerateSelectionImageObject()
+        generateSelectionImageObject()
         refreshRequested = false
         for i,v in lastVDOM do
             widgets[v.type].Discard(v)
         end
-        GenerateRootInstance()
-        lastVDOM = GenerateEmptyVDOM()
+        generateRootInstance()
+        lastVDOM = generateEmptyVDOM()
         debug.profileend()
     end
     tick += 1
@@ -117,7 +117,7 @@ local cycle = function(callback)
     end
     
     lastVDOM = VDOM
-    VDOM = GenerateEmptyVDOM()
+    VDOM = generateEmptyVDOM()
 end
 
 Iris.TemplateStyles = {
@@ -329,8 +329,8 @@ function Iris.Connect(parentInstance, eventConnection, callback)
     assert(not started, "Iris.Connect should only be called once.")
     started = true
 
-    GenerateRootInstance()
-    GenerateSelectionImageObject()
+    generateRootInstance()
+    generateSelectionImageObject()
     
     task.spawn(function()
         if eventConnection.Connect then
@@ -456,14 +456,14 @@ function Iris.SetState(thisWidget, deltaState: {})
 end
 
 function Iris.PushId(ID: string | number)
-    local ParentId = IDStack[stackIndex]
-    ID = ParentId .. "-" .. tostring(ID)
+    local parentId = IDStack[stackIndex]
+    ID = parentId .. "-" .. tostring(ID)
 
     stackIndex += 1
     IDStack[stackIndex] = ID
     
     -- this is elegant
-    VDOM[ID] = VDOM[ParentId]
+    VDOM[ID] = VDOM[parentId]
 end
 
 require(script.widgets)(Iris)
