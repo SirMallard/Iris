@@ -4,8 +4,13 @@ local Iris = require(ReplicatedStorage.Common.Iris)
 
 local Player = game:GetService("Players").LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
-local ScreenGui = Instance.new("ScreenGui");
-ScreenGui.Parent = PlayerGui;
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = PlayerGui
+
+-- local Frame = Instance.new("Frame")
+-- Frame.Size = UDim2.fromScale(.75,.75)
+-- Frame.Position = UDim2.fromScale(.125,.125)
+-- Frame.Parent = ScreenGui
 
 local count = 0
 local lastT = os.clock()
@@ -21,7 +26,8 @@ local DemoWindowArguments = {
     ["NoClose"] = false,
     ["NoMove"] = false,
     ["NoScrollbar"] = false,
-    ["NoResize"] = false
+    ["NoResize"] = false,
+    ["NoNav"] = false
 }
 
 function showDemoWindow(Index)
@@ -36,7 +42,8 @@ function showDemoWindow(Index)
             Iris.Args.Window.NoClose(DemoWindowArguments.NoClose),
             Iris.Args.Window.NoMove(DemoWindowArguments.NoMove),
             Iris.Args.Window.NoScrollbar(DemoWindowArguments.NoScrollbar),
-            Iris.Args.Window.NoResize(DemoWindowArguments.NoResize)
+            Iris.Args.Window.NoResize(DemoWindowArguments.NoResize),
+            Iris.Args.Window.NoNav(DemoWindowArguments.NoNav)
         )
         
             Iris.Text("This is a demo window!")
@@ -67,12 +74,31 @@ function showDemoWindow(Index)
             Iris.End()
 
             Iris.Tree("Style Editor")
+                Iris.Text(string.format("FontSize: %d", Iris._style.FontSize));
                 if Iris.Button("Increase FontSize").Clicked then
                     Iris.UpdateGlobalStyle({FontSize = Iris._style.FontSize + 1})
                     Iris.ForceRefresh()
                 end
                 if Iris.Button("Decrease FontSize").Clicked then
                     Iris.UpdateGlobalStyle({FontSize = Iris._style.FontSize - 1})
+                    Iris.ForceRefresh()
+                end
+                Iris.Text(string.format("FrameRounding: %d", Iris._style.FrameRounding));
+                if Iris.Button("Increase FrameRounding").Clicked then
+                    Iris.UpdateGlobalStyle({FrameRounding = Iris._style.FrameRounding + 1})
+                    Iris.ForceRefresh()
+                end
+                if Iris.Button("Decrease FrameRounding").Clicked then
+                    Iris.UpdateGlobalStyle({FrameRounding = Iris._style.FrameRounding - 1})
+                    Iris.ForceRefresh()
+                end
+                Iris.Text(string.format("BorderSize: %d", Iris._style.FrameBorderSize));
+                if Iris.Button("Increase BorderSize").Clicked then
+                    Iris.UpdateGlobalStyle({FrameBorderSize = Iris._style.FrameBorderSize + 1})
+                    Iris.ForceRefresh()
+                end
+                if Iris.Button("Decrease BorderSize").Clicked then
+                    Iris.UpdateGlobalStyle({FrameBorderSize = Iris._style.FrameBorderSize - 1})
                     Iris.ForceRefresh()
                 end
                 if Iris.Button("Use light mode").Clicked then
@@ -113,7 +139,7 @@ Iris.Connect(ScreenGui, RunService.Heartbeat, function()
         Iris.SetState(demoWindow, {Closed = false, Collapsed = false})
     end
 
-    local IsNewWindow = Iris.Button("Open a new demo window").Clicked 
+    local IsNewWindow = Iris.Button("Open a new demo window").Clicked
     if IsNewWindow then
         numDemoWindows += 1
     end

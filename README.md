@@ -21,6 +21,7 @@
 - - [X] Iris.Args.Window.NoCollapse
 - - [X] Iris.Args.Window.NoClose
 - - [X] Iris.Args.Window.NoBackground
+- - [X] Iris.Args.Window.NoNav
 
 - [ ]	Iris.Separator
 	

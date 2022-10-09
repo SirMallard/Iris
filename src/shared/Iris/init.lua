@@ -16,7 +16,7 @@ local rootWidget = {
     ID = "R",
     type = "Root",
     Instance = rootInstance,
-    ZIndex = 0
+    ZIndex = 0,
 }
 
 local function GenerateSelectionImageObject()
@@ -129,6 +129,7 @@ Iris.TemplateStyles = {
         Font = Enum.Font.Code,
         FontSize = 13,
         FrameBorderSize = 0,
+        FrameRounding = 0,
         WindowBorderSize = 1,
         WindowTitleAlign = Enum.LeftRight.Left,
 
@@ -176,7 +177,12 @@ Iris.TemplateStyles = {
         SelectionImageObjectColor = Color3.fromRGB(255, 255, 255),
         SelectionImageObjectTransparency = .8,
         SelectionImageObjectBorderColor = Color3.fromRGB(255, 255, 255),
-        SelectionImageObjectBorderTransparency = 0
+        SelectionImageObjectBorderTransparency = 0,
+
+        NavWindowingHighlightColor = Color3.fromRGB(255, 255, 255),
+        NavWindowingHighlightTransparency = .3,
+        NavWindowingDimBgColor = Color3.fromRGB(204, 204, 204),
+        NavWindowingDimBgTransparency = .65
     },
     
     light = {
@@ -187,6 +193,7 @@ Iris.TemplateStyles = {
         Font = Enum.Font.Code,
         FontSize = 13,
         FrameBorderSize = 1,
+        FrameRounding = 0,
         WindowBorderSize = 1,
         WindowTitleAlign = Enum.LeftRight.Left,
 
@@ -234,7 +241,12 @@ Iris.TemplateStyles = {
         SelectionImageObjectColor = Color3.fromRGB(0, 0, 0),
         SelectionImageObjectTransparency = .8,
         SelectionImageObjectBorderColor = Color3.fromRGB(0, 0, 0),
-        SelectionImageObjectBorderTransparency = 0
+        SelectionImageObjectBorderTransparency = 0,
+
+        NavWindowingHighlightColor = Color3.fromRGB(179, 179, 179),
+        NavWindowingHighlightTransparency = .3,
+        NavWindowingDimBgColor = Color3.fromRGB(51, 51, 51),
+        NavWindowingDimBgTransparency = .8
     }
 }
 
@@ -405,7 +417,7 @@ function Iris._Insert(type, ...)
     end
 
     if thisWidget.arguments ~= arguments and deepcompare(thisWidget.arguments, arguments) == false then
-        -- the widgets arguments have changed; the widget should update to reflect changes.
+        -- the widgets arguments have changed, the widget should update to reflect changes.
         thisWidget.arguments = arguments
         thisWidgetClass.Update(thisWidget)
     end

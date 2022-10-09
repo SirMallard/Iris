@@ -1,8 +1,6 @@
 --[[
     Making a concious decision to not write these widgets with support of ImGui TouchExtraPadding in mind. too much overhead to be worth it atm.
 
-    TODO, all of these widgets need to have .SelectionOrder and .Selectable configured at some point
-
     CanvasGroup is useless. They dont even have a clipsDescendants property.
 
     TODO, gradients are cool as shit, add gradient styles and a style flag to enable or disable usage.
@@ -55,7 +53,7 @@ local function ApplyTextStyle(Iris, TextParent)
 end
 
 local function ApplyInteractionHighlights(Iris, Button, Highlightee, Colors, Mode: "Text" | "Background" | nil)
-    local leftTheButton = false
+    local exitedButton = false
     Button.MouseEnter:Connect(function()
         if Mode == "Text" then
             Highlightee.TextColor3 = Colors.ButtonHoveredColor
@@ -64,7 +62,7 @@ local function ApplyInteractionHighlights(Iris, Button, Highlightee, Colors, Mod
             Highlightee.BackgroundColor3 = Colors.ButtonHoveredColor
             Highlightee.BackgroundTransparency = Colors.ButtonHoveredTransparency
         end
-        leftTheButton = false
+        exitedButton = false
     end)
 
     Button.MouseLeave:Connect(function()
@@ -75,7 +73,7 @@ local function ApplyInteractionHighlights(Iris, Button, Highlightee, Colors, Mod
             Highlightee.BackgroundColor3 = Colors.ButtonColor
             Highlightee.BackgroundTransparency = Colors.ButtonTransparency
         end
-        leftTheButton = true
+        exitedButton = true
     end)
 
     Button.InputBegan:Connect(function(input)
@@ -92,7 +90,7 @@ local function ApplyInteractionHighlights(Iris, Button, Highlightee, Colors, Mod
     end)
 
     Button.InputEnded:Connect(function(input)
-        if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) or leftTheButton then
+        if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) or exitedButton then
             return
         end
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -116,6 +114,44 @@ local function ApplyInteractionHighlights(Iris, Button, Highlightee, Colors, Mod
     end)
     
     Button.SelectionImageObject = Iris.SelectionImageObject
+end
+
+local function ApplyFrameStyle(Iris, thisInstance)
+    -- padding, border, and rounding
+    local FramePadding = Iris._style.FramePadding
+    local FrameBorderTransparency = Iris._style.ButtonTransparency
+    local FrameBorderSize = Iris._style.FrameBorderSize
+    local FrameBorderColor = Iris._style.BorderColor
+    local FrameRounding = Iris._style.FrameRounding
+    
+
+    if FrameBorderSize > 0 and FrameRounding > 0 then
+        thisInstance.BorderSizePixel = 0
+
+        local UIStroke = Instance.new("UIStroke")
+        UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+        UIStroke.LineJoinMode = Enum.LineJoinMode.Round
+        UIStroke.Transparency = FrameBorderTransparency
+        UIStroke.Thickness = FrameBorderSize
+        UIStroke.Color = FrameBorderColor
+
+        RoundInstance(thisInstance, FrameRounding)
+        UIStroke.Parent = thisInstance
+
+        PadInstance(thisInstance, Iris._style.FramePadding)
+
+    elseif FrameBorderSize < 1 and FrameRounding > 0 then
+        thisInstance.BorderSizePixel = 0
+
+        RoundInstance(thisInstance, FrameRounding)
+        PadInstance(thisInstance, Iris._style.FramePadding)
+    elseif FrameRounding < 1 then
+        thisInstance.BorderSizePixel = FrameBorderSize
+        thisInstance.BorderColor3 = FrameBorderColor
+        thisInstance.BorderMode = Enum.BorderMode.Inset
+
+        PadInstance(thisInstance, FramePadding - Vector2.new(FrameBorderSize, FrameBorderSize))
+    end
 end
 
 local Icons = {
@@ -146,6 +182,13 @@ Iris.WidgetConstructor("Root", false, true){
         PseudoWindow.BackgroundColor3 = Iris._style.WindowBgColor
         PseudoWindow.AutomaticSize = Enum.AutomaticSize.XY
 
+        PseudoWindow.Selectable = false
+        PseudoWindow.SelectionGroup = true
+        PseudoWindow.SelectionBehaviorUp = Enum.SelectionBehavior.Stop
+        PseudoWindow.SelectionBehaviorDown = Enum.SelectionBehavior.Stop
+        PseudoWindow.SelectionBehaviorLeft = Enum.SelectionBehavior.Stop
+        PseudoWindow.SelectionBehaviorRight = Enum.SelectionBehavior.Stop
+
         PseudoWindow.Visible = false
         PadInstance(PseudoWindow, Iris._style.WindowPadding)
 
@@ -159,8 +202,10 @@ Iris.WidgetConstructor("Root", false, true){
         return Root
     end,
 
-    Update = function()
-
+    Update = function(thisWidget)
+        if thisWidget.shouldExist then
+            thisWidget.Instance["Root-PseudoWindow"].Visible = true
+        end
     end,
 
     Discard = function(thisWidget)
@@ -171,13 +216,13 @@ Iris.WidgetConstructor("Root", false, true){
         if ChildWidget.type == "Window" then
             return thisWidget.Instance
         else
-            -- ick solution
-            thisWidget.Instance["Root-PseudoWindow"].Visible = true
+            thisWidget.shouldExist = true
+            Iris.widgets["Root"].Update(thisWidget)
             
             return thisWidget.Instance["Root-PseudoWindow"]
         end
     end,
-}    
+}
 
 Iris.WidgetConstructor("Text", false, false){
     ArgNames = {[1] = "Text"},
@@ -233,16 +278,14 @@ Iris.WidgetConstructor("Button", false, false){
         Button.Size = UDim2.fromOffset(0,0)
         Button.BackgroundColor3 = Iris._style.ButtonColor
         Button.BackgroundTransparency = Iris._style.ButtonTransparency
-        Button.BorderMode = Enum.BorderMode.Inset
-        Button.BorderColor3 = Iris._style.BorderColor
-        Button.BorderSizePixel = Iris._style.FrameBorderSize
         Button.ZIndex = thisWidget.ZIndex
         Button.LayoutOrder = thisWidget.ZIndex
         Button.AutoButtonColor = false
 
         ApplyTextStyle(Iris, Button)
         Button.AutomaticSize = Enum.AutomaticSize.XY
-        PadInstance(Button, Iris._style.FramePadding - Vector2.new(Iris._style.FrameBorderSize, Iris._style.FrameBorderSize))
+
+        ApplyFrameStyle(Iris, Button)
 
         Button.MouseButton1Click:Connect(function()
             thisWidget.events.Clicked = true
@@ -446,8 +489,8 @@ end
 -- THINGS TODO:
 -- Window Resizing and Mouse icons for resizing             | done... no icons
 -- global window sortOrder                                  | done
--- somehow sync instance ZIndex to window sortOrder         | half done
--- Ctrl+Tab window focus hotkey                             |
+-- somehow sync instance ZIndex to window sortOrder         | done
+-- Ctrl+Tab window focus hotkey                             | Roblox eats Ctrl+Tab input in studio... ick
 -- Window Dragging                                          | done!
 -- Gamepad support for Window Resizing and window dragging  |
 
@@ -463,23 +506,122 @@ do -- Window
     local deltaCursorPosition = nil
     local resizeDeltaCursorPosition = nil
 
-    local MaxSortLayer = 0x400
-    local MaxNumWindows = 0x200 -- should be less than MaxSortLayer
+    local GAMEPAD_MENU_START_HOLD_TIME = 0.2
+    local gamepadMenuStartEnded = false
+    local gamepadMenuStartOpenedDelta = 0
+    local gamepadMenu = nil
+    local gamepadMenuOpened = false
+    local navWindowingBorder = nil
+
+    local function gamepadSelectWindow(selectedWindow)
+        local firstSelectedObject = GuiService.SelectedObject
+        if firstSelectedObject then
+            GuiService:Select(selectedWindow.Instance["Window-ChildContainer"])
+        end
+    end
+
+    local function gamepadMenuBehavior(opened: boolean)
+        if not gamepadMenu then
+            gamepadMenu = Instance.new("Frame")
+            gamepadMenu.Name = "Iris:NavGamepadMenu"
+            gamepadMenu.Size = UDim2.fromScale(1,1)
+            gamepadMenu.Position = UDim2.fromScale(0,0)
+            gamepadMenu.BackgroundColor3 = Iris._style.NavWindowingDimBgColor
+            gamepadMenu.BackgroundTransparency = Iris._style.NavWindowingDimBgTransparency
+            gamepadMenu.BorderSizePixel = 0
+            gamepadMenu.ZIndex = (ZIndexSortLayer - .5) * 0xFFFFF
+            gamepadMenu.Parent = Iris.parentInstance
+            
+            local menuModal = Instance.new("Frame")
+            menuModal.Name = "NavGamepadMenu-MenuModal"
+            menuModal.AnchorPoint = Vector2.new(.5, .5)
+            menuModal.Position = UDim2.fromScale(.5, .5)
+            menuModal.Size = UDim2.fromOffset(250, 0)
+            menuModal.BorderSizePixel = Iris._style.WindowBorderSize
+            menuModal.BorderColor3 = Iris._style.BorderActiveColor
+            menuModal.BackgroundColor3 = Iris._style.WindowBgColor
+            menuModal.BackgroundTransparency = Iris._style.WindowBgTransparency
+
+            SizeConstraint(menuModal, Vector2.new(0,150), Vector2.new(1e9, 1e9))
+
+            menuModal.Parent = gamepadMenu
+        end
+        if not navWindowingBorder then
+            local BORDER_DISTANCE = 12
+            navWindowingBorder = Instance.new("Frame")
+            navWindowingBorder.Name = "Iris:NavWindowingBorder"
+            navWindowingBorder.Position = UDim2.new(0,-BORDER_DISTANCE, 0,-BORDER_DISTANCE)
+            navWindowingBorder.Size = UDim2.new(1, 2 * BORDER_DISTANCE, 1, 2 * BORDER_DISTANCE)
+            navWindowingBorder.BorderSizePixel = 0
+            navWindowingBorder.BackgroundTransparency = 1
+
+            local UIStroke = Instance.new("UIStroke")
+            UIStroke.Parent = navWindowingBorder
+            UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+            UIStroke.LineJoinMode = Enum.LineJoinMode.Miter
+            UIStroke.Thickness = 4
+            UIStroke.Color = Iris._style.NavWindowingHighlightColor
+            UIStroke.Transparency = Iris._style.NavWindowingHighlightTransparency
+            UIStroke.Parent = navWindowingBorder
+        end
+        
+        gamepadMenuOpened = opened
+        if opened then
+            local baseZIndex = (ZIndexSortLayer - .5) * 0xFFFFF
+            local basePeakZIndex = 0x80000000 - 0xFF
+            gamepadMenu.ZIndex = baseZIndex
+            gamepadMenu["NavGamepadMenu-MenuModal"].ZIndex = basePeakZIndex
+            gamepadMenu.Visible = true
+
+            if anyFocusedWindow then
+                navWindowingBorder.Parent = focusedWindow.Instance["Window-UnlistedChildFolder"]
+                navWindowingBorder.ZIndex = focusedWindow.ZIndex + 0xFF
+            end
+
+            GuiService.SelectedObject = nil
+        else
+            gamepadMenu.Visible = false
+            navWindowingBorder.Parent = nil
+        end
+    end
+
+    local gamepadMenuCoroutine = coroutine.create(function()
+        while true do
+            gamepadMenuStartOpenedDelta = os.clock()
+            gamepadMenuStartEnded = false
+            task.wait(GAMEPAD_MENU_START_HOLD_TIME)
+            if not gamepadMenuStartEnded then
+                gamepadMenuBehavior(true)
+            end
+            coroutine.yield()
+        end
+    end)
+
+    local MAX_SORT_LAYER = 0x400
+    local MAX_NUM_WINDOWS = 0x200 -- should be less than MAX_SORT_LAYER
+
+    local function getWindows()
+        -- optimization here to cache windows when they are generated and discarded, but that sounds like hell to code and debug.
+        local Windows = {}
+        local VDOM = Iris._GetVDOM()
+
+        for i,v in VDOM do
+            if v.type == "Window" then
+                table.insert(Windows, v)
+            end
+        end
+
+        return Windows
+    end
 
     local function IncrementSortLayer()
         ZIndexSortLayer += 1
-        if ZIndexSortLayer > MaxSortLayer then
+        if ZIndexSortLayer > MAX_SORT_LAYER then
             -- this code takes all windows, readjusts the sort order to start from 0. 
             -- then if there are too many windows to comfortably handle with ZIndex, error out
-            local Windows = {}
+            local Windows = getWindows()
 
-            for i,v in Iris._GetVDOM() do
-                if v.type == "Window" then
-                    table.insert(Windows, v)
-                end
-            end
-
-            if #Windows > MaxNumWindows then
+            if #Windows > MAX_NUM_WINDOWS then
                 error("you have too many Iris windows.")
             end
 
@@ -492,7 +634,7 @@ do -- Window
                 Iris.SetFocusedWindow(v)
             end
 
-            print("Window Layer rewritten")
+            warn("Window Layer rewritten")
             return true
         end
         return false
@@ -525,9 +667,6 @@ do -- Window
             TitleBar.BackgroundColor3 = Iris._style.TitleBgActiveColor
             TitleBar.BackgroundTransparency = Iris._style.TitleBgActiveTransparency
             focusedWindow.Instance["UIStroke"].Color = Iris._style.BorderActiveColor
-            if GuiService.SelectedObject ~= nil then
-                GuiService.SelectedObject = focusedWindow.Instance
-            end
 
             local reallocated = IncrementSortLayer()
             if reallocated then
@@ -547,6 +686,32 @@ do -- Window
         end
     end
 
+    local function quickSwapWindows()
+        -- quick swapping, the kind of way that you might alt+tab or ctrl+tab.
+        -- does not show any UI. also picking last ordered window instead of second to first.
+        if gamepadMenuOpened then return end
+
+        local oldWindows = getWindows()
+        local Windows = {}
+        for i,v in oldWindows do
+            if (v.state.Closed == false) and (v.arguments.NoNav == false) then
+                table.insert(Windows, oldWindows[i])
+            end
+        end
+        table.sort(Windows,function(a,b)
+            return a.SortLayer < b.SortLayer
+        end)
+        local SelectedWindow = Windows[1]
+
+        if SelectedWindow.state.Collapsed then
+            SelectedWindow.state.Collapsed = false
+            Iris.widgets["Window"].UpdateState(SelectedWindow)
+        end
+        Iris.SetFocusedWindow(SelectedWindow)
+
+        gamepadSelectWindow(SelectedWindow)
+    end
+
     Iris.WidgetConstructor("Window", true, true){
         ArgNames = {
             [1] = "Title",
@@ -556,7 +721,8 @@ do -- Window
             [5] = "NoClose",
             [6] = "NoMove",
             [7] = "NoScrollbar",
-            [8] = "NoResize"
+            [8] = "NoResize",
+            [9] = "NoNav"
         },
 
         Args = {
@@ -583,6 +749,9 @@ do -- Window
             end,
             ["NoResize"] = function(_NoResize: boolean)
                 return table.freeze({8, _NoResize})
+            end,
+            ["NoNav"] = function(_NoNav: boolean)
+                return table.freeze({9, _NoNav})
             end
         },
 
@@ -592,7 +761,7 @@ do -- Window
 
             local TitleBar = thisWidget.Instance["Window-TitleBar"]
             local ChildContainer = thisWidget.Instance["Window-ChildContainer"]
-            local ResizeGrip = thisWidget.Instance["Window-ResizeGripFolder"]["ResizeGripFolder-ResizeGrip"]
+            local ResizeGrip = thisWidget.Instance["Window-UnlistedChildFolder"]["UnlistedChildFolder-ResizeGrip"]
 
             if thisWidget.state.Closed then
                 thisWidget.Instance.Visible = false
@@ -642,15 +811,21 @@ do -- Window
             Window.LayoutOrder = thisWidget.ZIndex
             Window.Size = UDim2.fromOffset(0,0)
             Window.AutomaticSize = Enum.AutomaticSize.None
-            Window.ClipsDescendants = true
+            Window.ClipsDescendants = false
             Window.Text = ""
             Window.AutoButtonColor = false
             Window.Active = false
-            Window.Selectable = true
+            Window.Selectable = false
             Window.SelectionImageObject = Iris.SelectionImageObject
+
+            Window.SelectionGroup = true
+            Window.SelectionBehaviorUp = Enum.SelectionBehavior.Stop
+            Window.SelectionBehaviorDown = Enum.SelectionBehavior.Stop
+            Window.SelectionBehaviorLeft = Enum.SelectionBehavior.Stop
+            Window.SelectionBehaviorRight = Enum.SelectionBehavior.Stop
             
             Window.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseMovement then return end
+                if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Keyboard then return end
                 if not thisWidget.state.Collapsed then
                     Iris.SetFocusedWindow(thisWidget)
                 end
@@ -658,21 +833,6 @@ do -- Window
                     dragWindow = thisWidget
                     isDragging = true
                     deltaCursorPosition = UserInputService:GetMouseLocation() - thisWidget.state.Position
-                end
-
-                if input.UserInputType == Enum.UserInputType.Gamepad1 then
-                    -- this is Dear ImGui doubleClick functionallity aswell
-                    thisWidget.state.Collapsed = not thisWidget.state.Collapsed
-                    Iris.widgets.Window.UpdateState(thisWidget)
-                    if GuiService.SelectedObject ~= nil then
-                        GuiService.SelectedObject = thisWidget.Instance
-                    end
-                end
-            end)
-
-            Window.SelectionGained:Connect(function()
-                if not thisWidget.state.Collapsed then
-                    Iris.SetFocusedWindow(thisWidget)
                 end
             end)
 
@@ -711,7 +871,7 @@ do -- Window
 
             PadInstance(ChildContainer, Iris._style.WindowPadding)
 
-            local TerminatingFrame = Instance.new("Frame");
+            local TerminatingFrame = Instance.new("Frame")
             TerminatingFrame.Name = "ChildContainer-TerminatingFrame"
             TerminatingFrame.BackgroundTransparency = 1
             TerminatingFrame.LayoutOrder = 0x7FFFFFF0
@@ -825,13 +985,13 @@ do -- Window
 
             PadInstance(Title, Iris._style.FramePadding)
 
-            local ResizeGripFolder = Folder(Window)
-            ResizeGripFolder.Name = "Window-ResizeGripFolder"
+            local UnlistedChildFolder = Folder(Window)
+            UnlistedChildFolder.Name = "Window-UnlistedChildFolder"
 
             local ResizeButtonSize = Iris._style.FontSize + Iris._style.FramePadding.X
 
             local ResizeGrip = Instance.new("TextButton")
-            ResizeGrip.Name = "ResizeGripFolder-ResizeGrip"
+            ResizeGrip.Name = "UnlistedChildFolder-ResizeGrip"
             ResizeGrip.AnchorPoint = Vector2.new(1,1)
             ResizeGrip.Size = UDim2.fromOffset(ResizeButtonSize, ResizeButtonSize)
             ResizeGrip.AutoButtonColor = false
@@ -843,6 +1003,7 @@ do -- Window
             ResizeGrip.TextSize = ResizeButtonSize
             ResizeGrip.TextColor3 = Iris._style.ButtonColor
             ResizeGrip.TextTransparency = Iris._style.ButtonTransparency
+            ResizeGrip.LineHeight = 1.10 -- fix mild rendering issue
             ResizeGrip.Selectable = false
             
             ApplyInteractionHighlights(Iris, ResizeGrip, ResizeGrip, {
@@ -855,7 +1016,7 @@ do -- Window
             }, "Text")
 
             ResizeGrip.MouseButton1Down:Connect(function()
-                if not anyFocusedWindow then
+                if not anyFocusedWindow or not (focusedWindow == thisWidget) then
                     Iris.SetFocusedWindow(thisWidget)
                      -- mitigating innacurate focus
                 end
@@ -864,7 +1025,7 @@ do -- Window
                 resizeDeltaCursorPosition = UserInputService:GetMouseLocation() - thisWidget.state.Position - thisWidget.state.Size - Vector2.new(0,36)
             end)
 
-            ResizeGrip.Parent = ResizeGripFolder
+            ResizeGrip.Parent = UnlistedChildFolder
 
             return Window
         end,
@@ -872,7 +1033,7 @@ do -- Window
         Update = function(thisWidget)
             local TitleBar = thisWidget.Instance["Window-TitleBar"]
             local ChildContainer = thisWidget.Instance["Window-ChildContainer"]
-            local ResizeGrip = thisWidget.Instance["Window-ResizeGripFolder"]["ResizeGripFolder-ResizeGrip"]
+            local ResizeGrip = thisWidget.Instance["Window-UnlistedChildFolder"]["UnlistedChildFolder-ResizeGrip"]
             local TitleBarWidth = Iris._style.FontSize + Iris._style.FramePadding.Y * 2
             if thisWidget.arguments.NoResize then
                 ResizeGrip.Visible = false
@@ -945,18 +1106,19 @@ do -- Window
     end
 
     UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-        local invalid = (gameProcessedEvent
-        or input.UserInputType == Enum.UserInputType.MouseMovement
-        or input.UserInputType == Enum.UserInputType.Focus
-        or input.UserInputType == Enum.UserInputType.MouseButton2
-        or input.UserInputType == Enum.UserInputType.Keyboard)
+        if not gameProcessedEvent and input.UserInputType == Enum.UserInputType.MouseButton1 then
+            Iris.SetFocusedWindow(nil)
+        end
+        if input.KeyCode == Enum.KeyCode.ButtonX then
+            coroutine.resume(gamepadMenuCoroutine)
+        end
 
-        if invalid then return end
-        Iris.SetFocusedWindow(nil)
+        if input.KeyCode == Enum.KeyCode.Tab and (UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl)) then
+            quickSwapWindows()
+        end
     end)
 
     UserInputService.InputChanged:Connect(function(input)
-        local MinWindowSize = (Iris._style.FontSize + Iris._style.FramePadding.Y * 2) * 2
         if isDragging then
             local mouseLocation = UserInputService:GetMouseLocation()
             local newPosX, newPosY = 
@@ -973,9 +1135,17 @@ do -- Window
             dragWindow.state.Position = Vector2.new(newPosX, newPosY)
         end
         if isResizing then
+            local MinWindowSize = (Iris._style.FontSize + Iris._style.FramePadding.Y * 2) * 2
+            local MaxWindowSize = (Iris.parentInstance.AbsoluteSize -
+            Vector2.new(resizeWindow.Instance.Position.X.Offset, resizeWindow.Instance.Position.Y.Offset) -
+            Vector2.new(Iris._style.WindowBorderSize, Iris._style.WindowBorderSize))
+
             local mouseLocation = UserInputService:GetMouseLocation()
             local newSize = (mouseLocation - resizeWindow.state.Position) - Vector2.new(0,36) - resizeDeltaCursorPosition
-            newSize = Vector2.new(math.max(MinWindowSize, newSize.X), math.max(MinWindowSize, newSize.Y))
+            newSize = Vector2.new(
+                math.min(math.max(MinWindowSize, newSize.X), MaxWindowSize.X),
+                math.min(math.max(MinWindowSize, newSize.Y), MaxWindowSize.Y)
+            )
             resizeWindow.Instance.Size = UDim2.fromOffset(newSize.X, newSize.Y)
             resizeWindow.state.Size = newSize
         end
@@ -984,11 +1154,20 @@ do -- Window
     UserInputService.InputEnded:Connect(function(input, gameProcessedEvent)
         if input.UserInputType == Enum.UserInputType.MouseButton1 and isDragging then
             isDragging = false
-            dragWindow.state.Position = dragWindow.Instance.AbsolutePosition
+            dragWindow.state.Position = Vector2.new(dragWindow.Instance.Position.X.Offset, dragWindow.Instance.Position.Y.Offset)
         end
         if input.UserInputType == Enum.UserInputType.MouseButton1 and isResizing then
             isResizing = false
             resizeWindow.state.Size = resizeWindow.Instance.AbsoluteSize
+        end
+
+        if input.KeyCode == Enum.KeyCode.ButtonX then
+            gamepadMenuStartEnded = true
+            if os.clock() - gamepadMenuStartOpenedDelta <= GAMEPAD_MENU_START_HOLD_TIME then
+                quickSwapWindows()
+            else
+                gamepadMenuBehavior(false)
+            end
         end
     end)
 end
