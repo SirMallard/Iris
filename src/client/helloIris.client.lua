@@ -157,7 +157,7 @@ Iris.Connect(ScreenGui, RunService.Heartbeat, function()
     if Iris.Button("Collapse demo window").Clicked then
         Iris.SetState(demoWindow, {collapsed = true})
     end
-
+    
     Iris.Tree("demo window arguments")
         for i,v in DemoWindowArguments do
             Iris.PushId(i)
@@ -167,6 +167,12 @@ Iris.Connect(ScreenGui, RunService.Heartbeat, function()
             Iris.End()
         end
     Iris.End()
+
+    local emptyWindow = Iris.Window(Iris.Args.Window.NoTitleBar(false))
+    Iris.End()
+    if new then
+        Iris.SetState(emptyWindow, {size = Vector2.new(120, 100), position = Vector2.new(25, 200)})
+    end
 
     Iris.Text(string.format("Demo window Position: (%d, %d)", demoWindow.state.position.X, demoWindow.state.position.Y))
     Iris.Text(string.format("Demo window Size: (%d, %d)", demoWindow.state.size.X, demoWindow.state.size.Y))

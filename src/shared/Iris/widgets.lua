@@ -11,6 +11,13 @@
 local GuiService = game:GetService("GuiService")
 local UserInputService = game:GetService("UserInputService")
 
+local ICONS = {
+    RIGHT_POINTING_TRIANGLE = "\u{25BA}",
+    DOWN_POINTING_TRIANGLE = "\u{25BC}",
+    MULTIPLICATION_SIGN = "\u{00D7}", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
+    BOTTOM_RIGHT_CORNER = "\u{25E2}", -- used in window resize icon in bottom right
+}
+
 local function UIPadding(Parent, PxPadding)
     local UIPadding = Instance.new("UIPadding")
     UIPadding.PaddingLeft = UDim.new(0,PxPadding.X)
@@ -51,7 +58,9 @@ local function UICorner(Parent, PxRounding)
     return UICorner
 end
 
-local function applyTextStyle(Iris, thisInstance)
+return function(Iris)
+
+local function applyTextStyle(thisInstance)
     thisInstance.Font = Iris._style.Font
     thisInstance.TextSize = Iris._style.FontSize
     thisInstance.TextColor3 = Iris._style.TextColor
@@ -61,7 +70,7 @@ local function applyTextStyle(Iris, thisInstance)
     thisInstance.RichText = false
 end
 
-local function applyInteractionHighlights(Iris, Button, Highlightee, Colors, Mode: "Text" | "Background" | nil)
+local function applyInteractionHighlights(Button, Highlightee, Colors, Mode: "Text" | "Background" | nil)
     local exitedButton = false
     Button.MouseEnter:Connect(function()
         if Mode == "Text" then
@@ -125,7 +134,7 @@ local function applyInteractionHighlights(Iris, Button, Highlightee, Colors, Mod
     Button.SelectionImageObject = Iris.SelectionImageObject
 end
 
-local function applyFrameStyle(Iris, thisInstance)
+local function applyFrameStyle(thisInstance)
     -- padding, border, and rounding
     local FramePadding = Iris._style.FramePadding
     local FrameBorderTransparency = Iris._style.ButtonTransparency
@@ -163,14 +172,29 @@ local function applyFrameStyle(Iris, thisInstance)
     end
 end
 
-local ICONS = {
-    RIGHT_POINTING_TRIANGLE = "\u{25BA}",
-    DOWN_POINTING_TRIANGLE = "\u{25BC}",
-    MULTIPLICATION_SIGN = "\u{00D7}", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
-    BOTTOM_RIGHT_CORNER = "\u{25E2}", -- used in window resize icon in bottom right
-}
+local function commonButton()
+    local Button = Instance.new("TextButton")
+    Button.Name = "Iris_Button"
+    Button.Size = UDim2.fromOffset(0,0)
+    Button.BackgroundColor3 = Iris._style.ButtonColor
+    Button.BackgroundTransparency = Iris._style.ButtonTransparency
+    Button.AutoButtonColor = false
 
-return function(Iris)
+    applyTextStyle(Button)
+    Button.AutomaticSize = Enum.AutomaticSize.XY
+
+    applyFrameStyle(Button)
+
+    applyInteractionHighlights(Button, Button, {
+        ButtonColor = Iris._style.ButtonColor,
+        ButtonTransparency = Iris._style.ButtonTransparency,
+        ButtonHoveredColor = Iris._style.ButtonHoveredColor,
+        ButtonHoveredTransparency = Iris._style.ButtonHoveredTransparency,
+        ButtonActiveColor = Iris._style.ButtonActiveColor,
+        ButtonActiveTransparency = Iris._style.ButtonActiveTransparency,
+    })
+    return Button
+end
 
 Iris.WidgetConstructor("Root", false, true){
     ArgNames = {},
@@ -243,7 +267,7 @@ Iris.WidgetConstructor("Text", false, false){
         Text.LayoutOrder = thisWidget.ZIndex
         Text.AutomaticSize = Enum.AutomaticSize.XY
 
-        applyTextStyle(Iris, Text)
+        applyTextStyle(Text)
         UIPadding(Text, Vector2.new(0,2)) -- it appears as if this padding is not controlled by any style properties in DearImGui. could change?
 
         return Text
@@ -270,32 +294,13 @@ Iris.WidgetConstructor("Button", false, false){
         end
     },
     Generate = function(thisWidget)
-        local Button = Instance.new("TextButton")
-        Button.Name = "Iris_Button"
-        Button.Size = UDim2.fromOffset(0,0)
-        Button.BackgroundColor3 = Iris._style.ButtonColor
-        Button.BackgroundTransparency = Iris._style.ButtonTransparency
+        local Button = commonButton()
         Button.ZIndex = thisWidget.ZIndex
         Button.LayoutOrder = thisWidget.ZIndex
-        Button.AutoButtonColor = false
-
-        applyTextStyle(Iris, Button)
-        Button.AutomaticSize = Enum.AutomaticSize.XY
-
-        applyFrameStyle(Iris, Button)
 
         Button.MouseButton1Click:Connect(function()
             thisWidget.events.Clicked = true
         end)
-
-        applyInteractionHighlights(Iris, Button, Button, {
-            ButtonColor = Iris._style.ButtonColor,
-            ButtonTransparency = Iris._style.ButtonTransparency,
-            ButtonHoveredColor = Iris._style.ButtonHoveredColor,
-            ButtonHoveredTransparency = Iris._style.ButtonHoveredTransparency,
-            ButtonActiveColor = Iris._style.ButtonActiveColor,
-            ButtonActiveTransparency = Iris._style.ButtonActiveTransparency,
-        })
 
         return Button
     end,
@@ -383,7 +388,7 @@ Iris.WidgetConstructor("Tree", true, true){
         Button.Text = ""
         Button.Parent = Header
 
-        applyInteractionHighlights(Iris, Button, Header, {
+        applyInteractionHighlights(Button, Header, {
             ButtonColor = Color3.fromRGB(0,0,0),
             ButtonTransparency = 1,
             ButtonHoveredColor = Iris._style.HeaderHoveredColor,
@@ -404,7 +409,7 @@ Iris.WidgetConstructor("Tree", true, true){
         Arrow.LayoutOrder = thisWidget.ZIndex
         Arrow.AutomaticSize = Enum.AutomaticSize.Y
 
-        applyTextStyle(Iris, Arrow)
+        applyTextStyle(Arrow)
         Arrow.TextSize = Iris._style.FontSize - 4
         Arrow.Text = ICONS.RIGHT_POINTING_TRIANGLE
 
@@ -422,7 +427,7 @@ Iris.WidgetConstructor("Tree", true, true){
         local TextPadding = UIPadding(TextLabel,Vector2.new(0,0))
         TextPadding.PaddingRight = UDim.new(0,21)
 
-        applyTextStyle(Iris, TextLabel)
+        applyTextStyle(TextLabel)
 
         Button.MouseButton1Click:Connect(function()
             thisWidget.state.collapsed = not thisWidget.state.collapsed
@@ -484,20 +489,61 @@ do -- Window
     local resizeDeltaCursorPosition = nil
 
     local GAMEPAD_MENU_START_HOLD_TIME = 0.2
-    local gamepadMenuStartEnded = false
+    local gamepadMenuLastEndedDt = 0
     local gamepadMenuStartOpenedDt = 0
     local NavGamepadMenu = nil
-    local gamepadMenuOpened = false
     local NavWindowingBorder = nil
+    local gamepadMenuOpened = false
+    local gamepadMenuWindows = nil
+    local gamepadMenuWindowsTextbuttons = nil
+    local gamepadMenuSelectedWindowIndex = nil
 
     local MAX_SORT_LAYER = 0x400
     local MAX_NUM_WINDOWS = 0x200 -- should be less than MAX_SORT_LAYER
 
-    local function gamepadSelectWindow(selectedWindow)
+    local function getWindows()
+        -- optimization here to cache windows when they are generated and discarded, but that sounds like hell to code and debug.
+        local windows = {}
+        local VDOM = Iris._GetVDOM()
+
+        for i,v in VDOM do
+            if v.type == "Window" then
+                table.insert(windows, v)
+            end
+        end
+
+        return windows
+    end
+
+    local function gamepadSelectWindow(selectedWindow, force: boolean)
         local firstSelectedObject = GuiService.SelectedObject
-        if firstSelectedObject then
+        if firstSelectedObject or force then
             GuiService:Select(selectedWindow.Instance.ChildContainer)
         end
+        if GuiService.SelectedObject == firstSelectedObject and selectedWindow.Instance.TitleBar.Visible then
+            GuiService:Select(selectedWindow.Instance.TitleBar)
+        end
+    end
+
+    local function setGamepadMenuSelectedWindowIndex(newGamepadMenuSelectedWindowIndex)
+        assert(gamepadMenuOpened, "state is unrecoverable")
+        if #gamepadMenuWindows == 0 then
+            return
+        end
+        gamepadMenuWindowsTextbuttons[gamepadMenuSelectedWindowIndex].BackgroundTransparency = 1
+
+        gamepadMenuSelectedWindowIndex = newGamepadMenuSelectedWindowIndex
+        gamepadMenuWindowsTextbuttons[gamepadMenuSelectedWindowIndex].BackgroundTransparency = Iris._style.ButtonActiveTransparency
+
+        local thisSelected = gamepadMenuWindows[gamepadMenuSelectedWindowIndex]
+        Iris.SetFocusedWindow(thisSelected)
+        NavWindowingBorder.Parent = thisSelected.Instance
+
+        NavWindowingBorder.Parent = thisSelected.Instance
+        NavWindowingBorder.ZIndex = thisSelected.ZIndex + 0xFF
+
+        local baseZIndex = (ZIndexSortLayer - .5) * 0xFFFFF
+        NavGamepadMenu.ZIndex = baseZIndex
     end
 
     local function gamepadMenuBehavior(opened: boolean)
@@ -521,8 +567,13 @@ do -- Window
             MenuModal.BorderColor3 = Iris._style.BorderActiveColor
             MenuModal.BackgroundColor3 = Iris._style.WindowBgColor
             MenuModal.BackgroundTransparency = Iris._style.WindowBgTransparency
+            MenuModal.AutomaticSize = Enum.AutomaticSize.Y
 
-            UISizeConstraint(MenuModal, Vector2.new(0,150), Vector2.new(1e9, 1e9))
+            UIListLayout(MenuModal, Enum.FillDirection.Vertical, UDim.new(0, Iris._style.ItemSpacing.Y))
+
+            UIPadding(MenuModal, Iris._style.WindowPadding)
+
+            UISizeConstraint(MenuModal, Vector2.new(0, 150), Vector2.new(1e9, 1e9))
 
             MenuModal.Parent = NavGamepadMenu
         end
@@ -547,48 +598,47 @@ do -- Window
         
         gamepadMenuOpened = opened
         if opened then
-            local baseZIndex = (ZIndexSortLayer - .5) * 0xFFFFF
-            local basePeakZIndex = 0x80000000 - 0xFF
-            NavGamepadMenu.ZIndex = baseZIndex
+            local unfilteredGamepadMenuWindows = getWindows()
+            gamepadMenuWindows = {}
+            for i,v in unfilteredGamepadMenuWindows do
+                if v.state.closed == false and not v.arguments.NoNav then
+                    table.insert(gamepadMenuWindows,v)
+                end
+            end
+            gamepadMenuWindowsTextbuttons = {}
+            table.sort(gamepadMenuWindows, function(a, b)
+                return a.SortLayer < b.SortLayer
+            end)
+            gamepadMenuSelectedWindowIndex = #gamepadMenuWindows
+
+            local basePeakZIndex = 0x80000000 - (MAX_NUM_WINDOWS + 1)
             NavGamepadMenu.MenuModal.ZIndex = basePeakZIndex
             NavGamepadMenu.Visible = true
 
-            if anyFocusedWindow then
-                NavWindowingBorder.Parent = focusedWindow.Instance
-                NavWindowingBorder.ZIndex = focusedWindow.ZIndex + 0xFF
-            end
-
             GuiService.SelectedObject = nil
+
+            for i,v in gamepadMenuWindows do
+                local textButton = commonButton()
+                gamepadMenuWindowsTextbuttons[i] = textButton
+                textButton.ZIndex = basePeakZIndex + i
+                textButton.LayoutOrder = basePeakZIndex + i
+                textButton.Parent = NavGamepadMenu.MenuModal
+                textButton.BackgroundTransparency = 1
+                textButton.Text = v.arguments.Title or string.format("Unnamed Window: %s", v.ID)
+            end
+
+            setGamepadMenuSelectedWindowIndex(gamepadMenuSelectedWindowIndex)
         else
-            NavGamepadMenu.Visible = false
-            NavWindowingBorder.Parent = nil
-        end
-    end
+            -- very unoptimized, but fixes issue with changing style
+            NavGamepadMenu:Destroy()
+            NavGamepadMenu = nil
+            NavWindowingBorder:Destroy()
+            NavWindowingBorder = nil
 
-    local gamepadMenuCoroutine = coroutine.create(function()
-        while true do
-            gamepadMenuStartOpenedDt = os.clock()
-            gamepadMenuStartEnded = false
-            task.wait(GAMEPAD_MENU_START_HOLD_TIME)
-            if not gamepadMenuStartEnded then
-                gamepadMenuBehavior(true)
-            end
-            coroutine.yield()
-        end
-    end)
-
-    local function getWindows()
-        -- optimization here to cache windows when they are generated and discarded, but that sounds like hell to code and debug.
-        local windows = {}
-        local VDOM = Iris._GetVDOM()
-
-        for i,v in VDOM do
-            if v.type == "Window" then
-                table.insert(windows, v)
+            if focusedWindow then
+                gamepadSelectWindow(focusedWindow, true)
             end
         end
-
-        return windows
     end
 
     local function incrementSortLayer()
@@ -660,6 +710,11 @@ do -- Window
                     v.ZIndex = (v.ZIndex - oldZIndex) + newZIndex
                 end
             end
+
+            if thisWidget.state.collapsed then
+                thisWidget.state.collapsed = false
+                Iris.widgets["Window"].UpdateState(thisWidget)
+            end
         end
     end
 
@@ -694,11 +749,27 @@ do -- Window
             Iris.SetFocusedWindow(nil)
         end
         if input.KeyCode == Enum.KeyCode.ButtonX then
-            coroutine.resume(gamepadMenuCoroutine)
+            gamepadMenuStartOpenedDt = os.clock()
+            if os.clock() - gamepadMenuLastEndedDt > GAMEPAD_MENU_START_HOLD_TIME then
+                task.delay(GAMEPAD_MENU_START_HOLD_TIME, function()
+                    if os.clock() - gamepadMenuLastEndedDt > GAMEPAD_MENU_START_HOLD_TIME then
+                        gamepadMenuBehavior(true)
+                    end
+                end)
+            end
         end
 
         if input.KeyCode == Enum.KeyCode.Tab and (UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl)) then
             quickSwapWindows()
+        end
+
+        if gamepadMenuOpened then
+            if input.KeyCode == Enum.KeyCode.ButtonL1 then
+                setGamepadMenuSelectedWindowIndex((gamepadMenuSelectedWindowIndex - 2) % #gamepadMenuWindows + 1)
+            end
+            if input.KeyCode == Enum.KeyCode.ButtonR1 then
+                setGamepadMenuSelectedWindowIndex(gamepadMenuSelectedWindowIndex % #gamepadMenuWindows + 1)
+            end
         end
     end)
 
@@ -746,11 +817,13 @@ do -- Window
         end
 
         if input.KeyCode == Enum.KeyCode.ButtonX then
-            gamepadMenuStartEnded = true
+            gamepadMenuLastEndedDt = os.clock()
             if os.clock() - gamepadMenuStartOpenedDt <= GAMEPAD_MENU_START_HOLD_TIME then
                 quickSwapWindows()
             else
-                gamepadMenuBehavior(false)
+                if gamepadMenuOpened then
+                    gamepadMenuBehavior(false)
+                end
             end
         end
     end)
@@ -938,7 +1011,7 @@ do -- Window
             CollapseArrow.BorderSizePixel = 0
             CollapseArrow.ZIndex = thisWidget.ZIndex + 3
             CollapseArrow.AutomaticSize = Enum.AutomaticSize.None
-            applyTextStyle(Iris, CollapseArrow)
+            applyTextStyle(CollapseArrow)
             CollapseArrow.TextSize = Iris._style.FontSize
             CollapseArrow.Parent = TitleBar
 
@@ -954,7 +1027,7 @@ do -- Window
 
             UICorner(CollapseArrow, 1e9)
 
-            applyInteractionHighlights(Iris, CollapseArrow, CollapseArrow, {
+            applyInteractionHighlights(CollapseArrow, CollapseArrow, {
                 ButtonColor = Iris._style.ButtonColor,
                 ButtonTransparency = 1,
                 ButtonHoveredColor = Iris._style.ButtonHoveredColor,
@@ -973,7 +1046,7 @@ do -- Window
             CloseIcon.BorderSizePixel = 0
             CloseIcon.ZIndex = thisWidget.ZIndex + 3
             CloseIcon.AutomaticSize = Enum.AutomaticSize.None
-            applyTextStyle(Iris, CloseIcon)
+            applyTextStyle(CloseIcon)
             CloseIcon.Font = Enum.Font.Code
             CloseIcon.TextSize = Iris._style.FontSize * 2
             CloseIcon.Text = ICONS.MULTIPLICATION_SIGN
@@ -987,7 +1060,7 @@ do -- Window
                 Iris.widgets.Window.UpdateState(thisWidget)
             end)
 
-            applyInteractionHighlights(Iris, CloseIcon, CloseIcon, {
+            applyInteractionHighlights(CloseIcon, CloseIcon, {
                 ButtonColor = Iris._style.ButtonColor,
                 ButtonTransparency = 1,
                 ButtonHoveredColor = Iris._style.ButtonHoveredColor,
@@ -1006,7 +1079,7 @@ do -- Window
             Title.BackgroundTransparency = 1
             Title.ZIndex = thisWidget.ZIndex + 2
             Title.AutomaticSize = Enum.AutomaticSize.XY
-            applyTextStyle(Iris, Title)
+            applyTextStyle(Title)
             Title.Parent = TitleBar
             local TitleAlign = Iris._style.WindowTitleAlign == Enum.LeftRight.Left and 0 or Iris._style.WindowTitleAlign == Enum.LeftRight.Center and .5 or 1
             Title.Position = UDim2.fromScale(TitleAlign, 0)
@@ -1032,7 +1105,7 @@ do -- Window
             ResizeGrip.LineHeight = 1.10 -- fix mild rendering issue
             ResizeGrip.Selectable = false
             
-            applyInteractionHighlights(Iris, ResizeGrip, ResizeGrip, {
+            applyInteractionHighlights(ResizeGrip, ResizeGrip, {
                 ButtonColor = Iris._style.ButtonColor,
                 ButtonTransparency = Iris._style.ButtonTransparency,
                 ButtonHoveredColor = Iris._style.ButtonHoveredColor,
@@ -1062,7 +1135,7 @@ do -- Window
             local ResizeGrip = thisWidget.Instance.ResizeGrip
             local TitleBarWidth = Iris._style.FontSize + Iris._style.FramePadding.Y * 2
 
-            ResizeGrip.Visible = thisWidget.arguments.NoResize == false
+            ResizeGrip.Visible = not thisWidget.arguments.NoResize
             if thisWidget.arguments.NoScrollbar then
                 ChildContainer.ScrollBarThickness = 0
             else
