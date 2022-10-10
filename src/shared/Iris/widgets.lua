@@ -554,7 +554,7 @@ do -- Window
             NavGamepadMenu.Visible = true
 
             if anyFocusedWindow then
-                NavWindowingBorder.Parent = focusedWindow.Instance.UnlistedChildFolder
+                NavWindowingBorder.Parent = focusedWindow.Instance
                 NavWindowingBorder.ZIndex = focusedWindow.ZIndex + 0xFF
             end
 
@@ -802,7 +802,7 @@ do -- Window
 
             local TitleBar = thisWidget.Instance.TitleBar
             local ChildContainer = thisWidget.Instance.ChildContainer
-            local ResizeGrip = thisWidget.Instance.UnlistedChildFolder.ResizeGrip
+            local ResizeGrip = thisWidget.Instance.ResizeGrip
 
             if thisWidget.state.closed then
                 thisWidget.Instance.Visible = false
@@ -883,8 +883,6 @@ do -- Window
             UIStroke.Thickness = Iris._style.WindowBorderSize
 
             UIStroke.Parent = Window
-
-            UIListLayout(Window, Enum.FillDirection.Vertical, UDim.new(0,0))
 
             local ChildContainer = Instance.new("ScrollingFrame")
             ChildContainer.Name = "ChildContainer"
@@ -1016,9 +1014,6 @@ do -- Window
 
             UIPadding(Title, Iris._style.FramePadding)
 
-            local UnlistedChildFolder = Folder(Window)
-            UnlistedChildFolder.Name = "UnlistedChildFolder"
-
             local ResizeButtonSize = Iris._style.FontSize + Iris._style.FramePadding.X
 
             local ResizeGrip = Instance.new("TextButton")
@@ -1056,7 +1051,7 @@ do -- Window
                 resizeDeltaCursorPosition = UserInputService:GetMouseLocation() - thisWidget.state.position - thisWidget.state.size - Vector2.new(0,36)
             end)
 
-            ResizeGrip.Parent = UnlistedChildFolder
+            ResizeGrip.Parent = Window
 
             return Window
         end,
@@ -1064,13 +1059,10 @@ do -- Window
             local TitleBar = thisWidget.Instance.TitleBar
             local Title = TitleBar.Title
             local ChildContainer = thisWidget.Instance.ChildContainer
-            local ResizeGrip = thisWidget.Instance.UnlistedChildFolder.ResizeGrip
+            local ResizeGrip = thisWidget.Instance.ResizeGrip
             local TitleBarWidth = Iris._style.FontSize + Iris._style.FramePadding.Y * 2
-            if thisWidget.arguments.NoResize then
-                ResizeGrip.Visible = false
-            else
-                ResizeGrip.Visible = true
-            end
+
+            ResizeGrip.Visible = thisWidget.arguments.NoResize == false
             if thisWidget.arguments.NoScrollbar then
                 ChildContainer.ScrollBarThickness = 0
             else
@@ -1080,10 +1072,12 @@ do -- Window
                 TitleBar.Visible = false
                 ChildContainer.Size = UDim2.new(1,0,1,0)
                 ChildContainer.CanvasSize = UDim2.new(0,0,1,0)
+                ChildContainer.Position = UDim2.fromOffset(0, 0)
             else
                 TitleBar.Visible = true
                 ChildContainer.Size = UDim2.new(1,0,1,-TitleBarWidth)
                 ChildContainer.CanvasSize = UDim2.new(0,0,1,-TitleBarWidth)
+                ChildContainer.Position = UDim2.fromOffset(0, TitleBarWidth)
             end
             if thisWidget.arguments.NoBackground then
                 ChildContainer.BackgroundTransparency = 1
@@ -1127,7 +1121,6 @@ do -- Window
             }
         end
     }
-
     Iris.Window = function(...)
         return Iris._Insert("Window", ...)
     end

@@ -107,7 +107,7 @@ local cycle = function(callback)
     rootWidget.lastTick = tick
 
     debug.profilebegin("Iris Generate")
-    callback()
+    local status, _error = pcall(callback)
     debug.profileend()
 
     for _,v in lastVDOM do
@@ -115,9 +115,18 @@ local cycle = function(callback)
             widgets[v.type].Discard(v)
         end
     end
-    
+
     lastVDOM = VDOM
     VDOM = generateEmptyVDOM()
+
+    if not status then
+        stackIndex = 1
+        error(_error, 0)
+    end
+    if stackIndex ~= 1 then
+        stackIndex = 1
+        error("Callback is missing an Iris.End()", 0)
+    end
 end
 
 Iris.TemplateStyles = {
@@ -184,7 +193,6 @@ Iris.TemplateStyles = {
         NavWindowingDimBgColor = Color3.fromRGB(204, 204, 204),
         NavWindowingDimBgTransparency = .65
     },
-    
     light = {
         WindowPadding = Vector2.new(8, 8),
         FramePadding = Vector2.new(4, 3),
@@ -355,6 +363,7 @@ function Iris._Insert(type, ...)
     -- if the user sets nextWidgetId to an integer which is already occupied in code by a line which calls a widget,
     -- the localId will be equivalent. "L" adds specificity.
 
+
     local thisWidget
     local thisWidgetClass = widgets[type]
     local parentId = IDStack[stackIndex]
@@ -362,7 +371,9 @@ function Iris._Insert(type, ...)
     local ID = parentId .. "-" .. localId
     -- approx. 0.2μs for this concatenation
 
-    assert(not VDOM[ID], "Multiple widgets cannot occupy the same ID.")
+    if VDOM[ID] then
+        error("Multiple widgets cannot occupy the same ID", 3)
+    end
 
     local arguments = {}
     for i,v in {...} do
@@ -439,6 +450,9 @@ function Iris._Insert(type, ...)
 end
 
 function Iris.End()
+    if stackIndex == 1 then
+        error("Callback has too many Iris.End()", 2)
+    end
     IDStack[stackIndex] = nil
     stackIndex -= 1
 end
