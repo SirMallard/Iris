@@ -35,78 +35,78 @@ function showDemoWindow(Index)
         TextCounts[Index] = 0
     end
     Iris.UseId(Index)
-        local thisWindow = Iris.Window("Iris Demo - " .. Index,
-            Iris.Args.Window.NoTitleBar(DemoWindowArguments.NoTitleBar),
-            Iris.Args.Window.NoBackground(DemoWindowArguments.NoBackground),
-            Iris.Args.Window.NoCollapse(DemoWindowArguments.NoCollapse),
-            Iris.Args.Window.NoClose(DemoWindowArguments.NoClose),
-            Iris.Args.Window.NoMove(DemoWindowArguments.NoMove),
-            Iris.Args.Window.NoScrollbar(DemoWindowArguments.NoScrollbar),
-            Iris.Args.Window.NoResize(DemoWindowArguments.NoResize),
-            Iris.Args.Window.NoNav(DemoWindowArguments.NoNav)
-        )
+        local thisWindow = Iris.Window {"Iris Demo - " .. Index,
+            [Iris.Args.Window.NoTitleBar] = DemoWindowArguments.NoTitleBar,
+            [Iris.Args.Window.NoBackground] = DemoWindowArguments.NoBackground,
+            [Iris.Args.Window.NoCollapse] = DemoWindowArguments.NoCollapse,
+            [Iris.Args.Window.NoClose] = DemoWindowArguments.NoClose,
+            [Iris.Args.Window.NoMove] = DemoWindowArguments.NoMove,
+            [Iris.Args.Window.NoScrollbar] = DemoWindowArguments.NoScrollbar,
+            [Iris.Args.Window.NoResize] = DemoWindowArguments.NoResize,
+            [Iris.Args.Window.NoNav] = DemoWindowArguments.NoNav
+        }
         
-            Iris.Text("This is a demo window!")
-            local tree1 = Iris.Tree("first tree")
-                Iris.Text("Im inside the first tree!")
-                Iris.Button("Im a button inside the first tree!")
-                Iris.Tree("Im a tree inside the first tree!")
-                    Iris.Text("I am the innermost text")
+            Iris.Text{"This is a demo window!"}
+            local tree1 = Iris.Tree{"first tree"}
+                Iris.Text{"Im inside the first tree!"}
+                Iris.Button{"Im a button inside the first tree!"}
+                Iris.Tree{"Im a tree inside the first tree!"}
+                    Iris.Text{"I am the innermost text"}
                 Iris.End()
             Iris.End()
         
-            if Iris.Button("Change the collapsed state of the above tree").Clicked then
+            if Iris.Button{"Change the collapsed state of the above tree"}.Clicked then
                 Iris.SetState(tree1, {
                     collapsed = not tree1.state.collapsed
                 })
             end
 
-            if Iris.Button("Add a text").Clicked then
+            if Iris.Button{"Add a text"}.Clicked then
                 TextCounts[Index] = (TextCounts[Index] + 1) % 21
             end
 
-            Iris.Tree("List of text")
+            Iris.Tree{"List of text"}
                 for i = 1,TextCounts[Index] or 0 do
                     Iris.UseId(i)
-                        Iris.Text(string.format("Text #%d", i))
+                        Iris.Text{string.format("Text #%d", i)}
                     Iris.End()
                 end
             Iris.End()
 
-            Iris.Tree("Style Editor")
-                Iris.Text(string.format("FontSize: %d", Iris._style.FontSize));
-                if Iris.Button("Increase FontSize").Clicked then
+            Iris.Tree{"Style Editor"}
+                Iris.Text{string.format("FontSize: %d", Iris._style.FontSize)}
+                if Iris.Button{"Increase FontSize"}.Clicked then
                     Iris.UpdateGlobalStyle({FontSize = Iris._style.FontSize + 1})
                     Iris.ForceRefresh()
                 end
-                if Iris.Button("Decrease FontSize").Clicked then
+                if Iris.Button{"Decrease FontSize"}.Clicked then
                     Iris.UpdateGlobalStyle({FontSize = Iris._style.FontSize - 1})
                     Iris.ForceRefresh()
                 end
-                Iris.Text(string.format("FrameRounding: %d", Iris._style.FrameRounding));
-                if Iris.Button("Increase FrameRounding").Clicked then
+                Iris.Text{string.format("FrameRounding: %d", Iris._style.FrameRounding)}
+                if Iris.Button{"Increase FrameRounding"}.Clicked then
                     Iris.UpdateGlobalStyle({FrameRounding = Iris._style.FrameRounding + 1})
                     Iris.ForceRefresh()
                 end
-                if Iris.Button("Decrease FrameRounding").Clicked then
+                if Iris.Button{"Decrease FrameRounding"}.Clicked then
                     Iris.UpdateGlobalStyle({FrameRounding = Iris._style.FrameRounding - 1})
                     Iris.ForceRefresh()
                 end
-                Iris.Text(string.format("BorderSize: %d", Iris._style.FrameBorderSize));
-                if Iris.Button("Increase BorderSize").Clicked then
+                Iris.Text{string.format("BorderSize: %d", Iris._style.FrameBorderSize)}
+                if Iris.Button{"Increase BorderSize"}.Clicked then
                     Iris.UpdateGlobalStyle({FrameBorderSize = Iris._style.FrameBorderSize + 1})
                     Iris.ForceRefresh()
                 end
-                if Iris.Button("Decrease BorderSize").Clicked then
+                if Iris.Button{"Decrease BorderSize"}.Clicked then
                     Iris.UpdateGlobalStyle({FrameBorderSize = Iris._style.FrameBorderSize - 1})
                     Iris.ForceRefresh()
                 end
-                if Iris.Button("Use light mode").Clicked then
-                    Iris.UpdateGlobalStyle(Iris.TemplateStyles.light)
+                if Iris.Button{"Use light mode"}.Clicked then
+                    Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorLight)
                     Iris.ForceRefresh()
                 end
-                if Iris.Button("Use dark mode").Clicked then
-                    Iris.UpdateGlobalStyle(Iris.TemplateStyles.classic)
+                if Iris.Button{"Use dark mode"}.Clicked then
+                    Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark)
                     Iris.ForceRefresh()
                 end
             Iris.End()
@@ -117,28 +117,28 @@ function showDemoWindow(Index)
 end
 
 Iris.Connect(ScreenGui, RunService.Heartbeat, function()
-    Iris.Text("This is some useful text.")
+    Iris.Text{"This is some useful text."}
 
-    if Iris.Button().Clicked then
+    if Iris.Button{}.Clicked then
         count += 1
     end
-    Iris.Text(string.format("counter = %d", count))
+    Iris.Text{string.format("counter = %d", count)}
 
     local t = os.clock()
     local dt = t-lastT
     rollingDT += (dt - rollingDT) * .2
     lastT = t
-    Iris.Text(string.format("Average %.3f ms/frame (%.1f FPS)", rollingDT*1000, 1/rollingDT))
+    Iris.Text{string.format("Average %.3f ms/frame (%.1f FPS)", rollingDT*1000, 1/rollingDT)}
 
     local demoWindow = showDemoWindow(1)
 
-    Iris.Text("")
+    Iris.Text{""}
 
-    if Iris.Button("Open main demo window").Clicked then
+    if Iris.Button{"Open main demo window"}.Clicked then
         Iris.SetState(demoWindow, {closed = false, collapsed = false})
     end
 
-    local IsNewWindow = Iris.Button("Open a new demo window").Clicked
+    local IsNewWindow = Iris.Button{"Open a new demo window"}.Clicked
     if IsNewWindow then
         numDemoWindows += 1
     end
@@ -147,27 +147,27 @@ Iris.Connect(ScreenGui, RunService.Heartbeat, function()
         local iWindow = showDemoWindow(i + 1)
         if IsNewWindow and i == numDemoWindows then
             Iris.SetState(iWindow, {
-                size = Vector2.new(400,300),
+                size = Vector2.new(400, 300),
                 position = Vector2.new(415 + (i * 25), 115 + (i * 25))
             })
         end
     end
 
-    if Iris.Button("Collapse demo window").Clicked then
+    if Iris.Button{"Collapse demo window"}.Clicked then
         Iris.SetState(demoWindow, {collapsed = true})
     end
     
-    Iris.Tree("demo window arguments")
+    Iris.Tree{"demo window arguments"}
         for i,v in DemoWindowArguments do
             Iris.UseId(i)
-            if Iris.Button(i).Clicked then
+            if Iris.Button{i}.Clicked then
                 DemoWindowArguments[i] = not DemoWindowArguments[i]
             end
             Iris.End()
         end
     Iris.End()
 
-    Iris.Text(string.format("Demo window Position: (%d, %d)", demoWindow.state.position.X, demoWindow.state.position.Y))
-    Iris.Text(string.format("Demo window Size: (%d, %d)", demoWindow.state.size.X, demoWindow.state.size.Y))
+    Iris.Text{string.format("Demo window Position: (%d, %d)", demoWindow.state.position.X, demoWindow.state.position.Y)}
+    Iris.Text{string.format("Demo window Size: (%d, %d)", demoWindow.state.size.X, demoWindow.state.size.Y)}
     new = false
 end)

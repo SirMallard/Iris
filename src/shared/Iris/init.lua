@@ -27,8 +27,8 @@ local function generateSelectionImageObject()
     Iris.SelectionImageObject = SelectionImageObject
     SelectionImageObject.BackgroundColor3 = Iris._style.SelectionImageObjectColor
     SelectionImageObject.BackgroundTransparency = Iris._style.SelectionImageObjectTransparency
-    SelectionImageObject.Position = UDim2.fromOffset(-1,-1)
-    SelectionImageObject.Size = UDim2.new(1,2,1,2)
+    SelectionImageObject.Position = UDim2.fromOffset(-1, -1)
+    SelectionImageObject.Size = UDim2.new(1, 2, 1, 2)
     SelectionImageObject.BorderSizePixel = 0
 
     local UIStroke = Instance.new("UIStroke")
@@ -68,13 +68,13 @@ local stackIndex = 1
 local tick = 0
 local widgetCount = 0
 
-function deepcompare(t1,t2)
+function deepcompare(t1, t2)
     -- unoptimized
-    for i,v1 in t1 do
+    for i, v1 in t1 do
         local v2 = t2[i]
         if type(v1) == "table" then
             if v2 and type(v2) == "table" then
-                if deepcompare(v1,v2) == false then
+                if deepcompare(v1, v2) == false then
                     return false
                 end
             else
@@ -110,7 +110,7 @@ local cycle = function(callback)
     local status, _error = pcall(callback)
     debug.profileend()
 
-    for _,v in lastVDOM do
+    for _, v in lastVDOM do
         if v.lastTick ~= tick then
             widgets[v.type].Discard(v)
         end
@@ -130,20 +130,7 @@ local cycle = function(callback)
 end
 
 Iris.TemplateStyles = {
-    classic = {
-        WindowPadding = Vector2.new(8, 8),
-        FramePadding = Vector2.new(4, 3),
-        ItemSpacing = Vector2.new(8, 4),
-        IndentSpacing = 21,
-        Font = Enum.Font.Code,
-        FontSize = 13,
-        FrameBorderSize = 0,
-        FrameRounding = 0,
-        WindowBorderSize = 1,
-        WindowTitleAlign = Enum.LeftRight.Left,
-
-        ScrollbarSize = 7, -- Dear ImGui is 14, but these are equal, due to how ScrollbarSize is digested by roblox
-        
+    colorDark = {
         TextColor = Color3.fromRGB(255, 255, 255),
         TextTransparency = 0,
 
@@ -169,18 +156,18 @@ Iris.TemplateStyles = {
         TitleBgCollapsedColor = Color3.fromRGB(0, 0, 0),
         TitleBgCollapsedTransparency = .5,
 
-        ButtonColor = Color3.fromRGB(66,150,250),
+        ButtonColor = Color3.fromRGB(66, 150, 250),
         ButtonTransparency = 0.6,
-        ButtonHoveredColor = Color3.fromRGB(66,150,250),
+        ButtonHoveredColor = Color3.fromRGB(66, 150, 250),
         ButtonHoveredTransparency = 0,
-        ButtonActiveColor = Color3.fromRGB(15,135,250),
+        ButtonActiveColor = Color3.fromRGB(15, 135, 250),
         ButtonActiveTransparency = 0,
 
-        HeaderColor = Color3.fromRGB(66,150,250),
+        HeaderColor = Color3.fromRGB(66, 150, 250),
         HeaderTransparency = 0.31,
-        HeaderHoveredColor = Color3.fromRGB(66,150,250),
+        HeaderHoveredColor = Color3.fromRGB(66, 150, 250),
         HeaderHoveredTransparency = 0.2,
-        HeaderActiveColor = Color3.fromRGB(66,150,250),
+        HeaderActiveColor = Color3.fromRGB(66, 150, 250),
         HeaderActiveTransparency = 0,
 
         SelectionImageObjectColor = Color3.fromRGB(255, 255, 255),
@@ -193,20 +180,7 @@ Iris.TemplateStyles = {
         NavWindowingDimBgColor = Color3.fromRGB(204, 204, 204),
         NavWindowingDimBgTransparency = .65
     },
-    light = {
-        WindowPadding = Vector2.new(8, 8),
-        FramePadding = Vector2.new(4, 3),
-        ItemSpacing = Vector2.new(8, 4),
-        IndentSpacing = 21,
-        Font = Enum.Font.Code,
-        FontSize = 13,
-        FrameBorderSize = 1,
-        FrameRounding = 0,
-        WindowBorderSize = 1,
-        WindowTitleAlign = Enum.LeftRight.Left,
-
-        ScrollbarSize = 7, -- Dear ImGui is 14, but these are equal, due to how ScrollbarSize is digested by roblox
-        
+    colorLight = {
         TextColor = Color3.fromRGB(0, 0, 0),
         TextTransparency = 0,
 
@@ -232,18 +206,18 @@ Iris.TemplateStyles = {
         ScrollbarGrabColor = Color3.fromRGB(96, 96, 96),
         ScrollbarGrabTransparency = 0,
 
-        ButtonColor = Color3.fromRGB(66,150,250),
+        ButtonColor = Color3.fromRGB(66, 150, 250),
         ButtonTransparency = 0.6,
-        ButtonHoveredColor = Color3.fromRGB(66,150,250),
+        ButtonHoveredColor = Color3.fromRGB(66, 150, 250),
         ButtonHoveredTransparency = 0,
-        ButtonActiveColor = Color3.fromRGB(15,135,250),
+        ButtonActiveColor = Color3.fromRGB(15, 135, 250),
         ButtonActiveTransparency = 0,
 
-        HeaderColor = Color3.fromRGB(66,150,250),
+        HeaderColor = Color3.fromRGB(66, 150, 250),
         HeaderTransparency = 0.31,
-        HeaderHoveredColor = Color3.fromRGB(66,150,250),
+        HeaderHoveredColor = Color3.fromRGB(66, 150, 250),
         HeaderHoveredTransparency = 0.2,
-        HeaderActiveColor = Color3.fromRGB(66,150,250),
+        HeaderActiveColor = Color3.fromRGB(66, 150, 250),
         HeaderActiveTransparency = 0,
 
         SelectionImageObjectColor = Color3.fromRGB(0, 0, 0),
@@ -255,6 +229,20 @@ Iris.TemplateStyles = {
         NavWindowingHighlightTransparency = .3,
         NavWindowingDimBgColor = Color3.fromRGB(51, 51, 51),
         NavWindowingDimBgTransparency = .8
+    },
+    sizeClassic = {
+        WindowPadding = Vector2.new(8, 8),
+        FramePadding = Vector2.new(4, 3),
+        ItemSpacing = Vector2.new(8, 4),
+        IndentSpacing = 21,
+        Font = Enum.Font.Code,
+        FontSize = 13,
+        FrameBorderSize = 0,
+        FrameRounding = 0,
+        WindowBorderSize = 1,
+        WindowTitleAlign = Enum.LeftRight.Left,
+
+        ScrollbarSize = 7, -- Dear ImGui is 14, but these are equal, due to how ScrollbarSize is digested by roblox
     }
 }
 
@@ -273,8 +261,7 @@ function Iris.WidgetConstructor(type: string, hasState: boolean, hasChildren: bo
         "Generate",
         "Update",
         "Discard",
-        "ArgNames", -- not a function !
-        "Args" -- also not a function !
+        "Args", -- not a function !
     }
     local requiredFieldsIfState = {
         "GenerateState",
@@ -286,18 +273,18 @@ function Iris.WidgetConstructor(type: string, hasState: boolean, hasChildren: bo
 
     return function (widgetFunctions: {})
         local thisWidget = {}
-        for _,v in requiredFields do
+        for _, v in requiredFields do
             assert(widgetFunctions[v], v .. " is required for all widgets")
             thisWidget[v] = widgetFunctions[v]
         end
         if hasState then
-            for _,v in requiredFieldsIfState do
+            for _, v in requiredFieldsIfState do
                 assert(widgetFunctions[v], v .. " is required for all widgets with state")
                 thisWidget[v] = widgetFunctions[v]
             end
         end
         if hasChildren then
-            for _,v in requiredFieldsIfChildren do
+            for _, v in requiredFieldsIfChildren do
                 assert(widgetFunctions[v], v .. " is required for all widgets with children")
                 thisWidget[v] = widgetFunctions[v]
             end
@@ -309,11 +296,16 @@ function Iris.WidgetConstructor(type: string, hasState: boolean, hasChildren: bo
         -- what?
         widgets[type] = thisWidget
         Iris.Args[type] = thisWidget.Args
+        local ArgNames = {}
+        for i, v in thisWidget.Args do
+            ArgNames[v] = i
+        end
+        thisWidget.ArgNames = ArgNames
     end
 end
 
 function Iris.UpdateGlobalStyle(deltaStyle: table)
-    for i,v in deltaStyle do
+    for i, v in deltaStyle do
         rootStyle[i] = v
     end
 end
@@ -353,16 +345,15 @@ function Iris.Connect(parentInstance, eventConnection, callback)
     end)
 end
 
-function Iris._Insert(type, ...)
+function Iris._Insert(type, args)
     assert(widgets[type], type .. " is not a valid widget.")
     widgetCount += 1
 
-    local localId = "L" .. debug.info(3,"l") 
+    local localId = "L" .. debug.info(3,"l")
     -- possible optimization to remove this L, which is mostly for debugging
     -- the L does serve a purpose. there is a very ugly potential glitch in this ID configuration.
     -- if the user sets nextWidgetId to an integer which is already occupied in code by a line which calls a widget,
     -- the localId will be equivalent. "L" adds specificity.
-
 
     local thisWidget
     local thisWidgetClass = widgets[type]
@@ -376,17 +367,7 @@ function Iris._Insert(type, ...)
     end
 
     local arguments = {}
-    for i,v in {...} do
-        if typeof(v) == "table" and table.isfrozen(v) then
-            -- isfrozen is technically the fastest way to store a boolean metadata parameter for a table.
-            -- its faster than indexing an arbitrary index, like 0
-            -- its also faster than getmetatable()
-
-            -- in this case isfrozen signifies that the table was returned by an Iris.Args function
-            -- meaning its index position in the table is irrelivant for knowing what its parameter is
-            arguments[thisWidgetClass.ArgNames[v[1]]] = v[2]
-            continue
-        end
+    for i, v in args do
         arguments[thisWidgetClass.ArgNames[i]] = v
     end
 
@@ -398,7 +379,7 @@ function Iris._Insert(type, ...)
     else
         -- didnt find a match, lets generate a new one.
         thisWidget = {}
-        setmetatable(thisWidget,thisWidget)
+        setmetatable(thisWidget, thisWidget)
 
         thisWidget.ID = ID
         thisWidget.type = type
@@ -459,7 +440,7 @@ end
 
 function Iris.SetState(thisWidget, deltaState: {})
     local changesMade = false
-    for i,v in deltaState do
+    for i, v in deltaState do
         -- no provision againt users adding things to state that dont exist
         changesMade = changesMade or ((not thisWidget.state[i]) or thisWidget.state[i] ~= v)
         thisWidget.state[i] = v
@@ -481,6 +462,7 @@ function Iris.UseId(ID: string | number)
 end
 
 require(script.widgets)(Iris)
-Iris.UpdateGlobalStyle(Iris.TemplateStyles.classic)
+Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark)
+Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClassic)
 
 return Iris

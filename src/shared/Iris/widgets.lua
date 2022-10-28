@@ -20,10 +20,10 @@ local ICONS = {
 
 local function UIPadding(Parent, PxPadding)
     local UIPadding = Instance.new("UIPadding")
-    UIPadding.PaddingLeft = UDim.new(0,PxPadding.X)
-    UIPadding.PaddingRight = UDim.new(0,PxPadding.X)
-    UIPadding.PaddingTop = UDim.new(0,PxPadding.Y)
-    UIPadding.PaddingBottom = UDim.new(0,PxPadding.Y)
+    UIPadding.PaddingLeft = UDim.new(0, PxPadding.X)
+    UIPadding.PaddingRight = UDim.new(0, PxPadding.X)
+    UIPadding.PaddingTop = UDim.new(0, PxPadding.Y)
+    UIPadding.PaddingBottom = UDim.new(0, PxPadding.Y)
     UIPadding.Parent = Parent
     return UIPadding
 end
@@ -175,7 +175,7 @@ end
 local function commonButton()
     local Button = Instance.new("TextButton")
     Button.Name = "Iris_Button"
-    Button.Size = UDim2.fromOffset(0,0)
+    Button.Size = UDim2.fromOffset(0, 0)
     Button.BackgroundColor3 = Iris._style.ButtonColor
     Button.BackgroundTransparency = Iris._style.ButtonTransparency
     Button.AutoButtonColor = false
@@ -197,7 +197,6 @@ local function commonButton()
 end
 
 Iris.WidgetConstructor("Root", false, true){
-    ArgNames = {},
     Args = {},
     Generate = function(thisWidget)
         local Root = Instance.new("Folder")
@@ -249,18 +248,13 @@ Iris.WidgetConstructor("Root", false, true){
 }
 
 Iris.WidgetConstructor("Text", false, false){
-    ArgNames = {
-        [1] = "Text"
-    },
     Args = {
-        ["Text"] = function(_Text: string)
-            return table.freeze({1, _Text})
-        end
+        ["Text"] = 1
     },
     Generate = function(thisWidget)
         local Text = Instance.new("TextLabel")
         Text.Name = "Iris_Text"
-        Text.Size = UDim2.fromOffset(0,0)
+        Text.Size = UDim2.fromOffset(0, 0)
         Text.BackgroundTransparency = 1
         Text.BorderSizePixel = 0
         Text.ZIndex = thisWidget.ZIndex
@@ -268,7 +262,7 @@ Iris.WidgetConstructor("Text", false, false){
         Text.AutomaticSize = Enum.AutomaticSize.XY
 
         applyTextStyle(Text)
-        UIPadding(Text, Vector2.new(0,2)) -- it appears as if this padding is not controlled by any style properties in DearImGui. could change?
+        UIPadding(Text, Vector2.new(0, 2)) -- it appears as if this padding is not controlled by any style properties in DearImGui. could change?
 
         return Text
     end,
@@ -280,18 +274,13 @@ Iris.WidgetConstructor("Text", false, false){
         thisWidget.Instance:Destroy()
     end
 }
-Iris.Text = function(...)
-    return Iris._Insert("Text", ...)
+Iris.Text = function(args)
+    return Iris._Insert("Text", args)
 end
 
 Iris.WidgetConstructor("Button", false, false){
-    ArgNames = {
-        [1] = "Text"
-    },
     Args = {
-        ["Text"] = function(_Text: string)
-            return table.freeze({1, _Text})
-        end
+        ["Text"] = 1
     },
     Generate = function(thisWidget)
         local Button = commonButton()
@@ -312,22 +301,14 @@ Iris.WidgetConstructor("Button", false, false){
         thisWidget.Instance:Destroy()
     end
 }
-Iris.Button = function(...)
-    return Iris._Insert("Button", ...)
+Iris.Button = function(args)
+    return Iris._Insert("Button", args)
 end
 
 Iris.WidgetConstructor("Tree", true, true){
-    ArgNames = {
-        [1] = "Text",
-        [2] = "SpanAvailWidth"
-    },
     Args = {
-        ["Text"] = function(_Text: string)
-            return table.freeze({1, _Text})
-        end,
-        ["SpanAvailWidth"] = function(_SpanAvailWidth: boolean)
-            return table.freeze({2, _SpanAvailWidth})
-        end
+        ["Text"] = 1,
+        ["SpanAvailWidth"] = 2
     },
     UpdateState = function(thisWidget)
         local Arrow = thisWidget.Instance.Header.Button.Arrow
@@ -339,42 +320,42 @@ Iris.WidgetConstructor("Tree", true, true){
     Generate = function(thisWidget)
         local Tree = Instance.new("Frame")
         Tree.Name = "Iris_Tree"
-        Tree.Size = UDim2.fromOffset(0,0)
+        Tree.Size = UDim2.fromOffset(0, 0)
         Tree.BackgroundTransparency = 1
         Tree.BorderSizePixel = 0
         Tree.ZIndex = thisWidget.ZIndex
         Tree.LayoutOrder = thisWidget.ZIndex
-        Tree.Size = UDim2.fromScale(1,0)
+        Tree.Size = UDim2.fromScale(1, 0)
         Tree.AutomaticSize = Enum.AutomaticSize.Y
 
-        UIListLayout(Tree, Enum.FillDirection.Vertical, UDim.new(0,0))
+        UIListLayout(Tree, Enum.FillDirection.Vertical, UDim.new(0, 0))
 
         local ChildContainer = Instance.new("Frame")
         ChildContainer.Name = "ChildContainer"
-        ChildContainer.Size = UDim2.fromOffset(0,0)
+        ChildContainer.Size = UDim2.fromOffset(0, 0)
         ChildContainer.BackgroundTransparency = 1
         ChildContainer.BorderSizePixel = 0
         ChildContainer.ZIndex = thisWidget.ZIndex + 1
         ChildContainer.LayoutOrder = thisWidget.ZIndex + 1
-        ChildContainer.Size = UDim2.fromScale(1,0)
+        ChildContainer.Size = UDim2.fromScale(1, 0)
         ChildContainer.AutomaticSize = Enum.AutomaticSize.Y
         ChildContainer.Visible = false
         ChildContainer.Parent = Tree
 
         UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._style.ItemSpacing.Y))
         
-        local ChildContainerPadding = UIPadding(ChildContainer, Vector2.new(0,0))
+        local ChildContainerPadding = UIPadding(ChildContainer, Vector2.new(0, 0))
         ChildContainerPadding.PaddingTop = UDim.new(0, Iris._style.ItemSpacing.Y)
         ChildContainerPadding.PaddingLeft = UDim.new(0, Iris._style.IndentSpacing)
 
         local Header = Instance.new("Frame")
         Header.Name = "Header"
-        Header.Size = UDim2.fromOffset(0,0)
+        Header.Size = UDim2.fromOffset(0, 0)
         Header.BackgroundTransparency = 1
         Header.BorderSizePixel = 0
         Header.ZIndex = thisWidget.ZIndex
         Header.LayoutOrder = thisWidget.ZIndex
-        Header.Size = UDim2.fromScale(1,0)
+        Header.Size = UDim2.fromScale(1, 0)
         Header.AutomaticSize = Enum.AutomaticSize.Y
         Header.Parent = Tree
 
@@ -389,7 +370,7 @@ Iris.WidgetConstructor("Tree", true, true){
         Button.Parent = Header
 
         applyInteractionHighlights(Button, Header, {
-            ButtonColor = Color3.fromRGB(0,0,0),
+            ButtonColor = Color3.fromRGB(0, 0, 0),
             ButtonTransparency = 1,
             ButtonHoveredColor = Iris._style.HeaderHoveredColor,
             ButtonHoveredTransparency = Iris._style.HeaderHoveredTransparency,
@@ -397,12 +378,12 @@ Iris.WidgetConstructor("Tree", true, true){
             ButtonActiveTransparency = Iris._style.HeaderActiveTransparency,
         })
 
-        local ButtonUIListLayout = UIListLayout(Button, Enum.FillDirection.Horizontal, UDim.new(0,0))
+        local ButtonUIListLayout = UIListLayout(Button, Enum.FillDirection.Horizontal, UDim.new(0, 0))
         ButtonUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
         local Arrow = Instance.new("TextLabel")
         Arrow.Name = "Arrow"
-        Arrow.Size = UDim2.fromOffset(Iris._style.FontSize,0)
+        Arrow.Size = UDim2.fromOffset(Iris._style.FontSize, 0)
         Arrow.BackgroundTransparency = 1
         Arrow.BorderSizePixel = 0
         Arrow.ZIndex = thisWidget.ZIndex
@@ -417,15 +398,15 @@ Iris.WidgetConstructor("Tree", true, true){
 
         local TextLabel = Instance.new("TextLabel")
         TextLabel.Name = "TextLabel"
-        TextLabel.Size = UDim2.fromOffset(0,0)
+        TextLabel.Size = UDim2.fromOffset(0, 0)
         TextLabel.BackgroundTransparency = 1
         TextLabel.BorderSizePixel = 0
         TextLabel.ZIndex = thisWidget.ZIndex
         TextLabel.LayoutOrder = thisWidget.ZIndex
         TextLabel.AutomaticSize = Enum.AutomaticSize.XY
         TextLabel.Parent = Button
-        local TextPadding = UIPadding(TextLabel,Vector2.new(0,0))
-        TextPadding.PaddingRight = UDim.new(0,21)
+        local TextPadding = UIPadding(TextLabel,Vector2.new(0, 0))
+        TextPadding.PaddingRight = UDim.new(0, 21)
 
         applyTextStyle(TextLabel)
 
@@ -446,10 +427,10 @@ Iris.WidgetConstructor("Tree", true, true){
         Button.TextLabel.Text = thisWidget.arguments.Text or "Tree"
         if thisWidget.arguments.SpanAvailWidth then
             Button.AutomaticSize = Enum.AutomaticSize.Y
-            Button.Size = UDim2.fromScale(1,0)
+            Button.Size = UDim2.fromScale(1, 0)
         else
             Button.AutomaticSize = Enum.AutomaticSize.XY
-            Button.Size = UDim2.fromScale(0,0)
+            Button.Size = UDim2.fromScale(0, 0)
         end
     end,
     Discard = function(thisWidget)
@@ -464,8 +445,8 @@ Iris.WidgetConstructor("Tree", true, true){
         }
     end
 }
-Iris.Tree = function(...)
-    return Iris._Insert("Tree", ...)
+Iris.Tree = function(args)
+    return Iris._Insert("Tree", args)
 end
 
 -- THINGS TODO:
@@ -506,7 +487,7 @@ do -- Window
         local windows = {}
         local VDOM = Iris._GetVDOM()
 
-        for i,v in VDOM do
+        for _, v in VDOM do
             if v.type == "Window" then
                 table.insert(windows, v)
             end
@@ -776,7 +757,7 @@ do -- Window
     UserInputService.InputChanged:Connect(function(input)
         if isDragging then
             local mouseLocation = UserInputService:GetMouseLocation()
-            local newPosX, newPosY = 
+            local newPosX, newPosY =
             math.min(
                 math.max(mouseLocation.X - deltaCursorPosition.X, Iris._style.WindowBorderSize),
                 Iris.parentInstance.AbsoluteSize.X - dragWindow.Instance.AbsoluteSize.X - Iris._style.WindowBorderSize
@@ -798,8 +779,8 @@ do -- Window
             local mouseLocation = UserInputService:GetMouseLocation()
             local newSize = (mouseLocation - resizeWindow.state.position) - Vector2.new(0,36) - resizeDeltaCursorPosition
             newSize = Vector2.new(
-                math.min(math.max(minWindowSize, newSize.X), maxWindowSize.X),
-                math.min(math.max(minWindowSize, newSize.Y), maxWindowSize.Y)
+                math.clamp(newSize.X, minWindowSize, maxWindowSize.X),
+                math.clamp(newSize.Y, minWindowSize, maxWindowSize.Y)
             )
             resizeWindow.Instance.Size = UDim2.fromOffset(newSize.X, newSize.Y)
             resizeWindow.state.size = newSize
@@ -829,45 +810,16 @@ do -- Window
     end)
 
     Iris.WidgetConstructor("Window", true, true){
-        ArgNames = {
-            [1] = "Title",
-            [2] = "NoTitleBar",
-            [3] = "NoBackground",
-            [4] = "NoCollapse",
-            [5] = "NoClose",
-            [6] = "NoMove",
-            [7] = "NoScrollbar",
-            [8] = "NoResize",
-            [9] = "NoNav"
-        },
         Args = {
-            ["Title"] = function(_Title: string)
-                return table.freeze({1, _Title})
-            end,
-            ["NoTitleBar"] = function(_NoTitleBar: boolean)
-                return table.freeze({2, _NoTitleBar})
-            end,
-            ["NoBackground"] = function(_NoBackground: boolean)
-                return table.freeze({3, _NoBackground})
-            end,
-            ["NoCollapse"] = function(_NoCollapse: boolean)
-                return table.freeze({4, _NoCollapse})
-            end,
-            ["NoClose"] = function(_NoClose: boolean)
-                return table.freeze({5, _NoClose})
-            end,
-            ["NoMove"] = function(_NoMove: boolean)
-                return table.freeze({6, _NoMove})
-            end,
-            ["NoScrollbar"] = function(_NoScrollbar: boolean)
-                return table.freeze({7, _NoScrollbar})
-            end,
-            ["NoResize"] = function(_NoResize: boolean)
-                return table.freeze({8, _NoResize})
-            end,
-            ["NoNav"] = function(_NoNav: boolean)
-                return table.freeze({9, _NoNav})
-            end
+            ["Title"] = 1,
+            ["NoTitleBar"] = 2,
+            ["NoBackground"] = 3,
+            ["NoCollapse"] = 4,
+            ["NoClose"] = 5,
+            ["NoMove"] = 6,
+            ["NoScrollbar"] = 7,
+            ["NoResize"] = 8,
+            ["NoNav"] = 9,
         },
         UpdateState = function(thisWidget)
             thisWidget.Instance.Size = UDim2.fromOffset(thisWidget.state.size.X, thisWidget.state.size.Y)
@@ -889,7 +841,7 @@ do -- Window
 
                 ChildContainer.Visible = false
                 ResizeGrip.Visible = false
-                thisWidget.Instance.Size = UDim2.fromOffset(thisWidget.state.size.X,0)
+                thisWidget.Instance.Size = UDim2.fromOffset(thisWidget.state.size.X, 0)
                 thisWidget.Instance.AutomaticSize = Enum.AutomaticSize.Y
                 thisWidget.events.Collapsed = true
             else
@@ -919,12 +871,12 @@ do -- Window
 
             local Window = Instance.new("TextButton")
             Window.Name = "Iris_Window"
-            Window.Size = UDim2.fromOffset(0,0)
+            Window.Size = UDim2.fromOffset(0, 0)
             Window.BackgroundTransparency = 1
             Window.BorderSizePixel = 0
             Window.ZIndex = thisWidget.ZIndex
             Window.LayoutOrder = thisWidget.ZIndex
-            Window.Size = UDim2.fromOffset(0,0)
+            Window.Size = UDim2.fromOffset(0, 0)
             Window.AutomaticSize = Enum.AutomaticSize.None
             Window.ClipsDescendants = false
             Window.Text = ""
@@ -961,18 +913,18 @@ do -- Window
 
             local ChildContainer = Instance.new("ScrollingFrame")
             ChildContainer.Name = "ChildContainer"
-            ChildContainer.Position = UDim2.fromOffset(0,0)
+            ChildContainer.Position = UDim2.fromOffset(0, 0)
             ChildContainer.BorderSizePixel = 0
             ChildContainer.ZIndex = thisWidget.ZIndex + 1
             ChildContainer.LayoutOrder = thisWidget.ZIndex + 1
             ChildContainer.AutomaticSize = Enum.AutomaticSize.None
-            ChildContainer.Size = UDim2.fromScale(1,1)
+            ChildContainer.Size = UDim2.fromScale(1, 1)
             ChildContainer.Selectable = false
 
             ChildContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
             ChildContainer.ScrollBarImageTransparency = Iris._style.ScrollbarGrabTransparency
             ChildContainer.ScrollBarImageColor3 = Iris._style.ScrollbarGrabColor
-            ChildContainer.CanvasSize = UDim2.fromScale(0,1)
+            ChildContainer.CanvasSize = UDim2.fromScale(0, 1)
             
             ChildContainer.BackgroundColor3 = Iris._style.WindowBgColor
             ChildContainer.BackgroundTransparency = Iris._style.WindowBgTransparency
@@ -984,9 +936,9 @@ do -- Window
             TerminatingFrame.Name = "TerminatingFrame"
             TerminatingFrame.BackgroundTransparency = 1
             TerminatingFrame.LayoutOrder = 0x7FFFFFF0
-            TerminatingFrame.Size = UDim2.fromOffset(0,0)
+            TerminatingFrame.Size = UDim2.fromOffset(0, 0)
             TerminatingFrame.BorderSizePixel = 0
-            TerminatingFrame.Size = UDim2.fromOffset(0,Iris._style.WindowPadding.Y + Iris._style.FramePadding.Y)
+            TerminatingFrame.Size = UDim2.fromOffset(0, Iris._style.WindowPadding.Y + Iris._style.FramePadding.Y)
             TerminatingFrame.Parent = ChildContainer
 
             local ChildContainerUIListLayout = UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._style.ItemSpacing.Y))
@@ -998,7 +950,7 @@ do -- Window
             TitleBar.ZIndex = thisWidget.ZIndex
             TitleBar.LayoutOrder = thisWidget.ZIndex
             TitleBar.AutomaticSize = Enum.AutomaticSize.Y
-            TitleBar.Size = UDim2.fromScale(1,0)
+            TitleBar.Size = UDim2.fromScale(1, 0)
             TitleBar.Parent = Window
 
             local TitleButtonSize = Iris._style.FontSize + ((Iris._style.FramePadding.Y - 1) * 2)
@@ -1007,7 +959,7 @@ do -- Window
             CollapseArrow.Name = "CollapseArrow"
             CollapseArrow.Size = UDim2.fromOffset(TitleButtonSize,TitleButtonSize)
             CollapseArrow.Position = UDim2.new(0, Iris._style.FramePadding.X + 1, 0.5, 0)
-            CollapseArrow.AnchorPoint = Vector2.new(0,.5)
+            CollapseArrow.AnchorPoint = Vector2.new(0, 0.5)
             CollapseArrow.AutoButtonColor = false
             CollapseArrow.BackgroundTransparency = 1
             CollapseArrow.BorderSizePixel = 0
@@ -1042,7 +994,7 @@ do -- Window
             CloseIcon.Name = "CloseIcon"
             CloseIcon.Size = UDim2.fromOffset(TitleButtonSize, TitleButtonSize)
             CloseIcon.Position = UDim2.new(1, -(Iris._style.FramePadding.X + 1), 0.5, 0)
-            CloseIcon.AnchorPoint = Vector2.new(1,.5)
+            CloseIcon.AnchorPoint = Vector2.new(1, 0.5)
             CloseIcon.AutoButtonColor = false
             CloseIcon.BackgroundTransparency = 1
             CloseIcon.BorderSizePixel = 0
@@ -1093,14 +1045,14 @@ do -- Window
 
             local ResizeGrip = Instance.new("TextButton")
             ResizeGrip.Name = "ResizeGrip"
-            ResizeGrip.AnchorPoint = Vector2.new(1,1)
+            ResizeGrip.AnchorPoint = Vector2.new(1, 1)
             ResizeGrip.Size = UDim2.fromOffset(ResizeButtonSize, ResizeButtonSize)
             ResizeGrip.AutoButtonColor = false
             ResizeGrip.BorderSizePixel = 0
             ResizeGrip.BackgroundTransparency = 1
             ResizeGrip.Text = ICONS.BOTTOM_RIGHT_CORNER
             ResizeGrip.ZIndex = thisWidget.ZIndex + 2
-            ResizeGrip.Position = UDim2.fromScale(1,1)
+            ResizeGrip.Position = UDim2.fromScale(1, 1)
             ResizeGrip.TextSize = ResizeButtonSize
             ResizeGrip.TextColor3 = Iris._style.ButtonColor
             ResizeGrip.TextTransparency = Iris._style.ButtonTransparency
@@ -1123,7 +1075,7 @@ do -- Window
                 end
                 isResizing = true
                 resizeWindow = thisWidget
-                resizeDeltaCursorPosition = UserInputService:GetMouseLocation() - thisWidget.state.position - thisWidget.state.size - Vector2.new(0,36)
+                resizeDeltaCursorPosition = UserInputService:GetMouseLocation() - thisWidget.state.position - thisWidget.state.size - Vector2.new(0, 36)
             end)
 
             ResizeGrip.Parent = Window
@@ -1145,13 +1097,13 @@ do -- Window
             end
             if thisWidget.arguments.NoTitleBar then
                 TitleBar.Visible = false
-                ChildContainer.Size = UDim2.new(1,0,1,0)
-                ChildContainer.CanvasSize = UDim2.new(0,0,1,0)
+                ChildContainer.Size = UDim2.new(1, 0, 1, 0)
+                ChildContainer.CanvasSize = UDim2.new(0, 0, 1, 0)
                 ChildContainer.Position = UDim2.fromOffset(0, 0)
             else
                 TitleBar.Visible = true
-                ChildContainer.Size = UDim2.new(1,0,1,-TitleBarWidth)
-                ChildContainer.CanvasSize = UDim2.new(0,0,1,-TitleBarWidth)
+                ChildContainer.Size = UDim2.new(1, 0, 1, -TitleBarWidth)
+                ChildContainer.CanvasSize = UDim2.new(0, 0, 1, -TitleBarWidth)
                 ChildContainer.Position = UDim2.fromOffset(0, TitleBarWidth)
             end
             if thisWidget.arguments.NoBackground then
@@ -1189,15 +1141,15 @@ do -- Window
         end,
         GenerateState = function(thisWidget)
             return {
-                size = Vector2.new(400,300),
-                position = Vector2.new(300,100),
+                size = Vector2.new(400, 300),
+                position = Vector2.new(300, 100),
                 collapsed = false,
                 closed = false,
             }
         end
     }
-    Iris.Window = function(...)
-        return Iris._Insert("Window", ...)
+    Iris.Window = function(args)
+        return Iris._Insert("Window", args)
     end
 end
 
