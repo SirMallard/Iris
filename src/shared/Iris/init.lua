@@ -469,7 +469,7 @@ function Iris.SetState(thisWidget, deltaState: {})
     end
 end
 
-function Iris.PushId(ID: string | number)
+function Iris.UseId(ID: string | number)
     local parentId = IDStack[stackIndex]
     ID = parentId .. "-" .. tostring(ID)
 

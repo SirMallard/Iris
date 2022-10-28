@@ -519,9 +519,9 @@ do -- Window
         local firstSelectedObject = GuiService.SelectedObject
         if firstSelectedObject or force then
             GuiService:Select(selectedWindow.Instance.ChildContainer)
-        end
-        if GuiService.SelectedObject == firstSelectedObject and selectedWindow.Instance.TitleBar.Visible then
-            GuiService:Select(selectedWindow.Instance.TitleBar)
+            if GuiService.SelectedObject == firstSelectedObject and selectedWindow.Instance.TitleBar.Visible then
+                GuiService:Select(selectedWindow.Instance.TitleBar)
+            end
         end
     end
 
@@ -879,6 +879,7 @@ do -- Window
 
             if thisWidget.state.closed then
                 thisWidget.Instance.Visible = false
+                thisWidget.events.Closed = true
             else
                 thisWidget.Instance.Visible = true
             end
@@ -890,6 +891,7 @@ do -- Window
                 ResizeGrip.Visible = false
                 thisWidget.Instance.Size = UDim2.fromOffset(thisWidget.state.size.X,0)
                 thisWidget.Instance.AutomaticSize = Enum.AutomaticSize.Y
+                thisWidget.events.Collapsed = true
             else
                 ChildContainer.Visible = true
                 if thisWidget.arguments.NoResize == false then

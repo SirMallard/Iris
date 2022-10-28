@@ -34,7 +34,7 @@ function showDemoWindow(Index)
     if not TextCounts[Index] then
         TextCounts[Index] = 0
     end
-    Iris.PushId(Index)
+    Iris.UseId(Index)
         local thisWindow = Iris.Window("Iris Demo - " .. Index,
             Iris.Args.Window.NoTitleBar(DemoWindowArguments.NoTitleBar),
             Iris.Args.Window.NoBackground(DemoWindowArguments.NoBackground),
@@ -67,7 +67,7 @@ function showDemoWindow(Index)
 
             Iris.Tree("List of text")
                 for i = 1,TextCounts[Index] or 0 do
-                    Iris.PushId(i)
+                    Iris.UseId(i)
                         Iris.Text(string.format("Text #%d", i))
                     Iris.End()
                 end
@@ -110,7 +110,6 @@ function showDemoWindow(Index)
                     Iris.ForceRefresh()
                 end
             Iris.End()
-
         Iris.End()
     Iris.End()
 
@@ -160,19 +159,13 @@ Iris.Connect(ScreenGui, RunService.Heartbeat, function()
     
     Iris.Tree("demo window arguments")
         for i,v in DemoWindowArguments do
-            Iris.PushId(i)
+            Iris.UseId(i)
             if Iris.Button(i).Clicked then
                 DemoWindowArguments[i] = not DemoWindowArguments[i]
             end
             Iris.End()
         end
     Iris.End()
-
-    local emptyWindow = Iris.Window(Iris.Args.Window.NoTitleBar(false))
-    Iris.End()
-    if new then
-        Iris.SetState(emptyWindow, {size = Vector2.new(120, 100), position = Vector2.new(25, 200)})
-    end
 
     Iris.Text(string.format("Demo window Position: (%d, %d)", demoWindow.state.position.X, demoWindow.state.position.Y))
     Iris.Text(string.format("Demo window Size: (%d, %d)", demoWindow.state.size.X, demoWindow.state.size.Y))
