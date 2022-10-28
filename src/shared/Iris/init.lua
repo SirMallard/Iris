@@ -178,7 +178,10 @@ Iris.TemplateStyles = {
         NavWindowingHighlightColor = Color3.fromRGB(255, 255, 255),
         NavWindowingHighlightTransparency = .3,
         NavWindowingDimBgColor = Color3.fromRGB(204, 204, 204),
-        NavWindowingDimBgTransparency = .65
+        NavWindowingDimBgTransparency = .65,
+
+        SeparatorColor = Color3.fromRGB(110, 110, 128),
+        SeparatorTransparency = .5,
     },
     colorLight = {
         TextColor = Color3.fromRGB(0, 0, 0),
@@ -228,7 +231,10 @@ Iris.TemplateStyles = {
         NavWindowingHighlightColor = Color3.fromRGB(179, 179, 179),
         NavWindowingHighlightTransparency = .3,
         NavWindowingDimBgColor = Color3.fromRGB(51, 51, 51),
-        NavWindowingDimBgTransparency = .8
+        NavWindowingDimBgTransparency = .8,
+
+        SeparatorColor = Color3.fromRGB(99, 99, 99),
+        SeparatorTransparency = 0.38,
     },
     sizeClassic = {
         WindowPadding = Vector2.new(8, 8),
@@ -268,7 +274,8 @@ function Iris.WidgetConstructor(type: string, hasState: boolean, hasChildren: bo
         "UpdateState"
     }
     local requiredFieldsIfChildren = {
-        "GetParentInstance"
+        "GetParentInstance",
+        "AreChildrenShowing"
     }
 
     return function (widgetFunctions: {})
@@ -345,20 +352,22 @@ function Iris.Connect(parentInstance, eventConnection, callback)
     end)
 end
 
+local NO_WIDGET = {}
 function Iris._Insert(type, args)
+    local parentId = IDStack[stackIndex]
+    local parentWidget = VDOM[parentId]
+    if parentWidget.showsChildren == false then
+        return NO_WIDGET
+    end
     assert(widgets[type], type .. " is not a valid widget.")
-    widgetCount += 1
 
+    local thisWidget
+    local thisWidgetClass = widgets[type]
     local localId = "L" .. debug.info(3,"l")
     -- possible optimization to remove this L, which is mostly for debugging
     -- the L does serve a purpose. there is a very ugly potential glitch in this ID configuration.
     -- if the user sets nextWidgetId to an integer which is already occupied in code by a line which calls a widget,
     -- the localId will be equivalent. "L" adds specificity.
-
-    local thisWidget
-    local thisWidgetClass = widgets[type]
-    local parentId = IDStack[stackIndex]
-    local parentWidget = VDOM[parentId]
     local ID = parentId .. "-" .. localId
     -- approx. 0.2μs for this concatenation
 
@@ -389,6 +398,7 @@ function Iris._Insert(type, args)
         if widgetInstanceParent:IsA("GuiObject") then
             parentWidget.ZIndex = widgetInstanceParent.ZIndex -- this fucking sucks. Instance-authoritative state????
         end
+        widgetCount += 1
         thisWidget.ZIndex = parentWidget.ZIndex + (widgetCount * 0x40)
         -- ZIndex (and LayoutOrder) limit is 2^31-1
     
@@ -422,6 +432,7 @@ function Iris._Insert(type, args)
     if widgets[type].hasChildren then
         stackIndex += 1
         IDStack[stackIndex] = thisWidget.ID
+        thisWidget.showsChildren = thisWidgetClass.AreChildrenShowing(thisWidget)
     end
 
     VDOM[ID] = thisWidget

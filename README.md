@@ -7,8 +7,8 @@
 - [X]	Iris.Button
 - - [X]	Iris.Args.Button.Text
 	
-- [ ]	Iris.SmallButton
-- - [ ]	Iris.Args.SmallButton.Text
+- [X]	Iris.SmallButton
+- - [X]	Iris.Args.SmallButton.Text
 	
 - [X]	Iris.Tree
 - - [X]	Iris.Args.Tree.SpanAvailWidth
@@ -24,10 +24,10 @@
 - - [X] Iris.Args.Window.NoBackground
 - - [X] Iris.Args.Window.NoNav
 
-- [ ]	Iris.Separator
+- [X]	Iris.Separator
 	
-- [ ]	Iris.Indent
-- - [ ]	Iris.Args.Indent.Width
+- [X]	Iris.Indent
+- - [X]	Iris.Args.Indent.Width
 	
 - [ ]	Iris.Checkbox
 - - [ ]	Iris.Args.Checkbox.Text
@@ -61,7 +61,7 @@
 
 ## Methods:
 *May change prior to release*
-- Iris.PushID
+- Iris.UseId
 - Iris.UpdateGlobalStyle
 - Iris.PushStyle
 - Iris.PopStyle

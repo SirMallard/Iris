@@ -245,6 +245,9 @@ Iris.WidgetConstructor("Root", false, true){
             return thisWidget.Instance.PseudoWindow
         end
     end,
+    AreChildrenShowing = function(thisWidget)
+        return true
+    end
 }
 
 Iris.WidgetConstructor("Text", false, false){
@@ -303,6 +306,67 @@ Iris.WidgetConstructor("Button", false, false){
 }
 Iris.Button = function(args)
     return Iris._Insert("Button", args)
+end
+
+Iris.WidgetConstructor("SmallButton", false, false){
+    Args = {
+        ["Text"] = 1
+    },
+    Generate = function(thisWidget)
+        local SmallButton = commonButton()
+        SmallButton.ZIndex = thisWidget.ZIndex
+        SmallButton.LayoutOrder = thisWidget.ZIndex
+
+        SmallButton.MouseButton1Click:Connect(function()
+            thisWidget.events.Clicked = true
+        end)
+        local UIPadding = SmallButton.UIPadding
+        UIPadding.PaddingLeft = UDim.new(0, 2)
+        UIPadding.PaddingRight = UDim.new(0, 2)
+        UIPadding.PaddingTop = UDim.new(0, 0)
+        UIPadding.PaddingBottom = UDim.new(0, 0)
+
+        return SmallButton
+    end,
+    Update = function(thisWidget)
+        local SmallButton = thisWidget.Instance
+        SmallButton.Text = thisWidget.arguments.Text or "SmallButton"
+    end,
+    Discard = function(thisWidget)
+        thisWidget.Instance:Destroy()
+    end
+}
+Iris.SmallButton = function(args)
+    return Iris._Insert("SmallButton", args)
+end
+
+Iris.WidgetConstructor("Separator", false, false){
+    Args = {},
+    Generate = function(thisWidget)
+        local Separator = Instance.new("Frame")
+        Separator.Name = "Iris_Separator"
+        Separator.BorderSizePixel = 0
+        Separator.Size = UDim2.new(1,0,0,1)
+        Separator.ZIndex = thisWidget.ZIndex
+        Separator.LayoutOrder = thisWidget.ZIndex
+
+        Separator.BackgroundColor3 = Iris._style.SeparatorColor
+        Separator.BackgroundTransparency = Iris._style.SeparatorTransparency
+
+        UIListLayout(Separator, Enum.FillDirection.Vertical, UDim.new(0,0))
+        -- this is to prevent a bug of AutomaticLayout edge case when its parent has automaticLayout enabled
+
+        return Separator
+    end,
+    Update = function(thisWidget)
+
+    end,
+    Discard = function(thisWidget)
+        thisWidget.Instance:Destroy()
+    end
+}
+Iris.Separator = function(args)
+    return Iris._Insert("Separator", args)
 end
 
 Iris.WidgetConstructor("Tree", true, true){
@@ -443,10 +507,56 @@ Iris.WidgetConstructor("Tree", true, true){
         return {
             collapsed = true
         }
+    end,
+    AreChildrenShowing = function(thisWidget)
+        return not thisWidget.state.collasped
     end
 }
 Iris.Tree = function(args)
     return Iris._Insert("Tree", args)
+end
+
+Iris.WidgetConstructor("Indent", false, true){
+    Args = {
+        ["Width"] = 1,
+    },
+    Generate = function(thisWidget)
+        local Indent = Instance.new("Frame")
+        Indent.Name = "Iris_Indent"
+        Indent.Size = UDim2.fromOffset(0, 0)
+        Indent.BackgroundTransparency = 1
+        Indent.BorderSizePixel = 0
+        Indent.ZIndex = thisWidget.ZIndex
+        Indent.LayoutOrder = thisWidget.ZIndex
+        Indent.Size = UDim2.fromScale(1, 0)
+        Indent.AutomaticSize = Enum.AutomaticSize.Y
+
+        UIListLayout(Indent, Enum.FillDirection.Vertical, UDim.new(0, Iris._style.ItemSpacing.Y))
+        UIPadding(Indent, Vector2.new(0, 0))
+
+        return Indent
+    end,
+    Update = function(thisWidget)
+        local indentWidth
+        if thisWidget.arguments.Width then
+            indentWidth = thisWidget.arguments.Width
+        else
+            indentWidth = Iris._style.IndentSpacing
+        end
+        thisWidget.Instance.UIPadding.PaddingLeft = UDim.new(0, indentWidth)
+    end,
+    Discard = function(thisWidget)
+        thisWidget.Instance:Destroy()
+    end,
+    GetParentInstance = function(thisWidget)
+        return thisWidget.Instance
+    end,
+    AreChildrenShowing = function(thisWidget)
+        return true
+    end
+}
+Iris.Indent = function(args)
+    return Iris._Insert("Indent", args)
 end
 
 -- THINGS TODO:
@@ -772,12 +882,14 @@ do -- Window
         end
         if isResizing then
             local minWindowSize = (Iris._style.FontSize + Iris._style.FramePadding.Y * 2) * 2
-            local maxWindowSize = (Iris.parentInstance.AbsoluteSize -
-            Vector2.new(resizeWindow.Instance.Position.X.Offset, resizeWindow.Instance.Position.Y.Offset) -
-            Vector2.new(Iris._style.WindowBorderSize, Iris._style.WindowBorderSize))
+            local maxWindowSize = (
+                Iris.parentInstance.AbsoluteSize -
+                Vector2.new(resizeWindow.Instance.Position.X.Offset, resizeWindow.Instance.Position.Y.Offset) -
+                Vector2.new(Iris._style.WindowBorderSize, Iris._style.WindowBorderSize)
+            )
 
             local mouseLocation = UserInputService:GetMouseLocation()
-            local newSize = (mouseLocation - resizeWindow.state.position) - Vector2.new(0,36) - resizeDeltaCursorPosition
+            local newSize = (mouseLocation - resizeWindow.state.position) - Vector2.new(0, 36) - resizeDeltaCursorPosition
             newSize = Vector2.new(
                 math.clamp(newSize.X, minWindowSize, maxWindowSize.X),
                 math.clamp(newSize.Y, minWindowSize, maxWindowSize.Y)
@@ -951,6 +1063,7 @@ do -- Window
             TitleBar.LayoutOrder = thisWidget.ZIndex
             TitleBar.AutomaticSize = Enum.AutomaticSize.Y
             TitleBar.Size = UDim2.fromScale(1, 0)
+            TitleBar.ClipsDescendants = true
             TitleBar.Parent = Window
 
             local TitleButtonSize = Iris._style.FontSize + ((Iris._style.FramePadding.Y - 1) * 2)
@@ -1035,7 +1148,7 @@ do -- Window
             Title.AutomaticSize = Enum.AutomaticSize.XY
             applyTextStyle(Title)
             Title.Parent = TitleBar
-            local TitleAlign = Iris._style.WindowTitleAlign == Enum.LeftRight.Left and 0 or Iris._style.WindowTitleAlign == Enum.LeftRight.Center and .5 or 1
+            local TitleAlign = Iris._style.WindowTitleAlign == Enum.LeftRight.Left and 0 or Iris._style.WindowTitleAlign == Enum.LeftRight.Center and 0.5 or 1
             Title.Position = UDim2.fromScale(TitleAlign, 0)
             Title.AnchorPoint = Vector2.new(TitleAlign, 0)
 
@@ -1142,10 +1255,13 @@ do -- Window
         GenerateState = function(thisWidget)
             return {
                 size = Vector2.new(400, 300),
-                position = Vector2.new(300, 100),
+                position = if focusedWindow then focusedWindow.state.position + Vector2.new(15, 25) else Vector2.new(15, 25),
                 collapsed = false,
                 closed = false,
             }
+        end,
+        AreChildrenShowing = function(thisWidget)
+            return not (thisWidget.state.collasped or thisWidget.state.closed)
         end
     }
     Iris.Window = function(args)
