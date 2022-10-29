@@ -16,6 +16,7 @@ local ICONS = {
     DOWN_POINTING_TRIANGLE = "\u{25BC}",
     MULTIPLICATION_SIGN = "\u{00D7}", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
     BOTTOM_RIGHT_CORNER = "\u{25E2}", -- used in window resize icon in bottom right
+    CHECK_MARK = "\u{2713}"
 }
 
 local function UIPadding(Parent, PxPadding)
@@ -134,7 +135,7 @@ local function applyInteractionHighlights(Button, Highlightee, Colors, Mode: "Te
     Button.SelectionImageObject = Iris.SelectionImageObject
 end
 
-local function applyFrameStyle(thisInstance)
+local function applyFrameStyle(thisInstance, forceNoPadding)
     -- padding, border, and rounding
     local FramePadding = Iris._style.FramePadding
     local FrameBorderTransparency = Iris._style.ButtonTransparency
@@ -156,19 +157,26 @@ local function applyFrameStyle(thisInstance)
         UICorner(thisInstance, FrameRounding)
         UIStroke.Parent = thisInstance
 
-        UIPadding(thisInstance, Iris._style.FramePadding)
-
+        if not forceNoPadding then
+            UIPadding(thisInstance, Iris._style.FramePadding)
+        end
     elseif FrameBorderSize < 1 and FrameRounding > 0 then
         thisInstance.BorderSizePixel = 0
 
         UICorner(thisInstance, FrameRounding)
-        UIPadding(thisInstance, Iris._style.FramePadding)
+        if not forceNoPadding then
+            UIPadding(thisInstance, Iris._style.FramePadding)
+        end
     elseif FrameRounding < 1 then
         thisInstance.BorderSizePixel = FrameBorderSize
         thisInstance.BorderColor3 = FrameBorderColor
         thisInstance.BorderMode = Enum.BorderMode.Inset
 
-        UIPadding(thisInstance, FramePadding - Vector2.new(FrameBorderSize, FrameBorderSize))
+        if not forceNoPadding then
+            UIPadding(thisInstance, FramePadding - Vector2.new(FrameBorderSize, FrameBorderSize))
+        else
+            UIPadding(thisInstance, -Vector2.new(FrameBorderSize, FrameBorderSize))
+        end
     end
 end
 
@@ -314,6 +322,7 @@ Iris.WidgetConstructor("SmallButton", false, false){
     },
     Generate = function(thisWidget)
         local SmallButton = commonButton()
+        SmallButton.Name = "Iris_SmallButton"
         SmallButton.ZIndex = thisWidget.ZIndex
         SmallButton.LayoutOrder = thisWidget.ZIndex
 
@@ -557,6 +566,93 @@ Iris.WidgetConstructor("Indent", false, true){
 }
 Iris.Indent = function(args)
     return Iris._Insert("Indent", args)
+end
+
+Iris.WidgetConstructor("Checkbox", true, false){
+    Args = {
+        ["Text"] = 1
+    },
+    Generate = function(thisWidget)
+        local Checkbox = Instance.new("Frame")
+        Checkbox.Name = "Iris_Checkbox"
+        Checkbox.BackgroundTransparency = 1
+        Checkbox.BorderSizePixel = 0
+        Checkbox.Size = UDim2.fromOffset(0, 0)
+        Checkbox.AutomaticSize = Enum.AutomaticSize.XY
+        Checkbox.ZIndex = thisWidget.ZIndex
+        Checkbox.LayoutOrder = thisWidget.ZIndex
+
+        local CheckboxBox = Instance.new("TextButton")
+        CheckboxBox.Name = "CheckboxBox"
+        CheckboxBox.AutomaticSize = Enum.AutomaticSize.None
+        local checkboxSize = Iris._style.FontSize + 2 * Iris._style.FramePadding.Y
+        CheckboxBox.Size = UDim2.fromOffset(checkboxSize, checkboxSize)
+        CheckboxBox.TextSize = checkboxSize
+        CheckboxBox.LineHeight = 1.1
+        CheckboxBox.ZIndex = thisWidget.ZIndex + 1
+        CheckboxBox.LayoutOrder = thisWidget.ZIndex + 1
+        CheckboxBox.Parent = Checkbox
+        CheckboxBox.TextColor3 = Iris._style.CheckMarkColor
+        CheckboxBox.TextTransparency = Iris._style.CheckMarkTransparency
+        CheckboxBox.BackgroundColor3 = Iris._style.FrameBgColor
+        CheckboxBox.BackgroundTransparency = Iris._style.FrameBgTransparency
+        applyFrameStyle(CheckboxBox, true)
+
+        applyInteractionHighlights(CheckboxBox, CheckboxBox, {
+            ButtonColor = Iris._style.FrameBgColor,
+            ButtonTransparency = Iris._style.FrameBgTransparency,
+            ButtonHoveredColor = Iris._style.FrameBgHoveredColor,
+            ButtonHoveredTransparency = Iris._style.FrameBgHoveredTransparency,
+            ButtonActiveColor = Iris._style.FrameBgActiveColor,
+            ButtonActiveTransparency = Iris._style.FrameBgActiveTransparency,
+        })
+
+        CheckboxBox.MouseButton1Click:Connect(function()
+            thisWidget.state.checked = not thisWidget.state.checked
+            if thisWidget.state.checked then
+                thisWidget.events.Checked = true
+            else
+                thisWidget.events.Unchecked = true
+            end
+            Iris.widgets["Checkbox"].UpdateState(thisWidget)
+        end)
+
+        local TextLabel = Instance.new("TextLabel")
+        TextLabel.Name = "TextLabel"
+        applyTextStyle(TextLabel)
+        TextLabel.Position = UDim2.new(0,checkboxSize + Iris._style.ItemSpacing.X, 0.5, 0)
+        TextLabel.ZIndex = thisWidget.ZIndex + 1
+        TextLabel.LayoutOrder = thisWidget.ZIndex + 1
+        TextLabel.AutomaticSize = Enum.AutomaticSize.XY
+        TextLabel.AnchorPoint = Vector2.new(0, 0.5)
+        TextLabel.BackgroundTransparency = 1
+        TextLabel.BorderSizePixel = 0
+        TextLabel.Parent = Checkbox
+
+        return Checkbox
+    end,
+    Update = function(thisWidget)
+        thisWidget.Instance.TextLabel.Text = thisWidget.arguments.Text or "Checkbox"
+    end,
+    Discard = function(thisWidget)
+        thisWidget.Instance:Destroy()
+    end,
+    GenerateState = function(thisWidget)
+        return {
+            checked = false
+        }
+    end,
+    UpdateState = function(thisWidget)
+        local Checkbox = thisWidget.Instance.CheckboxBox
+        if thisWidget.state.checked then
+            Checkbox.Text = ICONS.CHECK_MARK
+        else
+            Checkbox.Text = ""
+        end
+    end
+}
+Iris.Checkbox = function(args)
+    return Iris._Insert("Checkbox", args)
 end
 
 -- THINGS TODO:

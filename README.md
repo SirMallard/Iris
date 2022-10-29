@@ -29,8 +29,8 @@
 - [X]	Iris.Indent
 - - [X]	Iris.Args.Indent.Width
 	
-- [ ]	Iris.Checkbox
-- - [ ]	Iris.Args.Checkbox.Text
+- [X]	Iris.Checkbox
+- - [X]	Iris.Args.Checkbox.Text
 
 - [ ]	Iris.SameLine
 - - [ ]	Iris.Args.SameLine.Width

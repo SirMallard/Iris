@@ -156,6 +156,13 @@ Iris.TemplateStyles = {
         TitleBgCollapsedColor = Color3.fromRGB(0, 0, 0),
         TitleBgCollapsedTransparency = .5,
 
+        FrameBgColor = Color3.fromRGB(41, 74, 122),
+        FrameBgTransparency = 0.46,
+        FrameBgHoveredColor = Color3.fromRGB(66, 150, 250),
+        FrameBgHoveredTransparency = 0.46,
+        FrameBgActiveColor = Color3.fromRGB(66, 150, 250),
+        FrameBgActiveTransparency = 0.33,
+
         ButtonColor = Color3.fromRGB(66, 150, 250),
         ButtonTransparency = 0.6,
         ButtonHoveredColor = Color3.fromRGB(66, 150, 250),
@@ -182,6 +189,9 @@ Iris.TemplateStyles = {
 
         SeparatorColor = Color3.fromRGB(110, 110, 128),
         SeparatorTransparency = .5,
+
+        CheckMarkColor = Color3.fromRGB(66, 150, 250),
+        CheckMarkTransparency = 0
     },
     colorLight = {
         TextColor = Color3.fromRGB(0, 0, 0),
@@ -209,6 +219,13 @@ Iris.TemplateStyles = {
         ScrollbarGrabColor = Color3.fromRGB(96, 96, 96),
         ScrollbarGrabTransparency = 0,
 
+        FrameBgColor = Color3.fromRGB(255, 255, 255),
+        FrameBgTransparency = 0.6,
+        FrameBgHoveredColor = Color3.fromRGB(66, 150, 250),
+        FrameBgHoveredTransparency = 0.6,
+        FrameBgActiveColor = Color3.fromRGB(66, 150, 250),
+        FrameBgActiveTransparency = 0.33,
+
         ButtonColor = Color3.fromRGB(66, 150, 250),
         ButtonTransparency = 0.6,
         ButtonHoveredColor = Color3.fromRGB(66, 150, 250),
@@ -235,6 +252,9 @@ Iris.TemplateStyles = {
 
         SeparatorColor = Color3.fromRGB(99, 99, 99),
         SeparatorTransparency = 0.38,
+        
+        CheckMarkColor = Color3.fromRGB(66, 150, 250),
+        CheckMarkTransparency = 0
     },
     sizeClassic = {
         WindowPadding = Vector2.new(8, 8),

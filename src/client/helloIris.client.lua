@@ -171,9 +171,7 @@ Iris.Connect(ScreenGui, RunService.Heartbeat, function()
     Iris.Tree{"demo window arguments"}
         for i, v in DemoWindowArguments do
             Iris.UseId(i)
-            if Iris.Button{i}.Clicked then
-                DemoWindowArguments[i] = not DemoWindowArguments[i]
-            end
+            DemoWindowArguments[i] = Iris.Checkbox{i}.state.checked
             Iris.End()
         end
     Iris.End()
@@ -182,5 +180,6 @@ Iris.Connect(ScreenGui, RunService.Heartbeat, function()
 
     Iris.Text{string.format("Demo window Position: (%d, %d)", demoWindow.state.position.X, demoWindow.state.position.Y)}
     Iris.Text{string.format("Demo window Size: (%d, %d)", demoWindow.state.size.X, demoWindow.state.size.Y)}
+
     new = false
 end)
