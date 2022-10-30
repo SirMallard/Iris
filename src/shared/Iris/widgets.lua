@@ -294,12 +294,12 @@ Iris.WidgetConstructor("TextWrapped", false, false){
     Generate = function(thisWidget)
         local TextWrapped = Instance.new("TextLabel")
         TextWrapped.Name = "Iris_Text"
-        TextWrapped.Size = UDim2.fromOffset(0, 0)
+        TextWrapped.Size = UDim2.new(Iris._style.ItemWidth, UDim.new(0, 0))
         TextWrapped.BackgroundTransparency = 1
         TextWrapped.BorderSizePixel = 0
         TextWrapped.ZIndex = thisWidget.ZIndex
         TextWrapped.LayoutOrder = thisWidget.ZIndex
-        TextWrapped.AutomaticSize = Enum.AutomaticSize.XY
+        TextWrapped.AutomaticSize = Enum.AutomaticSize.Y
         TextWrapped.TextWrapped = true
 
         applyTextStyle(TextWrapped)
@@ -427,19 +427,17 @@ Iris.WidgetConstructor("Tree", true, true){
     Generate = function(thisWidget)
         local Tree = Instance.new("Frame")
         Tree.Name = "Iris_Tree"
-        Tree.Size = UDim2.fromOffset(0, 0)
         Tree.BackgroundTransparency = 1
         Tree.BorderSizePixel = 0
         Tree.ZIndex = thisWidget.ZIndex
         Tree.LayoutOrder = thisWidget.ZIndex
-        Tree.Size = UDim2.fromScale(1, 0)
+        Tree.Size = UDim2.new(Iris._style.ItemWidth, UDim.new(0, 0))
         Tree.AutomaticSize = Enum.AutomaticSize.Y
 
         UIListLayout(Tree, Enum.FillDirection.Vertical, UDim.new(0, 0))
 
         local ChildContainer = Instance.new("Frame")
         ChildContainer.Name = "ChildContainer"
-        ChildContainer.Size = UDim2.fromOffset(0, 0)
         ChildContainer.BackgroundTransparency = 1
         ChildContainer.BorderSizePixel = 0
         ChildContainer.ZIndex = thisWidget.ZIndex + 1
@@ -457,7 +455,6 @@ Iris.WidgetConstructor("Tree", true, true){
 
         local Header = Instance.new("Frame")
         Header.Name = "Header"
-        Header.Size = UDim2.fromOffset(0, 0)
         Header.BackgroundTransparency = 1
         Header.BorderSizePixel = 0
         Header.ZIndex = thisWidget.ZIndex
@@ -692,7 +689,6 @@ Iris.WidgetConstructor("SameLine", false, true){
     Generate = function(thisWidget)
         local SameLine = Instance.new("Frame")
         SameLine.Name = "Iris_SameLine"
-        SameLine.Size = UDim2.fromOffset(0, 0)
         SameLine.BackgroundTransparency = 1
         SameLine.BorderSizePixel = 0
         SameLine.ZIndex = thisWidget.ZIndex
@@ -752,6 +748,124 @@ Iris.WidgetConstructor("Group", false, true){
 }
 Iris.Group = function(args)
     return Iris._Insert("Group", args)
+end
+
+Iris.WidgetConstructor("InputNum", true, false){
+    Args = {
+        ["Text"] = 1,
+        ["Increment"] = 2,
+        ["Min"] = 3,
+        ["Max"] = 4,
+        ["Format"] = 5,
+        ["NoButtons"] = 6,
+        ["NoField"] = 7
+    },
+    Generate = function(thisWidget)
+        local InputNum = Instance.new("Frame")
+        InputNum.Name = "Iris_InputNum"
+        InputNum.Size = UDim2.new(Iris._style.ItemWidth, UDim.new(0, 0))
+        InputNum.BackgroundTransparency = 1
+        InputNum.BorderSizePixel = 0
+        InputNum.ZIndex = thisWidget.ZIndex
+        InputNum.LayoutOrder = thisWidget.ZIndex
+        InputNum.AutomaticSize = Enum.AutomaticSize.Y
+        UIListLayout(InputNum, Enum.FillDirection.Horizontal, UDim.new(0, Iris._style.ItemInnerSpacing.X))
+
+        local inputButtonsWidth = Iris._style.FontSize
+        local inputButtonsTotalWidth = inputButtonsWidth * 2 + Iris._style.ItemInnerSpacing.X * 2 + Iris._style.WindowPadding.X + 4
+        local textLabelHeight = inputButtonsWidth + Iris._style.FramePadding.Y * 2
+
+        local InputField = Instance.new("TextBox")
+        InputField.Name = "InputField"
+        applyFrameStyle(InputField)
+        applyTextStyle(InputField)
+        InputField.ZIndex = thisWidget.ZIndex + 1
+        InputField.LayoutOrder = thisWidget.ZIndex + 1
+        InputField.AutomaticSize = Enum.AutomaticSize.Y
+        InputField.Size = UDim2.new(1, -inputButtonsTotalWidth, 0, 0)
+        InputField.BackgroundColor3 = Iris._style.FrameBgColor
+        InputField.BackgroundTransparency = Iris._style.FrameBgTransparency
+        InputField.TextTruncate = Enum.TextTruncate.AtEnd
+        InputField.Parent = InputNum
+
+        InputField.FocusLost:Connect(function()
+            local newValue = tonumber(InputField.Text)
+            if newValue ~= nil then
+                newValue = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
+                thisWidget.state.value = newValue
+            end
+            Iris.widgets["InputNum"].UpdateState(thisWidget)
+            thisWidget.events.ValueChanged = true
+        end)
+
+        local SubButton = commonButton()
+        SubButton.Name = "SubButton"
+        SubButton.ZIndex = thisWidget.ZIndex + 2
+        SubButton.LayoutOrder = thisWidget.ZIndex + 2
+        SubButton.TextXAlignment = Enum.TextXAlignment.Center
+        SubButton.Text = "-"
+        SubButton.Size = UDim2.fromOffset(inputButtonsWidth - 2, inputButtonsWidth)
+        SubButton.Parent = InputNum
+
+        SubButton.MouseButton1Click:Connect(function()
+            local newValue = thisWidget.state.value - (thisWidget.arguments.Increment or 1)
+            thisWidget.state.value = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
+            Iris.widgets["InputNum"].UpdateState(thisWidget)
+            thisWidget.events.ValueChanged = true
+        end)
+
+        local AddButton = commonButton()
+        AddButton.Name = "AddButton"
+        AddButton.ZIndex = thisWidget.ZIndex + 3
+        AddButton.LayoutOrder = thisWidget.ZIndex + 3
+        AddButton.TextXAlignment = Enum.TextXAlignment.Center
+        AddButton.Text = "+"
+        AddButton.Size = UDim2.fromOffset(inputButtonsWidth - 2, inputButtonsWidth)
+        AddButton.Parent = InputNum
+
+        AddButton.MouseButton1Click:Connect(function()
+            local newValue = thisWidget.state.value + (thisWidget.arguments.Increment or 1)
+            thisWidget.state.value = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
+            Iris.widgets["InputNum"].UpdateState(thisWidget)
+            thisWidget.events.ValueChanged = true
+        end)
+
+        local TextLabel = Instance.new("TextLabel")
+        TextLabel.Name = "TextLabel"
+        TextLabel.Size = UDim2.fromOffset(0, textLabelHeight)
+        TextLabel.BackgroundTransparency = 1
+        TextLabel.BorderSizePixel = 0
+        TextLabel.ZIndex = thisWidget.ZIndex + 4
+        TextLabel.LayoutOrder = thisWidget.ZIndex + 4
+        TextLabel.AutomaticSize = Enum.AutomaticSize.X
+        applyTextStyle(TextLabel)
+        TextLabel.Parent = InputNum
+
+        return InputNum
+    end,
+    Update = function(thisWidget)
+        local TextLabel = thisWidget.Instance.TextLabel
+        TextLabel.Text = thisWidget.arguments.Text or "InputNum"
+
+        thisWidget.Instance.SubButton.Visible = not thisWidget.arguments.NoButtons
+        thisWidget.Instance.AddButton.Visible = not thisWidget.arguments.NoButtons
+        thisWidget.Instance.InputField.Visible = not thisWidget.arguments.NoField
+    end,
+    Discard = function(thisWidget)
+        thisWidget.Instance:Destroy()
+    end,
+    GenerateState = function(thisWidget)
+        return {
+            value = 0
+        }
+    end,
+    UpdateState = function(thisWidget)
+        local InputField = thisWidget.Instance.InputField
+        InputField.Text = string.format(thisWidget.arguments.Format or "%f", thisWidget.state.value)
+    end
+}
+Iris.InputNum = function(args)
+    return Iris._Insert("InputNum", args)
 end
 
 -- THINGS TODO:
@@ -1178,7 +1292,6 @@ do -- Window
 
             local Window = Instance.new("TextButton")
             Window.Name = "Iris_Window"
-            Window.Size = UDim2.fromOffset(0, 0)
             Window.BackgroundTransparency = 1
             Window.BorderSizePixel = 0
             Window.ZIndex = thisWidget.ZIndex
@@ -1243,7 +1356,6 @@ do -- Window
             TerminatingFrame.Name = "TerminatingFrame"
             TerminatingFrame.BackgroundTransparency = 1
             TerminatingFrame.LayoutOrder = 0x7FFFFFF0
-            TerminatingFrame.Size = UDim2.fromOffset(0, 0)
             TerminatingFrame.BorderSizePixel = 0
             TerminatingFrame.Size = UDim2.fromOffset(0, Iris._style.WindowPadding.Y + Iris._style.FramePadding.Y)
             TerminatingFrame.Parent = ChildContainer

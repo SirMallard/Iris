@@ -40,14 +40,14 @@
 
 - [X]	Iris.Group
 	
-- [ ]	Iris.InputNum
-- - [ ]	Iris.Args.InputNum.Text
-- - [ ]	Iris.Args.InputNum.Increment
-- - [ ]	Iris.Args.InputNum.Min
-- - [ ]	Iris.Args.InputNum.Max
-- - [ ]	Iris.Args.InputNum.Format
-- - [ ] Iris.Args.InputNum.NoButtons
-- - [ ] Iris.Args.InputNum.NoField
+- [X]	Iris.InputNum
+- - [X]	Iris.Args.InputNum.Text
+- - [X]	Iris.Args.InputNum.Increment
+- - [X]	Iris.Args.InputNum.Min
+- - [X]	Iris.Args.InputNum.Max
+- - [X]	Iris.Args.InputNum.Format
+- - [X] Iris.Args.InputNum.NoButtons
+- - [X] Iris.Args.InputNum.NoField
 
 - [ ]	Iris.InputText
 - - [ ]	Iris.Args.InputText.Text

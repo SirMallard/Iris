@@ -257,6 +257,8 @@ Iris.TemplateStyles = {
         CheckMarkTransparency = 0
     },
     sizeClassic = {
+        ItemWidth = UDim.new(1, 0),
+
         WindowPadding = Vector2.new(8, 8),
         FramePadding = Vector2.new(4, 3),
         ItemSpacing = Vector2.new(8, 4),

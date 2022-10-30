@@ -29,55 +29,98 @@ local DemoWindowArguments = {
     ["NoNav"] = false
 }
 
+local InputNumArguments = {
+    ["NoField"] = false,
+    ["NoButtons"] = false,
+    ["Min"] = 0,
+    ["Max"] = 100,
+    ["Increment"] = 1
+}
+
 function showDemoWindow(Index)
     local styleEditor = Iris.Window{"Style Editor",
         [Iris.Args.Window.NoCollapse] = true,
     }
         Iris.TextWrapped{"Configure the appearance of Iris in realtime"}
-        if Iris.Button{"Use light mode"}.Clicked then
-            Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorLight)
-            Iris.ForceRefresh()
-        end
-        if Iris.Button{"Use dark mode"}.Clicked then
-            Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark)
-            Iris.ForceRefresh()
-        end
+        Iris.SameLine{}
+            if Iris.Button{"Light Theme"}.Clicked then
+                Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorLight)
+                Iris.ForceRefresh()
+            end
+            if Iris.Button{"Dark Theme"}.Clicked then
+                Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark)
+                Iris.ForceRefresh()
+            end
+            if Iris.Button{"Revert Sizes"}.Clicked then
+                Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClassic)
+                Iris.ForceRefresh()
+            end
+            if Iris.Button{"Revert All"}.Clicked then
+                Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClassic)
+                Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark)
+                Iris.ForceRefresh()
+            end
+        Iris.End()
         Iris.Separator{}
-        Iris.Text{string.format("FontSize: %d", Iris._style.FontSize)}
-        if Iris.Button{"Increase FontSize"}.Clicked then
-            Iris.UpdateGlobalStyle({FontSize = Iris._style.FontSize + 1})
-            Iris.ForceRefresh()
+        for i,v in pairs(Iris._style) do
+            Iris.UseId(i)
+
+            if type(v) == "number" then
+                Iris.PushStyle{ItemWidth = UDim.new(.5, 0)}
+                    local thisNum = Iris.InputNum{i, math.min(v/10, 1) + 0.05, math.max(0, v-(2*v)), (2*v) + 0.1}
+                Iris.PopStyle()
+
+                if thisNum.ValueChanged then
+                    Iris.UpdateGlobalStyle({[i] = thisNum.state.value})
+                    Iris.ForceRefresh()
+                end
+                if new then
+                    Iris.SetState(thisNum, {value = v})
+                end
+            elseif typeof(v) == "Vector2" then
+                Iris.PushStyle{ItemWidth = UDim.new(0, 60)}
+                    Iris.SameLine{}
+                        local thisNumX = Iris.InputNum{"X", 1, 0, 100, [Iris.Args.InputNum.NoField] = true}
+                        local thisNumY = Iris.InputNum{"Y "..i, 1, 0, 100, [Iris.Args.InputNum.NoField] = true}
+                    Iris.End()
+                Iris.PopStyle()
+
+                if thisNumX.ValueChanged or thisNumY.ValueChanged then
+                    Iris.UpdateGlobalStyle({[i] = Vector2.new(thisNumX.state.value, thisNumY.state.value)})
+                    Iris.ForceRefresh()
+                end
+                if new then
+                    Iris.SetState(thisNumX, {value = v.X})
+                    Iris.SetState(thisNumY, {value = v.Y})
+                end
+            elseif typeof(v) == "Color3" then
+                Iris.PushStyle{ItemWidth = UDim.new(0, 60)}
+                    Iris.SameLine{}
+                        local thisNumR = Iris.InputNum{"R",  5, 0, 255, [Iris.Args.InputNum.NoField] = true}
+                        local thisNumG = Iris.InputNum{"G",  5, 0, 255, [Iris.Args.InputNum.NoField] = true}
+                        local thisNumB = Iris.InputNum{"B "..i,  5, 0, 255, [Iris.Args.InputNum.NoField] = true}
+                    Iris.End()
+                Iris.PopStyle()
+
+                if thisNumR.ValueChanged or thisNumG.ValueChanged or thisNumB.ValueChanged then
+                    Iris.UpdateGlobalStyle({[i] = Color3.fromRGB(thisNumR.state.value, thisNumG.state.value, thisNumB.state.value)})
+                    Iris.ForceRefresh()
+                end
+                if new then
+                    Iris.SetState(thisNumR, {value = v.R})
+                    Iris.SetState(thisNumG, {value = v.G})
+                    Iris.SetState(thisNumB, {value = v.B})
+                end
+            end
+            Iris.End()
         end
-        if Iris.Button{"Decrease FontSize"}.Clicked then
-            Iris.UpdateGlobalStyle({FontSize = Iris._style.FontSize - 1})
-            Iris.ForceRefresh()
-        end
-        Iris.Separator{}
-        Iris.Text{string.format("FrameRounding: %d", Iris._style.FrameRounding)}
-        if Iris.Button{"Increase FrameRounding"}.Clicked then
-            Iris.UpdateGlobalStyle({FrameRounding = Iris._style.FrameRounding + 1})
-            Iris.ForceRefresh()
-        end
-        if Iris.Button{"Decrease FrameRounding"}.Clicked then
-            Iris.UpdateGlobalStyle({FrameRounding = Iris._style.FrameRounding - 1})
-            Iris.ForceRefresh()
-        end
-        Iris.Separator{}
-        Iris.Text{string.format("BorderSize: %d", Iris._style.FrameBorderSize)}
-        if Iris.Button{"Increase BorderSize"}.Clicked then
-            Iris.UpdateGlobalStyle({FrameBorderSize = Iris._style.FrameBorderSize + 1})
-            Iris.ForceRefresh()
-        end
-        if Iris.Button{"Decrease BorderSize"}.Clicked then
-            Iris.UpdateGlobalStyle({FrameBorderSize = Iris._style.FrameBorderSize - 1})
-            Iris.ForceRefresh()
-        end
+
     Iris.End()
 
     if new then
         Iris.SetState(styleEditor, {
             closed = true,
-            size = Vector2.new(250,400)
+            size = Vector2.new(400,600)
         })
     end
 
@@ -150,22 +193,49 @@ function showDemoWindow(Index)
             Iris.End()
         Iris.End()
 
+        Iris.Tree{"InputNum"}
+            Iris.PushStyle{ItemWidth = UDim.new(0.66, 0)}
+                InputNumArguments.NoField = Iris.Checkbox{"NoField"}.state.checked
+                InputNumArguments.NoButtons = Iris.Checkbox{"NoButtons"}.state.checked
+                local MinInput = Iris.InputNum{"Min"}
+                local MaxInput = Iris.InputNum{"Max"}
+                local IncrementInput = Iris.InputNum{"Increment"}
+                if new then
+                    Iris.SetState(MinInput, {value = InputNumArguments.Min})
+                    Iris.SetState(MaxInput, {value = InputNumArguments.Max})
+                    Iris.SetState(IncrementInput, {value = InputNumArguments.Increment})
+                end
+                InputNumArguments.Min = MinInput.state.value
+                InputNumArguments.Max = MaxInput.state.value
+                InputNumArguments.Increment = IncrementInput.state.value
+                Iris.Separator{}
+                Iris.InputNum{"Input Number",
+                    [Iris.Args.InputNum.NoField] = InputNumArguments.NoField,
+                    [Iris.Args.InputNum.NoButtons] = InputNumArguments.NoButtons,
+                    [Iris.Args.InputNum.Min] = InputNumArguments.Min,
+                    [Iris.Args.InputNum.Max] = InputNumArguments.Max,
+                    [Iris.Args.InputNum.Increment] = InputNumArguments.Increment
+                }
+            Iris.PopStyle()
+        Iris.End()
+
         Iris.Separator{}
 
         Iris.SameLine{}
-            if Iris.Button{"Add a text"}.Clicked then
+            Iris.PushStyle{ItemWidth = UDim.new(0, 100)}
+                Iris.Tree{"List of text"}
+                    for i = 1,TextCounts[Index] or 0 do
+                        Iris.UseId(i)
+                            Iris.Text{string.format("Text #%d", i)}
+                        Iris.End()
+                    end
+                Iris.End()
+            Iris.PopStyle()
+            if Iris.SmallButton{"Add"}.Clicked then
                 TextCounts[Index] = (TextCounts[Index] + 1) % 21
             end
-            if Iris.Button{"Remove a text"}.Clicked then
+            if Iris.SmallButton{"Remove"}.Clicked then
                 TextCounts[Index] = (TextCounts[Index] - 1) % 21
-            end
-        Iris.End()
-
-        Iris.Tree{"List of text"}
-            for i = 1,TextCounts[Index] or 0 do
-                Iris.UseId(i)
-                    Iris.Text{string.format("Text #%d", i)}
-                Iris.End()
             end
         Iris.End()
 
