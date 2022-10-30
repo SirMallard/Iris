@@ -66,6 +66,7 @@ local function applyTextStyle(thisInstance)
     thisInstance.TextSize = Iris._style.FontSize
     thisInstance.TextColor3 = Iris._style.TextColor
     thisInstance.TextTransparency = Iris._style.TextTransparency
+    thisInstance.TextXAlignment = Enum.TextXAlignment.Left
 
     thisInstance.AutoLocalize = false
     thisInstance.RichText = false
@@ -252,9 +253,6 @@ Iris.WidgetConstructor("Root", false, true){
             Iris.widgets["Root"].Update(thisWidget)    
             return thisWidget.Instance.PseudoWindow
         end
-    end,
-    AreChildrenShowing = function(thisWidget)
-        return true
     end
 }
 
@@ -287,6 +285,38 @@ Iris.WidgetConstructor("Text", false, false){
 }
 Iris.Text = function(args)
     return Iris._Insert("Text", args)
+end
+
+Iris.WidgetConstructor("TextWrapped", false, false){
+    Args = {
+        ["Text"] = 1
+    },
+    Generate = function(thisWidget)
+        local TextWrapped = Instance.new("TextLabel")
+        TextWrapped.Name = "Iris_Text"
+        TextWrapped.Size = UDim2.fromOffset(0, 0)
+        TextWrapped.BackgroundTransparency = 1
+        TextWrapped.BorderSizePixel = 0
+        TextWrapped.ZIndex = thisWidget.ZIndex
+        TextWrapped.LayoutOrder = thisWidget.ZIndex
+        TextWrapped.AutomaticSize = Enum.AutomaticSize.XY
+        TextWrapped.TextWrapped = true
+
+        applyTextStyle(TextWrapped)
+        UIPadding(TextWrapped, Vector2.new(0, 2)) -- it appears as if this padding is not controlled by any style properties in DearImGui. could change?
+
+        return TextWrapped
+    end,
+    Update = function(thisWidget)
+        local TextWrapped = thisWidget.Instance
+        TextWrapped.Text = thisWidget.arguments.Text
+    end,
+    Discard = function(thisWidget)
+        thisWidget.Instance:Destroy()
+    end
+}
+Iris.TextWrapped = function(args)
+    return Iris._Insert("TextWrapped", args)
 end
 
 Iris.WidgetConstructor("Button", false, false){
@@ -355,7 +385,11 @@ Iris.WidgetConstructor("Separator", false, false){
         local Separator = Instance.new("Frame")
         Separator.Name = "Iris_Separator"
         Separator.BorderSizePixel = 0
-        Separator.Size = UDim2.new(1,0,0,1)
+        if thisWidget.parentWidget.type == "SameLine" then
+            Separator.Size = UDim2.new(0, 1, 1, 0)
+        else
+            Separator.Size = UDim2.new(1, 0, 0, 1)
+        end
         Separator.ZIndex = thisWidget.ZIndex
         Separator.LayoutOrder = thisWidget.ZIndex
 
@@ -464,6 +498,7 @@ Iris.WidgetConstructor("Tree", true, true){
         Arrow.AutomaticSize = Enum.AutomaticSize.Y
 
         applyTextStyle(Arrow)
+        Arrow.TextXAlignment = Enum.TextXAlignment.Center
         Arrow.TextSize = Iris._style.FontSize - 4
         Arrow.Text = ICONS.RIGHT_POINTING_TRIANGLE
 
@@ -486,7 +521,7 @@ Iris.WidgetConstructor("Tree", true, true){
         Button.MouseButton1Click:Connect(function()
             thisWidget.state.collapsed = not thisWidget.state.collapsed
             if thisWidget.state.collapsed then
-                thisWidget.events.collapsed = true
+                thisWidget.events.Collapsed = true
             else
                 thisWidget.events.Opened = true
             end
@@ -516,9 +551,6 @@ Iris.WidgetConstructor("Tree", true, true){
         return {
             collapsed = true
         }
-    end,
-    AreChildrenShowing = function(thisWidget)
-        return not thisWidget.state.collasped
     end
 }
 Iris.Tree = function(args)
@@ -532,7 +564,6 @@ Iris.WidgetConstructor("Indent", false, true){
     Generate = function(thisWidget)
         local Indent = Instance.new("Frame")
         Indent.Name = "Iris_Indent"
-        Indent.Size = UDim2.fromOffset(0, 0)
         Indent.BackgroundTransparency = 1
         Indent.BorderSizePixel = 0
         Indent.ZIndex = thisWidget.ZIndex
@@ -559,9 +590,6 @@ Iris.WidgetConstructor("Indent", false, true){
     end,
     GetParentInstance = function(thisWidget)
         return thisWidget.Instance
-    end,
-    AreChildrenShowing = function(thisWidget)
-        return true
     end
 }
 Iris.Indent = function(args)
@@ -573,16 +601,18 @@ Iris.WidgetConstructor("Checkbox", true, false){
         ["Text"] = 1
     },
     Generate = function(thisWidget)
-        local Checkbox = Instance.new("Frame")
+        local Checkbox = Instance.new("TextButton")
         Checkbox.Name = "Iris_Checkbox"
         Checkbox.BackgroundTransparency = 1
         Checkbox.BorderSizePixel = 0
         Checkbox.Size = UDim2.fromOffset(0, 0)
+        Checkbox.Text = ""
         Checkbox.AutomaticSize = Enum.AutomaticSize.XY
         Checkbox.ZIndex = thisWidget.ZIndex
+        Checkbox.AutoButtonColor = false
         Checkbox.LayoutOrder = thisWidget.ZIndex
 
-        local CheckboxBox = Instance.new("TextButton")
+        local CheckboxBox = Instance.new("TextLabel")
         CheckboxBox.Name = "CheckboxBox"
         CheckboxBox.AutomaticSize = Enum.AutomaticSize.None
         local checkboxSize = Iris._style.FontSize + 2 * Iris._style.FramePadding.Y
@@ -598,7 +628,7 @@ Iris.WidgetConstructor("Checkbox", true, false){
         CheckboxBox.BackgroundTransparency = Iris._style.FrameBgTransparency
         applyFrameStyle(CheckboxBox, true)
 
-        applyInteractionHighlights(CheckboxBox, CheckboxBox, {
+        applyInteractionHighlights(Checkbox, CheckboxBox, {
             ButtonColor = Iris._style.FrameBgColor,
             ButtonTransparency = Iris._style.FrameBgTransparency,
             ButtonHoveredColor = Iris._style.FrameBgHoveredColor,
@@ -607,7 +637,7 @@ Iris.WidgetConstructor("Checkbox", true, false){
             ButtonActiveTransparency = Iris._style.FrameBgActiveTransparency,
         })
 
-        CheckboxBox.MouseButton1Click:Connect(function()
+        Checkbox.MouseButton1Click:Connect(function()
             thisWidget.state.checked = not thisWidget.state.checked
             if thisWidget.state.checked then
                 thisWidget.events.Checked = true
@@ -620,7 +650,7 @@ Iris.WidgetConstructor("Checkbox", true, false){
         local TextLabel = Instance.new("TextLabel")
         TextLabel.Name = "TextLabel"
         applyTextStyle(TextLabel)
-        TextLabel.Position = UDim2.new(0,checkboxSize + Iris._style.ItemSpacing.X, 0.5, 0)
+        TextLabel.Position = UDim2.new(0,checkboxSize + Iris._style.ItemInnerSpacing.X, 0.5, 0)
         TextLabel.ZIndex = thisWidget.ZIndex + 1
         TextLabel.LayoutOrder = thisWidget.ZIndex + 1
         TextLabel.AutomaticSize = Enum.AutomaticSize.XY
@@ -653,6 +683,75 @@ Iris.WidgetConstructor("Checkbox", true, false){
 }
 Iris.Checkbox = function(args)
     return Iris._Insert("Checkbox", args)
+end
+
+Iris.WidgetConstructor("SameLine", false, true){
+    Args = {
+        ["Width"] = 1,
+    },
+    Generate = function(thisWidget)
+        local SameLine = Instance.new("Frame")
+        SameLine.Name = "Iris_SameLine"
+        SameLine.Size = UDim2.fromOffset(0, 0)
+        SameLine.BackgroundTransparency = 1
+        SameLine.BorderSizePixel = 0
+        SameLine.ZIndex = thisWidget.ZIndex
+        SameLine.LayoutOrder = thisWidget.ZIndex
+        SameLine.Size = UDim2.fromScale(1, 0)
+        SameLine.AutomaticSize = Enum.AutomaticSize.Y
+
+        UIListLayout(SameLine, Enum.FillDirection.Horizontal, UDim.new(0, 0))
+
+        return SameLine
+    end,
+    Update = function(thisWidget)
+        local itemWidth
+        if thisWidget.arguments.Width then
+            itemWidth = thisWidget.arguments.Width
+        else
+            itemWidth = Iris._style.ItemSpacing.X
+        end
+        thisWidget.Instance.UIListLayout.Padding = UDim.new(0, itemWidth)
+    end,
+    Discard = function(thisWidget)
+        thisWidget.Instance:Destroy()
+    end,
+    GetParentInstance = function(thisWidget)
+        return thisWidget.Instance
+    end
+}
+Iris.SameLine = function(args)
+    return Iris._Insert("SameLine", args)
+end
+
+Iris.WidgetConstructor("Group", false, true){
+    Args = {},
+    Generate = function(thisWidget)
+        local Group = Instance.new("Frame")
+        Group.Name = "Iris_Group"
+        Group.Size = UDim2.fromOffset(0, 0)
+        Group.BackgroundTransparency = 1
+        Group.BorderSizePixel = 0
+        Group.ZIndex = thisWidget.ZIndex
+        Group.LayoutOrder = thisWidget.ZIndex
+        Group.AutomaticSize = Enum.AutomaticSize.XY
+
+        UIListLayout(Group, Enum.FillDirection.Vertical, UDim.new(0, Iris._style.ItemSpacing.X))
+
+        return Group
+    end,
+    Update = function(thisWidget)
+
+    end,
+    Discard = function(thisWidget)
+        thisWidget.Instance:Destroy()
+    end,
+    GetParentInstance = function(thisWidget)
+        return thisWidget.Instance
+    end
+}
+Iris.Group = function(args)
+    return Iris._Insert("Group", args)
 end
 
 -- THINGS TODO:
@@ -1175,6 +1274,7 @@ do -- Window
             CollapseArrow.ZIndex = thisWidget.ZIndex + 3
             CollapseArrow.AutomaticSize = Enum.AutomaticSize.None
             applyTextStyle(CollapseArrow)
+            CollapseArrow.TextXAlignment = Enum.TextXAlignment.Center
             CollapseArrow.TextSize = Iris._style.FontSize
             CollapseArrow.Parent = TitleBar
 
@@ -1210,6 +1310,7 @@ do -- Window
             CloseIcon.ZIndex = thisWidget.ZIndex + 3
             CloseIcon.AutomaticSize = Enum.AutomaticSize.None
             applyTextStyle(CloseIcon)
+            CloseIcon.TextXAlignment = Enum.TextXAlignment.Center
             CloseIcon.Font = Enum.Font.Code
             CloseIcon.TextSize = Iris._style.FontSize * 2
             CloseIcon.Text = ICONS.MULTIPLICATION_SIGN
@@ -1355,9 +1456,6 @@ do -- Window
                 collapsed = false,
                 closed = false,
             }
-        end,
-        AreChildrenShowing = function(thisWidget)
-            return not (thisWidget.state.collasped or thisWidget.state.closed)
         end
     }
     Iris.Window = function(args)

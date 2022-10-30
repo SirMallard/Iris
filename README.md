@@ -3,6 +3,9 @@
 
 - [X]	Iris.Text
 - - [X]	Iris.Args.Text.Text
+
+- [X]	Iris.TextWrapped
+- - [X]	Iris.Args.Text.TextWrapped
 	
 - [X]	Iris.Button
 - - [X]	Iris.Args.Button.Text
@@ -32,10 +35,10 @@
 - [X]	Iris.Checkbox
 - - [X]	Iris.Args.Checkbox.Text
 
-- [ ]	Iris.SameLine
-- - [ ]	Iris.Args.SameLine.Width
+- [X]	Iris.SameLine
+- - [X]	Iris.Args.SameLine.Width
 
-- [ ]	Iris.Group
+- [X]	Iris.Group
 	
 - [ ]	Iris.InputNum
 - - [ ]	Iris.Args.InputNum.Text

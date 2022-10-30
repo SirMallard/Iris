@@ -260,6 +260,7 @@ Iris.TemplateStyles = {
         WindowPadding = Vector2.new(8, 8),
         FramePadding = Vector2.new(4, 3),
         ItemSpacing = Vector2.new(8, 4),
+        ItemInnerSpacing = Vector2.new(4, 4),
         IndentSpacing = 21,
         Font = Enum.Font.Code,
         FontSize = 13,
@@ -294,8 +295,7 @@ function Iris.WidgetConstructor(type: string, hasState: boolean, hasChildren: bo
         "UpdateState"
     }
     local requiredFieldsIfChildren = {
-        "GetParentInstance",
-        "AreChildrenShowing"
+        "GetParentInstance"
     }
 
     return function (widgetFunctions: {})
@@ -372,13 +372,10 @@ function Iris.Connect(parentInstance, eventConnection, callback)
     end)
 end
 
-local NO_WIDGET = {}
 function Iris._Insert(type, args)
     local parentId = IDStack[stackIndex]
     local parentWidget = VDOM[parentId]
-    if parentWidget.showsChildren == false then
-        return NO_WIDGET
-    end
+
     assert(widgets[type], type .. " is not a valid widget.")
 
     local thisWidget
@@ -412,6 +409,7 @@ function Iris._Insert(type, args)
 
         thisWidget.ID = ID
         thisWidget.type = type
+        thisWidget.parentWidget = parentWidget
         thisWidget.events = {}
 
         local widgetInstanceParent = widgets[parentWidget.type].GetParentInstance(parentWidget, thisWidget)
@@ -452,7 +450,6 @@ function Iris._Insert(type, args)
     if widgets[type].hasChildren then
         stackIndex += 1
         IDStack[stackIndex] = thisWidget.ID
-        thisWidget.showsChildren = thisWidgetClass.AreChildrenShowing(thisWidget)
     end
 
     VDOM[ID] = thisWidget

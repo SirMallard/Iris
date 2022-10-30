@@ -33,7 +33,7 @@ function showDemoWindow(Index)
     local styleEditor = Iris.Window{"Style Editor",
         [Iris.Args.Window.NoCollapse] = true,
     }
-        Iris.Text{"Configure the appearance of Iris in realtime"}
+        Iris.TextWrapped{"Configure the appearance of Iris in realtime"}
         if Iris.Button{"Use light mode"}.Clicked then
             Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorLight)
             Iris.ForceRefresh()
@@ -73,6 +73,7 @@ function showDemoWindow(Index)
             Iris.ForceRefresh()
         end
     Iris.End()
+
     if new then
         Iris.SetState(styleEditor, {
             closed = true,
@@ -83,60 +84,94 @@ function showDemoWindow(Index)
     if not TextCounts[Index] then
         TextCounts[Index] = 0
     end
-    Iris.UseId(Index)
-        local thisWindow = Iris.Window {"Iris Demo - " .. Index,
-            [Iris.Args.Window.NoTitleBar] = DemoWindowArguments.NoTitleBar,
-            [Iris.Args.Window.NoBackground] = DemoWindowArguments.NoBackground,
-            [Iris.Args.Window.NoCollapse] = DemoWindowArguments.NoCollapse,
-            [Iris.Args.Window.NoClose] = DemoWindowArguments.NoClose,
-            [Iris.Args.Window.NoMove] = DemoWindowArguments.NoMove,
-            [Iris.Args.Window.NoScrollbar] = DemoWindowArguments.NoScrollbar,
-            [Iris.Args.Window.NoResize] = DemoWindowArguments.NoResize,
-            [Iris.Args.Window.NoNav] = DemoWindowArguments.NoNav
-        }
+
+    local thisWindow = Iris.Window {"Iris Demo - " .. Index,
+        [Iris.Args.Window.NoTitleBar] = DemoWindowArguments.NoTitleBar,
+        [Iris.Args.Window.NoBackground] = DemoWindowArguments.NoBackground,
+        [Iris.Args.Window.NoCollapse] = DemoWindowArguments.NoCollapse,
+        [Iris.Args.Window.NoClose] = DemoWindowArguments.NoClose,
+        [Iris.Args.Window.NoMove] = DemoWindowArguments.NoMove,
+        [Iris.Args.Window.NoScrollbar] = DemoWindowArguments.NoScrollbar,
+        [Iris.Args.Window.NoResize] = DemoWindowArguments.NoResize,
+        [Iris.Args.Window.NoNav] = DemoWindowArguments.NoNav
+    }
+    
+        Iris.Text{"Iris says hello!"}
         
-            Iris.Text{"Iris says hello!"}
-            local tree1 = Iris.Tree{"first tree"}
+        Iris.Tree{"Trees"}
+            Iris.Tree{"Tree using SpanAvailWidth", [Iris.Args.Tree.SpanAvailWidth] = true}
+            Iris.End()
+
+            local tree1 = Iris.Tree{"Tree with Children"}
                 Iris.Text{"Im inside the first tree!"}
                 Iris.Button{"Im a button inside the first tree!"}
                 Iris.Tree{"Im a tree inside the first tree!"}
-                    Iris.Text{"I am the innermost text"}
+                    Iris.Text{"I am the innermost text!!!"}
                 Iris.End()
             Iris.End()
 
-            if Iris.Button{"Change the collapsed state of the above tree"}.Clicked then
+            local collapseCheckbox = Iris.Checkbox{"make above tree collapsed"}
+            if collapseCheckbox.Checked or collapseCheckbox.Unchecked then
                 Iris.SetState(tree1, {
-                    collapsed = not tree1.state.collapsed
+                    collapsed = not collapseCheckbox.state.checked
                 })
             end
+            if tree1.Collapsed or tree1.Opened then
+                Iris.SetState(collapseCheckbox, {
+                    checked = not tree1.state.collapsed
+                })
+            end
+        Iris.End()
 
-            Iris.SmallButton{"Im a small button!"}
-
-            Iris.Indent{}
-                Iris.Text{"I am indented text"}
-                Iris.Indent{13}
-                    Iris.Text{"I am indented by 13 more pixels"}
+        Iris.Tree{"Groups"}
+            Iris.SameLine{}
+                Iris.Group{}
+                    Iris.Text{"I am in group A"}
+                    Iris.Button{"Im also in A!"}
+                Iris.End()
+                Iris.Separator{}
+                Iris.Group{}
+                    Iris.Text{"I am in group B"}
+                    Iris.Button{"Im also in B!"}
                 Iris.End()
             Iris.End()
+        Iris.End()
 
-            Iris.Separator{}
+        Iris.Tree{"Indents"}
+            Iris.Text{"Not Indented"}
+            Iris.Indent{}
+                Iris.Text{"Indented"}
+                Iris.Indent{7}
+                    Iris.Text{"Indented by 7 more pixels"}
+                Iris.End()
+                Iris.Indent{-7}
+                    Iris.Text{"Indented by 7 less pixels"}
+                Iris.End()
+            Iris.End()
+        Iris.End()
 
+        Iris.Separator{}
+
+        Iris.SameLine{}
             if Iris.Button{"Add a text"}.Clicked then
                 TextCounts[Index] = (TextCounts[Index] + 1) % 21
             end
-
-            Iris.Tree{"List of text"}
-                for i = 1,TextCounts[Index] or 0 do
-                    Iris.UseId(i)
-                        Iris.Text{string.format("Text #%d", i)}
-                    Iris.End()
-                end
-            Iris.End()
-
-            if Iris.Button{"Style Editor"}.Clicked then
-                Iris.SetState(styleEditor, {closed = false})
+            if Iris.Button{"Remove a text"}.Clicked then
+                TextCounts[Index] = (TextCounts[Index] - 1) % 21
             end
         Iris.End()
+
+        Iris.Tree{"List of text"}
+            for i = 1,TextCounts[Index] or 0 do
+                Iris.UseId(i)
+                    Iris.Text{string.format("Text #%d", i)}
+                Iris.End()
+            end
+        Iris.End()
+
+        if Iris.Button{"Style Editor"}.Clicked then
+            Iris.SetState(styleEditor, {closed = false})
+        end
     Iris.End()
 
     return thisWindow
@@ -145,10 +180,13 @@ end
 Iris.Connect(ScreenGui, RunService.Heartbeat, function()
     Iris.Text{"This is some useful text."}
 
-    if Iris.Button{}.Clicked then
-        count += 1
-    end
-    Iris.Text{string.format("counter = %d", count)}
+    Iris.SameLine{}
+        if Iris.Button{}.Clicked then
+            count += 1
+        end
+        Iris.Separator{}
+        Iris.Text{string.format("counter = %d", count)}
+    Iris.End()
 
     local t = os.clock()
     local dt = t - lastT
@@ -160,26 +198,27 @@ Iris.Connect(ScreenGui, RunService.Heartbeat, function()
 
     Iris.Separator{}
 
-    if Iris.Button{"Open demo window"}.Clicked then
-        Iris.SetState(demoWindow, {closed = false, collapsed = false})
-    end
+    Iris.Tree{"Demo Window", [Iris.Args.Tree.SpanAvailWidth] = true}
+        Iris.SameLine{}
+            if Iris.Button{"Open"}.Clicked then
+                Iris.SetState(demoWindow, {closed = false, collapsed = false})
+            end
+            if Iris.Button{"Collapse"}.Clicked then
+                Iris.SetState(demoWindow, {collapsed = true})
+            end
+        Iris.End()
 
-    if Iris.Button{"Collapse demo window"}.Clicked then
-        Iris.SetState(demoWindow, {collapsed = true})
-    end
-    
-    Iris.Tree{"demo window arguments"}
-        for i, v in DemoWindowArguments do
-            Iris.UseId(i)
-            DemoWindowArguments[i] = Iris.Checkbox{i}.state.checked
-            Iris.End()
-        end
+        Iris.Tree{"Options", [Iris.Args.Tree.SpanAvailWidth] = true}
+            for i, v in DemoWindowArguments do
+                Iris.UseId(i)
+                DemoWindowArguments[i] = Iris.Checkbox{i}.state.checked
+                Iris.End()
+            end
+        Iris.End()
+
+        Iris.Text{string.format("Window Position: (%d, %d)", demoWindow.state.position.X, demoWindow.state.position.Y)}
+        Iris.Text{string.format("Window Size: (%d, %d)", demoWindow.state.size.X, demoWindow.state.size.Y)}
     Iris.End()
-
-    Iris.Separator{}
-
-    Iris.Text{string.format("Demo window Position: (%d, %d)", demoWindow.state.position.X, demoWindow.state.position.Y)}
-    Iris.Text{string.format("Demo window Size: (%d, %d)", demoWindow.state.size.X, demoWindow.state.size.Y)}
 
     new = false
 end)
