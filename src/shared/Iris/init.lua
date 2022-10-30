@@ -398,6 +398,8 @@ function Iris._Insert(type, args)
     for i, v in args do
         arguments[thisWidgetClass.ArgNames[i]] = v
     end
+    
+    widgetCount += 1
 
     if lastVDOM[ID] then
         -- found a matching widget from last frame!
@@ -418,7 +420,6 @@ function Iris._Insert(type, args)
         if widgetInstanceParent:IsA("GuiObject") then
             parentWidget.ZIndex = widgetInstanceParent.ZIndex -- this fucking sucks. Instance-authoritative state????
         end
-        widgetCount += 1
         thisWidget.ZIndex = parentWidget.ZIndex + (widgetCount * 0x40)
         -- ZIndex (and LayoutOrder) limit is 2^31-1
     
@@ -491,6 +492,7 @@ function Iris.UseId(ID: string | number)
     VDOM[ID] = VDOM[parentId]
 end
 
+Iris.ShowDemoWindow = require(script.demoWindow)(Iris)
 require(script.widgets)(Iris)
 Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark)
 Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClassic)
