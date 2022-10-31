@@ -329,7 +329,7 @@ Iris.WidgetConstructor("Button", false, false){
         Button.LayoutOrder = thisWidget.ZIndex
 
         Button.MouseButton1Click:Connect(function()
-            thisWidget.events.Clicked = true
+            thisWidget.events.clicked = true
         end)
 
         return Button
@@ -357,7 +357,7 @@ Iris.WidgetConstructor("SmallButton", false, false){
         SmallButton.LayoutOrder = thisWidget.ZIndex
 
         SmallButton.MouseButton1Click:Connect(function()
-            thisWidget.events.Clicked = true
+            thisWidget.events.clicked = true
         end)
         local UIPadding = SmallButton.UIPadding
         UIPadding.PaddingLeft = UDim.new(0, 2)
@@ -420,9 +420,9 @@ Iris.WidgetConstructor("Tree", true, true){
     UpdateState = function(thisWidget)
         local Arrow = thisWidget.Instance.Header.Button.Arrow
         local ChildContainer = thisWidget.Instance.ChildContainer
-        Arrow.Text = (thisWidget.state.collapsed and ICONS.RIGHT_POINTING_TRIANGLE or ICONS.DOWN_POINTING_TRIANGLE)
+        Arrow.Text = (thisWidget.state.isCollapsed and ICONS.RIGHT_POINTING_TRIANGLE or ICONS.DOWN_POINTING_TRIANGLE)
 
-        ChildContainer.Visible = not thisWidget.state.collapsed
+        ChildContainer.Visible = not thisWidget.state.isCollapsed
     end,
     Generate = function(thisWidget)
         local Tree = Instance.new("Frame")
@@ -516,11 +516,11 @@ Iris.WidgetConstructor("Tree", true, true){
         applyTextStyle(TextLabel)
 
         Button.MouseButton1Click:Connect(function()
-            thisWidget.state.collapsed = not thisWidget.state.collapsed
-            if thisWidget.state.collapsed then
-                thisWidget.events.Collapsed = true
+            thisWidget.state.isCollapsed = not thisWidget.state.isCollapsed
+            if thisWidget.state.isCollapsed then
+                thisWidget.events.collapsed = true
             else
-                thisWidget.events.Opened = true
+                thisWidget.events.opened = true
             end
             Iris.widgets.Tree.UpdateState(thisWidget)
         end)
@@ -546,7 +546,7 @@ Iris.WidgetConstructor("Tree", true, true){
     end,
     GenerateState = function(thisWidget)
         return {
-            collapsed = true
+            isCollapsed = true
         }
     end
 }
@@ -635,11 +635,11 @@ Iris.WidgetConstructor("Checkbox", true, false){
         })
 
         Checkbox.MouseButton1Click:Connect(function()
-            thisWidget.state.checked = not thisWidget.state.checked
-            if thisWidget.state.checked then
-                thisWidget.events.Checked = true
+            thisWidget.state.value = not thisWidget.state.value
+            if thisWidget.state.value then
+                thisWidget.events.checked = true
             else
-                thisWidget.events.Unchecked = true
+                thisWidget.events.unchecked = true
             end
             Iris.widgets["Checkbox"].UpdateState(thisWidget)
         end)
@@ -666,12 +666,12 @@ Iris.WidgetConstructor("Checkbox", true, false){
     end,
     GenerateState = function(thisWidget)
         return {
-            checked = false
+            value = false
         }
     end,
     UpdateState = function(thisWidget)
         local Checkbox = thisWidget.Instance.CheckboxBox
-        if thisWidget.state.checked then
+        if thisWidget.state.value then
             Checkbox.Text = ICONS.CHECK_MARK
         else
             Checkbox.Text = ""
@@ -794,7 +794,7 @@ Iris.WidgetConstructor("InputNum", true, false){
                 thisWidget.state.value = newValue
             end
             Iris.widgets["InputNum"].UpdateState(thisWidget)
-            thisWidget.events.ValueChanged = true
+            thisWidget.events.valueChanged = true
         end)
 
         local SubButton = commonButton()
@@ -810,7 +810,7 @@ Iris.WidgetConstructor("InputNum", true, false){
             local newValue = thisWidget.state.value - (thisWidget.arguments.Increment or 1)
             thisWidget.state.value = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
             Iris.widgets["InputNum"].UpdateState(thisWidget)
-            thisWidget.events.ValueChanged = true
+            thisWidget.events.valueChanged = true
         end)
 
         local AddButton = commonButton()
@@ -826,7 +826,7 @@ Iris.WidgetConstructor("InputNum", true, false){
             local newValue = thisWidget.state.value + (thisWidget.arguments.Increment or 1)
             thisWidget.state.value = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
             Iris.widgets["InputNum"].UpdateState(thisWidget)
-            thisWidget.events.ValueChanged = true
+            thisWidget.events.valueChanged = true
         end)
 
         local TextLabel = Instance.new("TextLabel")
@@ -904,9 +904,9 @@ Iris.WidgetConstructor("InputText", true, false){
         InputText.TextTruncate = Enum.TextTruncate.AtEnd
 
         InputText.FocusLost:Connect(function()
-            thisWidget.state.text = InputText.Text
+            thisWidget.state.value = InputText.Text
             Iris.widgets["InputText"].UpdateState(thisWidget)
-            thisWidget.events.TextChanged = true
+            thisWidget.events.textChanged = true
         end)
 
         local TextLabel = Instance.new("TextLabel")
@@ -934,11 +934,11 @@ Iris.WidgetConstructor("InputText", true, false){
     end,
     GenerateState = function(thisWidget)
         return {
-            text = ""
+            value = ""
         }
     end,
     UpdateState = function(thisWidget)
-        thisWidget.Instance.Text = thisWidget.state.text
+        thisWidget.Instance.Text = thisWidget.state.value
     end
 }
 Iris.InputText = function(args)
@@ -1078,7 +1078,7 @@ do -- Window
             local unfilteredGamepadMenuWindows = getWindows()
             gamepadMenuWindows = {}
             for i,v in unfilteredGamepadMenuWindows do
-                if v.state.closed == false and not v.arguments.NoNav then
+                if v.state.isClosed == false and not v.arguments.NoNav then
                     table.insert(gamepadMenuWindows,v)
                 end
             end
@@ -1150,7 +1150,7 @@ do -- Window
         if anyFocusedWindow then
             -- update appearance to unfocus
             local TitleBar = focusedWindow.Instance.TitleBar
-            if focusedWindow.state.collapsed then
+            if focusedWindow.state.isCollapsed then
                 TitleBar.BackgroundColor3 = Iris._style.TitleBgCollapsedColor
                 TitleBar.BackgroundTransparency = Iris._style.TitleBgCollapsedTransparency
             else
@@ -1188,8 +1188,8 @@ do -- Window
                 end
             end
 
-            if thisWidget.state.collapsed then
-                thisWidget.state.collapsed = false
+            if thisWidget.state.isCollapsed then
+                thisWidget.state.isCollapsed = false
                 Iris.widgets["Window"].UpdateState(thisWidget)
             end
         end
@@ -1203,7 +1203,7 @@ do -- Window
         local oldWindows = getWindows()
         local windows = {}
         for i,v in oldWindows do
-            if (v.state.closed == false) and (v.arguments.NoNav == false) then
+            if (v.state.isClosed == false) and (v.arguments.NoNav == false) then
                 table.insert(windows, oldWindows[i])
             end
         end
@@ -1212,8 +1212,8 @@ do -- Window
         end)
         local SelectedWindow = windows[1]
 
-        if SelectedWindow.state.collapsed then
-            SelectedWindow.state.collapsed = false
+        if SelectedWindow.state.isCollapsed then
+            SelectedWindow.state.isCollapsed = false
             Iris.widgets["Window"].UpdateState(SelectedWindow)
         end
         Iris.SetFocusedWindow(SelectedWindow)
@@ -1327,21 +1327,21 @@ do -- Window
             local ChildContainer = thisWidget.Instance.ChildContainer
             local ResizeGrip = thisWidget.Instance.ResizeGrip
 
-            if thisWidget.state.closed then
+            if thisWidget.state.isClosed then
                 thisWidget.Instance.Visible = false
-                thisWidget.events.Closed = true
+                thisWidget.events.closed = true
             else
                 thisWidget.Instance.Visible = true
             end
 
-            if thisWidget.state.collapsed then
+            if thisWidget.state.isCollapsed then
                 TitleBar.CollapseArrow.Text = ICONS.RIGHT_POINTING_TRIANGLE
 
                 ChildContainer.Visible = false
                 ResizeGrip.Visible = false
                 thisWidget.Instance.Size = UDim2.fromOffset(thisWidget.state.size.X, 0)
                 thisWidget.Instance.AutomaticSize = Enum.AutomaticSize.Y
-                thisWidget.events.Collapsed = true
+                thisWidget.events.collapsed = true
             else
                 ChildContainer.Visible = true
                 if thisWidget.arguments.NoResize == false then
@@ -1352,7 +1352,7 @@ do -- Window
                 TitleBar.CollapseArrow.Text = ICONS.DOWN_POINTING_TRIANGLE
             end
 
-            if not thisWidget.state.closed and not thisWidget.state.collapsed then
+            if not thisWidget.state.isClosed and not thisWidget.state.isCollapsed then
                 Iris.SetFocusedWindow(thisWidget)
             else
                 TitleBar.BackgroundColor3 = Iris._style.TitleBgCollapsedColor
@@ -1390,7 +1390,7 @@ do -- Window
             
             Window.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Keyboard then return end
-                if not thisWidget.state.collapsed then
+                if not thisWidget.state.isCollapsed then
                     Iris.SetFocusedWindow(thisWidget)
                 end
                 if not thisWidget.arguments.NoMove and input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -1468,11 +1468,11 @@ do -- Window
             CollapseArrow.Parent = TitleBar
 
             CollapseArrow.MouseButton1Click:Connect(function()
-                thisWidget.state.collapsed = not thisWidget.state.collapsed
-                if thisWidget.state.collapsed then
-                    thisWidget.events.Collapsed = true
+                thisWidget.state.isCollapsed = not thisWidget.state.isCollapsed
+                if thisWidget.state.isCollapsed then
+                    thisWidget.events.collapsed = true
                 else
-                    thisWidget.events.Opened = true
+                    thisWidget.events.opened = true
                 end
                 Iris.widgets.Window.UpdateState(thisWidget)
             end)
@@ -1508,8 +1508,8 @@ do -- Window
             UICorner(CloseIcon, 1e9)
 
             CloseIcon.MouseButton1Click:Connect(function()
-                thisWidget.state.closed = true
-                thisWidget.events.Closed = true
+                thisWidget.state.isClosed = true
+                thisWidget.events.closed = true
                 Iris.widgets.Window.UpdateState(thisWidget)
             end)
 
@@ -1642,8 +1642,8 @@ do -- Window
             return {
                 size = Vector2.new(400, 300),
                 position = if focusedWindow then focusedWindow.state.position + Vector2.new(15, 25) else Vector2.new(15, 25),
-                collapsed = false,
-                closed = false,
+                isCollapsed = false,
+                isClosed = false,
             }
         end
     }

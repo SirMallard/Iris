@@ -18,6 +18,9 @@ local DemoWindow = {
         Increment = 1,
         Format = "%f"
     },
+    InputTextArguments = {
+        TextHint = "Text Hint"
+    },
     textCount = 0,
     lastT = os.clock(),
     rollingDT = 0
@@ -29,7 +32,7 @@ return function(Iris)
             local styleEditor = Iris.Window{"Style Editor",
                 [Iris.Args.Window.NoCollapse] = true,
             }
-                if styleEditor.state.closed then
+                if styleEditor.isClosed then
                     -- this optimization is a trade-off
                     -- it means that while the styleEditor is closed, it has a very small performance impact
                     -- but when it is opened, or closed, it will have a large performance impact.
@@ -39,19 +42,19 @@ return function(Iris)
                 end
                 Iris.TextWrapped{"Configure the appearance of Iris in realtime"}
                 Iris.SameLine{}
-                    if Iris.Button{"Light Theme"}.Clicked then
+                    if Iris.Button{"Light Theme"}.clicked then
                         Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorLight)
                         Iris.ForceRefresh()
                     end
-                    if Iris.Button{"Dark Theme"}.Clicked then
+                    if Iris.Button{"Dark Theme"}.clicked then
                         Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark)
                         Iris.ForceRefresh()
                     end
-                    if Iris.Button{"Revert Sizes"}.Clicked then
+                    if Iris.Button{"Revert Sizes"}.clicked then
                         Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClassic)
                         Iris.ForceRefresh()
                     end
-                    if Iris.Button{"Revert All"}.Clicked then
+                    if Iris.Button{"Revert All"}.clicked then
                         Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClassic)
                         Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark)
                         Iris.ForceRefresh()
@@ -66,8 +69,8 @@ return function(Iris)
                             local thisNum = Iris.InputNum{i, math.min(v/10, 1) + 0.05, -math.huge, math.huge}
                         Iris.PopStyle()
     
-                        if thisNum.ValueChanged then
-                            Iris.UpdateGlobalStyle({[i] = thisNum.state.value})
+                        if thisNum.valueChanged then
+                            Iris.UpdateGlobalStyle({[i] = thisNum.value})
                             Iris.ForceRefresh()
                         end
                         if DemoWindow.new then
@@ -76,13 +79,13 @@ return function(Iris)
                     elseif typeof(v) == "Vector2" then
                         Iris.PushStyle{ItemWidth = UDim.new(0, 60)}
                             Iris.SameLine{}
-                                local thisNumX = Iris.InputNum{"X", 1, 0, 100, [Iris.Args.InputNum.NoField] = true}
+                                local thisNumX = Iris.InputNum{"X"    , 1, 0, 100, [Iris.Args.InputNum.NoField] = true}
                                 local thisNumY = Iris.InputNum{"Y "..i, 1, 0, 100, [Iris.Args.InputNum.NoField] = true}
                             Iris.End()
                         Iris.PopStyle()
     
-                        if thisNumX.ValueChanged or thisNumY.ValueChanged then
-                            Iris.UpdateGlobalStyle({[i] = Vector2.new(thisNumX.state.value, thisNumY.state.value)})
+                        if thisNumX.valueChanged or thisNumY.valueChanged then
+                            Iris.UpdateGlobalStyle({[i] = Vector2.new(thisNumX.value, thisNumY.value)})
                             Iris.ForceRefresh()
                         end
                         if DemoWindow.new then
@@ -92,14 +95,14 @@ return function(Iris)
                     elseif typeof(v) == "Color3" then
                         Iris.PushStyle{ItemWidth = UDim.new(0, 60)}
                             Iris.SameLine{}
-                                local thisNumR = Iris.InputNum{"R",  5, 0, 255, [Iris.Args.InputNum.NoField] = true}
-                                local thisNumG = Iris.InputNum{"G",  5, 0, 255, [Iris.Args.InputNum.NoField] = true}
+                                local thisNumR = Iris.InputNum{"R"    ,  5, 0, 255, [Iris.Args.InputNum.NoField] = true}
+                                local thisNumG = Iris.InputNum{"G"    ,  5, 0, 255, [Iris.Args.InputNum.NoField] = true}
                                 local thisNumB = Iris.InputNum{"B "..i,  5, 0, 255, [Iris.Args.InputNum.NoField] = true}
                             Iris.End()
                         Iris.PopStyle()
     
-                        if thisNumR.ValueChanged or thisNumG.ValueChanged or thisNumB.ValueChanged then
-                            Iris.UpdateGlobalStyle({[i] = Color3.fromRGB(thisNumR.state.value, thisNumG.state.value, thisNumB.state.value)})
+                        if thisNumR.valueChanged or thisNumG.valueChanged or thisNumB.valueChanged then
+                            Iris.UpdateGlobalStyle({[i] = Color3.fromRGB(thisNumR.value, thisNumG.value, thisNumB.value)})
                             Iris.ForceRefresh()
                         end
                         if DemoWindow.new then
@@ -111,14 +114,14 @@ return function(Iris)
                     Iris.End()
                 end
             Iris.End()
-    
+
             return styleEditor
         end
         local styleEditor = showStyleEditor()
     
         local function showRuntimeInformation()
             local widgetStackViewer = Iris.Window{"Runtime Information"}
-                if widgetStackViewer.state.closed then
+                if widgetStackViewer.isClosed then
                     Iris.End()
                     return widgetStackViewer
                 end
@@ -146,7 +149,7 @@ return function(Iris)
         local function showRecurseWindow(index)
             Iris.UseId(index)
                 local rcWindow = Iris.Window{string.format("Hey! - %d", index)}
-                    local opened = Iris.Button{"Recurse"}.Clicked
+                    local opened = Iris.Button{"Recurse"}.clicked
                     if opened then
                         rcWindow.hasChild = true
                     end
@@ -157,12 +160,12 @@ return function(Iris)
                 local child = showRecurseWindow(index + 1)
                 if opened then
                     Iris.SetState(child, {
-                        closed = false,
+                        isClosed = false,
                         size = Vector2.new(200, 100),
-                        position = rcWindow.state.position + Vector2.new(15, 25)
+                        position = rcWindow.position + Vector2.new(15, 25)
                     })
                 end
-                rcWindow.hasChild = not (rcWindow.state.closed or child.state.closed)
+                rcWindow.hasChild = not (rcWindow.isClosed or child.isClosed)
             end
     
             return rcWindow
@@ -183,14 +186,14 @@ return function(Iris)
             Iris.Text{"Iris says hello!"}
             Iris.Separator{}
             Iris.SameLine{}
-                if Iris.SmallButton{"Style Editor"}.Clicked then
-                    Iris.SetState(styleEditor, {closed = false})
+                if Iris.SmallButton{"Style Editor"}.clicked then
+                    Iris.SetState(styleEditor, {isClosed = false})
                 end
-                if Iris.SmallButton{"Runtime Info"}.Clicked then
-                    Iris.SetState(widgetStackViewer, {closed = false})
+                if Iris.SmallButton{"Runtime Info"}.clicked then
+                    Iris.SetState(widgetStackViewer, {isClosed = false})
                 end
-                if Iris.SmallButton{"Recursive Window"}.Clicked then
-                    Iris.SetState(recurseWindow, {closed = false})
+                if Iris.SmallButton{"Recursive Window"}.clicked then
+                    Iris.SetState(recurseWindow, {isClosed = false})
                 end
             Iris.End()
             Iris.Separator{}
@@ -198,7 +201,7 @@ return function(Iris)
             Iris.Tree{"Window Options"}
                 for i, v in DemoWindow.Arguments do
                     Iris.UseId(i)
-                    DemoWindow.Arguments[i] = Iris.Checkbox{i}.state.checked
+                    DemoWindow.Arguments[i] = Iris.Checkbox{i}.value
                     Iris.End()
                 end
             Iris.End()
@@ -216,14 +219,14 @@ return function(Iris)
                 Iris.End()
     
                 local collapseCheckbox = Iris.Checkbox{"make above tree opened"}
-                if collapseCheckbox.Checked or collapseCheckbox.Unchecked then
+                if collapseCheckbox.checked or collapseCheckbox.unchecked then
                     Iris.SetState(tree1, {
-                        collapsed = not collapseCheckbox.state.checked
+                        isCollapsed = not collapseCheckbox.value
                     })
                 end
-                if tree1.Collapsed or tree1.Opened then
+                if tree1.collapsed or tree1.opened then
                     Iris.SetState(collapseCheckbox, {
-                        checked = not tree1.state.collapsed
+                        isChecked = not tree1.isCollapsed
                     })
                 end
             Iris.End()
@@ -257,24 +260,7 @@ return function(Iris)
     
             Iris.PushStyle{ItemWidth = UDim.new(0.66, 0)}
                 Iris.Tree{"Input Num"}
-                    DemoWindow.InputNumArguments.NoField = Iris.Checkbox{"NoField"}.state.checked
-                    DemoWindow.InputNumArguments.NoButtons = Iris.Checkbox{"NoButtons"}.state.checked
-                    local FormatInput = Iris.InputText{"Format"}
-                    local MinInput = Iris.InputNum{"Min", [Iris.Args.InputNum.NoButtons] = true}
-                    local MaxInput = Iris.InputNum{"Max", [Iris.Args.InputNum.NoButtons] = true}
-                    local IncrementInput = Iris.InputNum{"Increment", [Iris.Args.InputNum.NoButtons] = true}
-                    if DemoWindow.new then
-                        Iris.SetState(MinInput, {value = DemoWindow.InputNumArguments.Min})
-                        Iris.SetState(MaxInput, {value = DemoWindow.InputNumArguments.Max})
-                        Iris.SetState(IncrementInput, {value = DemoWindow.InputNumArguments.Increment})
-                        Iris.SetState(FormatInput, {text = DemoWindow.InputNumArguments.Format})
-                    end
-                    DemoWindow.InputNumArguments.Min = MinInput.state.value
-                    DemoWindow.InputNumArguments.Max = MaxInput.state.value
-                    DemoWindow.InputNumArguments.Increment = IncrementInput.state.value
-                    DemoWindow.InputNumArguments.Format = FormatInput.state.text
-                    Iris.Separator{}
-                    Iris.InputNum{"Input Number",
+                    local InputNum = Iris.InputNum{"Input Number",
                         [Iris.Args.InputNum.NoField] = DemoWindow.InputNumArguments.NoField,
                         [Iris.Args.InputNum.NoButtons] = DemoWindow.InputNumArguments.NoButtons,
                         [Iris.Args.InputNum.Min] = DemoWindow.InputNumArguments.Min,
@@ -282,12 +268,39 @@ return function(Iris)
                         [Iris.Args.InputNum.Increment] = DemoWindow.InputNumArguments.Increment,
                         [Iris.Args.InputNum.Format] = DemoWindow.InputNumArguments.Format,
                     }
+                    Iris.Separator{}
+                    Iris.Indent{}
+                        DemoWindow.InputNumArguments.NoField = Iris.Checkbox{"NoField"}.value
+                        DemoWindow.InputNumArguments.NoButtons = Iris.Checkbox{"NoButtons"}.value
+                        local FormatInput = Iris.InputText{"Format"}
+                        local MinInput = Iris.InputNum{"Min", [Iris.Args.InputNum.NoButtons] = true}
+                        local MaxInput = Iris.InputNum{"Max", [Iris.Args.InputNum.NoButtons] = true}
+                        local IncrementInput = Iris.InputNum{"Increment", [Iris.Args.InputNum.NoButtons] = true}
+                    Iris.End()
+                    if DemoWindow.new then
+                        Iris.SetState(MinInput, {value = DemoWindow.InputNumArguments.Min})
+                        Iris.SetState(MaxInput, {value = DemoWindow.InputNumArguments.Max})
+                        Iris.SetState(IncrementInput, {value = DemoWindow.InputNumArguments.Increment})
+                        Iris.SetState(FormatInput, {value = DemoWindow.InputNumArguments.Format})
+                    end
+                    DemoWindow.InputNumArguments.Min = MinInput.value
+                    DemoWindow.InputNumArguments.Max = MaxInput.value
+                    DemoWindow.InputNumArguments.Increment = IncrementInput.value
+                    DemoWindow.InputNumArguments.Format = FormatInput.value
+                    Iris.Text{string.format("The number is: %f", InputNum.value)}
                 Iris.End()
 
                 Iris.Tree{"Input Text"}
-                    local TextHintInput = Iris.InputText{"TextHint"}
-                    local InputText = Iris.InputText{"Input Text", TextHintInput.state.text}
-                    Iris.Text{string.format("The text is: %s", InputText.state.text)}
+                    local InputText = Iris.InputText{"Input Text", DemoWindow.InputTextArguments.TextHint}
+                    Iris.Separator{}
+                    Iris.Indent{}
+                        local TextHintInput = Iris.InputText{"TextHint"}
+                    Iris.End()
+                    if DemoWindow.new then
+                        Iris.SetState(TextHintInput, {value = DemoWindow.InputTextArguments.TextHint})
+                    end
+                    DemoWindow.InputTextArguments.TextHint = TextHintInput.value
+                    Iris.Text{string.format("The text is: %s", InputText.value)}
                 Iris.End()
             Iris.PopStyle()
     
@@ -303,10 +316,10 @@ return function(Iris)
                         end
                     Iris.End()
                 Iris.PopStyle()
-                if Iris.SmallButton{"Add"}.Clicked then
+                if Iris.SmallButton{"Add"}.clicked then
                     DemoWindow.textCount = (DemoWindow.textCount + 1) % 21
                 end
-                if Iris.SmallButton{"Remove"}.Clicked then
+                if Iris.SmallButton{"Remove"}.clicked then
                     DemoWindow.textCount = (DemoWindow.textCount - 1) % 21
                 end
             Iris.End()
@@ -314,16 +327,16 @@ return function(Iris)
     
         if DemoWindow.new then
             Iris.SetState(styleEditor, {
-                closed = true,
+                isClosed = true,
                 size = Vector2.new(400, 600),
-                postion = Vector2.new(200, 200)
+                position = Vector2.new(200, 200),
             })
             Iris.SetState(widgetStackViewer, {
-                closed = true,
+                isClosed = true,
                 size = Vector2.new(300, 400),
             })
             Iris.SetState(recurseWindow, {
-                closed = true,
+                isClosed = true,
                 size = Vector2.new(200, 100),
             })
             DemoWindow.new = false

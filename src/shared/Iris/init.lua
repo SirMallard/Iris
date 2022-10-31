@@ -433,11 +433,13 @@ function Iris._Insert(type, args)
         thisWidget.arguments = arguments
         thisWidgetClass.Update(thisWidget)
 
-        if widgets[type].hasState then
+        if thisWidgetClass.hasState then
             if storedStates[ID] == nil then
                 storedStates[ID] = thisWidgetClass.GenerateState(thisWidget)
             end
             thisWidget.state = storedStates[ID]
+            thisWidget.__index = thisWidget.state
+            setmetatable(thisWidget.state, thisWidget.state)
 
             thisWidgetClass.UpdateState(thisWidget)
         end
@@ -449,9 +451,14 @@ function Iris._Insert(type, args)
         thisWidgetClass.Update(thisWidget)
     end
 
+    -- we do a bunch of stupid __index chaining so that .state AND .events are both indexable through thisWidget
     local events = thisWidget.events
     thisWidget.events = {}
-    thisWidget.__index = events
+    if thisWidgetClass.hasState then
+        thisWidget.state.__index = events
+    else
+        thisWidget.__index = events
+    end
     thisWidget.lastTick = tick
 
     if widgets[type].hasChildren then

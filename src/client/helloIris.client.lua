@@ -18,7 +18,7 @@ Iris.Connect(ScreenGui, RunService.Heartbeat, function()
     Iris.Text{"This is some useful text."}
 
     Iris.SameLine{}
-        if Iris.Button{}.Clicked then
+        if Iris.Button{}.clicked then
             count += 1
         end
         Iris.Separator{}
