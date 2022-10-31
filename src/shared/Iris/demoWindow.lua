@@ -15,7 +15,8 @@ local DemoWindow = {
         NoButtons = false,
         Min = 0,
         Max = 1000,
-        Increment = 1
+        Increment = 1,
+        Format = "%f"
     },
     textCount = 0,
     lastT = os.clock(),
@@ -180,7 +181,6 @@ return function(Iris)
         }
         
             Iris.Text{"Iris says hello!"}
-    
             Iris.Separator{}
             Iris.SameLine{}
                 if Iris.SmallButton{"Style Editor"}.Clicked then
@@ -255,10 +255,11 @@ return function(Iris)
                 Iris.End()
             Iris.End()
     
-            Iris.Tree{"InputNum"}
-                Iris.PushStyle{ItemWidth = UDim.new(0.66, 0)}
+            Iris.PushStyle{ItemWidth = UDim.new(0.66, 0)}
+                Iris.Tree{"Input Num"}
                     DemoWindow.InputNumArguments.NoField = Iris.Checkbox{"NoField"}.state.checked
                     DemoWindow.InputNumArguments.NoButtons = Iris.Checkbox{"NoButtons"}.state.checked
+                    local FormatInput = Iris.InputText{"Format"}
                     local MinInput = Iris.InputNum{"Min", [Iris.Args.InputNum.NoButtons] = true}
                     local MaxInput = Iris.InputNum{"Max", [Iris.Args.InputNum.NoButtons] = true}
                     local IncrementInput = Iris.InputNum{"Increment", [Iris.Args.InputNum.NoButtons] = true}
@@ -266,20 +267,29 @@ return function(Iris)
                         Iris.SetState(MinInput, {value = DemoWindow.InputNumArguments.Min})
                         Iris.SetState(MaxInput, {value = DemoWindow.InputNumArguments.Max})
                         Iris.SetState(IncrementInput, {value = DemoWindow.InputNumArguments.Increment})
+                        Iris.SetState(FormatInput, {text = DemoWindow.InputNumArguments.Format})
                     end
                     DemoWindow.InputNumArguments.Min = MinInput.state.value
                     DemoWindow.InputNumArguments.Max = MaxInput.state.value
                     DemoWindow.InputNumArguments.Increment = IncrementInput.state.value
+                    DemoWindow.InputNumArguments.Format = FormatInput.state.text
                     Iris.Separator{}
                     Iris.InputNum{"Input Number",
                         [Iris.Args.InputNum.NoField] = DemoWindow.InputNumArguments.NoField,
                         [Iris.Args.InputNum.NoButtons] = DemoWindow.InputNumArguments.NoButtons,
                         [Iris.Args.InputNum.Min] = DemoWindow.InputNumArguments.Min,
                         [Iris.Args.InputNum.Max] = DemoWindow.InputNumArguments.Max,
-                        [Iris.Args.InputNum.Increment] = DemoWindow.InputNumArguments.Increment
+                        [Iris.Args.InputNum.Increment] = DemoWindow.InputNumArguments.Increment,
+                        [Iris.Args.InputNum.Format] = DemoWindow.InputNumArguments.Format,
                     }
-                Iris.PopStyle()
-            Iris.End()
+                Iris.End()
+
+                Iris.Tree{"Input Text"}
+                    local TextHintInput = Iris.InputText{"TextHint"}
+                    local InputText = Iris.InputText{"Input Text", TextHintInput.state.text}
+                    Iris.Text{string.format("The text is: %s", InputText.state.text)}
+                Iris.End()
+            Iris.PopStyle()
     
             Iris.Separator{}
     

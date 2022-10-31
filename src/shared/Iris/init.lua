@@ -90,7 +90,7 @@ function deepcompare(t1, t2)
     return true
 end
 
-local cycle = function(callback)
+local function cycle(callback)
     if refreshRequested then
         debug.profilebegin("Iris Refresh")
         generateSelectionImageObject()
@@ -133,6 +133,8 @@ Iris.TemplateStyles = {
     colorDark = {
         TextColor = Color3.fromRGB(255, 255, 255),
         TextTransparency = 0,
+        TextDisabledColor = Color3.fromRGB(128, 128, 128),
+        TextDisabledTransparency = 0,
 
         BorderColor = Color3.fromRGB(110, 110, 125), 
         -- Dear ImGui uses 110, 110, 125
@@ -196,6 +198,8 @@ Iris.TemplateStyles = {
     colorLight = {
         TextColor = Color3.fromRGB(0, 0, 0),
         TextTransparency = 0,
+        TextDisabledColor = Color3.fromRGB(153, 153, 153),
+        TextDisabledTransparency = 0,
 
         BorderColor = Color3.fromRGB(64, 64, 64),
         -- Dear ImGui uses 0, 0, 0, 77

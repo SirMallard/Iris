@@ -772,17 +772,16 @@ Iris.WidgetConstructor("InputNum", true, false){
         UIListLayout(InputNum, Enum.FillDirection.Horizontal, UDim.new(0, Iris._style.ItemInnerSpacing.X))
 
         local inputButtonsWidth = Iris._style.FontSize
-        local inputButtonsTotalWidth = inputButtonsWidth * 2 + Iris._style.ItemInnerSpacing.X * 2 + Iris._style.WindowPadding.X + 4
         local textLabelHeight = inputButtonsWidth + Iris._style.FramePadding.Y * 2
 
         local InputField = Instance.new("TextBox")
         InputField.Name = "InputField"
         applyFrameStyle(InputField)
         applyTextStyle(InputField)
+        InputField.UIPadding.PaddingLeft = UDim.new(0, Iris._style.ItemInnerSpacing.X)
         InputField.ZIndex = thisWidget.ZIndex + 1
         InputField.LayoutOrder = thisWidget.ZIndex + 1
         InputField.AutomaticSize = Enum.AutomaticSize.Y
-        InputField.Size = UDim2.new(1, -inputButtonsTotalWidth, 0, 0)
         InputField.BackgroundColor3 = Iris._style.FrameBgColor
         InputField.BackgroundTransparency = Iris._style.FrameBgTransparency
         InputField.TextTruncate = Enum.TextTruncate.AtEnd
@@ -849,7 +848,18 @@ Iris.WidgetConstructor("InputNum", true, false){
 
         thisWidget.Instance.SubButton.Visible = not thisWidget.arguments.NoButtons
         thisWidget.Instance.AddButton.Visible = not thisWidget.arguments.NoButtons
-        thisWidget.Instance.InputField.Visible = not thisWidget.arguments.NoField
+        local InputField = thisWidget.Instance.InputField
+        InputField.Visible = not thisWidget.arguments.NoField
+
+        local inputButtonsTotalWidth = Iris._style.FontSize * 2 + Iris._style.ItemInnerSpacing.X * 2 + Iris._style.WindowPadding.X + 4
+        if thisWidget.arguments.NoButtons then
+            InputField.Size = UDim2.new(1, 0, 0, 0)
+        else
+            InputField.Size = UDim2.new(1, -inputButtonsTotalWidth, 0, 0)
+        end
+        if thisWidget.state then
+            Iris.widgets["InputNum"].UpdateState(thisWidget)
+        end
     end,
     Discard = function(thisWidget)
         thisWidget.Instance:Destroy()
@@ -866,6 +876,73 @@ Iris.WidgetConstructor("InputNum", true, false){
 }
 Iris.InputNum = function(args)
     return Iris._Insert("InputNum", args)
+end
+
+Iris.WidgetConstructor("InputText", true, false){
+    Args = {
+        ["Text"] = 1,
+        ["TextHint"] = 2
+    },
+    Generate = function(thisWidget)
+        local textLabelHeight = Iris._style.FontSize
+
+        local InputText = Instance.new("TextBox")
+        InputText.Name = "InputText"
+        applyFrameStyle(InputText)
+        applyTextStyle(InputText)
+        InputText.UIPadding.PaddingLeft = UDim.new(0, Iris._style.ItemInnerSpacing.X)
+        InputText.UIPadding.PaddingRight = UDim.new(0, 0)
+        InputText.ZIndex = thisWidget.ZIndex + 1
+        InputText.LayoutOrder = thisWidget.ZIndex + 1
+        InputText.AutomaticSize = Enum.AutomaticSize.Y
+        InputText.Size = UDim2.new(Iris._style.ItemWidth, UDim.new(0, 0))
+        InputText.BackgroundColor3 = Iris._style.FrameBgColor
+        InputText.BackgroundTransparency = Iris._style.FrameBgTransparency
+        InputText.ClearTextOnFocus = false
+        InputText.Text = ""
+        InputText.PlaceholderColor3 = Iris._style.TextDisabledColor
+        InputText.TextTruncate = Enum.TextTruncate.AtEnd
+
+        InputText.FocusLost:Connect(function()
+            thisWidget.state.text = InputText.Text
+            Iris.widgets["InputText"].UpdateState(thisWidget)
+            thisWidget.events.TextChanged = true
+        end)
+
+        local TextLabel = Instance.new("TextLabel")
+        TextLabel.Name = "TextLabel"
+        TextLabel.Position = UDim2.new(1, Iris._style.ItemInnerSpacing.X, 0, 0)
+        TextLabel.Size = UDim2.fromOffset(0, textLabelHeight)
+        TextLabel.BackgroundTransparency = 1
+        TextLabel.BorderSizePixel = 0
+        TextLabel.ZIndex = thisWidget.ZIndex + 2
+        TextLabel.LayoutOrder = thisWidget.ZIndex + 2
+        TextLabel.AutomaticSize = Enum.AutomaticSize.X
+        applyTextStyle(TextLabel)
+        TextLabel.Parent = InputText
+
+        return InputText
+    end,
+    Update = function(thisWidget)
+        local TextLabel = thisWidget.Instance.TextLabel
+        TextLabel.Text = thisWidget.arguments.Text or "Input Text"
+
+        thisWidget.Instance.PlaceholderText = thisWidget.arguments.TextHint or ""
+    end,
+    Discard = function(thisWidget)
+        thisWidget.Instance:Destroy()
+    end,
+    GenerateState = function(thisWidget)
+        return {
+            text = ""
+        }
+    end,
+    UpdateState = function(thisWidget)
+        thisWidget.Instance.Text = thisWidget.state.text
+    end
+}
+Iris.InputText = function(args)
+    return Iris._Insert("InputText", args)
 end
 
 -- THINGS TODO:

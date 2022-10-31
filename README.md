@@ -49,9 +49,9 @@
 - - [X] Iris.Args.InputNum.NoButtons
 - - [X] Iris.Args.InputNum.NoField
 
-- [ ]	Iris.InputText
-- - [ ]	Iris.Args.InputText.Text
-- - [ ]	Iris.Args.InputText.TextHint
+- [X]	Iris.InputText
+- - [X]	Iris.Args.InputText.Text
+- - [X]	Iris.Args.InputText.TextHint
 
 - [ ]	Iris.Table
 - - [ ]	Iris.Args.Table.RowBg
