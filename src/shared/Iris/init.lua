@@ -1,13 +1,13 @@
 --!optimize 2
 local Iris = {}
 
-local started = false
-local refreshRequested = false
+local started = false -- has Iris.connect been called yet
+local refreshRequested = false -- refresh means that all GUI is destroyed and regenerated, usually because a style change was made and needed to be propogated to all UI
 
-local widgets = {}
+local widgets = {} -- table of generatedWidgets, not runtime widgets
 Iris.widgets = widgets
 
-local rootStyle = {}
+local rootStyle = {} -- root style which all widgets derive from
 Iris._style = rootStyle
 
 local rootInstance
@@ -19,115 +19,14 @@ local rootWidget = {
     ZIndex = 0,
 }
 
-local function generateSelectionImageObject()
-    if Iris.SelectionImageObject then
-        Iris.SelectionImageObject:Destroy()
-    end
-    local SelectionImageObject = Instance.new("Frame")
-    Iris.SelectionImageObject = SelectionImageObject
-    SelectionImageObject.BackgroundColor3 = Iris._style.SelectionImageObjectColor
-    SelectionImageObject.BackgroundTransparency = Iris._style.SelectionImageObjectTransparency
-    SelectionImageObject.Position = UDim2.fromOffset(-1, -1)
-    SelectionImageObject.Size = UDim2.new(1, 2, 1, 2)
-    SelectionImageObject.BorderSizePixel = 0
-
-    local UIStroke = Instance.new("UIStroke")
-    UIStroke.Thickness = 1
-    UIStroke.Color = Iris._style.SelectionImageObjectBorderColor
-    UIStroke.Transparency = Iris._style.SelectionImageObjectBorderColor
-    UIStroke.LineJoinMode = Enum.LineJoinMode.Round
-    UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    UIStroke.Parent = SelectionImageObject
-
-    local Rounding = Instance.new("UICorner")
-    Rounding.CornerRadius = UDim.new(0, 2)
-    Rounding.Parent = SelectionImageObject
-end
-
-local function generateEmptyVDOM()
-    return {
-        ["R"] = rootWidget
-    }
-end
-
-local lastVDOM = generateEmptyVDOM()
-local VDOM = generateEmptyVDOM()
-
-local function generateRootInstance()
-    -- unsafe to call before Iris.connect
-    rootInstance = widgets["Root"].Generate()
-    rootInstance.Parent = Iris.parentInstance
-    rootWidget.Instance = rootInstance
-end
-
-local storedStates = {}
+local States = {} -- Iris.States
 
 local IDStack = {"R"}
-local stackIndex = 1
+local UsedIDs = {} -- hash of IDs which are already used in a cycle, value is the # of occurances so that GetID can assign a unique ID for each occurance
+local stackIndex = 1 -- Points to the index that IDStack is currently in, when computing cycle
 
-local tick = 0
-local widgetCount = 0
-
-function deepcompare(t1, t2)
-    -- unoptimized
-    for i, v1 in t1 do
-        local v2 = t2[i]
-        if type(v1) == "table" then
-            if v2 and type(v2) == "table" then
-                if deepcompare(v1, v2) == false then
-                    return false
-                end
-            else
-                return false
-            end
-        else
-            if type(v1) ~= type(v2) or v1 ~= v2 then
-                return false
-            end
-        end
-    end
-
-    return true
-end
-
-local function cycle(callback)
-    if refreshRequested then
-        debug.profilebegin("Iris Refresh")
-        generateSelectionImageObject()
-        refreshRequested = false
-        for i,v in lastVDOM do
-            widgets[v.type].Discard(v)
-        end
-        generateRootInstance()
-        lastVDOM = generateEmptyVDOM()
-        debug.profileend()
-    end
-    tick += 1
-    widgetCount = 0
-    rootWidget.lastTick = tick
-
-    debug.profilebegin("Iris Generate")
-    local status, _error = pcall(callback)
-    debug.profileend()
-
-    for _, v in lastVDOM do
-        if v.lastTick ~= tick then
-            widgets[v.type].Discard(v)
-        end
-    end
-
-    lastVDOM = VDOM
-    VDOM = generateEmptyVDOM()
-
-    if not status then
-        stackIndex = 1
-        error(_error, 0)
-    end
-    if stackIndex ~= 1 then
-        stackIndex = 1
-        error("Callback is missing an Iris.End()", 0)
-    end
-end
+local cycleTick = 0 -- increments for each call to Cycle, used to determine the relative age and freshness of generated widgets
+local widgetCount = 0 -- only used to compute ZIndex, resets to 0 for every cycle
 
 Iris.TemplateStyles = {
     colorDark = {
@@ -143,7 +42,7 @@ Iris.TemplateStyles = {
 
         -- BorderTransparency = 0.5, 
         -- BorderTransparency will be problematic for non UIStroke border implimentations
-        -- and who really cares about it anyways? we're not implimenting BorderTransparency at all.
+        -- will not be implimented because of this
 
         WindowBgColor = Color3.fromRGB(15, 15, 15),
         WindowBgTransparency = 0.072,
@@ -208,7 +107,7 @@ Iris.TemplateStyles = {
 
         -- BorderTransparency = 0.5,
         -- BorderTransparency will be problematic for non UIStroke border implimentations
-        -- and who really cares about it anyways? we're not implimenting BorderTransparency at all.
+        -- will not be implimented because of this
 
         WindowBgColor = Color3.fromRGB(240, 240, 240),
         WindowBgTransparency = 0,
@@ -268,25 +167,148 @@ Iris.TemplateStyles = {
         ItemSpacing = Vector2.new(8, 4),
         ItemInnerSpacing = Vector2.new(4, 4),
         IndentSpacing = 21,
-        Font = Enum.Font.Code,
-        FontSize = 13,
+        TextFont = Enum.Font.Code,
+        TextSize = 13,
         FrameBorderSize = 0,
         FrameRounding = 0,
         WindowBorderSize = 1,
         WindowTitleAlign = Enum.LeftRight.Left,
 
-        ScrollbarSize = 7, -- Dear ImGui is 14, but these are equal, due to how ScrollbarSize is digested by roblox
+        ScrollbarSize = 7, -- Dear ImGui is 14 but these are equal because ScrollbarSize property is doubled by roblox
     }
 }
 
-Iris.Args = {}
+local function generateSelectionImageObject()
+    if Iris.SelectionImageObject then
+        Iris.SelectionImageObject:Destroy()
+    end
+    local SelectionImageObject = Instance.new("Frame")
+    Iris.SelectionImageObject = SelectionImageObject
+    SelectionImageObject.BackgroundColor3 = Iris._style.SelectionImageObjectColor
+    SelectionImageObject.BackgroundTransparency = Iris._style.SelectionImageObjectTransparency
+    SelectionImageObject.Position = UDim2.fromOffset(-1, -1)
+    SelectionImageObject.Size = UDim2.new(1, 2, 1, 2)
+    SelectionImageObject.BorderSizePixel = 0
 
-function Iris._GetVDOM()
-    return lastVDOM
+    local UIStroke = Instance.new("UIStroke")
+    UIStroke.Thickness = 1
+    UIStroke.Color = Iris._style.SelectionImageObjectBorderColor
+    UIStroke.Transparency = Iris._style.SelectionImageObjectBorderColor
+    UIStroke.LineJoinMode = Enum.LineJoinMode.Round
+    UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    UIStroke.Parent = SelectionImageObject
+
+    local Rounding = Instance.new("UICorner")
+    Rounding.CornerRadius = UDim.new(0, 2)
+    Rounding.Parent = SelectionImageObject
 end
+
+local function generateEmptyVDOM()
+    return {
+        ["R"] = rootWidget
+    }
+end
+
+local lastVDOM = generateEmptyVDOM()
+local VDOM = generateEmptyVDOM()
+
+local function generateRootInstance()
+    -- unsafe to call before Iris.connect
+    rootInstance = widgets["Root"].Generate()
+    rootInstance.Parent = Iris.parentInstance
+    rootWidget.Instance = rootInstance
+end
+
+local function deepCompare(t1, t2)
+    -- unoptimized ?
+    for i, v1 in t1 do
+        local v2 = t2[i]
+        if type(v1) == "table" then
+            if v2 and type(v2) == "table" then
+                if deepCompare(v1, v2) == false then
+                    return false
+                end
+            else
+                return false
+            end
+        else
+            if type(v1) ~= type(v2) or v1 ~= v2 then
+                return false
+            end
+        end
+    end
+
+    return true
+end
+
+local function GetID(levelsToIgnore: number)
+	local i = 1 + (levelsToIgnore or 1)
+	local ID = ""
+	local levelInfo = debug.info(i, "l")
+	while levelInfo ~= -1 and levelInfo ~= nil do
+		ID ..= "+" .. levelInfo
+		i += 1
+		levelInfo = debug.info(i, "l")
+	end
+	if UsedIDs[ID] then
+		UsedIDs[ID] += 1
+	else
+		UsedIDs[ID] = 1
+	end
+	return ID .. ":" .. UsedIDs[ID]
+end
+
+local function cycle(callback)
+    if refreshRequested then
+        -- rerender every widget
+        debug.profilebegin("Iris Refresh")
+        generateSelectionImageObject()
+        refreshRequested = false
+        for i,v in lastVDOM do
+            widgets[v.type].Discard(v)
+        end
+        generateRootInstance()
+        lastVDOM = generateEmptyVDOM()
+        debug.profileend()
+    end
+    cycleTick += 1
+    widgetCount = 0
+    table.clear(UsedIDs)
+    rootWidget.lastcycleTick = cycleTick
+
+    debug.profilebegin("Iris Generate")
+    local status, _error = pcall(callback)
+    debug.profileend()
+
+    for _, v in lastVDOM do
+        if v.lastcycleTick ~= cycleTick then
+            -- a widget which used to be rendered was no longer rendered, so we discard
+            widgets[v.type].Discard(v)
+        end
+    end
+
+    lastVDOM = VDOM
+    VDOM = generateEmptyVDOM()
+
+    if not status then
+        stackIndex = 1
+        error(_error, 0)
+    end
+    if stackIndex ~= 1 then
+        -- has to be larger than 1 because of the check that it isint below 1 in Iris.End
+        stackIndex = 1
+        error("Callback is missing an Iris.End()", 0)
+    end
+end
+
+Iris.Args = {}
 
 function Iris.ForceRefresh()
     refreshRequested = true
+end
+
+function Iris._GetVDOM()
+    return lastVDOM
 end
 
 function Iris.WidgetConstructor(type: string, hasState: boolean, hasChildren: boolean)
@@ -304,7 +326,7 @@ function Iris.WidgetConstructor(type: string, hasState: boolean, hasChildren: bo
         "GetParentInstance"
     }
 
-    return function (widgetFunctions: {})
+    return function(widgetFunctions: {})
         local thisWidget = {}
         for _, v in requiredFields do
             assert(widgetFunctions[v], v .. " is required for all widgets")
@@ -324,9 +346,7 @@ function Iris.WidgetConstructor(type: string, hasState: boolean, hasChildren: bo
         end
         thisWidget.hasState = hasState
         thisWidget.hasChildren = hasChildren
-        -- making the decision not to automatically add widget constructors into Iris, because then they would be closures
-        -- (bad for performance)
-        -- what?
+
         widgets[type] = thisWidget
         Iris.Args[type] = thisWidget.Args
         local ArgNames = {}
@@ -357,75 +377,108 @@ function Iris.PopStyle()
     Iris._style = getmetatable(Iris._style).__index
 end
 
-function Iris.Connect(parentInstance, eventConnection, callback)
+local StateClass = {}
+StateClass.__index = StateClass
+function StateClass:Get() -- you can also simply use .value
+    return self.value
+end
+function StateClass:Set(newValue)
+    self.value = newValue
+    for _, thisWidget in self.ConnectedWidgets do
+        widgets[thisWidget.type].UpdateState(thisWidget)
+    end
+end
+function Iris.State(initialValue)
+    local ID = GetID(2)
+    if States[ID] then
+        return States[ID]
+    else
+        States[ID] = {
+            value = initialValue,
+            ConnectedWidgets = {}
+        }
+        setmetatable(States[ID], StateClass)
+        return States[ID]
+    end
+end
+-- Generate a state object with ID derived from a widget object
+function Iris._widgetState(thisWidget, stateName, initialValue)
+    local ID = thisWidget.ID .. stateName
+    if States[ID] then
+        States[ID].ConnectedWidgets[thisWidget.ID] = thisWidget
+        return States[ID]
+    else
+        States[ID] = {
+            value = initialValue,
+            ConnectedWidgets = {[thisWidget.ID] = thisWidget}
+        }
+        setmetatable(States[ID], StateClass)
+        return States[ID]
+    end
+end
+
+function Iris.Connect(parentInstance, eventConnection: RBXScriptSignal | () -> {}, callback)
     Iris.parentInstance = parentInstance
-    assert(not started, "Iris.Connect should only be called once.")
+    assert(not started, "Iris.Connect can only be called once.")
     started = true
 
     generateRootInstance()
     generateSelectionImageObject()
     
     task.spawn(function()
-        if eventConnection.Connect then
+        if typeof(eventConnection) == "function" then
+            while true do
+                eventConnection()
+                cycle(callback)
+            end
+        else
             eventConnection:Connect(function()
                 cycle(callback)
             end)
-        else
-            while eventConnection() do
-                cycle(callback)
-            end
         end
     end)
 end
 
-function Iris._Insert(type, args)
+function Iris._Insert(widgetType, args, widgetState)
     local parentId = IDStack[stackIndex]
     local parentWidget = VDOM[parentId]
-
-    assert(widgets[type], type .. " is not a valid widget.")
-
     local thisWidget
-    local thisWidgetClass = widgets[type]
-    local localId = "L" .. debug.info(3,"l")
-    -- possible optimization to remove this L, which is mostly for debugging
-    -- the L does serve a purpose. there is a very ugly potential glitch in this ID configuration.
-    -- if the user sets nextWidgetId to an integer which is already occupied in code by a line which calls a widget,
-    -- the localId will be equivalent. "L" adds specificity.
-    local ID = parentId .. "-" .. localId
-    -- approx. 0.2μs for this concatenation
+    local thisWidgetClass = widgets[widgetType]
+    local ID = GetID(3)
+    widgetCount += 1
 
     if VDOM[ID] then
         error("Multiple widgets cannot occupy the same ID", 3)
     end
 
     local arguments = {}
-    for i, v in args do
-        arguments[thisWidgetClass.ArgNames[i]] = v
+    if args ~= nil then
+        if type(args) ~= "table" then
+            error("Args must be a table.", 3)
+        end
+        for i, v in args do
+            arguments[thisWidgetClass.ArgNames[i]] = v
+        end
     end
-    
-    widgetCount += 1
 
     if lastVDOM[ID] then
-        -- found a matching widget from last frame!
-        assert(type == lastVDOM[ID].type, "ID type mismatch.")
+        -- found a matching widget from last frame
+        assert(widgetType == lastVDOM[ID].type, "ID type mismatch.")
 
         thisWidget = lastVDOM[ID]
     else
-        -- didnt find a match, lets generate a new one.
+        -- didnt find a match, generate a new widget
         thisWidget = {}
         setmetatable(thisWidget, thisWidget)
 
         thisWidget.ID = ID
-        thisWidget.type = type
+        thisWidget.type = widgetType
         thisWidget.parentWidget = parentWidget
         thisWidget.events = {}
 
         local widgetInstanceParent = widgets[parentWidget.type].GetParentInstance(parentWidget, thisWidget)
-        if widgetInstanceParent:IsA("GuiObject") then
-            parentWidget.ZIndex = widgetInstanceParent.ZIndex -- this fucking sucks. Instance-authoritative state????
-        end
+
         thisWidget.ZIndex = parentWidget.ZIndex + (widgetCount * 0x40)
-        -- ZIndex (and LayoutOrder) limit is 2^31-1
     
         thisWidget.Instance = thisWidgetClass.Generate(thisWidget)
         thisWidget.Instance.Parent = widgetInstanceParent
@@ -434,42 +487,49 @@ function Iris._Insert(type, args)
         thisWidgetClass.Update(thisWidget)
 
         if thisWidgetClass.hasState then
-            if storedStates[ID] == nil then
-                storedStates[ID] = thisWidgetClass.GenerateState(thisWidget)
+            if widgetState then
+                thisWidget.state = widgetState
+                for i,v in widgetState do
+                    v.ConnectedWidgets[thisWidget.ID] = thisWidget
+                end
+            else
+                thisWidget.state = {}
             end
-            thisWidget.state = storedStates[ID]
-            thisWidget.__index = thisWidget.state
-            setmetatable(thisWidget.state, thisWidget.state)
 
+            thisWidgetClass.GenerateState(thisWidget)
             thisWidgetClass.UpdateState(thisWidget)
+
+            thisWidget.stateMT = {} -- MT cant be itself because state has to explicitly only contain stateClass objects
+            setmetatable(thisWidget.state, thisWidget.stateMT)
         end
     end
 
-    if thisWidget.arguments ~= arguments and deepcompare(thisWidget.arguments, arguments) == false then
+    if thisWidget.arguments ~= arguments and deepCompare(thisWidget.arguments, arguments) == false then
         -- the widgets arguments have changed, the widget should update to reflect changes.
         thisWidget.arguments = arguments
         thisWidgetClass.Update(thisWidget)
     end
 
-    -- we do a bunch of stupid __index chaining so that .state AND .events are both indexable through thisWidget
-    local events = thisWidget.events
+    -- strange __index chaining so that .state AND .events are both indexable through thisWidget
+    local oldEvents = thisWidget.events
     thisWidget.events = {}
     if thisWidgetClass.hasState then
-        thisWidget.state.__index = events
+        thisWidget.__index = thisWidget.state
+        thisWidget.stateMT.__index = oldEvents
     else
-        thisWidget.__index = events
+        thisWidget.__index = oldEvents
     end
-    thisWidget.lastTick = tick
 
-    if widgets[type].hasChildren then
+    thisWidget.lastcycleTick = cycleTick
+
+    if thisWidgetClass.hasChildren then
         stackIndex += 1
         IDStack[stackIndex] = thisWidget.ID
     end
 
     VDOM[ID] = thisWidget
-    Iris.LastWidget = thisWidget
 
-    return thisWidget -- not optimal
+    return thisWidget
 end
 
 function Iris.End()
@@ -480,32 +540,9 @@ function Iris.End()
     stackIndex -= 1
 end
 
-function Iris.SetState(thisWidget, deltaState: {})
-    local changesMade = false
-    for i, v in deltaState do
-        -- no provision againt users adding things to state that dont exist
-        changesMade = changesMade or ((not thisWidget.state[i]) or thisWidget.state[i] ~= v)
-        thisWidget.state[i] = v
-    end
-    if changesMade then
-        Iris.widgets[thisWidget.type].UpdateState(thisWidget)
-    end
-end
-
-function Iris.UseId(ID: string | number)
-    local parentId = IDStack[stackIndex]
-    ID = parentId .. "-" .. tostring(ID)
-
-    stackIndex += 1
-    IDStack[stackIndex] = ID
-    
-    -- this is elegant
-    VDOM[ID] = VDOM[parentId]
-end
-
+Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark) -- use colorDark and sizeClassic themes by default
+Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClassic)
 Iris.ShowDemoWindow = require(script.demoWindow)(Iris)
 require(script.widgets)(Iris)
-Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark)
-Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClassic)
 
 return Iris
