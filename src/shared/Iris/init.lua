@@ -40,9 +40,10 @@ Iris.TemplateStyles = {
         -- The Roblox window selection highlight is 67, 191, 254
         BorderActiveColor = Color3.fromRGB(160, 160, 175), -- does not exist in Dear ImGui
 
-        -- BorderTransparency = 0.5, 
+        BorderTransparency = 0, 
+        BorderActiveTransparency = 0,
         -- BorderTransparency will be problematic for non UIStroke border implimentations
-        -- will not be implimented because of this
+        -- is not implimented because of this
 
         WindowBgColor = Color3.fromRGB(15, 15, 15),
         WindowBgTransparency = 0.072,
@@ -55,7 +56,7 @@ Iris.TemplateStyles = {
         TitleBgActiveColor = Color3.fromRGB(41, 74, 122),
         TitleBgActiveTransparency = 0,
         TitleBgCollapsedColor = Color3.fromRGB(0, 0, 0),
-        TitleBgCollapsedTransparency = .5,
+        TitleBgCollapsedTransparency = 0.5,
 
         FrameBgColor = Color3.fromRGB(41, 74, 122),
         FrameBgTransparency = 0.46,
@@ -79,17 +80,17 @@ Iris.TemplateStyles = {
         HeaderActiveTransparency = 0,
 
         SelectionImageObjectColor = Color3.fromRGB(255, 255, 255),
-        SelectionImageObjectTransparency = .8,
+        SelectionImageObjectTransparency = 0.8,
         SelectionImageObjectBorderColor = Color3.fromRGB(255, 255, 255),
         SelectionImageObjectBorderTransparency = 0,
 
         NavWindowingHighlightColor = Color3.fromRGB(255, 255, 255),
-        NavWindowingHighlightTransparency = .3,
+        NavWindowingHighlightTransparency = 0.3,
         NavWindowingDimBgColor = Color3.fromRGB(204, 204, 204),
-        NavWindowingDimBgTransparency = .65,
+        NavWindowingDimBgTransparency = 0.65,
 
         SeparatorColor = Color3.fromRGB(110, 110, 128),
-        SeparatorTransparency = .5,
+        SeparatorTransparency = 0.5,
 
         CheckMarkColor = Color3.fromRGB(66, 150, 250),
         CheckMarkTransparency = 0
@@ -117,7 +118,7 @@ Iris.TemplateStyles = {
         TitleBgActiveColor = Color3.fromRGB(209, 209, 209),
         TitleBgActiveTransparency = 0,
         TitleBgCollapsedColor = Color3.fromRGB(255, 255, 255),
-        TitleBgCollapsedTransparency = .5,
+        TitleBgCollapsedTransparency = 0.5,
 
         ScrollbarGrabColor = Color3.fromRGB(96, 96, 96),
         ScrollbarGrabTransparency = 0,
@@ -144,14 +145,14 @@ Iris.TemplateStyles = {
         HeaderActiveTransparency = 0,
 
         SelectionImageObjectColor = Color3.fromRGB(0, 0, 0),
-        SelectionImageObjectTransparency = .8,
+        SelectionImageObjectTransparency = 0.8,
         SelectionImageObjectBorderColor = Color3.fromRGB(0, 0, 0),
         SelectionImageObjectBorderTransparency = 0,
 
         NavWindowingHighlightColor = Color3.fromRGB(179, 179, 179),
-        NavWindowingHighlightTransparency = .3,
+        NavWindowingHighlightTransparency = 0.3,
         NavWindowingDimBgColor = Color3.fromRGB(51, 51, 51),
-        NavWindowingDimBgTransparency = .8,
+        NavWindowingDimBgTransparency = 0.8,
 
         SeparatorColor = Color3.fromRGB(99, 99, 99),
         SeparatorTransparency = 0.38,
@@ -167,13 +168,13 @@ Iris.TemplateStyles = {
         ItemSpacing = Vector2.new(8, 4),
         ItemInnerSpacing = Vector2.new(4, 4),
         IndentSpacing = 21,
+
         TextFont = Enum.Font.Code,
         TextSize = 13,
         FrameBorderSize = 0,
         FrameRounding = 0,
         WindowBorderSize = 1,
         WindowTitleAlign = Enum.LeftRight.Left,
-
         ScrollbarSize = 7, -- Dear ImGui is 14 but these are equal because ScrollbarSize property is doubled by roblox
     }
 }
@@ -361,6 +362,7 @@ function Iris.UpdateGlobalStyle(deltaStyle: table)
     for i, v in deltaStyle do
         rootStyle[i] = v
     end
+    Iris.ForceRefresh()
 end
 
 function Iris.PushStyle(deltaStyle: table)
@@ -542,7 +544,7 @@ end
 
 Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark) -- use colorDark and sizeClassic themes by default
 Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClassic)
-Iris.ShowDemoWindow = require(script.demoWindow)(Iris)
 require(script.widgets)(Iris)
+Iris.ShowDemoWindow = require(script.demoWindow)(Iris)
 
 return Iris

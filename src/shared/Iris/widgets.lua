@@ -812,7 +812,9 @@ Iris.WidgetConstructor("InputNum", true, false){
             if newValue ~= nil then
                 newValue = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
                 thisWidget.state.number:Set(newValue)
-                thisWidget.events.valueChanged = true
+                thisWidget.events.numberChanged = true
+            else
+                InputField.Text = thisWidget.state.number.value
             end
         end)
 
@@ -829,7 +831,7 @@ Iris.WidgetConstructor("InputNum", true, false){
             local newValue = thisWidget.state.number.value - (thisWidget.arguments.Increment or 1)
             newValue = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
             thisWidget.state.number:Set(newValue)
-            thisWidget.events.valueChanged = true
+            thisWidget.events.numberChanged = true
         end)
 
         local AddButton = commonButton()
@@ -845,7 +847,7 @@ Iris.WidgetConstructor("InputNum", true, false){
             local newValue = thisWidget.state.number.value + (thisWidget.arguments.Increment or 1)
             newValue = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
             thisWidget.state.number:Set(newValue)
-            thisWidget.events.valueChanged = true
+            thisWidget.events.numberChanged = true
         end)
 
         local TextLabel = Instance.new("TextLabel")
@@ -994,20 +996,26 @@ do -- Window
     end
 
     local function quickSwapWindows()
-        -- quick swapping, the kind of way that you might alt+tab or ctrl+tab.
-        -- does not show any UI. also picking last ordered window instead of second to first.
-
+        -- ctrl + tab swapping functionality
         local oldWindows = getWindows()
-        local windows = {}
+
+        local highest = -math.huge
+        local secondHighest = -math.huge
+        local secondHighestWidget = 0
+
         for i,v in oldWindows do
-            if v.state.isOpened and (v.arguments.NoNav == false) then
-                table.insert(windows, oldWindows[i])
+            if v.state.isOpened.value and (not v.arguments.NoNav) then
+                local value = v.Instance.DisplayOrder
+                if value > highest then
+                    secondHighest = highest
+                    highest = value
+                elseif value > secondHighest then
+                    secondHighest = value
+                    secondHighestWidget = v
+                end
             end
         end
-        table.sort(windows,function(a,b)
-            return a.DisplayOrder < b.DisplayOrder
-        end)
-        local SelectedWindow = windows[1]
+        local SelectedWindow = secondHighestWidget
 
         if SelectedWindow.state.isUncollapsed.value == false then
             SelectedWindow.state.isUncollapsed:Set(true)
@@ -1070,6 +1078,9 @@ do -- Window
         end
 
         if input.KeyCode == Enum.KeyCode.Tab and (UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl)) then
+            quickSwapWindows()
+        end
+        if input.KeyCode == Enum.KeyCode.RightShift then
             quickSwapWindows()
         end
 
@@ -1322,7 +1333,16 @@ do -- Window
             Title.AutomaticSize = Enum.AutomaticSize.XY
             applyTextStyle(Title)
             Title.Parent = TitleBar
-            local TitleAlign = Iris._style.WindowTitleAlign == Enum.LeftRight.Left and 0 or Iris._style.WindowTitleAlign == Enum.LeftRight.Center and 0.5 or 1
+            local TitleAlign
+            if Iris._style.WindowTitleAlign == Enum.LeftRight.Left then
+                TitleAlign = 0
+            elseif Iris._style.WindowTitleAlign == Enum.LeftRight.Center then
+                TitleAlign = 0.5
+            else
+                TitleAlign = 1
+            end
+            print(TitleAlign)
+            print(Iris._style.WindowTitleAlign)
             Title.Position = UDim2.fromScale(TitleAlign, 0)
             Title.AnchorPoint = Vector2.new(TitleAlign, 0)
 
@@ -1421,6 +1441,14 @@ do -- Window
             if focusedWindow == thisWidget then
                 focusedWindow = nil
                 anyFocusedWindow = false
+            end
+            if dragWindow == thisWidget then
+                dragWindow = nil
+                isDragging = false
+            end
+            if resizeWindow == thisWidget then
+                resizeWindow = nil
+                isResizing = false
             end
             windowWidgets[thisWidget.ID] = nil
             thisWidget.Instance:Destroy()

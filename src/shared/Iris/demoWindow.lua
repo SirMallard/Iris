@@ -81,7 +81,7 @@ return function(Iris)
             Iris.Tree({"Iris.InputNum"})
                 drawData(
                     "Text: string\nIncrement: number\nMin: number\nMax: number\nFormat: string\nNoButtons: boolean\nNoField: boolean",
-                    "valueChanged: boolean",
+                    "numberChanged: boolean",
                     "number: number"
                 )
             Iris.End()
@@ -128,171 +128,250 @@ return function(Iris)
         Iris.End()
     end
 
-    local function styleEditor()
-        local styleLists = {
-            {
-                TextColor = Color3.fromRGB(255, 255, 255),
-                TextDisabledColor = Color3.fromRGB(128, 128, 128),
-
-                BorderColor = Color3.fromRGB(110, 110, 125),
-                BorderActiveColor = Color3.fromRGB(160, 160, 175),
-        
-                WindowBgColor = Color3.fromRGB(15, 15, 15),
-
-                ScrollbarGrabColor = Color3.fromRGB(128, 128, 128),
-        
-                TitleBgColor = Color3.fromRGB(10, 10, 10),
-                TitleBgActiveColor = Color3.fromRGB(41, 74, 122),
-                TitleBgCollapsedColor = Color3.fromRGB(0, 0, 0),
-        
-                FrameBgColor = Color3.fromRGB(41, 74, 122),
-                FrameBgHoveredColor = Color3.fromRGB(66, 150, 250),
-                FrameBgActiveColor = Color3.fromRGB(66, 150, 250),
-
-                ButtonColor = Color3.fromRGB(66, 150, 250),
-                ButtonHoveredColor = Color3.fromRGB(66, 150, 250),
-                ButtonActiveColor = Color3.fromRGB(15, 135, 250),
-
-                HeaderColor = Color3.fromRGB(66, 150, 250),
-                HeaderHoveredColor = Color3.fromRGB(66, 150, 250),
-                HeaderActiveColor = Color3.fromRGB(66, 150, 250),
-
-                SelectionImageObjectColor = Color3.fromRGB(255, 255, 255),
-                SelectionImageObjectBorderColor = Color3.fromRGB(255, 255, 255),
-
-                NavWindowingHighlightColor = Color3.fromRGB(255, 255, 255),
-                NavWindowingDimBgColor = Color3.fromRGB(204, 204, 204),
-
-                SeparatorColor = Color3.fromRGB(110, 110, 128),
-
-                CheckMarkColor = Color3.fromRGB(66, 150, 250),
-            },
-            {
-                ItemWidth = UDim.new(1, 0),
-
-                WindowPadding = Vector2.new(8, 8),
-                FramePadding = Vector2.new(4, 3),
-                ItemSpacing = Vector2.new(8, 4),
-                ItemInnerSpacing = Vector2.new(4, 4),
-                IndentSpacing = 21,
-                TextFont = Enum.Font.Code,
-                TextSize = 13,
-                FrameBorderSize = 0,
-                FrameRounding = 0,
-                WindowBorderSize = 1,
-                WindowTitleAlign = Enum.LeftRight.Left,
-        
-                ScrollbarSize = 7, -- Dear ImGui is 14 but these are equal because ScrollbarSize property is doubled by roblox
-            },
-            {
-                TextTransparency = 0,
-                TextDisabledTransparency = 0,
-                WindowBgTransparency = 0.072,
-                ScrollbarGrabTransparency = 0,
-                TitleBgTransparency = 0,
-                TitleBgActiveTransparency = 0,
-                TitleBgCollapsedTransparency = .5,
-                FrameBgTransparency = 0.46,
-                FrameBgHoveredTransparency = 0.46,
-                FrameBgActiveTransparency = 0.33,
-                ButtonTransparency = 0.6,
-                ButtonHoveredTransparency = 0,
-                ButtonActiveTransparency = 0,
-                HeaderTransparency = 0.31,
-                HeaderHoveredTransparency = 0.2,
-                HeaderActiveTransparency = 0,
-                SelectionImageObjectTransparency = .8,
-                SelectionImageObjectBorderTransparency = 0,
-                NavWindowingHighlightTransparency = .3,
-                NavWindowingDimBgTransparency = .65,
-                SeparatorTransparency = .5,
-                CheckMarkTransparency = 0
-            }
-        }
-        local SelectedListIndex = Iris.State(1)
-        Iris.Window({"Style Editor"}, {isOpened = showStyleEditor})
-            Iris.Text({"Customize the look of Iris in realtime."})
-            Iris.SameLine()
-                if Iris.SmallButton({"Light Theme"}).clicked then
-                    Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorLight)
-                    Iris.ForceRefresh()
-                end
-                if Iris.SmallButton({"Dark Theme"}).clicked then
-                    Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark)
-                    Iris.ForceRefresh()
-                end
-                if Iris.SmallButton({"Reset Sizes"}).clicked then
-                    Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClassic)
-                    Iris.ForceRefresh()
-                end
-                if Iris.SmallButton({"Reset Everything"}).clicked then
-                    Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark)
-                    Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClassic)
-                    Iris.ForceRefresh()
-                end
-            Iris.End()
-            Iris.Separator()
-            Iris.SameLine()
-                if Iris.SmallButton({"Colors"}).clicked then
-                    SelectedListIndex:Set(1)
-                end
-                if Iris.SmallButton({"Sizes"}).clicked then
-                    SelectedListIndex:Set(2)
-                end
-                if Iris.SmallButton({"Transparency"}).clicked then
-                    SelectedListIndex:Set(3)
-                end
-                
-            Iris.End()
-            for i,v in styleLists[SelectedListIndex.value] do
-                
-                if type(v) == "number" then
-                    Iris.PushStyle({ItemWidth = UDim.new(.5, 0)})
-                        local thisNum = Iris.InputNum({i, if SelectedListIndex.value == 3 then 0.1 else 1, -math.huge, math.huge}, {number = Iris.State(v)})
-                    Iris.PopStyle()
-
-                    if thisNum.valueChanged then
-                        Iris.UpdateGlobalStyle({[i] = thisNum.number.value})
-                        Iris.ForceRefresh()
-                    end
+    local styleEditor
+    do
+        -- styleEditor is stupidly coded because Iris dosent have higher-order widgets yet, (Iris.InputNum2 etc.)
+        local styleStates = {}
+        do -- init style states
+            for i,v in Iris._style do
+                if typeof(v) == "Color3" then
+                    styleStates[i .. "R"] = Iris.State(v.R * 255)
+                    styleStates[i .. "G"] = Iris.State(v.G * 255)
+                    styleStates[i .. "B"] = Iris.State(v.B * 255)
+                elseif typeof(v) == "UDim" then
+                    styleStates[i .. "Scale"] = Iris.State(v.Scale)
+                    styleStates[i .. "Offset"] = Iris.State(v.Offset)
                 elseif typeof(v) == "Vector2" then
-                    Iris.PushStyle({ItemWidth = UDim.new(0, 60)})
-                        Iris.SameLine()
-                            local thisNumX = Iris.InputNum({"X"    , 1, 0, 100, [Iris.Args.InputNum.NoField] = true}, {number = Iris.State(v.X)})
-                            local thisNumY = Iris.InputNum({"Y "..i, 1, 0, 100, [Iris.Args.InputNum.NoField] = true}, {number = Iris.State(v.Y)})
-                        Iris.End()
-                    Iris.PopStyle()
-
-                    if thisNumX.valueChanged or thisNumY.valueChanged then
-                        Iris.UpdateGlobalStyle({[i] = Vector2.new(thisNumX.number.value, thisNumY.number.value)})
-                        Iris.ForceRefresh()
-                    end
-                elseif typeof(v) == "Color3" then
-                    Iris.PushStyle({ItemWidth = UDim.new(0, 60)})
-                        Iris.SameLine({25})
-                            local thisNumR = Iris.InputNum(
-                                {"R"    ,  5, 0, 255, [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
-                                {number = Iris.State(math.round(v.R * 255))}
-                            )
-                            local thisNumG = Iris.InputNum(
-                                {"G"    ,  5, 0, 255, [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
-                                {number = Iris.State(math.round(v.G * 255))}
-                            )
-                            local thisNumB = Iris.InputNum(
-                                {"B "..i,  5, 0, 255, [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
-                                {number = Iris.State(math.round(v.B * 255))}
-                            )
-                        Iris.End()
-                    Iris.PopStyle()
-
-                    if thisNumR.valueChanged or thisNumG.valueChanged or thisNumB.valueChanged then
-                        Iris.UpdateGlobalStyle({[i] = Color3.fromRGB(thisNumR.number.value, thisNumG.number.value, thisNumB.number.value)})
-                        Iris.ForceRefresh()
-                    end
-
+                    styleStates[i .. "X"] = Iris.State(v.X)
+                    styleStates[i .. "Y"] = Iris.State(v.Y)
+                elseif typeof(v) == "EnumItem" then
+                    styleStates[i] = Iris.State(v.Name)
+                else
+                    styleStates[i] = Iris.State(v)
                 end
             end
-        Iris.End()
+        end
+
+        local function refreshStyleStates()
+            for i,v in Iris._style do
+                if typeof(v) == "Color3" then
+                    styleStates[i .. "R"]:Set(v.R * 255)
+                    styleStates[i .. "G"]:Set(v.G * 255)
+                    styleStates[i .. "B"]:Set(v.B * 255)
+                elseif typeof(v) == "UDim" then
+                    styleStates[i .. "Scale"]:Set(v.Scale)
+                    styleStates[i .. "Offset"]:Set(v.Offset)
+                elseif typeof(v) == "Vector2" then
+                    styleStates[i .. "X"]:Set(v.X)
+                    styleStates[i .. "Y"]:Set(v.Y)
+                elseif typeof(v) == "EnumItem" then
+                    styleStates[i]:Set(v.Name)
+                else
+                    styleStates[i]:Set(v)
+                end
+            end
+        end
+
+        local function InputVector2(name)
+            Iris.PushStyle({ItemWidth = UDim.new(0, 100 - Iris._style.ItemInnerSpacing.X)})
+                Iris.SameLine()
+                    local X = Iris.InputNum(
+                        {"", [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
+                        {number = styleStates[name .. "X"]}
+                    )
+                    local Y = Iris.InputNum(
+                        {name, [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
+                        {number = styleStates[name .. "Y"]}
+                    )
+                    if X.numberChanged or Y.numberChanged then
+                        Iris.UpdateGlobalStyle({[name] = Vector2.new(X.number.value, Y.number.value)})
+                    end
+                Iris.End()
+            Iris.PopStyle()
+        end
+
+        local function InputUDim(name)
+            Iris.PushStyle({ItemWidth = UDim.new(0, 100 - Iris._style.ItemInnerSpacing.X)})
+                Iris.SameLine()
+                    local Scale = Iris.InputNum(
+                        {"", [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
+                        {number = styleStates[name .. "Scale"]}
+                    )
+                    local Offset = Iris.InputNum(
+                        {name, [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
+                        {number = styleStates[name .. "Offset"]}
+                    )
+                    if Scale.numberChanged or Offset.numberChanged then
+                        Iris.UpdateGlobalStyle({[name] = UDim.new(Scale.number.value, Offset.number.value)})
+                    end
+                Iris.End()
+            Iris.PopStyle()
+        end
+
+        local function InputColor4(name, transparencyName)
+            Iris.PushStyle({ItemWidth = UDim.new(0, 50 - Iris._style.ItemInnerSpacing.X)})
+                Iris.SameLine()
+                    local R = Iris.InputNum(
+                        {"", [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
+                        {number = styleStates[name .. "R"]}
+                    )
+                    local G = Iris.InputNum(
+                        {"", [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
+                        {number = styleStates[name .. "G"]}
+                    )
+                    local B = Iris.InputNum(
+                        {"", [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
+                        {number = styleStates[name .. "B"]}
+                    )
+                    local A = Iris.InputNum(
+                        {name, [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%.3f"},
+                        {number = styleStates[transparencyName]}
+                    )
+                    if R.numberChanged or G.numberChanged or B.numberChanged or A.numberChanged then
+                        Iris.UpdateGlobalStyle({[name] = Color3.fromRGB(R.number.value, G.number.value, B.number.value), [transparencyName] = A.number.value})
+                    end
+                Iris.End()
+            Iris.PopStyle()
+        end
+
+        local function InputInt(name)
+            Iris.PushStyle({ItemWidth = UDim.new(0, 200)})
+                local I = Iris.InputNum(
+                    {name, [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
+                    {number = styleStates[name]}
+                )
+                if I.numberChanged then
+                    Iris.UpdateGlobalStyle({[name] = I.number.value})
+                end
+            Iris.PopStyle()
+        end
+
+        local function InputEnum(name, enumType, default)
+            Iris.PushStyle({ItemWidth = UDim.new(0, 200)})
+                local V = Iris.InputText(
+                    {name},
+                    {text = styleStates[name]}
+                )
+                if V.textChanged then
+                    local isValidEnum = false
+                    for _, _enumItem in ipairs(enumType:GetEnumItems()) do
+                        if _enumItem.Name == V.text.value then
+                            isValidEnum = true
+                            break
+                        end
+                    end
+                    if isValidEnum then
+                        Iris.UpdateGlobalStyle({[name] = enumType[V.text.value]})
+                    else
+                        Iris.UpdateGlobalStyle({[name] = default})
+                        styleStates[name]:Set(tostring(default))
+                    end
+                end
+            Iris.PopStyle()
+        end
+
+        local styleList = {
+            {[0] = "Sizes",
+                function()
+                    Iris.Text({"Main"})
+                    InputVector2("WindowPadding")
+                    InputVector2("FramePadding")
+                    InputVector2("ItemSpacing")
+                    InputVector2("ItemInnerSpacing")
+                    InputInt("IndentSpacing")
+                    InputInt("ScrollbarSize")
+
+                    Iris.Text({"Borders"})
+                    InputInt("WindowBorderSize")
+                    InputInt("FrameBorderSize")
+
+                    Iris.Text({"Rounding"})
+                    InputInt("FrameRounding")
+
+                    Iris.Text({"Alignment"})
+                    InputEnum("WindowTitleAlign", Enum.LeftRight, Enum.LeftRight.Left)
+                end
+            },
+            {[0] = "Colors",
+                function()
+                    InputColor4("TextColor", "TextTransparency")
+                    InputColor4("TextDisabledColor", "TextDisabledTransparency")
+
+                    InputColor4("BorderColor", "BorderTransparency")
+                    InputColor4("BorderActiveColor", "BorderActiveTransparency")
+
+                    InputColor4("WindowBgColor", "WindowBgTransparency")
+                    InputColor4("ScrollbarGrabColor", "ScrollbarGrabTransparency")
+
+                    InputColor4("TitleBgColor", "TitleBgTransparnecy")
+                    InputColor4("TitleBgActiveColor", "TitleBgActiveTransparency")
+                    InputColor4("TitleBgCollapsedColor", "TitleBgCollapsedTransparency")
+
+                    InputColor4("FrameBgColor", "FrameBgTransparency")
+                    InputColor4("FrameBgHoveredColor", "FrameBgHoveredTransparency")
+                    InputColor4("FrameBgActiveColor", "FrameBgActiveTransparency")
+
+                    InputColor4("ButtonColor", "ButtonTransparency")
+                    InputColor4("ButtonHoveredColor", "ButtonHoveredTransparency")
+                    InputColor4("ButtonActiveColor", "ButtonActiveTransparency")
+
+                    InputColor4("HeaderColor", "HeaderTransparency")
+                    InputColor4("HeaderHoveredColor", "HeaderHoveredTransparency")
+                    InputColor4("HeaderActiveColor", "HeaderActiveTransparency")
+
+                    InputColor4("SelectionImageObjectColor", "SelectionImageObjectTransparency")
+                    InputColor4("SelectionImageObjectBorderColor", "SelectionImageObjectBorderTransparency")
+
+                    InputColor4("NavWindowingHighlightColor", "NavWindowingHighlightTransparency")
+                    InputColor4("NavWindowingDimBgColor", "NavWindowingDimBgTransparency")
+
+                    InputColor4("SeparatorColor", "SeparatorTransparency")
+
+                    InputColor4("CheckMarkColor", "CheckMarkTransparency")
+                end
+            },
+            {[0] = "Fonts",
+                function()
+                    InputEnum("TextFont", Enum.Font, Enum.Font.Code)
+                    InputInt("TextSize")
+                end
+            }
+        }
+        styleEditor = function()
+            local SelectedPanel = Iris.State(1)
+    
+            Iris.Window({"Style Editor"}, {isOpened = showStyleEditor})
+                Iris.Text({"Customize the look of Iris in realtime."})
+                Iris.SameLine()
+                    if Iris.SmallButton({"Light Theme"}).clicked then
+                        Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorLight)
+                        refreshStyleStates()
+                    end
+                    if Iris.SmallButton({"Dark Theme"}).clicked then
+                        Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark)
+                        refreshStyleStates()
+                    end
+                    if Iris.SmallButton({"Reset Sizes"}).clicked then
+                        Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClassic)
+                        refreshStyleStates()
+                    end
+                    if Iris.SmallButton({"Reset Everything"}).clicked then
+                        Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark)
+                        Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClassic)
+                        refreshStyleStates()
+                    end
+                Iris.End()
+                Iris.Separator()
+                Iris.SameLine()
+                    for i,v in ipairs(styleList) do
+                        if Iris.SmallButton({v[0]}).clicked then
+                            SelectedPanel:Set(i)
+                        end
+                    end
+                Iris.End()
+                styleList[SelectedPanel:Get()][1]()
+            Iris.End()
+        end
     end
 
     local function widgetEventInteractivity()
@@ -341,6 +420,20 @@ return function(Iris)
     end
 
     local widgetDemos = {
+        Basic = function()
+            Iris.Tree({"Basic"})
+                Iris.Button({"Button"})
+                Iris.SmallButton({"SmallButton"})
+                Iris.Text({"Text"})
+                Iris.PushStyle({ItemWidth = UDim.new(1, 0)})
+                    Iris.TextWrapped({string.rep("Text Wrapped ", 5)})
+                Iris.PopStyle()
+                Iris.PushStyle({TextColor = Color3.fromRGB(255, 128, 0)})
+                    Iris.Text({"Colored Text"})
+                Iris.PopStyle()
+            Iris.End()
+        end,
+
         Tree = function()
             Iris.Tree({"Trees"})
                 Iris.Tree({"Tree using SpanAvailWidth", [Iris.Args.Tree.SpanAvailWidth] = true})
@@ -425,7 +518,7 @@ return function(Iris)
             Iris.End()
         end
     }
-    local widgetDemosOrder = {"Tree", "Group", "Indent", "InputNum", "InputText"}
+    local widgetDemosOrder = {"Basic", "Tree", "Group", "Indent", "InputNum", "InputText"}
 
     return function()
         local NoTitleBar, NoBackground, NoCollapse, NoClose, NoMove, NoScrollbar, NoResize, NoNav =
