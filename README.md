@@ -54,13 +54,10 @@
 - - [X]	Iris.Args.InputText.TextHint
 
 - [ ]	Iris.Table
+- - [ ] Iris.Args.Table.NumColumns
 - - [ ]	Iris.Args.Table.RowBg
 - - [ ] Iris.Args.Table.BordersOuter
 - - [ ] Iris.Args.Table.BordersInner
-
-- [ ]	Iris.NextRow
-
-- [ ]	Iris.NextColumn
 
 ## Methods:
 *May change prior to release*
@@ -73,3 +70,7 @@
 - Iris.ForceRefresh
 - Iris.WidgetConstructor
 - Iris.SetState
+
+- Iris.NextRow
+- Iris.NextColumn
+- Iris.SetColumnIndex
