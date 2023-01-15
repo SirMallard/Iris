@@ -398,15 +398,15 @@ return function(Iris)
     local function widgetStateInteractivity()
         Iris.Tree({"Widget State Interactivity"})
             local Checkbox0 = Iris.Checkbox({"Widget-Generated State"})
-            Iris.Text({"isChecked: " .. tostring(Checkbox0.state.isChecked.value)})
+            Iris.Text({`isChecked: {Checkbox0.state.isChecked.value}`})
             
             local CheckboxState0 = Iris.State(false)
             local Checkbox1 = Iris.Checkbox({"User-Generated State"}, {isChecked = CheckboxState0})
-            Iris.Text({"isChecked: " .. tostring(Checkbox1.state.isChecked.value)})
+            Iris.Text({`isChecked: {Checkbox1.state.isChecked.value}`})
 
             local Checkbox2 = Iris.Checkbox({"Widget Coupled State"})
             local Checkbox3 = Iris.Checkbox({"Coupled to above Checkbox"}, {isChecked = Checkbox2.state.isChecked})
-            Iris.Text({"isChecked: " .. tostring(Checkbox3.state.isChecked.value)})
+            Iris.Text({`isChecked: {Checkbox3.state.isChecked.value}`})
 
             local CheckboxState1 = Iris.State(false)
             local Checkbox4 = Iris.Checkbox({"Widget and Code Coupled State"}, {isChecked = CheckboxState1})
@@ -414,7 +414,7 @@ return function(Iris)
             if Button0.clicked then
                 CheckboxState1:Set(not CheckboxState1:Get())
             end
-            Iris.Text({"isChecked: " .. tostring(CheckboxState1.value)})
+            Iris.Text({`isChecked: {CheckboxState1.value}`})
 
         Iris.End()
     end
@@ -569,6 +569,16 @@ return function(Iris)
             Iris.Tree({"Widgets"})
                 for i,name in widgetDemosOrder do
                     widgetDemos[name]()
+                end
+            Iris.End()
+
+            local testTable = Iris.Table({3})
+                for i = 1,4 do
+                    Iris.NextRow()
+                    for i2 = 1,3 do
+                        Iris.NextColumn()
+                        Iris.Text({`Row: {i}, Column: {i2}`})
+                    end
                 end
             Iris.End()
         Iris.End()

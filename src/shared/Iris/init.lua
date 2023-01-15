@@ -22,11 +22,14 @@ local rootWidget = {
 local States = {} -- Iris.States
 
 local IDStack = {"R"}
+Iris._IDStack = IDStack
 local UsedIDs = {} -- hash of IDs which are already used in a cycle, value is the # of occurances so that GetID can assign a unique ID for each occurance
-local stackIndex = 1 -- Points to the index that IDStack is currently in, when computing cycle
+Iris._stackIndex = 1 -- Points to the index that IDStack is currently in, when computing cycle
 
 local cycleTick = 0 -- increments for each call to Cycle, used to determine the relative age and freshness of generated widgets
 local widgetCount = 0 -- only used to compute ZIndex, resets to 0 for every cycle
+
+Iris._PostCycleCallbacks = {}
 
 Iris.TemplateStyles = {
     colorDark = {
@@ -292,13 +295,17 @@ local function cycle(callback)
     VDOM = generateEmptyVDOM()
 
     if not status then
-        stackIndex = 1
+        Iris._stackIndex = 1
         error(_error, 0)
     end
-    if stackIndex ~= 1 then
+    if Iris._stackIndex ~= 1 then
         -- has to be larger than 1 because of the check that it isint below 1 in Iris.End
-        stackIndex = 1
+        Iris._stackIndex = 1
         error("Callback is missing an Iris.End()", 0)
+    end
+
+    for i, func in Iris._PostCycleCallbacks do
+        func()
     end
 end
 
@@ -310,6 +317,10 @@ end
 
 function Iris._GetVDOM()
     return lastVDOM
+end
+
+function Iris._GetParentWidget()
+    return VDOM[Iris._IDStack[Iris._stackIndex]]
 end
 
 function Iris.WidgetConstructor(type: string, hasState: boolean, hasChildren: boolean)
@@ -324,24 +335,24 @@ function Iris.WidgetConstructor(type: string, hasState: boolean, hasChildren: bo
         "UpdateState"
     }
     local requiredFieldsIfChildren = {
-        "GetParentInstance"
+        "ChildAdded"
     }
 
     return function(widgetFunctions: {})
         local thisWidget = {}
         for _, v in requiredFields do
-            assert(widgetFunctions[v], v .. " is required for all widgets")
+            assert(widgetFunctions[v], `{v} is required for all widgets`)
             thisWidget[v] = widgetFunctions[v]
         end
         if hasState then
             for _, v in requiredFieldsIfState do
-                assert(widgetFunctions[v], v .. " is required for all widgets with state")
+                assert(widgetFunctions[v], `{v} is required for all widgets with state`)
                 thisWidget[v] = widgetFunctions[v]
             end
         end
         if hasChildren then
             for _, v in requiredFieldsIfChildren do
-                assert(widgetFunctions[v], v .. " is required for all widgets with children")
+                assert(widgetFunctions[v], `{v} is required for all widgets with children`)
                 thisWidget[v] = widgetFunctions[v]
             end
         end
@@ -442,7 +453,7 @@ function Iris.Connect(parentInstance, eventConnection: RBXScriptSignal | () -> {
 end
 
 function Iris._Insert(widgetType, args, widgetState)
-    local parentId = IDStack[stackIndex]
+    local parentId = IDStack[Iris._stackIndex]
     local parentWidget = VDOM[parentId]
     local thisWidget
     local thisWidgetClass = widgets[widgetType]
@@ -478,7 +489,7 @@ function Iris._Insert(widgetType, args, widgetState)
         thisWidget.parentWidget = parentWidget
         thisWidget.events = {}
 
-        local widgetInstanceParent = widgets[parentWidget.type].GetParentInstance(parentWidget, thisWidget)
+        local widgetInstanceParent = widgets[parentWidget.type].ChildAdded(parentWidget, thisWidget)
 
         thisWidget.ZIndex = parentWidget.ZIndex + (widgetCount * 0x40)
     
@@ -525,8 +536,8 @@ function Iris._Insert(widgetType, args, widgetState)
     thisWidget.lastcycleTick = cycleTick
 
     if thisWidgetClass.hasChildren then
-        stackIndex += 1
-        IDStack[stackIndex] = thisWidget.ID
+        Iris._stackIndex += 1
+        IDStack[Iris._stackIndex] = thisWidget.ID
     end
 
     VDOM[ID] = thisWidget
@@ -535,11 +546,11 @@ function Iris._Insert(widgetType, args, widgetState)
 end
 
 function Iris.End()
-    if stackIndex == 1 then
+    if Iris._stackIndex == 1 then
         error("Callback has too many Iris.End()", 2)
     end
-    IDStack[stackIndex] = nil
-    stackIndex -= 1
+    IDStack[Iris._stackIndex] = nil
+    Iris._stackIndex -= 1
 end
 
 Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark) -- use colorDark and sizeClassic themes by default

@@ -59,6 +59,13 @@ local function UICorner(Parent, PxRounding)
     return UICorner
 end
 
+local function UITableLayout(Parent)
+    local UITableLayout = Instance.new("UITableLayout")
+    UITableLayout.MajorAxis = Enum.TableMajorAxis.ColumnMajor
+    UITableLayout.Parent = Parent
+    return UITableLayout
+end
+
 return function(Iris)
 
 local function applyTextStyle(thisInstance)
@@ -258,7 +265,7 @@ Iris.WidgetConstructor("Root", false, true){
     Discard = function(thisWidget)
         thisWidget.Instance:Destroy()
     end,
-    GetParentInstance = function(thisWidget, childWidget)
+    ChildAdded = function(thisWidget, childWidget)
         if childWidget.type == "Window" then
             return thisWidget.Instance
         else
@@ -456,7 +463,7 @@ Iris.WidgetConstructor("Indent", false, true){
     Discard = function(thisWidget)
         thisWidget.Instance:Destroy()
     end,
-    GetParentInstance = function(thisWidget)
+    ChildAdded = function(thisWidget)
         return thisWidget.Instance
     end
 }
@@ -501,7 +508,7 @@ Iris.WidgetConstructor("SameLine", false, true){
     Discard = function(thisWidget)
         thisWidget.Instance:Destroy()
     end,
-    GetParentInstance = function(thisWidget)
+    ChildAdded = function(thisWidget)
         return thisWidget.Instance
     end
 }
@@ -531,7 +538,7 @@ Iris.WidgetConstructor("Group", false, true){
     Discard = function(thisWidget)
         thisWidget.Instance:Destroy()
     end,
-    GetParentInstance = function(thisWidget)
+    ChildAdded = function(thisWidget)
         return thisWidget.Instance
     end
 }
@@ -743,7 +750,7 @@ Iris.WidgetConstructor("Tree", true, true){
         thisWidget.Instance:Destroy()
         discardState(thisWidget)
     end,
-    GetParentInstance = function(thisWidget)
+    ChildAdded = function(thisWidget)
         return thisWidget.Instance.ChildContainer
     end,
     UpdateState = function(thisWidget)
@@ -976,7 +983,95 @@ Iris.InputText = function(args, state)
     return Iris._Insert("InputText", args, state)
 end
 
-do -- Window
+do -- Iris.Table
+    local tableWidgets = {}
+
+    table.insert(Iris._PostCycleCallbacks, function()
+        for i,v in tableWidgets do
+            v.RowColumnIndex = -1
+        end
+    end)
+
+    Iris.NextColumn = function()
+        Iris._GetParentWidget().RowColumnIndex += 1
+    end
+    Iris.SetColumnIndex = function(ColumnIndex)
+        local ParentWidget = Iris._GetParentWidget()
+        assert(ColumnIndex >= ParentWidget.InitialNumColumns, "Iris.SetColumnIndex Argument must be in column range")
+        ParentWidget.RowColumnIndex = math.floor(ParentWidget.RowColumnIndex / ParentWidget.InitialNumColumns) + (ColumnIndex - 1)
+    end
+    Iris.NextRow = function()
+        -- sets column Index back to 0, increments Row
+        local ParentWidget = Iris._GetParentWidget()
+        local InitialNumColumns = ParentWidget.InitialNumColumns
+        local nextRow = math.floor((ParentWidget.RowColumnIndex + 1) / InitialNumColumns) * InitialNumColumns
+        ParentWidget.RowColumnIndex = nextRow
+    end
+
+    Iris.WidgetConstructor("Table", false, true){
+        Args = {
+            ["NumColumns"] = 1,
+            ["RowBg"] = 2,
+            ["BordersOuter"] = 3,
+            ["BordersInner"] = 4
+        },
+        Generate = function(thisWidget)
+            tableWidgets[thisWidget.ID] = thisWidget
+
+            thisWidget.InitialNumColumns = -1
+            thisWidget.RowColumnIndex = -1
+            -- reference to these is stored as an optimization
+            thisWidget.ColumnInstances = {}
+
+            local Table = Instance.new("Frame")
+            Table.Name = "Iris_Table"
+            Table.Size = UDim2.fromOffset(0, 0)
+            Table.BackgroundTransparency = 1
+            Table.BorderSizePixel = 0
+            Table.ZIndex = thisWidget.ZIndex
+            Table.LayoutOrder = thisWidget.ZIndex
+            Table.AutomaticSize = Enum.AutomaticSize.XY
+
+            UITableLayout(Table)
+
+            return Table
+        end,
+        Update = function(thisWidget)
+            local thisWidgetInstance = thisWidget.Instance
+            local ColumnInstances = thisWidget.ColumnInstances
+
+            if thisWidget.InitialNumColumns == -1 then
+                thisWidget.InitialNumColumns = thisWidget.arguments.NumColumns
+
+                for i = 1, thisWidget.InitialNumColumns do
+                    local Column = Instance.new("Frame")
+                    Column.Name = `TableColumn_{i}`
+
+                    ColumnInstances[i] = Column
+                    Column.Parent = thisWidgetInstance
+                end
+
+            elseif thisWidget.arguments.NumColumns ~= thisWidget.InitialNumColumns then
+                -- its possible to make it so that the NumColumns can increase,
+                -- but decreasing it would interfere with child widget instances
+                error("Iris.Table NumColumns Argument must be static")
+            end
+        end,
+        Discard = function(thisWidget)
+            tableWidgets[thisWidget.ID] = nil
+            thisWidget.Instance:Destroy()
+        end,
+        ChildAdded = function(thisWidget)
+            -- TODO Will have to generate cell instances for each child added so that they can be colored and stuff
+            return thisWidget.ColumnInstances[(thisWidget.RowColumnIndex % thisWidget.InitialNumColumns) + 1]
+        end
+    }
+    Iris.Table = function(args, state)
+        return Iris._Insert("Table", args, state)
+    end
+end
+
+do -- Iris.Window
     local windowDisplayOrder = 0
     local dragWindow
     local isDragging = false
@@ -1341,8 +1436,6 @@ do -- Window
             else
                 TitleAlign = 1
             end
-            print(TitleAlign)
-            print(Iris._style.WindowTitleAlign)
             Title.Position = UDim2.fromScale(TitleAlign, 0)
             Title.AnchorPoint = Vector2.new(TitleAlign, 0)
 
@@ -1454,7 +1547,7 @@ do -- Window
             thisWidget.Instance:Destroy()
             discardState(thisWidget)
         end,
-        GetParentInstance = function(thisWidget)
+        ChildAdded = function(thisWidget)
             return thisWidget.Instance.WindowButton.ChildContainer
         end,
         UpdateState = function(thisWidget)

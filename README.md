@@ -54,7 +54,7 @@
 - - [X]	Iris.Args.InputText.TextHint
 
 - [ ]	Iris.Table
-- - [ ] Iris.Args.Table.NumColumns
+- - [X] Iris.Args.Table.NumColumns
 - - [ ]	Iris.Args.Table.RowBg
 - - [ ] Iris.Args.Table.BordersOuter
 - - [ ] Iris.Args.Table.BordersInner
