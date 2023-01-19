@@ -87,6 +87,15 @@ Iris.TemplateStyles = {
         SelectionImageObjectBorderColor = Color3.fromRGB(255, 255, 255),
         SelectionImageObjectBorderTransparency = 0,
 
+        TableBorderStrongColor = Color3.fromRGB(79, 79, 89),
+        TableBorderStrongTransparency = 0,
+        TableBorderLightColor = Color3.fromRGB(59, 59, 64),
+        TableBorderLightTransparency = 0,
+        TableRowBgColor = Color3.fromRGB(0, 0, 0),
+        TableRowBgTransparency = 1,
+        TableRowBgAltColor = Color3.fromRGB(255, 255, 255),
+        TableRowBgAltTransparency = 0.94,
+
         NavWindowingHighlightColor = Color3.fromRGB(255, 255, 255),
         NavWindowingHighlightTransparency = 0.3,
         NavWindowingDimBgColor = Color3.fromRGB(204, 204, 204),
@@ -152,6 +161,15 @@ Iris.TemplateStyles = {
         SelectionImageObjectBorderColor = Color3.fromRGB(0, 0, 0),
         SelectionImageObjectBorderTransparency = 0,
 
+        TableBorderStrongColor = Color3.fromRGB(145, 145, 163),
+        TableBorderStrongTransparency = 0,
+        TableBorderLightColor = Color3.fromRGB(173, 173, 189),
+        TableBorderLightTransparency = 0,
+        TableRowBgColor = Color3.fromRGB(0, 0, 0),
+        TableRowBgTransparency = 1,
+        TableRowBgAltColor = Color3.fromRGB(77, 77, 77),
+        TableRowBgAltTransparency = 0.91,
+
         NavWindowingHighlightColor = Color3.fromRGB(179, 179, 179),
         NavWindowingHighlightTransparency = 0.3,
         NavWindowingDimBgColor = Color3.fromRGB(51, 51, 51),
@@ -170,6 +188,7 @@ Iris.TemplateStyles = {
         FramePadding = Vector2.new(4, 3),
         ItemSpacing = Vector2.new(8, 4),
         ItemInnerSpacing = Vector2.new(4, 4),
+        CellPadding = Vector2.new(4, 2),
         IndentSpacing = 21,
 
         TextFont = Enum.Font.Code,

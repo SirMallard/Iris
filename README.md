@@ -15,6 +15,7 @@
 	
 - [X]	Iris.Tree
 - - [X]	Iris.Args.Tree.SpanAvailWidth
+- - [X] Iris.Args.Tree.NoIndent
 	
 - [ ]	Iris.Window
 - - [X] Iris.Args.Window.Title
@@ -53,15 +54,14 @@
 - - [X]	Iris.Args.InputText.Text
 - - [X]	Iris.Args.InputText.TextHint
 
-- [ ]	Iris.Table
+- [X]	Iris.Table
 - - [X] Iris.Args.Table.NumColumns
-- - [ ]	Iris.Args.Table.RowBg
-- - [ ] Iris.Args.Table.BordersOuter
-- - [ ] Iris.Args.Table.BordersInner
+- - [X]	Iris.Args.Table.RowBg
+- - [X] Iris.Args.Table.BordersOuter
+- - [X] Iris.Args.Table.BordersInner
 
 ## Methods:
 *May change prior to release*
-- Iris.UseId
 - Iris.UpdateGlobalStyle
 - Iris.PushStyle
 - Iris.PopStyle
@@ -69,7 +69,6 @@
 - Iris.Connect
 - Iris.ForceRefresh
 - Iris.WidgetConstructor
-- Iris.SetState
 
 - Iris.NextRow
 - Iris.NextColumn
