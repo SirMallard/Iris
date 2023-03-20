@@ -76,7 +76,7 @@
 
 
 Remaining Greviances:
-- [] Iris.Window cant resize from its edges
+- [X] Iris.Window cant resize from its edges
 - [X] *Iris.Table Rows dont align vertically 
 - [] PushStyle changes wont be propogated to widgets until they refresh, somehow
 - [] there is no retained mode interoperability (GUI Instances in Iris, Iris in GUI Instances)
@@ -84,4 +84,5 @@ Remaining Greviances:
 - [] Gamepad and Touch behavior dont work
 - [] Window Scrollbar state resets, Window has no state of it
 - [X] Window position and size dont reflect realtime coordinates when moving / resizing
+- [] State syntax is unintuitive, could be simplified or possibly borrowed from another library?
 * = Cannot be fixed or would be problematic to fix
