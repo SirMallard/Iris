@@ -154,6 +154,7 @@ end
 
 local function applyFrameStyle(thisInstance, forceNoPadding)
     -- padding, border, and rounding
+    -- optimized to only use what instances are needed, based on style
     local FramePadding = Iris._style.FramePadding
     local FrameBorderTransparency = Iris._style.ButtonTransparency
     local FrameBorderSize = Iris._style.FrameBorderSize
@@ -1175,19 +1176,24 @@ do -- Iris.Table
 end
 
 do -- Iris.Window
-    local windowDisplayOrder = 0
-    local dragWindow
+    local windowDisplayOrder = 0 -- incremental count which is used for determining focused windows ZIndex
+    local dragWindow -- window being dragged, may be nil
     local isDragging = false
-    local moveDeltaCursorPosition
+    local moveDeltaCursorPosition -- cursor offset from drag origin (top left of window)
 
-    local resizeWindow
+    local resizeWindow -- window being resized, may be nil
     local isResizing = false
-    local resizeDeltaCursorPosition
+    local isInsideResize = false -- is cursor inside of the focused window resize outer padding
+    local isInsideWindow = false -- is cursor inside of the focused window
+    local resizeFromTopBottom = Enum.TopBottom.Top
+    local resizeFromLeftRight = Enum.LeftRight.Left
 
-    local focusedWindow
-    local anyFocusedWindow = false
+    local lastCursorPosition
 
-    local windowWidgets = {}
+    local focusedWindow -- window with focus, may be nil
+    local anyFocusedWindow = false -- is there any focused window?
+
+    local windowWidgets = {} -- array of widget objects of type window
 
     local function getWindows()
         return windowWidgets
@@ -1219,6 +1225,29 @@ do -- Iris.Window
             SelectedWindow.state.isUncollapsed:Set(true)
         end
         Iris.SetFocusedWindow(SelectedWindow)
+    end
+
+    local function fitSizeToWindowBounds(thisWidget, intentedSize)
+        local resizeInstance = thisWidget.Instance.WindowButton
+        local windowSize = Vector2.new(resizeInstance.Position.X.Offset, resizeInstance.Position.Y.Offset)
+        local minWindowSize = (Iris._style.TextSize + Iris._style.FramePadding.Y * 2) * 2
+        local maxWindowSize = (
+            thisWidget.Instance.AbsoluteSize -
+            windowSize -
+            Vector2.new(Iris._style.WindowBorderSize, Iris._style.WindowBorderSize)
+        )
+        return Vector2.new(
+            math.clamp(intentedSize.X, minWindowSize, maxWindowSize.X),
+            math.clamp(intentedSize.Y, minWindowSize, maxWindowSize.Y)
+        )
+    end
+
+    local function fitPositionToWindowBounds(thisWidget, intendedPosition)
+        local thisWidgetInstance = thisWidget.Instance
+        return Vector2.new(
+            math.clamp(intendedPosition.X, Iris._style.WindowBorderSize, thisWidgetInstance.AbsoluteSize.X - thisWidgetInstance.WindowButton.AbsoluteSize.X - Iris._style.WindowBorderSize),
+            math.clamp(intendedPosition.Y, Iris._style.WindowBorderSize, thisWidgetInstance.AbsoluteSize.Y - thisWidgetInstance.WindowButton.AbsoluteSize.Y - Iris._style.WindowBorderSize)
+        )
     end
 
     Iris.SetFocusedWindow = function(thisWidget: table | nil)
@@ -1278,9 +1307,6 @@ do -- Iris.Window
         if input.KeyCode == Enum.KeyCode.Tab and (UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl)) then
             quickSwapWindows()
         end
-        if input.KeyCode == Enum.KeyCode.RightShift then
-            quickSwapWindows()
-        end
 
         -- if gamepadMenuOpened then
         --     if input.KeyCode == Enum.KeyCode.ButtonL1 then
@@ -1290,43 +1316,66 @@ do -- Iris.Window
         --         setGamepadMenuSelectedWindowIndex(gamepadMenuSelectedWindowIndex % #gamepadMenuWindows + 1)
         --     end
         -- end
+
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            if isInsideResize and not isInsideWindow and anyFocusedWindow then
+                local midWindow = focusedWindow.state.position.value + (focusedWindow.state.size.value / 2)
+                local cursorPosition = UserInputService:GetMouseLocation() - Vector2.new(0, 36) - midWindow
+
+                -- check which axis its closest to, then check which side is closest with math.sign
+                if math.abs(cursorPosition.X) * focusedWindow.state.size.value.Y >= math.abs(cursorPosition.Y) * focusedWindow.state.size.value.X then
+                    resizeFromTopBottom = Enum.TopBottom.Center
+                    resizeFromLeftRight = if math.sign(cursorPosition.X) == -1 then Enum.LeftRight.Left else Enum.LeftRight.Right
+                else
+                    resizeFromLeftRight = Enum.LeftRight.Center
+                    resizeFromTopBottom = if math.sign(cursorPosition.Y) == -1 then Enum.TopBottom.Top else Enum.TopBottom.Bottom
+                end
+                isResizing = true
+                resizeWindow = focusedWindow
+            end
+        end
     end)
 
     UserInputService.InputChanged:Connect(function(input)
+
         if isDragging then
             local mouseLocation = UserInputService:GetMouseLocation()
             local dragInstance = dragWindow.Instance.WindowButton
-            local newPosX, newPosY =
-            math.min(
-                math.max(mouseLocation.X - moveDeltaCursorPosition.X, Iris._style.WindowBorderSize),
-                dragWindow.Instance.AbsoluteSize.X - dragInstance.AbsoluteSize.X - Iris._style.WindowBorderSize
-            ),
-            math.min(
-                math.max(mouseLocation.Y - moveDeltaCursorPosition.Y, Iris._style.WindowBorderSize),
-                dragWindow.Instance.AbsoluteSize.Y - dragInstance.AbsoluteSize.Y - Iris._style.WindowBorderSize
-            )
+            local intendedPosition = mouseLocation - moveDeltaCursorPosition
+            local newPos = fitPositionToWindowBounds(dragWindow, intendedPosition)
 
-            dragInstance.Position = UDim2.fromOffset(newPosX, newPosY)
+            -- state shouldnt be used like this, but calling :Set would run the entire UpdateState function for the window, which is slow.
+            dragInstance.Position = UDim2.fromOffset(newPos.X, newPos.Y)
+            dragWindow.state.position.value = newPos
         end
         if isResizing then
             local resizeInstance = resizeWindow.Instance.WindowButton
+            local windowPosition = Vector2.new(resizeInstance.Position.X.Offset, resizeInstance.Position.Y.Offset)
+            local windowSize = Vector2.new(resizeInstance.Size.X.Offset, resizeInstance.Size.Y.Offset)
 
-            local windowSize = Vector2.new(resizeInstance.Position.X.Offset, resizeInstance.Position.Y.Offset)
-            local minWindowSize = (Iris._style.TextSize + Iris._style.FramePadding.Y * 2) * 2
-            local maxWindowSize = (
-                resizeWindow.Instance.AbsoluteSize -
-                windowSize -
-                Vector2.new(Iris._style.WindowBorderSize, Iris._style.WindowBorderSize)
+            local mousePosition = UserInputService:GetMouseLocation()
+            local mouseDelta = mousePosition - lastCursorPosition
+
+            local intendedPosition = windowPosition + Vector2.new(
+                if resizeFromLeftRight == Enum.LeftRight.Left then mouseDelta.X else 0,
+                if resizeFromTopBottom == Enum.TopBottom.Top then mouseDelta.Y else 0
             )
 
-            local mouseLocation = UserInputService:GetMouseLocation()
-            local newSize = (mouseLocation - windowSize) - Vector2.new(0, 36) - resizeDeltaCursorPosition
-            newSize = Vector2.new(
-                math.clamp(newSize.X, minWindowSize, maxWindowSize.X),
-                math.clamp(newSize.Y, minWindowSize, maxWindowSize.Y)
+            local intendedSize = windowSize + Vector2.new(
+                if resizeFromLeftRight == Enum.LeftRight.Left then -mouseDelta.X elseif resizeFromLeftRight == Enum.LeftRight.Right then mouseDelta.X else 0,
+                if resizeFromTopBottom == Enum.TopBottom.Top then -mouseDelta.Y elseif resizeFromTopBottom == Enum.TopBottom.Bottom then mouseDelta.Y else 0
             )
+
+            local newSize = fitSizeToWindowBounds(resizeWindow, intendedSize)
+            local newPosition = fitPositionToWindowBounds(resizeWindow, intendedPosition)
+
             resizeInstance.Size = UDim2.fromOffset(newSize.X, newSize.Y)
+            resizeWindow.state.size.value = newSize
+            resizeInstance.Position = UDim2.fromOffset(newPosition.X, newPosition.Y)
+            resizeWindow.state.position.value = newPosition
         end
+
+        lastCursorPosition = UserInputService:GetMouseLocation()
     end)
 
     UserInputService.InputEnded:Connect(function(input, gameProcessedEvent)
@@ -1375,8 +1424,8 @@ do -- Iris.Window
             WindowButton.Name = "WindowButton"
             WindowButton.BackgroundTransparency = 1
             WindowButton.BorderSizePixel = 0
-            WindowButton.ZIndex = thisWidget.ZIndex
-            WindowButton.LayoutOrder = thisWidget.ZIndex
+            WindowButton.ZIndex = thisWidget.ZIndex + 1
+            WindowButton.LayoutOrder = thisWidget.ZIndex + 1
             WindowButton.Size = UDim2.fromOffset(0, 0)
             WindowButton.AutomaticSize = Enum.AutomaticSize.None
             WindowButton.ClipsDescendants = false
@@ -1417,8 +1466,8 @@ do -- Iris.Window
             ChildContainer.Name = "ChildContainer"
             ChildContainer.Position = UDim2.fromOffset(0, 0)
             ChildContainer.BorderSizePixel = 0
-            ChildContainer.ZIndex = thisWidget.ZIndex + 1
-            ChildContainer.LayoutOrder = thisWidget.ZIndex + 1
+            ChildContainer.ZIndex = thisWidget.ZIndex + 2
+            ChildContainer.LayoutOrder = thisWidget.ZIndex + 2
             ChildContainer.AutomaticSize = Enum.AutomaticSize.None
             ChildContainer.Size = UDim2.fromScale(1, 1)
             ChildContainer.Selectable = false
@@ -1448,8 +1497,8 @@ do -- Iris.Window
             local TitleBar = Instance.new("Frame")
             TitleBar.Name = "TitleBar"
             TitleBar.BorderSizePixel = 0
-            TitleBar.ZIndex = thisWidget.ZIndex
-            TitleBar.LayoutOrder = thisWidget.ZIndex
+            TitleBar.ZIndex = thisWidget.ZIndex + 1
+            TitleBar.LayoutOrder = thisWidget.ZIndex + 1
             TitleBar.AutomaticSize = Enum.AutomaticSize.Y
             TitleBar.Size = UDim2.fromScale(1, 0)
             TitleBar.ClipsDescendants = true
@@ -1465,7 +1514,7 @@ do -- Iris.Window
             CollapseArrow.AutoButtonColor = false
             CollapseArrow.BackgroundTransparency = 1
             CollapseArrow.BorderSizePixel = 0
-            CollapseArrow.ZIndex = thisWidget.ZIndex + 3
+            CollapseArrow.ZIndex = thisWidget.ZIndex + 4
             CollapseArrow.AutomaticSize = Enum.AutomaticSize.None
             applyTextStyle(CollapseArrow)
             CollapseArrow.TextXAlignment = Enum.TextXAlignment.Center
@@ -1495,7 +1544,7 @@ do -- Iris.Window
             CloseIcon.AutoButtonColor = false
             CloseIcon.BackgroundTransparency = 1
             CloseIcon.BorderSizePixel = 0
-            CloseIcon.ZIndex = thisWidget.ZIndex + 3
+            CloseIcon.ZIndex = thisWidget.ZIndex + 4
             CloseIcon.AutomaticSize = Enum.AutomaticSize.None
             applyTextStyle(CloseIcon)
             CloseIcon.TextXAlignment = Enum.TextXAlignment.Center
@@ -1527,7 +1576,7 @@ do -- Iris.Window
             Title.Name = "Title"
             Title.BorderSizePixel = 0
             Title.BackgroundTransparency = 1
-            Title.ZIndex = thisWidget.ZIndex + 2
+            Title.ZIndex = thisWidget.ZIndex + 3
             Title.AutomaticSize = Enum.AutomaticSize.XY
             applyTextStyle(Title)
             Title.Parent = TitleBar
@@ -1554,7 +1603,7 @@ do -- Iris.Window
             ResizeGrip.BorderSizePixel = 0
             ResizeGrip.BackgroundTransparency = 1
             ResizeGrip.Text = ICONS.BOTTOM_RIGHT_CORNER
-            ResizeGrip.ZIndex = thisWidget.ZIndex + 2
+            ResizeGrip.ZIndex = thisWidget.ZIndex + 3
             ResizeGrip.Position = UDim2.fromScale(1, 1)
             ResizeGrip.TextSize = ResizeButtonSize
             ResizeGrip.TextColor3 = Iris._style.ButtonColor
@@ -1577,8 +1626,47 @@ do -- Iris.Window
                     -- mitigating wrong focus when clicking on buttons inside of a window without clicking the window itself
                 end
                 isResizing = true
+                resizeFromTopBottom = Enum.TopBottom.Bottom
+                resizeFromLeftRight = Enum.LeftRight.Right
                 resizeWindow = thisWidget
-                resizeDeltaCursorPosition = UserInputService:GetMouseLocation() - thisWidget.state.position.value - thisWidget.state.size.value - Vector2.new(0, 36)
+            end)
+
+            local ResizeBorder = Instance.new("TextButton")
+            ResizeBorder.Name = "ResizeBorder"
+            ResizeBorder.BackgroundTransparency = 1
+            ResizeBorder.BorderSizePixel = 0
+            ResizeBorder.ZIndex = thisWidget.ZIndex
+            ResizeBorder.LayoutOrder = thisWidget.ZIndex
+            ResizeBorder.Size = UDim2.new(1, Iris._style.WindowResizePadding.X * 2, 1, Iris._style.WindowResizePadding.Y * 2)
+            ResizeBorder.Position = UDim2.fromOffset(-Iris._style.WindowResizePadding.X, -Iris._style.WindowResizePadding.Y * 2)
+            WindowButton.AutomaticSize = Enum.AutomaticSize.None
+            ResizeBorder.ClipsDescendants = false
+            ResizeBorder.Text = ""
+            ResizeBorder.AutoButtonColor = false
+            ResizeBorder.Active = true
+            ResizeBorder.Selectable = false
+            ResizeBorder.Parent = WindowButton
+
+            ResizeBorder.MouseEnter:Connect(function()
+                if focusedWindow == thisWidget then
+                    isInsideResize = true
+                end
+            end)
+            ResizeBorder.MouseLeave:Connect(function()
+                if focusedWindow == thisWidget then
+                    isInsideResize = false
+                end
+            end)
+
+            WindowButton.MouseEnter:Connect(function()
+                if focusedWindow == thisWidget then
+                    isInsideWindow = true
+                end
+            end)
+            WindowButton.MouseLeave:Connect(function()
+                if focusedWindow == thisWidget then
+                    isInsideWindow = false
+                end
             end)
 
             ResizeGrip.Parent = WindowButton

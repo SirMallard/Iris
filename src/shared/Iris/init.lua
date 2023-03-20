@@ -185,6 +185,7 @@ Iris.TemplateStyles = {
         ItemWidth = UDim.new(1, 0),
 
         WindowPadding = Vector2.new(8, 8),
+        WindowResizePadding = Vector2.new(6, 6),
         FramePadding = Vector2.new(4, 3),
         ItemSpacing = Vector2.new(8, 4),
         ItemInnerSpacing = Vector2.new(4, 4),
@@ -419,6 +420,12 @@ function StateClass:Set(newValue)
     for _, thisWidget in self.ConnectedWidgets do
         widgets[thisWidget.type].UpdateState(thisWidget)
     end
+    for _, thisFunc in self.ConnectedFunctions do
+        thisFunc(newValue)
+    end
+end
+function StateClass:Connect(funcToConnect)
+    table.insert(self.ConnectedFunctions, funcToConnect)
 end
 function Iris.State(initialValue)
     local ID = GetID(2)
@@ -427,7 +434,8 @@ function Iris.State(initialValue)
     else
         States[ID] = {
             value = initialValue,
-            ConnectedWidgets = {}
+            ConnectedWidgets = {},
+            ConnectedFunctions = {}
         }
         setmetatable(States[ID], StateClass)
         return States[ID]
@@ -442,7 +450,8 @@ function Iris._widgetState(thisWidget, stateName, initialValue)
     else
         States[ID] = {
             value = initialValue,
-            ConnectedWidgets = {[thisWidget.ID] = thisWidget}
+            ConnectedWidgets = {[thisWidget.ID] = thisWidget},
+            ConnectedFunctions = {}
         }
         setmetatable(States[ID], StateClass)
         return States[ID]

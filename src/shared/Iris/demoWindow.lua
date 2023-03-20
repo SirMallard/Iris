@@ -32,38 +32,38 @@ return function(Iris)
                 end
             Iris.End()
         end
-        Iris.Window({"Widget Info"},{size = Iris.State(Vector2.new(450, 300)), isOpened = showWidgetInfo})
+        Iris.Window({"Widget Info"},{size = Iris.State(Vector2.new(600, 300)), isOpened = showWidgetInfo})
             Iris.Text({"information of Iris Widgets."})
             Iris.Table({1, [Iris.Args.Table.RowBg] = false})
                 Iris.NextColumn()
-                Iris.Tree({"Iris.Text / Iris.TextWrapped", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.Text / Iris.TextWrapped\n", [Iris.Args.Tree.NoIndent] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"}, 
                         {"Text: String", "", ""}, 
                     })
                 Iris.End()
                 Iris.NextColumn()
-                Iris.Tree({"Iris.Button / Iris.SmallButton", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.Button / Iris.SmallButton\n", [Iris.Args.Tree.NoIndent] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"}, 
                         {"Text: string", "clicked: boolean", ""}
                     })
                 Iris.End()
                 Iris.NextColumn()
-                Iris.Tree({"Iris.Separator", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.Separator\n", [Iris.Args.Tree.NoIndent] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"},
                     })
                 Iris.End()
                 Iris.NextColumn()
-                Iris.Tree({"Iris.Indent", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.Indent\n", [Iris.Args.Tree.NoIndent] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"},
                         {"Width: number", "", ""}
                     })
                 Iris.End()
                 Iris.NextColumn()
-                Iris.Tree({"Iris.SameLine", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.SameLine\n", [Iris.Args.Tree.NoIndent] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"},
                         {"Width: number", "", ""},
@@ -71,13 +71,13 @@ return function(Iris)
                     })
                 Iris.End()
                 Iris.NextColumn()
-                Iris.Tree({"Iris.Group", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.Group\n", [Iris.Args.Tree.NoIndent] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"},
                     })
                 Iris.End()
                 Iris.NextColumn()
-                Iris.Tree({"Iris.Checkbox", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.Checkbox\n", [Iris.Args.Tree.NoIndent] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"},
                         {"Text: string", "checked: boolean", "isChecked: boolean"},
@@ -85,7 +85,7 @@ return function(Iris)
                     })
                 Iris.End()
                 Iris.NextColumn()
-                Iris.Tree({"Iris.Tree", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.Tree\n", [Iris.Args.Tree.NoIndent] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"},
                         {"Text: string", "collapsed: boolean", "isUncollapsed: boolean"},
@@ -94,7 +94,7 @@ return function(Iris)
                     })
                 Iris.End()
                 Iris.NextColumn()
-                Iris.Tree({"Iris.InputNum", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.InputNum\n", [Iris.Args.Tree.NoIndent] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"},
                         {"Text: string", "numberChanged: boolean", "number: number"},
@@ -107,14 +107,15 @@ return function(Iris)
                     })
                 Iris.End()
                 Iris.NextColumn()
-                Iris.Tree({"Iris.InputText", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.InputText\n", [Iris.Args.Tree.NoIndent] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"},
                         {"Text: string", "textChanged: boolean", "text: string"},
                         {"TextHint: string", "", ""}
                     })
                 Iris.End()
-                Iris.Tree({"Iris.Window", [Iris.Args.Tree.NoIndent] = true})
+                Iris.NextColumn()
+                Iris.Tree({"\nIris.Window\n", [Iris.Args.Tree.NoIndent] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"},
                         {"Title: string", "closed: boolean", "size: Vector2"},
@@ -132,7 +133,7 @@ return function(Iris)
     end
 
     local function runtimeInfo()
-        Iris.Window({"Runtime Info"}, {isOpened = showRuntimeInfo})
+        local runtimeInfoWindow = Iris.Window({"Runtime Info"}, {isOpened = showRuntimeInfo})
             local widgetCount = 0
             local str = ""
             local a = Iris._GetVDOM()
@@ -150,6 +151,11 @@ return function(Iris)
             lastT.value = t
             Iris.Text({string.format("Average %.3f ms/frame (%.1f FPS)", rollingDT.value*1000, 1/rollingDT.value)})
             Iris.Text({string.format("Number of Widgets: %d", widgetCount)})
+            Iris.Text({string.format(
+                "Window Position: (%d, %d), Window Size: (%d, %d)",
+                runtimeInfoWindow.position.value.X, runtimeInfoWindow.position.value.Y,
+                runtimeInfoWindow.size.value.X, runtimeInfoWindow.size.value.Y
+            )})
 
             Iris.Tree({"Widget IDs"})
                 Iris.Text({str})
@@ -304,7 +310,9 @@ return function(Iris)
                 function()
                     Iris.Text({"Main"})
                     InputVector2("WindowPadding")
+                    InputVector2("WindowResizePadding")
                     InputVector2("FramePadding")
+                    InputVector2("CellPadding")
                     InputVector2("ItemSpacing")
                     InputVector2("ItemInnerSpacing")
                     InputInt("IndentSpacing")
@@ -350,6 +358,11 @@ return function(Iris)
 
                     InputColor4("SelectionImageObjectColor", "SelectionImageObjectTransparency")
                     InputColor4("SelectionImageObjectBorderColor", "SelectionImageObjectBorderTransparency")
+
+                    InputColor4("TableBorderStrongColor", "TableBorderStrongTransparency")
+                    InputColor4("TableBorderLightColor", "TableBorderLightTransparency")
+                    InputColor4("TableRowBgColor", "TableRowBgTransparency")
+                    InputColor4("TableRowBgAltColor", "TableRowBgAltTransparency")
 
                     InputColor4("NavWindowingHighlightColor", "NavWindowingHighlightTransparency")
                     InputColor4("NavWindowingDimBgColor", "NavWindowingDimBgTransparency")
@@ -550,8 +563,14 @@ return function(Iris)
     local widgetDemosOrder = {"Basic", "Tree", "Group", "Indent", "InputNum", "InputText"}
 
     return function()
-        local NoTitleBar, NoBackground, NoCollapse, NoClose, NoMove, NoScrollbar, NoResize, NoNav =
-        Iris.State(false), Iris.State(false), Iris.State(false), Iris.State(false), Iris.State(false), Iris.State(false), Iris.State(false), Iris.State(false)
+        local NoTitleBar = Iris.State(false)
+        local NoBackground = Iris.State(false)
+        local NoCollapse = Iris.State(false)
+        local NoClose = Iris.State(true)
+        local NoMove = Iris.State(false)
+        local NoScrollbar = Iris.State(false)
+        local NoResize = Iris.State(false)
+        local NoNav = Iris.State(false)
 
         Iris.Window({"Iris Demo Window",
             [Iris.Args.Window.NoTitleBar] = NoTitleBar.value,
@@ -562,29 +581,43 @@ return function(Iris)
             [Iris.Args.Window.NoScrollbar] = NoScrollbar.value,
             [Iris.Args.Window.NoResize] = NoResize.value,
             [Iris.Args.Window.NoNav] = NoNav.value
-        })
+        }, {size = Iris.State(Vector2.new(600, 550)), position = Iris.State(Vector2.new(100, 25))})
 
             Iris.Text{"Iris says hello!"}
             Iris.Separator()
 
-            Iris.SameLine()
+            Iris.Table({3, false, false, false})
+                Iris.NextColumn()
                 Iris.Checkbox({"Recursive Window"}, {isChecked = showRecursiveWindow})
+                Iris.NextColumn()
                 Iris.Checkbox({"Widget Info"}, {isChecked = showWidgetInfo})
+                Iris.NextColumn()
                 Iris.Checkbox({"Runtime Info"}, {isChecked = showRuntimeInfo})
+                Iris.NextColumn()
                 Iris.Checkbox({"Style Editor"}, {isChecked = showStyleEditor})
             Iris.End()
 
             Iris.Separator()
 
             Iris.Tree({"Window Options"})
-                Iris.Checkbox({"NoTitleBar"}, {isChecked = NoTitleBar})
-                Iris.Checkbox({"NoBackground"}, {isChecked = NoBackground})
-                Iris.Checkbox({"NoCollapse"}, {isChecked = NoCollapse})
-                Iris.Checkbox({"NoClose"}, {isChecked = NoClose})
-                Iris.Checkbox({"NoMove"}, {isChecked = NoMove})
-                Iris.Checkbox({"NoScrollbar"}, {isChecked = NoScrollbar})
-                Iris.Checkbox({"NoResize"}, {isChecked = NoResize})
-                Iris.Checkbox({"NoNav"}, {isChecked = NoNav})
+                Iris.Table({3, false, false, false})
+                    Iris.NextColumn()
+                    Iris.Checkbox({"NoTitleBar"}, {isChecked = NoTitleBar})
+                    Iris.NextColumn()
+                    Iris.Checkbox({"NoBackground"}, {isChecked = NoBackground})
+                    Iris.NextColumn()
+                    Iris.Checkbox({"NoCollapse"}, {isChecked = NoCollapse})
+                    Iris.NextColumn()
+                    Iris.Checkbox({"NoClose"}, {isChecked = NoClose})
+                    Iris.NextColumn()
+                    Iris.Checkbox({"NoMove"}, {isChecked = NoMove})
+                    Iris.NextColumn()
+                    Iris.Checkbox({"NoScrollbar"}, {isChecked = NoScrollbar})
+                    Iris.NextColumn()
+                    Iris.Checkbox({"NoResize"}, {isChecked = NoResize})
+                    Iris.NextColumn()
+                    Iris.Checkbox({"NoNav"}, {isChecked = NoNav})
+                Iris.End()
             Iris.End()
 
             widgetEventInteractivity()
@@ -636,8 +669,8 @@ return function(Iris)
 
                 local TableRowBg = Iris.State(false)
                 local TableBordersOuter = Iris.State(false)
-                local TableBordersInner = Iris.State(false)
-                local TableUseButtons = Iris.State(false)
+                local TableBordersInner = Iris.State(true)
+                local TableUseButtons = Iris.State(true)
 
                 Iris.Text({"Table with Customizable Arguments"})
                 Iris.Table({
@@ -662,7 +695,6 @@ return function(Iris)
                 Iris.Checkbox({"BordersOuter"}, {isChecked = TableBordersOuter})
                 Iris.Checkbox({"BordersInner"}, {isChecked = TableBordersInner})
                 Iris.Checkbox({"Use Buttons"}, {isChecked = TableUseButtons})
-
 
             Iris.End()
             end
