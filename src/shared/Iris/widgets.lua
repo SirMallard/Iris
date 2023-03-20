@@ -1638,7 +1638,7 @@ do -- Iris.Window
             ResizeBorder.ZIndex = thisWidget.ZIndex
             ResizeBorder.LayoutOrder = thisWidget.ZIndex
             ResizeBorder.Size = UDim2.new(1, Iris._style.WindowResizePadding.X * 2, 1, Iris._style.WindowResizePadding.Y * 2)
-            ResizeBorder.Position = UDim2.fromOffset(-Iris._style.WindowResizePadding.X * 2, -Iris._style.WindowResizePadding.Y * 2)
+            ResizeBorder.Position = UDim2.fromOffset(-Iris._style.WindowResizePadding.X, -Iris._style.WindowResizePadding.Y)
             WindowButton.AutomaticSize = Enum.AutomaticSize.None
             ResizeBorder.ClipsDescendants = false
             ResizeBorder.Text = ""
