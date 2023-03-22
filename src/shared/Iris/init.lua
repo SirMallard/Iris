@@ -271,7 +271,7 @@ end
 Iris._lastVDOM = Iris._generateEmptyVDOM()
 Iris._VDOM = Iris._generateEmptyVDOM()
 
-local function cycle(callback)
+function Iris._cycle(callback)
     if Iris._refreshRequested then
         -- rerender every widget
         debug.profilebegin("Iris Refresh")
@@ -455,11 +455,11 @@ function Iris.Connect(parentInstance, eventConnection: RBXScriptSignal | () -> {
         if typeof(eventConnection) == "function" then
             while true do
                 eventConnection()
-                cycle(callback)
+                Iris._cycle(callback)
             end
         else
             eventConnection:Connect(function()
-                cycle(callback)
+                Iris._cycle(callback)
             end)
         end
     end)

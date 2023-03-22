@@ -1,11 +1,5 @@
 --[[
-    deciding to not write these widgets with support of ImGui TouchExtraPadding in mind. too much overhead to be worth it.
-
-    CanvasGroup is useless. They dont even have a clipsDescendants property.
-
-    TODO, gradients are cool, add gradient styles and a style flag to enable or disable usage.
-        why? instances like buttons with text will have their text affected by gradients, so if gradients are enabled the button needs to have a separate textlabel.
-        thats a lot of configuration to do but gradients look so good, its worth it.
+    This file contains the classes for all widgets included in Iris. This file is large.
 ]]
 
 local GuiService = game:GetService("GuiService")

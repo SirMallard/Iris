@@ -36,34 +36,34 @@ return function(Iris)
             Iris.Text({"information of Iris Widgets."})
             Iris.Table({1, [Iris.Args.Table.RowBg] = false})
                 Iris.NextColumn()
-                Iris.Tree({"\nIris.Text / Iris.TextWrapped\n", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.Text / Iris.TextWrapped\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"}, 
                         {"Text: String", "", ""}, 
                     })
                 Iris.End()
                 Iris.NextColumn()
-                Iris.Tree({"\nIris.Button / Iris.SmallButton\n", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.Button / Iris.SmallButton\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"}, 
                         {"Text: string", "clicked: boolean", ""}
                     })
                 Iris.End()
                 Iris.NextColumn()
-                Iris.Tree({"\nIris.Separator\n", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.Separator\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"},
                     })
                 Iris.End()
                 Iris.NextColumn()
-                Iris.Tree({"\nIris.Indent\n", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.Indent\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"},
                         {"Width: number", "", ""}
                     })
                 Iris.End()
                 Iris.NextColumn()
-                Iris.Tree({"\nIris.SameLine\n", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.SameLine\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"},
                         {"Width: number", "", ""},
@@ -71,13 +71,13 @@ return function(Iris)
                     })
                 Iris.End()
                 Iris.NextColumn()
-                Iris.Tree({"\nIris.Group\n", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.Group\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"},
                     })
                 Iris.End()
                 Iris.NextColumn()
-                Iris.Tree({"\nIris.Checkbox\n", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.Checkbox\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"},
                         {"Text: string", "checked: boolean", "isChecked: boolean"},
@@ -85,7 +85,7 @@ return function(Iris)
                     })
                 Iris.End()
                 Iris.NextColumn()
-                Iris.Tree({"\nIris.Tree\n", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.Tree\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"},
                         {"Text: string", "collapsed: boolean", "isUncollapsed: boolean"},
@@ -94,7 +94,7 @@ return function(Iris)
                     })
                 Iris.End()
                 Iris.NextColumn()
-                Iris.Tree({"\nIris.InputNum\n", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.InputNum\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"},
                         {"Text: string", "numberChanged: boolean", "number: number"},
@@ -107,7 +107,7 @@ return function(Iris)
                     })
                 Iris.End()
                 Iris.NextColumn()
-                Iris.Tree({"\nIris.InputText\n", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.InputText\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"},
                         {"Text: string", "textChanged: boolean", "text: string"},
@@ -115,14 +115,14 @@ return function(Iris)
                     })
                 Iris.End()
                 Iris.NextColumn()
-                Iris.Tree({"\nIris.Window\n", [Iris.Args.Tree.NoIndent] = true})
+                Iris.Tree({"\nIris.Window\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
                     parse2DArray({
                         {"Arguments", "Events", "States"},
                         {"Title: string", "closed: boolean", "size: Vector2"},
                         {"NoTitleBar: boolean", "opened: boolean", "position: Vector2"},
                         {"NoBackground: boolean", "collapsed: boolean", "isUncollapsed: boolean"},
                         {"NoCollapse: boolean", "uncollapsed: boolean", "isOpened: boolean"},
-                        {"NoClose: boolean", "", ""},
+                        {"NoClose: boolean", "", "scrollDistance: number"},
                         {"NoMove: boolean", "", ""},
                         {"NoScrollbar: boolean", "", ""},
                         {"NoResize: boolean", "", ""}
