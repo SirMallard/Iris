@@ -1004,7 +1004,7 @@ end
 do -- Iris.Table
     local tableWidgets = {}
 
-    table.insert(Iris._PostCycleCallbacks, function()
+    table.insert(Iris._postCycleCallbacks, function()
         for i,v in tableWidgets do
             v.RowColumnIndex = 0
         end
@@ -1483,6 +1483,11 @@ do -- Iris.Window
 
             UIPadding(ChildContainer, Iris._style.WindowPadding)
 
+            ChildContainer:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+                -- "wrong" use of state here, for optimization
+                thisWidget.state.scrollDistance.value = ChildContainer.CanvasPosition.Y
+            end)
+
             local TerminatingFrame = Instance.new("Frame")
             TerminatingFrame.Name = "TerminatingFrame"
             TerminatingFrame.BackgroundTransparency = 1
@@ -1746,6 +1751,7 @@ do -- Iris.Window
             local statePosition = thisWidget.state.position.value
             local stateIsUncollapsed = thisWidget.state.isUncollapsed.value
             local stateIsOpened = thisWidget.state.isOpened.value
+            local stateScrollDistance = thisWidget.state.scrollDistance.value
 
             local WindowButton = thisWidget.Instance.WindowButton
 
@@ -1791,6 +1797,18 @@ do -- Iris.Window
 
                 Iris.SetFocusedWindow(nil)
             end
+
+            -- cant update canvasPosition in this cycle because scrollingframe isint ready to be changed
+            if stateScrollDistance then
+                local callbackIndex = #Iris._postCycleCallbacks + 1
+                local desiredCycleTick = Iris._cycleTick + 1
+                Iris._postCycleCallbacks[callbackIndex] = function()
+                    if Iris._cycleTick == desiredCycleTick then
+                        ChildContainer.CanvasPosition = Vector2.new(0, stateScrollDistance)
+                        Iris._postCycleCallbacks[callbackIndex] = nil
+                    end
+                end
+            end
         end,
         GenerateState = function(thisWidget)
             if thisWidget.state.size == nil then
@@ -1808,6 +1826,9 @@ do -- Iris.Window
             end
             if thisWidget.state.isOpened == nil then
                 thisWidget.state.isOpened = Iris._widgetState(thisWidget, "isOpened", true)
+            end
+            if thisWidget.state.scrollDistance == nil then
+                thisWidget.state.scrollDistance = Iris._widgetState(thisWidget, "scrollDistance", 0)
             end
         end
     }

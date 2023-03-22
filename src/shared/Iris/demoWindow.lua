@@ -136,8 +136,8 @@ return function(Iris)
         local runtimeInfoWindow = Iris.Window({"Runtime Info"}, {isOpened = showRuntimeInfo})
             local widgetCount = 0
             local str = ""
-            local a = Iris._GetVDOM()
-            for i,v in a do
+            local lastVDOM = Iris._lastVDOM
+            for i,v in lastVDOM do
                 widgetCount += 1
                 str ..= "\n" .. v.ID .. " - " .. v.type
             end
