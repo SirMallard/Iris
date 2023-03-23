@@ -259,6 +259,7 @@ function Iris._getID(levelsToIgnore: number)
 	else
 		Iris._usedIDs[ID] = 1
 	end
+
 	return ID .. ":" .. Iris._usedIDs[ID]
 end
 

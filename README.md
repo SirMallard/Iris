@@ -17,7 +17,7 @@
 - Iris.ShowDemoWindow
 
 
-Thing to complete for release:
+Things to complete for release:
 - [X] Iris.Window cant resize from its edges
 - [X] @ Iris.Table Rows dont align vertically 
 - [ ] PushStyle changes wont be propogated to widgets until they refresh, somehow
@@ -34,4 +34,5 @@ Thing to complete for release:
 - [ ] polish error handling
 - [ ] fix the visual glitch in tree when an expanded Iris.Tree increases in width while having no children
 - [ ] comment out debug.profileBegin and debug.ProfileEnd
+
 @ = Cannot be fixed or would be problematic to fix

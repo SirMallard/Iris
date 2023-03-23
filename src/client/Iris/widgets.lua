@@ -1056,16 +1056,6 @@ do -- Iris.Table
             local thisWidgetInstance = thisWidget.Instance
             local ColumnInstances = thisWidget.ColumnInstances
 
-            if thisWidget.arguments.RowBg == nil then
-                thisWidget.arguments.RowBg = true
-            end
-            if thisWidget.arguments.BordersOuter == nil then
-                thisWidget.arguments.BordersOuter = true
-            end
-            if thisWidget.arguments.BordersInner == nil then
-                thisWidget.arguments.BordersInner = true
-            end
-
             if thisWidget.arguments.BordersOuter == false then
                 thisWidgetInstance.UIStroke.Thickness = 0
             else
@@ -1098,24 +1088,24 @@ do -- Iris.Table
                 error("Iris.Table NumColumns Argument must be static")
             end
 
-            if thisWidget.arguments.RowBg then
+            if thisWidget.arguments.RowBg == false then
+                for _,v in thisWidget.CellInstances do
+                    v.BackgroundTransparency = 1
+                end
+            else
                 for rowColumnIndex,v in thisWidget.CellInstances do
                     local currentRow = math.ceil((rowColumnIndex) / thisWidget.InitialNumColumns)    
                     v.BackgroundTransparency = if currentRow % 2 == 0 then Iris._style.TableRowBgAltTransparency else Iris._style.TableRowBgTransparency
                 end
-            else
-                for _,v in thisWidget.CellInstances do
-                    v.BackgroundTransparency = 1
-                end
             end
 
-            if thisWidget.arguments.BordersInner then
+            if thisWidget.arguments.BordersInner == false then
                 for _,v in thisWidget.CellInstances do
-                    v.UIStroke.Thickness = 0.5
+                    v.UIStroke.Thickness = 0
                 end
             else
                 for _,v in thisWidget.CellInstances do
-                    v.UIStroke.Thickness = 0
+                    v.UIStroke.Thickness = 0.5
                 end
             end
         end,
@@ -1142,15 +1132,15 @@ do -- Iris.Table
 
             UIListLayout(cell, Enum.FillDirection.Vertical, UDim.new(0, Iris._style.ItemSpacing.Y))
 
-            if thisWidget.arguments.BordersInner then
+            if thisWidget.arguments.BordersInner == false then
+                UIStroke(cell, 0, Iris._style.TableBorderLightColor, Iris._style.TableBorderLightTransparency)
+            else
                 UIStroke(cell, 0.5, Iris._style.TableBorderLightColor, Iris._style.TableBorderLightTransparency)
                 -- this takes advantage of unintended behavior when UIStroke is set to 0.5 to render cell borders,
                 -- at 0.5, only the top and left side of the cell will be rendered with a border. expect to randomly.
-            else
-                UIStroke(cell, 0, Iris._style.TableBorderLightColor, Iris._style.TableBorderLightTransparency)
             end
 
-            if thisWidget.arguments.RowBg then
+            if thisWidget.arguments.RowBg ~= false then
                 local currentRow = math.ceil((thisWidget.RowColumnIndex) / thisWidget.InitialNumColumns)
                 local color = if currentRow % 2 == 0 then Iris._style.TableRowBgAltColor else Iris._style.TableRowBgColor
                 local transparency = if currentRow % 2 == 0 then Iris._style.TableRowBgAltTransparency else Iris._style.TableRowBgTransparency
