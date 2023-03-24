@@ -274,7 +274,8 @@ Iris.WidgetConstructor("Root", false, true){
             return thisWidget.Instance
         else
             thisWidget.shouldExist = true
-            Iris.widgets["Root"].Update(thisWidget)    
+            thisWidget.Instance.PseudoWindowScreenGui.PseudoWindow.Visible = true
+
             return thisWidget.Instance.PseudoWindowScreenGui.PseudoWindow
         end
     end
@@ -653,6 +654,8 @@ Iris.WidgetConstructor("Tree", true, true){
         Tree.Size = UDim2.new(Iris._style.ItemWidth, UDim.new(0, 0))
         Tree.AutomaticSize = Enum.AutomaticSize.Y
 
+        thisWidget.hasChildren = false
+
         UIListLayout(Tree, Enum.FillDirection.Vertical, UDim.new(0, 0))
 
         local ChildContainer = Instance.new("Frame")
@@ -763,6 +766,12 @@ Iris.WidgetConstructor("Tree", true, true){
         discardState(thisWidget)
     end,
     ChildAdded = function(thisWidget)
+        local ChildContainer = thisWidget.Instance.ChildContainer
+        local isUncollapsed = thisWidget.state.isUncollapsed.value
+
+        thisWidget.hasChildren = true
+        ChildContainer.Visible = isUncollapsed and thisWidget.hasChildren
+
         return thisWidget.Instance.ChildContainer
     end,
     UpdateState = function(thisWidget)
@@ -777,7 +786,7 @@ Iris.WidgetConstructor("Tree", true, true){
             thisWidget.events.collapsed = true
         end
 
-        ChildContainer.Visible = isUncollapsed
+        ChildContainer.Visible = isUncollapsed and thisWidget.hasChildren
     end,
     GenerateState = function(thisWidget)
         if thisWidget.state.isUncollapsed == nil then

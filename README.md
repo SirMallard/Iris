@@ -32,7 +32,7 @@ Things to complete for release:
 - [ ] complete documentation (overview, explanation, advanced section, Library docs- section for runtime and widgets)
 - [ ] documentation window for ShowDemoWindow
 - [ ] polish error handling
-- [ ] fix the visual glitch in tree when an expanded Iris.Tree increases in width while having no children
+- [X] fix the visual glitch in tree when an expanded Iris.Tree increases in width while having no children
 - [ ] comment out debug.profileBegin and debug.ProfileEnd
 
 @ = Cannot be fixed or would be problematic to fix

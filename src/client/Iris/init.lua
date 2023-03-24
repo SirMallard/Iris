@@ -151,6 +151,7 @@ Iris.TemplateStyles = {
         CheckMarkColor = Color3.fromRGB(66, 150, 250),
         CheckMarkTransparency = 0
     },
+
     sizeClassic = {
         ItemWidth = UDim.new(1, 0),
 
@@ -169,6 +170,25 @@ Iris.TemplateStyles = {
         WindowBorderSize = 1,
         WindowTitleAlign = Enum.LeftRight.Left,
         ScrollbarSize = 7,
+    },
+    sizeClear = { -- easier to read and manuveure
+        ItemWidth = UDim.new(1, 0),
+
+        WindowPadding = Vector2.new(12, 8),
+        WindowResizePadding = Vector2.new(8, 8),
+        FramePadding = Vector2.new(6, 4),
+        ItemSpacing = Vector2.new(8, 8),
+        ItemInnerSpacing = Vector2.new(8, 8),
+        CellPadding = Vector2.new(4, 4),
+        IndentSpacing = 25,
+
+        TextFont = Enum.Font.Ubuntu,
+        TextSize = 15,
+        FrameBorderSize = 1,
+        FrameRounding = 4,
+        WindowBorderSize = 1,
+        WindowTitleAlign = Enum.LeftRight.Center,
+        ScrollbarSize = 9,
     }
 }
 
@@ -466,9 +486,49 @@ function Iris.Connect(parentInstance, eventConnection: RBXScriptSignal | () -> {
     end)
 end
 
-function Iris._Insert(widgetType, args, widgetState)
+function Iris._GenNewWidget(widgetType, arguments, widgetState, ID)
     local parentId = Iris._IDStack[Iris._stackIndex]
     local parentWidget = Iris._VDOM[parentId]
+    local thisWidgetClass = Iris._widgets[widgetType]
+
+    local thisWidget = {}
+    setmetatable(thisWidget, thisWidget)
+
+    thisWidget.ID = ID
+    thisWidget.type = widgetType
+    thisWidget.parentWidget = parentWidget
+    thisWidget.events = {}
+
+    local widgetInstanceParent = Iris._widgets[parentWidget.type].ChildAdded(parentWidget, thisWidget)
+
+    thisWidget.ZIndex = parentWidget.ZIndex + (Iris._widgetCount * 0x40)
+
+    thisWidget.Instance = thisWidgetClass.Generate(thisWidget)
+    thisWidget.Instance.Parent = widgetInstanceParent
+
+    thisWidget.arguments = arguments
+    thisWidgetClass.Update(thisWidget)
+
+    if thisWidgetClass.hasState then
+        if widgetState then
+            thisWidget.state = widgetState
+            for i,v in widgetState do
+                v.ConnectedWidgets[thisWidget.ID] = thisWidget
+            end
+        else
+            thisWidget.state = {}
+        end
+
+        thisWidgetClass.GenerateState(thisWidget)
+        thisWidgetClass.UpdateState(thisWidget)
+
+        thisWidget.stateMT = {} -- MT cant be itself because state has to explicitly only contain stateClass objects
+        setmetatable(thisWidget.state, thisWidget.stateMT)
+    end
+    return thisWidget
+end
+
+function Iris._Insert(widgetType, args, widgetState)
     local thisWidget
     local thisWidgetClass = Iris._widgets[widgetType]
     local ID = Iris._getID(3)
@@ -487,6 +547,7 @@ function Iris._Insert(widgetType, args, widgetState)
             arguments[thisWidgetClass.ArgNames[i]] = v
         end
     end
+    table.freeze(arguments)
 
     if Iris._lastVDOM[ID] then
         -- found a matching widget from last frame
@@ -495,40 +556,7 @@ function Iris._Insert(widgetType, args, widgetState)
         thisWidget = Iris._lastVDOM[ID]
     else
         -- didnt find a match, generate a new widget
-        thisWidget = {}
-        setmetatable(thisWidget, thisWidget)
-
-        thisWidget.ID = ID
-        thisWidget.type = widgetType
-        thisWidget.parentWidget = parentWidget
-        thisWidget.events = {}
-
-        local widgetInstanceParent = Iris._widgets[parentWidget.type].ChildAdded(parentWidget, thisWidget)
-
-        thisWidget.ZIndex = parentWidget.ZIndex + (Iris._widgetCount * 0x40)
-    
-        thisWidget.Instance = thisWidgetClass.Generate(thisWidget)
-        thisWidget.Instance.Parent = widgetInstanceParent
-
-        thisWidget.arguments = arguments
-        thisWidgetClass.Update(thisWidget)
-
-        if thisWidgetClass.hasState then
-            if widgetState then
-                thisWidget.state = widgetState
-                for i,v in widgetState do
-                    v.ConnectedWidgets[thisWidget.ID] = thisWidget
-                end
-            else
-                thisWidget.state = {}
-            end
-
-            thisWidgetClass.GenerateState(thisWidget)
-            thisWidgetClass.UpdateState(thisWidget)
-
-            thisWidget.stateMT = {} -- MT cant be itself because state has to explicitly only contain stateClass objects
-            setmetatable(thisWidget.state, thisWidget.stateMT)
-        end
+        thisWidget = Iris._GenNewWidget(widgetType, arguments, widgetState, ID)
     end
 
     if Iris._deepCompare(thisWidget.arguments, arguments) == false then

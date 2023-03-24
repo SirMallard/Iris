@@ -393,16 +393,22 @@ return function(Iris)
                         Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark)
                         refreshStyleStates()
                     end
-                    if Iris.SmallButton({"Reset Sizes"}).clicked then
+                Iris.End()
+                Iris.SameLine()
+                    if Iris.SmallButton({"Classic Size"}).clicked then
                         Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClassic)
                         refreshStyleStates()
                     end
-                    if Iris.SmallButton({"Reset Everything"}).clicked then
-                        Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark)
-                        Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClassic)
+                    if Iris.SmallButton({"Larger Size"}).clicked then
+                        Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClear)
                         refreshStyleStates()
                     end
                 Iris.End()
+                if Iris.SmallButton({"Reset Everything"}).clicked then
+                    Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark)
+                    Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClassic)
+                    refreshStyleStates()
+                end
                 Iris.Separator()
                 Iris.SameLine()
                     for i,v in ipairs(styleList) do
