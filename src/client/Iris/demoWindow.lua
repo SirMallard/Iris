@@ -134,13 +134,8 @@ return function(Iris)
 
     local function runtimeInfo()
         local runtimeInfoWindow = Iris.Window({"Runtime Info"}, {isOpened = showRuntimeInfo})
-            local widgetCount = 0
-            local str = ""
             local lastVDOM = Iris._lastVDOM
-            for i,v in lastVDOM do
-                widgetCount += 1
-                str ..= "\n" .. v.ID .. " - " .. v.type
-            end
+            local states = Iris._states
 
             local rollingDT = Iris.State(0)
             local lastT = Iris.State(os.clock())
@@ -150,15 +145,79 @@ return function(Iris)
             rollingDT.value += (dt - rollingDT.value) * 0.2
             lastT.value = t
             Iris.Text({string.format("Average %.3f ms/frame (%.1f FPS)", rollingDT.value*1000, 1/rollingDT.value)})
-            Iris.Text({string.format("Number of Widgets: %d", widgetCount)})
+
             Iris.Text({string.format(
                 "Window Position: (%d, %d), Window Size: (%d, %d)",
                 runtimeInfoWindow.position.value.X, runtimeInfoWindow.position.value.Y,
                 runtimeInfoWindow.size.value.X, runtimeInfoWindow.size.value.Y
             )})
 
-            Iris.Tree({"Widget IDs"})
-                Iris.Text({str})
+            Iris.PushStyle({ItemWidth = UDim.new(0.5, 100)})
+            local enteredText = Iris.InputText({"Enter an ID to learn more about it."}, {text = Iris.State(runtimeInfoWindow.ID)}).text.value
+            Iris.PopStyle()
+
+            Iris.Indent()
+                local enteredWidget = lastVDOM[enteredText]
+                local enteredState = states[enteredText]
+                if enteredWidget then
+                    Iris.Text({string.format("The ID, \"%s\", is a widget", enteredText)})
+
+                    Iris.Text({string.format("Widget is type: %s", enteredWidget.type)})
+
+                    Iris.Tree({"Widget has Args:"}, {isUncollapsed = Iris.State(true)})
+                        for i,v in enteredWidget.arguments do
+                            Iris.Text({i .. " - " .. tostring(v)})
+                        end
+                    Iris.End()
+
+                    if enteredWidget.state then
+                        Iris.Tree({"Widget has State:"}, {isUncollapsed = Iris.State(true)})
+                        for i,v in enteredWidget.state do
+                            Iris.Text({i .. " - " .. tostring(v.value)})
+                        end
+                    Iris.End()
+                    end
+
+
+                elseif enteredState then
+                    Iris.Text({string.format("The ID, \"%s\", is a state", enteredText)})
+                    Iris.Text({string.format("Value is type: %s, Value = %s", typeof(enteredState.value), tostring(enteredState.value))})
+                    Iris.Tree({"state has connected widgets:"}, {isUncollapsed = Iris.State(true)})
+                        for i,v in enteredState.ConnectedWidgets do
+                            Iris.Text({i .. " - " .. v.type})
+                        end
+                    Iris.End()
+                    Iris.Text({string.format("state has: %d connected functions", #enteredState.ConnectedFunctions)})
+                else
+                    Iris.Text({string.format("The ID, \"%s\", is not a state or widget", enteredText)})
+                end
+            Iris.End()
+
+            if Iris.Tree({"Widgets"}).isUncollapsed.value then
+                local widgetCount = 0
+                local widgetStr = ""
+                for i,v in lastVDOM do
+                    widgetCount += 1
+                    widgetStr ..= "\n" .. v.ID .. " - " .. v.type
+                end
+
+                Iris.Text({string.format("Number of Widgets: %d", widgetCount)})
+
+                Iris.Text({widgetStr})
+            end
+            Iris.End()
+            if Iris.Tree({"States"}).isUncollapsed.value then
+                local stateCount = 0
+                local stateStr = ""
+                for i,v in states do
+                    stateCount += 1
+                    stateStr ..= "\n" .. i .. " - " .. tostring(v.value)
+                end
+
+                Iris.Text({string.format("Number of States: %d", stateCount)})
+
+                Iris.Text({stateStr})
+            end
             Iris.End()
         Iris.End()
     end
@@ -190,19 +249,19 @@ return function(Iris)
         local function refreshStyleStates()
             for i,v in Iris._style do
                 if typeof(v) == "Color3" then
-                    styleStates[i .. "R"]:Set(v.R * 255)
-                    styleStates[i .. "G"]:Set(v.G * 255)
-                    styleStates[i .. "B"]:Set(v.B * 255)
+                    styleStates[i .. "R"]:set(v.R * 255)
+                    styleStates[i .. "G"]:set(v.G * 255)
+                    styleStates[i .. "B"]:set(v.B * 255)
                 elseif typeof(v) == "UDim" then
-                    styleStates[i .. "Scale"]:Set(v.Scale)
-                    styleStates[i .. "Offset"]:Set(v.Offset)
+                    styleStates[i .. "Scale"]:set(v.Scale)
+                    styleStates[i .. "Offset"]:set(v.Offset)
                 elseif typeof(v) == "Vector2" then
-                    styleStates[i .. "X"]:Set(v.X)
-                    styleStates[i .. "Y"]:Set(v.Y)
+                    styleStates[i .. "X"]:set(v.X)
+                    styleStates[i .. "Y"]:set(v.Y)
                 elseif typeof(v) == "EnumItem" then
-                    styleStates[i]:Set(v.Name)
+                    styleStates[i]:set(v.Name)
                 else
-                    styleStates[i]:Set(v)
+                    styleStates[i]:set(v)
                 end
             end
         end
@@ -289,7 +348,7 @@ return function(Iris)
                 )
                 if V.textChanged then
                     local isValidEnum = false
-                    for _, _enumItem in ipairs(enumType:GetEnumItems()) do
+                    for _, _enumItem in ipairs(enumType:getEnumItems()) do
                         if _enumItem.Name == V.text.value then
                             isValidEnum = true
                             break
@@ -299,7 +358,7 @@ return function(Iris)
                         Iris.UpdateGlobalStyle({[name] = enumType[V.text.value]})
                     else
                         Iris.UpdateGlobalStyle({[name] = default})
-                        styleStates[name]:Set(tostring(default))
+                        styleStates[name]:set(tostring(default))
                     end
                 end
             Iris.PopStyle()
@@ -413,11 +472,11 @@ return function(Iris)
                 Iris.SameLine()
                     for i,v in ipairs(styleList) do
                         if Iris.SmallButton({v[0]}).clicked then
-                            SelectedPanel:Set(i)
+                            SelectedPanel:set(i)
                         end
                     end
                 Iris.End()
-                styleList[SelectedPanel:Get()][1]()
+                styleList[SelectedPanel:get()][1]()
             Iris.End()
         end
     end
@@ -426,20 +485,20 @@ return function(Iris)
         Iris.Tree({"Widget Event Interactivity"})
             local ClickCount = Iris.State(0)
             if Iris.Button({"Click to increase Number"}).clicked then
-                ClickCount:Set(ClickCount:Get() + 1)
+                ClickCount:set(ClickCount:get() + 1)
             end
-            Iris.Text({string.format("The Number is: %d", ClickCount:Get())})
+            Iris.Text({string.format("The Number is: %d", ClickCount:get())})
             local ShowTextTimer = Iris.State(0)
             Iris.SameLine()
                 if Iris.Button({"Click to show text for 20 frames"}).clicked then
-                    ShowTextTimer:Set(20)
+                    ShowTextTimer:set(20)
                 end
-                if ShowTextTimer:Get() > 0 then
+                if ShowTextTimer:get() > 0 then
                     Iris.Text({"Here i am!"})
                 end
             Iris.End()
-            ShowTextTimer:Set(math.max(0, ShowTextTimer:Get() - 1))
-            Iris.Text({string.format("Text Timer: %d", ShowTextTimer:Get())})
+            ShowTextTimer:set(math.max(0, ShowTextTimer:get() - 1))
+            Iris.Text({string.format("Text Timer: %d", ShowTextTimer:get())})
         Iris.End()
     end
 
@@ -460,10 +519,25 @@ return function(Iris)
             local Checkbox4 = Iris.Checkbox({"Widget and Code Coupled State"}, {isChecked = CheckboxState1})
             local Button0 = Iris.Button({"Click to toggle above checkbox"})
             if Button0.clicked then
-                CheckboxState1:Set(not CheckboxState1:Get())
+                CheckboxState1:set(not CheckboxState1:get())
             end
             Iris.Text({`isChecked: {CheckboxState1.value}`})
 
+        Iris.End()
+    end
+
+    local function dynamicStyle()
+        Iris.Tree({"Dynamic Styles"})
+            local colorH = Iris.State(0)
+            Iris.SameLine()
+            if Iris.Button({"Change Color"}).clicked then
+                colorH:set(math.random())
+            end
+            Iris.Text({string.format("Hue: %d", math.floor(colorH:get()*255))})
+            Iris.End()
+            Iris.PushStyle({TextColor = Color3.fromHSV(colorH:get(), 1, 1)})
+                Iris.Text({"Text with a unique and changable color"})
+            Iris.PopStyle()
         Iris.End()
     end
 
@@ -549,7 +623,7 @@ return function(Iris)
                 Iris.PopStyle()
                 Iris.Text({string.format("The Value is: %d", InputNum.number.value)})
                 if Iris.Button({"Randomize Number"}).clicked then
-                    InputNum.number:Set(math.random(1,99))
+                    InputNum.number:set(math.random(1,99))
                 end
                 Iris.Separator()
                 Iris.Checkbox({"NoField"}, {isChecked = NoField})
@@ -631,6 +705,8 @@ return function(Iris)
             widgetStateInteractivity()
 
             recursiveTree()
+
+            dynamicStyle()
 
             Iris.Separator()
 

@@ -2,8 +2,8 @@
     This file contains the classes for all widgets included in Iris. This file is large.
 ]]
 
-local GuiService = game:GetService("GuiService")
-local UserInputService = game:GetService("UserInputService")
+local GuiService = game:getService("GuiService")
+local UserInputService = game:getService("UserInputService")
 
 local ICONS = {
     RIGHT_POINTING_TRIANGLE = "\u{25BA}",
@@ -302,6 +302,9 @@ Iris.WidgetConstructor("Text", false, false){
     end,
     Update = function(thisWidget)
         local Text = thisWidget.Instance
+        if thisWidget.arguments.Text == nil then
+            error("Iris.Text Text Argument is required", 5)
+        end
         Text.Text = thisWidget.arguments.Text
     end,
     Discard = function(thisWidget)
@@ -334,6 +337,9 @@ Iris.WidgetConstructor("TextWrapped", false, false){
     end,
     Update = function(thisWidget)
         local TextWrapped = thisWidget.Instance
+        if thisWidget.arguments.Text == nil then
+            error("Iris.TextWrapped Text Argument is required", 5)
+        end
         TextWrapped.Text = thisWidget.arguments.Text
     end,
     Discard = function(thisWidget)
@@ -594,7 +600,7 @@ Iris.WidgetConstructor("Checkbox", true, false){
 
         Checkbox.MouseButton1Click:Connect(function()
             local wasChecked = thisWidget.state.isChecked.value
-            thisWidget.state.isChecked:Set(not wasChecked)
+            thisWidget.state.isChecked:set(not wasChecked)
         end)
 
         local TextLabel = Instance.new("TextLabel")
@@ -737,7 +743,7 @@ Iris.WidgetConstructor("Tree", true, true){
         applyTextStyle(TextLabel)
 
         Button.MouseButton1Click:Connect(function()
-            thisWidget.state.isUncollapsed:Set(not thisWidget.state.isUncollapsed.value)
+            thisWidget.state.isUncollapsed:set(not thisWidget.state.isUncollapsed.value)
         end)
 
         return Tree
@@ -839,7 +845,7 @@ Iris.WidgetConstructor("InputNum", true, false){
             local newValue = tonumber(InputField.Text)
             if newValue ~= nil then
                 newValue = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
-                thisWidget.state.number:Set(newValue)
+                thisWidget.state.number:set(newValue)
                 thisWidget.events.numberChanged = true
             else
                 InputField.Text = thisWidget.state.number.value
@@ -858,7 +864,7 @@ Iris.WidgetConstructor("InputNum", true, false){
         SubButton.MouseButton1Click:Connect(function()
             local newValue = thisWidget.state.number.value - (thisWidget.arguments.Increment or 1)
             newValue = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
-            thisWidget.state.number:Set(newValue)
+            thisWidget.state.number:set(newValue)
             thisWidget.events.numberChanged = true
         end)
 
@@ -874,7 +880,7 @@ Iris.WidgetConstructor("InputNum", true, false){
         AddButton.MouseButton1Click:Connect(function()
             local newValue = thisWidget.state.number.value + (thisWidget.arguments.Increment or 1)
             newValue = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
-            thisWidget.state.number:Set(newValue)
+            thisWidget.state.number:set(newValue)
             thisWidget.events.numberChanged = true
         end)
 
@@ -893,7 +899,7 @@ Iris.WidgetConstructor("InputNum", true, false){
     end,
     Update = function(thisWidget)
         local TextLabel = thisWidget.Instance.TextLabel
-        TextLabel.Text = thisWidget.arguments.Text or "InputNum"
+        TextLabel.Text = thisWidget.arguments.Text or "Input Num"
 
         thisWidget.Instance.SubButton.Visible = not thisWidget.arguments.NoButtons
         thisWidget.Instance.AddButton.Visible = not thisWidget.arguments.NoButtons
@@ -961,7 +967,7 @@ Iris.WidgetConstructor("InputText", true, false){
         InputField.TextTruncate = Enum.TextTruncate.AtEnd
 
         InputField.FocusLost:Connect(function()
-            thisWidget.state.text:Set(InputField.Text)
+            thisWidget.state.text:set(InputField.Text)
             thisWidget.events.textChanged = true
         end)
 
@@ -1072,6 +1078,9 @@ do -- Iris.Table
             end
 
             if thisWidget.InitialNumColumns == -1 then
+                if thisWidget.arguments.NumColumns == nil then
+                    error("Iris.Table NumColumns argument is required", 5)
+                end
                 thisWidget.InitialNumColumns = thisWidget.arguments.NumColumns
 
                 for i = 1, thisWidget.InitialNumColumns do
@@ -1215,7 +1224,7 @@ do -- Iris.Window
         local SelectedWindow = secondHighestWidget
 
         if SelectedWindow.state.isUncollapsed.value == false then
-            SelectedWindow.state.isUncollapsed:Set(true)
+            SelectedWindow.state.isUncollapsed:set(true)
         end
         Iris.SetFocusedWindow(SelectedWindow)
     end
@@ -1277,7 +1286,7 @@ do -- Iris.Window
             focusedWindow.Instance.DisplayOrder = windowDisplayOrder
 
             if thisWidget.state.isUncollapsed.value == false then
-                thisWidget.state.isUncollapsed:Set(true)
+                thisWidget.state.isUncollapsed:set(true)
             end
         end
     end
@@ -1313,7 +1322,7 @@ do -- Iris.Window
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             if isInsideResize and not isInsideWindow and anyFocusedWindow then
                 local midWindow = focusedWindow.state.position.value + (focusedWindow.state.size.value / 2)
-                local cursorPosition = UserInputService:GetMouseLocation() - Vector2.new(0, 36) - midWindow
+                local cursorPosition = UserInputService:getMouseLocation() - Vector2.new(0, 36) - midWindow
 
                 -- check which axis its closest to, then check which side is closest with math.sign
                 if math.abs(cursorPosition.X) * focusedWindow.state.size.value.Y >= math.abs(cursorPosition.Y) * focusedWindow.state.size.value.X then
@@ -1332,12 +1341,12 @@ do -- Iris.Window
     UserInputService.InputChanged:Connect(function(input)
 
         if isDragging then
-            local mouseLocation = UserInputService:GetMouseLocation()
+            local mouseLocation = UserInputService:getMouseLocation()
             local dragInstance = dragWindow.Instance.WindowButton
             local intendedPosition = mouseLocation - moveDeltaCursorPosition
             local newPos = fitPositionToWindowBounds(dragWindow, intendedPosition)
 
-            -- state shouldnt be used like this, but calling :Set would run the entire UpdateState function for the window, which is slow.
+            -- state shouldnt be used like this, but calling :set would run the entire UpdateState function for the window, which is slow.
             dragInstance.Position = UDim2.fromOffset(newPos.X, newPos.Y)
             dragWindow.state.position.value = newPos
         end
@@ -1346,7 +1355,7 @@ do -- Iris.Window
             local windowPosition = Vector2.new(resizeInstance.Position.X.Offset, resizeInstance.Position.Y.Offset)
             local windowSize = Vector2.new(resizeInstance.Size.X.Offset, resizeInstance.Size.Y.Offset)
 
-            local mousePosition = UserInputService:GetMouseLocation()
+            local mousePosition = UserInputService:getMouseLocation()
             local mouseDelta = mousePosition - lastCursorPosition
 
             local intendedPosition = windowPosition + Vector2.new(
@@ -1368,18 +1377,18 @@ do -- Iris.Window
             resizeWindow.state.position.value = newPosition
         end
 
-        lastCursorPosition = UserInputService:GetMouseLocation()
+        lastCursorPosition = UserInputService:getMouseLocation()
     end)
 
     UserInputService.InputEnded:Connect(function(input, gameProcessedEvent)
         if input.UserInputType == Enum.UserInputType.MouseButton1 and isDragging then
             local dragInstance = dragWindow.Instance.WindowButton
             isDragging = false
-            dragWindow.state.position:Set(Vector2.new(dragInstance.Position.X.Offset, dragInstance.Position.Y.Offset))
+            dragWindow.state.position:set(Vector2.new(dragInstance.Position.X.Offset, dragInstance.Position.Y.Offset))
         end
         if input.UserInputType == Enum.UserInputType.MouseButton1 and isResizing then
             isResizing = false
-            resizeWindow.state.size:Set(resizeWindow.Instance.WindowButton.AbsoluteSize)
+            resizeWindow.state.size:set(resizeWindow.Instance.WindowButton.AbsoluteSize)
         end
 
         if input.KeyCode == Enum.KeyCode.ButtonX then
@@ -1443,7 +1452,7 @@ do -- Iris.Window
                 if not thisWidget.arguments.NoMove and input.UserInputType == Enum.UserInputType.MouseButton1 then
                     dragWindow = thisWidget
                     isDragging = true
-                    moveDeltaCursorPosition = UserInputService:GetMouseLocation() - thisWidget.state.position.value
+                    moveDeltaCursorPosition = UserInputService:getMouseLocation() - thisWidget.state.position.value
                 end
             end)
 
@@ -1476,7 +1485,7 @@ do -- Iris.Window
 
             UIPadding(ChildContainer, Iris._style.WindowPadding)
 
-            ChildContainer:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+            ChildContainer:getPropertyChangedSignal("CanvasPosition"):Connect(function()
                 -- "wrong" use of state here, for optimization
                 thisWidget.state.scrollDistance.value = ChildContainer.CanvasPosition.Y
             end)
@@ -1520,7 +1529,7 @@ do -- Iris.Window
             CollapseArrow.Parent = TitleBar
 
             CollapseArrow.MouseButton1Click:Connect(function()
-                thisWidget.state.isUncollapsed:Set(not thisWidget.state.isUncollapsed.value)
+                thisWidget.state.isUncollapsed:set(not thisWidget.state.isUncollapsed.value)
             end)
 
             UICorner(CollapseArrow, 1e9)
@@ -1554,7 +1563,7 @@ do -- Iris.Window
             UICorner(CloseIcon, 1e9)
 
             CloseIcon.MouseButton1Click:Connect(function()
-                thisWidget.state.isOpened:Set(false)
+                thisWidget.state.isOpened:set(false)
             end)
 
             applyInteractionHighlights(CloseIcon, CloseIcon, {
@@ -1792,7 +1801,7 @@ do -- Iris.Window
             end
 
             -- cant update canvasPosition in this cycle because scrollingframe isint ready to be changed
-            if stateScrollDistance then
+            if stateScrollDistance and stateScrollDistance ~= 0 then
                 local callbackIndex = #Iris._postCycleCallbacks + 1
                 local desiredCycleTick = Iris._cycleTick + 1
                 Iris._postCycleCallbacks[callbackIndex] = function()

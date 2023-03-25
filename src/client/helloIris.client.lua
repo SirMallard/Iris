@@ -1,6 +1,6 @@
-local RunService = game:GetService("RunService")
+local RunService = game:getService("RunService")
 local StarterPlayerScripts = game.StarterPlayer.StarterPlayerScripts
-local Player = game:GetService("Players").LocalPlayer
+local Player = game:getService("Players").LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
 local Iris = require(StarterPlayerScripts.Client.Iris)

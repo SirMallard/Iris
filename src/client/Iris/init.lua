@@ -193,7 +193,8 @@ Iris.TemplateStyles = {
 }
 
 Iris._started = false -- has Iris.connect been called yet
-Iris._refreshRequested = false -- refresh means that all GUI is destroyed and regenerated, usually because a style change was made and needed to be propogated to all UI
+Iris._globalRefreshRequested = false -- refresh means that all GUI is destroyed and regenerated, usually because a style change was made and needed to be propogated to all UI
+Iris._localRefreshActive = false -- if true, when _Insert is called, the widget called will be regenerated
 Iris._widgets = {}
 Iris._rootStyle = {} -- root style which all widgets derive from
 Iris._style = Iris._rootStyle
@@ -293,26 +294,26 @@ Iris._lastVDOM = Iris._generateEmptyVDOM()
 Iris._VDOM = Iris._generateEmptyVDOM()
 
 function Iris._cycle(callback)
-    if Iris._refreshRequested then
+    if Iris._globalRefreshRequested then
         -- rerender every widget
-        debug.profilebegin("Iris Refresh")
+        --debug.profilebegin("Iris Refresh")
         Iris._generateSelectionImageObject()
-        Iris._refreshRequested = false
+        Iris._globalRefreshRequested = false
         for i,v in Iris._lastVDOM do
             Iris._widgets[v.type].Discard(v)
         end
         Iris._generateRootInstance()
         Iris._lastVDOM = Iris._generateEmptyVDOM()
-        debug.profileend()
+        --debug.profileend()
     end
     Iris._cycleTick += 1
     Iris._widgetCount = 0
     table.clear(Iris._usedIDs)
     Iris._rootWidget.lastCycleTick = Iris._cycleTick
 
-    debug.profilebegin("Iris Generate")
+    --debug.profilebegin("Iris Generate")
     local status, _error = pcall(callback)
-    debug.profileend()
+    --debug.profileend()
 
     for _, v in Iris._lastVDOM do
         if v.lastCycleTick ~= Iris._cycleTick then
@@ -342,7 +343,7 @@ end
 Iris.Args = {}
 
 function Iris.ForceRefresh()
-    Iris._refreshRequested = true
+    Iris._globalRefreshRequested = true
 end
 
 function Iris._GetParentWidget()
@@ -403,25 +404,33 @@ function Iris.UpdateGlobalStyle(deltaStyle: table)
 end
 
 function Iris.PushStyle(deltaStyle: table)
-    Iris._style = setmetatable(deltaStyle, {
-        __index = Iris._style,
-        __iter = function(t)
-            assert(t == Iris._rootStyle, "cannot iterate Iris._style in this state.")
-            return next, t
+    local ID = Iris.State(-1)
+    if ID.value == -1 then
+        ID:set(deltaStyle)
+    else
+        -- compare tables
+        if Iris._deepCompare(ID:get(), deltaStyle) == false then
+            -- refresh local
+            Iris._localRefreshActive = true
+            ID:set(deltaStyle)
         end
+    end
+    Iris._style = setmetatable(deltaStyle, {
+        __index = Iris._style
     })
 end
 
 function Iris.PopStyle()
+    Iris._localRefreshActive = false
     Iris._style = getmetatable(Iris._style).__index
 end
 
 local StateClass = {}
 StateClass.__index = StateClass
-function StateClass:Get() -- you can also simply use .value
+function StateClass:get() -- you can also simply use .value
     return self.value
 end
-function StateClass:Set(newValue)
+function StateClass:set(newValue)
     self.value = newValue
     for _, thisWidget in self.ConnectedWidgets do
         Iris._widgets[thisWidget.type].UpdateState(thisWidget)
@@ -430,7 +439,7 @@ function StateClass:Set(newValue)
         thisFunc(newValue)
     end
 end
-function StateClass:Connect(funcToConnect)
+function StateClass:onChange(funcToConnect)
     table.insert(self.ConnectedFunctions, funcToConnect)
 end
 function Iris.State(initialValue)
@@ -511,6 +520,11 @@ function Iris._GenNewWidget(widgetType, arguments, widgetState, ID)
 
     if thisWidgetClass.hasState then
         if widgetState then
+            for i,v in widgetState do
+                if not (type(v) == "table" and getmetatable(v) == StateClass) then
+                    widgetState[i] = Iris._widgetState(thisWidget, i, v)
+                end
+            end
             thisWidget.state = widgetState
             for i,v in widgetState do
                 v.ConnectedWidgets[thisWidget.ID] = thisWidget
@@ -530,8 +544,10 @@ end
 
 function Iris._Insert(widgetType, args, widgetState)
     local thisWidget
-    local thisWidgetClass = Iris._widgets[widgetType]
     local ID = Iris._getID(3)
+    --debug.profilebegin(ID)
+
+    local thisWidgetClass = Iris._widgets[widgetType]
     Iris._widgetCount += 1
 
     if Iris._VDOM[ID] then
@@ -549,12 +565,15 @@ function Iris._Insert(widgetType, args, widgetState)
     end
     table.freeze(arguments)
 
-    if Iris._lastVDOM[ID] then
+    if Iris._lastVDOM[ID] and widgetType == Iris._lastVDOM[ID].type then
         -- found a matching widget from last frame
-        assert(widgetType == Iris._lastVDOM[ID].type, "ID type mismatch.")
-
-        thisWidget = Iris._lastVDOM[ID]
-    else
+        if Iris._localRefreshActive then
+            thisWidgetClass.Discard(Iris._lastVDOM[ID])
+        else
+            thisWidget = Iris._lastVDOM[ID]
+        end
+    end
+    if thisWidget == nil then
         -- didnt find a match, generate a new widget
         thisWidget = Iris._GenNewWidget(widgetType, arguments, widgetState, ID)
     end
@@ -584,12 +603,14 @@ function Iris._Insert(widgetType, args, widgetState)
 
     Iris._VDOM[ID] = thisWidget
 
+    --debug.profileend()
+
     return thisWidget
 end
 
 function Iris.End()
     if Iris._stackIndex == 1 then
-        error("Callback has too many Iris.End()", 2)
+        error("Callback has too many calls to Iris.End()", 2)
     end
     Iris._IDStack[Iris._stackIndex] = nil
     Iris._stackIndex -= 1
