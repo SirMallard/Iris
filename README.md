@@ -23,7 +23,7 @@ Things to complete for release:
 - [X] PushStyle changes wont be propogated to widgets until they refresh, somehow
 - [ ] there is no retained mode interoperability (GUI Instances in Iris, Iris in GUI Instances)
 - [ ] Iris cant be used in unusual contexts, (like in CoreGui, BillboardGui, plugins)
-- [ ] Gamepad and Touch behavior dont work
+- [X] Gamepad and Touch behavior dont work
 - [X] Window Scrollbar state resets, Window has no state of it
 - [X] Window position and size dont reflect realtime coordinates when moving / resizing
 - [X] State syntax is unintuitive, could be simplified or possibly borrowed from another library?
