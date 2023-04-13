@@ -2,9 +2,9 @@
 - Iris.Connect
 - Iris.State
 - Iris.End
-- Iris.UpdateGlobalStyle
-- Iris.PushStyle
-- Iris.PopStyle
+- Iris.UpdateGlobalConfig
+- Iris.PushConfig
+- Iris.PopConfig
 - Iris.ForceRefresh
 - Iris.WidgetConstructor
 
@@ -20,7 +20,7 @@
 Things to complete for release:
 - [X] Iris.Window cant resize from its edges
 - [X] @ Iris.Table Rows dont align vertically 
-- [X] PushStyle changes wont be propogated to widgets until they refresh, somehow
+- [X] PushConfig changes wont be propogated to widgets until they refresh, somehow
 - [ ] there is no retained mode interoperability (GUI Instances in Iris, Iris in GUI Instances)
 - [ ] Iris cant be used in unusual contexts, (like in CoreGui, BillboardGui, plugins)
 - [X] Gamepad and Touch behavior dont work

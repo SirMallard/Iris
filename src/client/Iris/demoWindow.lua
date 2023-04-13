@@ -152,9 +152,9 @@ return function(Iris)
                 runtimeInfoWindow.size.value.X, runtimeInfoWindow.size.value.Y
             )})
 
-            Iris.PushStyle({ItemWidth = UDim.new(0.5, 100)})
+            Iris.PushConfig({ItemWidth = UDim.new(0.5, 100)})
             local enteredText = Iris.InputText({"Enter an ID to learn more about it."}, {text = Iris.State(runtimeInfoWindow.ID)}).text.value
-            Iris.PopStyle()
+            Iris.PopConfig()
 
             Iris.Indent()
                 local enteredWidget = lastVDOM[enteredText]
@@ -267,7 +267,7 @@ return function(Iris)
         end
 
         local function InputVector2(name)
-            Iris.PushStyle({ItemWidth = UDim.new(0, 100 - Iris._style.ItemInnerSpacing.X)})
+            Iris.PushConfig({ItemWidth = UDim.new(0, 100 - Iris._style.ItemInnerSpacing.X)})
                 Iris.SameLine()
                     local X = Iris.InputNum(
                         {"", [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
@@ -278,14 +278,14 @@ return function(Iris)
                         {number = styleStates[name .. "Y"]}
                     )
                     if X.numberChanged or Y.numberChanged then
-                        Iris.UpdateGlobalStyle({[name] = Vector2.new(X.number.value, Y.number.value)})
+                        Iris.UpdateGlobalConfig({[name] = Vector2.new(X.number.value, Y.number.value)})
                     end
                 Iris.End()
-            Iris.PopStyle()
+            Iris.PopConfig()
         end
 
         local function InputUDim(name)
-            Iris.PushStyle({ItemWidth = UDim.new(0, 100 - Iris._style.ItemInnerSpacing.X)})
+            Iris.PushConfig({ItemWidth = UDim.new(0, 100 - Iris._style.ItemInnerSpacing.X)})
                 Iris.SameLine()
                     local Scale = Iris.InputNum(
                         {"", [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
@@ -296,14 +296,14 @@ return function(Iris)
                         {number = styleStates[name .. "Offset"]}
                     )
                     if Scale.numberChanged or Offset.numberChanged then
-                        Iris.UpdateGlobalStyle({[name] = UDim.new(Scale.number.value, Offset.number.value)})
+                        Iris.UpdateGlobalConfig({[name] = UDim.new(Scale.number.value, Offset.number.value)})
                     end
                 Iris.End()
-            Iris.PopStyle()
+            Iris.PopConfig()
         end
 
         local function InputColor4(name, transparencyName)
-            Iris.PushStyle({ItemWidth = UDim.new(0, 50 - Iris._style.ItemInnerSpacing.X)})
+            Iris.PushConfig({ItemWidth = UDim.new(0, 50 - Iris._style.ItemInnerSpacing.X)})
                 Iris.SameLine()
                     local R = Iris.InputNum(
                         {"", [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
@@ -322,26 +322,26 @@ return function(Iris)
                         {number = styleStates[transparencyName]}
                     )
                     if R.numberChanged or G.numberChanged or B.numberChanged or A.numberChanged then
-                        Iris.UpdateGlobalStyle({[name] = Color3.fromRGB(R.number.value, G.number.value, B.number.value), [transparencyName] = A.number.value})
+                        Iris.UpdateGlobalConfig({[name] = Color3.fromRGB(R.number.value, G.number.value, B.number.value), [transparencyName] = A.number.value})
                     end
                 Iris.End()
-            Iris.PopStyle()
+            Iris.PopConfig()
         end
 
         local function InputInt(name)
-            Iris.PushStyle({ItemWidth = UDim.new(0, 200)})
+            Iris.PushConfig({ItemWidth = UDim.new(0, 200)})
                 local I = Iris.InputNum(
                     {name, [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
                     {number = styleStates[name]}
                 )
                 if I.numberChanged then
-                    Iris.UpdateGlobalStyle({[name] = I.number.value})
+                    Iris.UpdateGlobalConfig({[name] = I.number.value})
                 end
-            Iris.PopStyle()
+            Iris.PopConfig()
         end
 
         local function InputEnum(name, enumType, default)
-            Iris.PushStyle({ItemWidth = UDim.new(0, 200)})
+            Iris.PushConfig({ItemWidth = UDim.new(0, 200)})
                 local V = Iris.InputText(
                     {name},
                     {text = styleStates[name]}
@@ -355,13 +355,13 @@ return function(Iris)
                         end
                     end
                     if isValidEnum then
-                        Iris.UpdateGlobalStyle({[name] = enumType[V.text.value]})
+                        Iris.UpdateGlobalConfig({[name] = enumType[V.text.value]})
                     else
-                        Iris.UpdateGlobalStyle({[name] = default})
+                        Iris.UpdateGlobalConfig({[name] = default})
                         styleStates[name]:set(tostring(default))
                     end
                 end
-            Iris.PopStyle()
+            Iris.PopConfig()
         end
 
         local styleList = {
@@ -445,27 +445,27 @@ return function(Iris)
                 Iris.Text({"Customize the look of Iris in realtime."})
                 Iris.SameLine()
                     if Iris.SmallButton({"Light Theme"}).clicked then
-                        Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorLight)
+                        Iris.UpdateGlobalConfig(Iris.templateConfig.colorLight)
                         refreshStyleStates()
                     end
                     if Iris.SmallButton({"Dark Theme"}).clicked then
-                        Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark)
+                        Iris.UpdateGlobalConfig(Iris.templateConfig.colorDark)
                         refreshStyleStates()
                     end
                 Iris.End()
                 Iris.SameLine()
                     if Iris.SmallButton({"Classic Size"}).clicked then
-                        Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClassic)
+                        Iris.UpdateGlobalConfig(Iris.templateConfig.sizeClassic)
                         refreshStyleStates()
                     end
                     if Iris.SmallButton({"Larger Size"}).clicked then
-                        Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClear)
+                        Iris.UpdateGlobalConfig(Iris.templateConfig.sizeClear)
                         refreshStyleStates()
                     end
                 Iris.End()
                 if Iris.SmallButton({"Reset Everything"}).clicked then
-                    Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark)
-                    Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClassic)
+                    Iris.UpdateGlobalConfig(Iris.templateConfig.colorDark)
+                    Iris.UpdateGlobalConfig(Iris.templateConfig.sizeClassic)
                     refreshStyleStates()
                 end
                 Iris.Separator()
@@ -535,9 +535,9 @@ return function(Iris)
             end
             Iris.Text({string.format("Hue: %d", math.floor(colorH:get()*255))})
             Iris.End()
-            Iris.PushStyle({TextColor = Color3.fromHSV(colorH:get(), 1, 1)})
+            Iris.PushConfig({TextColor = Color3.fromHSV(colorH:get(), 1, 1)})
                 Iris.Text({"Text with a unique and changable color"})
-            Iris.PopStyle()
+            Iris.PopConfig()
         Iris.End()
     end
 
@@ -547,12 +547,12 @@ return function(Iris)
                 Iris.Button({"Button"})
                 Iris.SmallButton({"SmallButton"})
                 Iris.Text({"Text"})
-                Iris.PushStyle({ItemWidth = UDim.new(1, 0)})
+                Iris.PushConfig({ItemWidth = UDim.new(1, 0)})
                     Iris.TextWrapped({string.rep("Text Wrapped ", 5)})
-                Iris.PopStyle()
-                Iris.PushStyle({TextColor = Color3.fromRGB(255, 128, 0)})
+                Iris.PopConfig()
+                Iris.PushConfig({TextColor = Color3.fromRGB(255, 128, 0)})
                     Iris.Text({"Colored Text"})
-                Iris.PopStyle()
+                Iris.PopConfig()
             Iris.End()
         end,
 
@@ -611,7 +611,7 @@ return function(Iris)
                 local NoField, NoButtons, Min, Max, Increment, Format = 
                 Iris.State(false), Iris.State(false), Iris.State(0), Iris.State(100), Iris.State(1), Iris.State("%d")
 
-                Iris.PushStyle({ItemWidth = UDim.new(0, 150)})
+                Iris.PushConfig({ItemWidth = UDim.new(0, 150)})
                 local InputNum = Iris.InputNum({"Input Number",
                     [Iris.Args.InputNum.NoField] = NoField.value,
                     [Iris.Args.InputNum.NoButtons] = NoButtons.value,
@@ -620,7 +620,7 @@ return function(Iris)
                     [Iris.Args.InputNum.Increment] = Increment.value,
                     [Iris.Args.InputNum.Format] = Format.value,
                 })
-                Iris.PopStyle()
+                Iris.PopConfig()
                 Iris.Text({string.format("The Value is: %d", InputNum.number.value)})
                 if Iris.Button({"Randomize Number"}).clicked then
                     InputNum.number:set(math.random(1,99))
@@ -633,9 +633,9 @@ return function(Iris)
 
         InputText = function()
             Iris.Tree({"Input Text"})
-                Iris.PushStyle({ItemWidth = UDim.new(0, 250)})
+                Iris.PushConfig({ItemWidth = UDim.new(0, 250)})
                 local InputText = Iris.InputText({"Input Text Test", [Iris.Args.InputText.TextHint] = "Input Text here"})
-                Iris.PopStyle()
+                Iris.PopConfig()
                 Iris.Text({string.format("The text is: %s", InputText.text.value)})
             Iris.End()
         end

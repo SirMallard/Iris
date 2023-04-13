@@ -2,8 +2,8 @@
     This file contains the classes for all widgets included in Iris. This file is large.
 ]]
 
-local GuiService = game:getService("GuiService")
-local UserInputService = game:getService("UserInputService")
+local GuiService = game:GetService("GuiService")
+local UserInputService = game:GetService("UserInputService")
 
 local ICONS = {
     RIGHT_POINTING_TRIANGLE = "\u{25BA}",

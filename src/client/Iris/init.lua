@@ -205,14 +205,14 @@ function Iris.WidgetConstructor(type: string, hasState: boolean, hasChildren: bo
     end
 end
 
-function Iris.UpdateGlobalStyle(deltaStyle: table)
+function Iris.UpdateGlobalConfig(deltaStyle: table)
     for i, v in deltaStyle do
         Iris._rootStyle[i] = v
     end
     Iris.ForceRefresh()
 end
 
-function Iris.PushStyle(deltaStyle: table)
+function Iris.PushConfig(deltaStyle: table)
     local ID = Iris.State(-1)
     if ID.value == -1 then
         ID:set(deltaStyle)
@@ -229,7 +229,7 @@ function Iris.PushStyle(deltaStyle: table)
     })
 end
 
-function Iris.PopStyle()
+function Iris.PopConfig()
     Iris._localRefreshActive = false
     Iris._style = getmetatable(Iris._style).__index
 end
@@ -425,9 +425,9 @@ function Iris.End()
     Iris._stackIndex -= 1
 end
 
-Iris.TemplateStyles = require(script.styles)
-Iris.UpdateGlobalStyle(Iris.TemplateStyles.colorDark) -- use colorDark and sizeClassic themes by default
-Iris.UpdateGlobalStyle(Iris.TemplateStyles.sizeClassic)
+Iris.templateConfig = require(script.config)
+Iris.UpdateGlobalConfig(Iris.templateConfig.colorDark) -- use colorDark and sizeClassic themes by default
+Iris.UpdateGlobalConfig(Iris.templateConfig.sizeClassic)
 require(script.widgets)(Iris)
 Iris.ShowDemoWindow = require(script.demoWindow)(Iris)
 
