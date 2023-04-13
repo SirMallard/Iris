@@ -5,8 +5,8 @@ Iris._started = false -- has Iris.connect been called yet
 Iris._globalRefreshRequested = false -- refresh means that all GUI is destroyed and regenerated, usually because a style change was made and needed to be propogated to all UI
 Iris._localRefreshActive = false -- if true, when _Insert is called, the widget called will be regenerated
 Iris._widgets = {}
-Iris._rootStyle = {} -- root style which all widgets derive from
-Iris._style = Iris._rootStyle
+Iris._rootConfig = {} -- root style which all widgets derive from
+Iris._config = Iris._rootConfig
 Iris._rootWidget = {
     ID = "R",
     type = "Root",
@@ -27,16 +27,16 @@ function Iris._generateSelectionImageObject()
     end
     local SelectionImageObject = Instance.new("Frame")
     Iris.SelectionImageObject = SelectionImageObject
-    SelectionImageObject.BackgroundColor3 = Iris._style.SelectionImageObjectColor
-    SelectionImageObject.BackgroundTransparency = Iris._style.SelectionImageObjectTransparency
+    SelectionImageObject.BackgroundColor3 = Iris._config.SelectionImageObjectColor
+    SelectionImageObject.BackgroundTransparency = Iris._config.SelectionImageObjectTransparency
     SelectionImageObject.Position = UDim2.fromOffset(-1, -1)
     SelectionImageObject.Size = UDim2.new(1, 2, 1, 2)
     SelectionImageObject.BorderSizePixel = 0
 
     local UIStroke = Instance.new("UIStroke")
     UIStroke.Thickness = 1
-    UIStroke.Color = Iris._style.SelectionImageObjectBorderColor
-    UIStroke.Transparency = Iris._style.SelectionImageObjectBorderColor
+    UIStroke.Color = Iris._config.SelectionImageObjectBorderColor
+    UIStroke.Transparency = Iris._config.SelectionImageObjectBorderColor
     UIStroke.LineJoinMode = Enum.LineJoinMode.Round
     UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     UIStroke.Parent = SelectionImageObject
@@ -120,6 +120,18 @@ function Iris._cycle(callback)
     table.clear(Iris._usedIDs)
     Iris._rootWidget.lastCycleTick = Iris._cycleTick
 
+    if Iris.parentInstance:IsA("GuiBase2d") and math.min(Iris.parentInstance.AbsoluteSize.X, Iris.parentInstance.AbsoluteSize.Y) < 100 then
+        error("Iris Parent Instance is too small")
+    end
+    local compatibleParent = (
+        Iris.parentInstance:IsA("GuiBase2d") or 
+        Iris.parentInstance:IsA("CoreGui") or 
+        Iris.parentInstance:IsA("PluginGui") or 
+        Iris.parentInstance:IsA("PlayerGui")
+    ) 
+    if compatibleParent == false then
+        error("Iris Parent Instance cant contain GUI")
+    end
     --debug.profilebegin("Iris Generate")
     local status, _error = pcall(callback)
     --debug.profileend()
@@ -207,7 +219,7 @@ end
 
 function Iris.UpdateGlobalConfig(deltaStyle: table)
     for i, v in deltaStyle do
-        Iris._rootStyle[i] = v
+        Iris._rootConfig[i] = v
     end
     Iris.ForceRefresh()
 end
@@ -224,14 +236,14 @@ function Iris.PushConfig(deltaStyle: table)
             ID:set(deltaStyle)
         end
     end
-    Iris._style = setmetatable(deltaStyle, {
-        __index = Iris._style
+    Iris._config = setmetatable(deltaStyle, {
+        __index = Iris._config
     })
 end
 
 function Iris.PopConfig()
     Iris._localRefreshActive = false
-    Iris._style = getmetatable(Iris._style).__index
+    Iris._config = getmetatable(Iris._config).__index
 end
 
 local StateClass = {}
@@ -317,7 +329,7 @@ function Iris._GenNewWidget(widgetType, arguments, widgetState, ID)
     thisWidget.parentWidget = parentWidget
     thisWidget.events = {}
 
-    local widgetInstanceParent = Iris._widgets[parentWidget.type].ChildAdded(parentWidget, thisWidget)
+    local widgetInstanceParent = if Iris._config.Parent then Iris._config.Parent else Iris._widgets[parentWidget.type].ChildAdded(parentWidget, thisWidget)
 
     thisWidget.ZIndex = parentWidget.ZIndex + (Iris._widgetCount * 0x40)
 
@@ -417,6 +429,17 @@ function Iris._Insert(widgetType, args, widgetState)
     return thisWidget
 end
 
+function Iris.Append(userInstance)
+    local parentWidget = Iris._GetParentWidget()
+    local widgetInstanceParent = 
+    if Iris._config.Parent then
+        Iris._config.Parent
+    else
+        Iris._widgets[parentWidget.type].ChildAdded(parentWidget, {type = "userInstance"})
+
+    userInstance.Parent = widgetInstanceParent
+end
+
 function Iris.End()
     if Iris._stackIndex == 1 then
         error("Callback has too many calls to Iris.End()", 2)
@@ -426,8 +449,9 @@ function Iris.End()
 end
 
 Iris.templateConfig = require(script.config)
-Iris.UpdateGlobalConfig(Iris.templateConfig.colorDark) -- use colorDark and sizeClassic themes by default
-Iris.UpdateGlobalConfig(Iris.templateConfig.sizeClassic)
+Iris.UpdateGlobalConfig(Iris.templateConfig.colorDark) -- use colorDark and sizeDefault themes by default
+Iris.UpdateGlobalConfig(Iris.templateConfig.sizeDefault)
+Iris.UpdateGlobalConfig(Iris.templateConfig.utilityDefault)
 require(script.widgets)(Iris)
 Iris.ShowDemoWindow = require(script.demoWindow)(Iris)
 

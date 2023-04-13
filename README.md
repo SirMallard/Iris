@@ -21,8 +21,8 @@ Things to complete for release:
 - [X] Iris.Window cant resize from its edges
 - [X] @ Iris.Table Rows dont align vertically 
 - [X] PushConfig changes wont be propogated to widgets until they refresh, somehow
-- [ ] there is no retained mode interoperability (GUI Instances in Iris, Iris in GUI Instances)
-- [ ] Iris cant be used in unusual contexts, (like in CoreGui, BillboardGui, plugins)
+- [X] there is no retained mode interoperability (GUI Instances in Iris, Iris in GUI Instances)
+- [X] Iris cant be used in unusual contexts, (like in CoreGui, BillboardGui, plugins)
 - [X] Gamepad and Touch behavior dont work
 - [X] Window Scrollbar state resets, Window has no state of it
 - [X] Window position and size dont reflect realtime coordinates when moving / resizing

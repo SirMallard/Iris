@@ -227,7 +227,7 @@ return function(Iris)
         -- styleEditor is stupidly coded because Iris dosent have higher-order widgets yet, (Iris.InputNum2 etc.)
         local styleStates = {}
         do -- init style states
-            for i,v in Iris._style do
+            for i,v in Iris._config do
                 if typeof(v) == "Color3" then
                     styleStates[i .. "R"] = Iris.State(v.R * 255)
                     styleStates[i .. "G"] = Iris.State(v.G * 255)
@@ -247,7 +247,7 @@ return function(Iris)
         end
 
         local function refreshStyleStates()
-            for i,v in Iris._style do
+            for i,v in Iris._config do
                 if typeof(v) == "Color3" then
                     styleStates[i .. "R"]:set(v.R * 255)
                     styleStates[i .. "G"]:set(v.G * 255)
@@ -267,7 +267,7 @@ return function(Iris)
         end
 
         local function InputVector2(name)
-            Iris.PushConfig({ItemWidth = UDim.new(0, 100 - Iris._style.ItemInnerSpacing.X)})
+            Iris.PushConfig({ItemWidth = UDim.new(0, 100 - Iris._config.ItemInnerSpacing.X)})
                 Iris.SameLine()
                     local X = Iris.InputNum(
                         {"", [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
@@ -285,7 +285,7 @@ return function(Iris)
         end
 
         local function InputUDim(name)
-            Iris.PushConfig({ItemWidth = UDim.new(0, 100 - Iris._style.ItemInnerSpacing.X)})
+            Iris.PushConfig({ItemWidth = UDim.new(0, 100 - Iris._config.ItemInnerSpacing.X)})
                 Iris.SameLine()
                     local Scale = Iris.InputNum(
                         {"", [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
@@ -303,7 +303,7 @@ return function(Iris)
         end
 
         local function InputColor4(name, transparencyName)
-            Iris.PushConfig({ItemWidth = UDim.new(0, 50 - Iris._style.ItemInnerSpacing.X)})
+            Iris.PushConfig({ItemWidth = UDim.new(0, 50 - Iris._config.ItemInnerSpacing.X)})
                 Iris.SameLine()
                     local R = Iris.InputNum(
                         {"", [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
@@ -455,7 +455,7 @@ return function(Iris)
                 Iris.End()
                 Iris.SameLine()
                     if Iris.SmallButton({"Classic Size"}).clicked then
-                        Iris.UpdateGlobalConfig(Iris.templateConfig.sizeClassic)
+                        Iris.UpdateGlobalConfig(Iris.templateConfig.sizeDefault)
                         refreshStyleStates()
                     end
                     if Iris.SmallButton({"Larger Size"}).clicked then
@@ -465,7 +465,7 @@ return function(Iris)
                 Iris.End()
                 if Iris.SmallButton({"Reset Everything"}).clicked then
                     Iris.UpdateGlobalConfig(Iris.templateConfig.colorDark)
-                    Iris.UpdateGlobalConfig(Iris.templateConfig.sizeClassic)
+                    Iris.UpdateGlobalConfig(Iris.templateConfig.sizeDefault)
                     refreshStyleStates()
                 end
                 Iris.Separator()

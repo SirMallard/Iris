@@ -72,10 +72,10 @@ end
 return function(Iris)
 
 local function applyTextStyle(thisInstance)
-    thisInstance.Font = Iris._style.TextFont
-    thisInstance.TextSize = Iris._style.TextSize
-    thisInstance.TextColor3 = Iris._style.TextColor
-    thisInstance.TextTransparency = Iris._style.TextTransparency
+    thisInstance.Font = Iris._config.TextFont
+    thisInstance.TextSize = Iris._config.TextSize
+    thisInstance.TextColor3 = Iris._config.TextColor
+    thisInstance.TextTransparency = Iris._config.TextTransparency
     thisInstance.TextXAlignment = Enum.TextXAlignment.Left
 
     thisInstance.AutoLocalize = false
@@ -149,11 +149,11 @@ end
 local function applyFrameStyle(thisInstance, forceNoPadding)
     -- padding, border, and rounding
     -- optimized to only use what instances are needed, based on style
-    local FramePadding = Iris._style.FramePadding
-    local FrameBorderTransparency = Iris._style.ButtonTransparency
-    local FrameBorderSize = Iris._style.FrameBorderSize
-    local FrameBorderColor = Iris._style.BorderColor
-    local FrameRounding = Iris._style.FrameRounding
+    local FramePadding = Iris._config.FramePadding
+    local FrameBorderTransparency = Iris._config.ButtonTransparency
+    local FrameBorderSize = Iris._config.FrameBorderSize
+    local FrameBorderColor = Iris._config.BorderColor
+    local FrameRounding = Iris._config.FrameRounding
     
 
     if FrameBorderSize > 0 and FrameRounding > 0 then
@@ -170,14 +170,14 @@ local function applyFrameStyle(thisInstance, forceNoPadding)
         UIStroke.Parent = thisInstance
 
         if not forceNoPadding then
-            UIPadding(thisInstance, Iris._style.FramePadding)
+            UIPadding(thisInstance, Iris._config.FramePadding)
         end
     elseif FrameBorderSize < 1 and FrameRounding > 0 then
         thisInstance.BorderSizePixel = 0
 
         UICorner(thisInstance, FrameRounding)
         if not forceNoPadding then
-            UIPadding(thisInstance, Iris._style.FramePadding)
+            UIPadding(thisInstance, Iris._config.FramePadding)
         end
     elseif FrameRounding < 1 then
         thisInstance.BorderSizePixel = FrameBorderSize
@@ -196,8 +196,8 @@ local function commonButton()
     local Button = Instance.new("TextButton")
     Button.Name = "Iris_Button"
     Button.Size = UDim2.fromOffset(0, 0)
-    Button.BackgroundColor3 = Iris._style.ButtonColor
-    Button.BackgroundTransparency = Iris._style.ButtonTransparency
+    Button.BackgroundColor3 = Iris._config.ButtonColor
+    Button.BackgroundTransparency = Iris._config.ButtonTransparency
     Button.AutoButtonColor = false
 
     applyTextStyle(Button)
@@ -206,12 +206,12 @@ local function commonButton()
     applyFrameStyle(Button)
 
     applyInteractionHighlights(Button, Button, {
-        ButtonColor = Iris._style.ButtonColor,
-        ButtonTransparency = Iris._style.ButtonTransparency,
-        ButtonHoveredColor = Iris._style.ButtonHoveredColor,
-        ButtonHoveredTransparency = Iris._style.ButtonHoveredTransparency,
-        ButtonActiveColor = Iris._style.ButtonActiveColor,
-        ButtonActiveTransparency = Iris._style.ButtonActiveTransparency,
+        ButtonColor = Iris._config.ButtonColor,
+        ButtonTransparency = Iris._config.ButtonTransparency,
+        ButtonHoveredColor = Iris._config.ButtonHoveredColor,
+        ButtonHoveredTransparency = Iris._config.ButtonHoveredTransparency,
+        ButtonActiveColor = Iris._config.ButtonActiveColor,
+        ButtonActiveTransparency = Iris._config.ButtonActiveTransparency,
     })
     return Button
 end
@@ -230,19 +230,24 @@ Iris.WidgetConstructor("Root", false, true){
         local Root = Instance.new("Folder")
         Root.Name = "Iris_Root"
 
-        local PseudoWindowScreenGui = Instance.new("ScreenGui")
+        local PseudoWindowScreenGui
+        if Iris._config.UseScreenGUIs then
+            PseudoWindowScreenGui = Instance.new("ScreenGui")
+            PseudoWindowScreenGui.ResetOnSpawn = false
+        else
+            PseudoWindowScreenGui = Instance.new("Folder")
+        end
         PseudoWindowScreenGui.Name = "PseudoWindowScreenGui"
         PseudoWindowScreenGui.Parent = Root
-        PseudoWindowScreenGui.ResetOnSpawn = false
 
         local PseudoWindow = Instance.new("Frame")
         PseudoWindow.Name = "PseudoWindow"
         PseudoWindow.Size = UDim2.new(0, 0, 0, 0)
         PseudoWindow.Position = UDim2.fromOffset(0, 22)
-        PseudoWindow.BorderSizePixel = Iris._style.WindowBorderSize
-        PseudoWindow.BorderColor3 = Iris._style.BorderColor
-        PseudoWindow.BackgroundTransparency = Iris._style.WindowBgTransparency
-        PseudoWindow.BackgroundColor3 = Iris._style.WindowBgColor
+        PseudoWindow.BorderSizePixel = Iris._config.WindowBorderSize
+        PseudoWindow.BorderColor3 = Iris._config.BorderColor
+        PseudoWindow.BackgroundTransparency = Iris._config.WindowBgTransparency
+        PseudoWindow.BackgroundColor3 = Iris._config.WindowBgColor
         PseudoWindow.AutomaticSize = Enum.AutomaticSize.XY
 
         PseudoWindow.Selectable = false
@@ -253,9 +258,9 @@ Iris.WidgetConstructor("Root", false, true){
         PseudoWindow.SelectionBehaviorRight = Enum.SelectionBehavior.Stop
 
         PseudoWindow.Visible = false
-        UIPadding(PseudoWindow, Iris._style.WindowPadding)
+        UIPadding(PseudoWindow, Iris._config.WindowPadding)
 
-        UIListLayout(PseudoWindow, Enum.FillDirection.Vertical, UDim.new(0, Iris._style.ItemSpacing.Y))
+        UIListLayout(PseudoWindow, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
 
         PseudoWindow.Parent = PseudoWindowScreenGui
         
@@ -322,7 +327,7 @@ Iris.WidgetConstructor("TextWrapped", false, false){
     Generate = function(thisWidget)
         local TextWrapped = Instance.new("TextLabel")
         TextWrapped.Name = "Iris_Text"
-        TextWrapped.Size = UDim2.new(Iris._style.ItemWidth, UDim.new(0, 0))
+        TextWrapped.Size = UDim2.new(Iris._config.ItemWidth, UDim.new(0, 0))
         TextWrapped.BackgroundTransparency = 1
         TextWrapped.BorderSizePixel = 0
         TextWrapped.ZIndex = thisWidget.ZIndex
@@ -424,8 +429,8 @@ Iris.WidgetConstructor("Separator", false, false){
         Separator.ZIndex = thisWidget.ZIndex
         Separator.LayoutOrder = thisWidget.ZIndex
 
-        Separator.BackgroundColor3 = Iris._style.SeparatorColor
-        Separator.BackgroundTransparency = Iris._style.SeparatorTransparency
+        Separator.BackgroundColor3 = Iris._config.SeparatorColor
+        Separator.BackgroundTransparency = Iris._config.SeparatorTransparency
 
         UIListLayout(Separator, Enum.FillDirection.Vertical, UDim.new(0,0))
         -- this is to prevent a bug of AutomaticLayout edge case when its parent has automaticLayout enabled
@@ -457,7 +462,7 @@ Iris.WidgetConstructor("Indent", false, true){
         Indent.Size = UDim2.fromScale(1, 0)
         Indent.AutomaticSize = Enum.AutomaticSize.Y
 
-        UIListLayout(Indent, Enum.FillDirection.Vertical, UDim.new(0, Iris._style.ItemSpacing.Y))
+        UIListLayout(Indent, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
         UIPadding(Indent, Vector2.new(0, 0))
 
         return Indent
@@ -467,7 +472,7 @@ Iris.WidgetConstructor("Indent", false, true){
         if thisWidget.arguments.Width then
             indentWidth = thisWidget.arguments.Width
         else
-            indentWidth = Iris._style.IndentSpacing
+            indentWidth = Iris._config.IndentSpacing
         end
         thisWidget.Instance.UIPadding.PaddingLeft = UDim.new(0, indentWidth)
     end,
@@ -507,7 +512,7 @@ Iris.WidgetConstructor("SameLine", false, true){
         if thisWidget.arguments.Width then
             itemWidth = thisWidget.arguments.Width
         else
-            itemWidth = Iris._style.ItemSpacing.X
+            itemWidth = Iris._config.ItemSpacing.X
         end
         UIListLayout.Padding = UDim.new(0, itemWidth)
         if thisWidget.arguments.VerticalAlignment then
@@ -539,7 +544,7 @@ Iris.WidgetConstructor("Group", false, true){
         Group.LayoutOrder = thisWidget.ZIndex
         Group.AutomaticSize = Enum.AutomaticSize.XY
 
-        local UIListLayout = UIListLayout(Group, Enum.FillDirection.Vertical, UDim.new(0, Iris._style.ItemSpacing.X))
+        local UIListLayout = UIListLayout(Group, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.X))
 
         return Group
     end,
@@ -576,26 +581,26 @@ Iris.WidgetConstructor("Checkbox", true, false){
         local CheckboxBox = Instance.new("TextLabel")
         CheckboxBox.Name = "CheckboxBox"
         CheckboxBox.AutomaticSize = Enum.AutomaticSize.None
-        local checkboxSize = Iris._style.TextSize + 2 * Iris._style.FramePadding.Y
+        local checkboxSize = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
         CheckboxBox.Size = UDim2.fromOffset(checkboxSize, checkboxSize)
         CheckboxBox.TextSize = checkboxSize
         CheckboxBox.LineHeight = 1.1
         CheckboxBox.ZIndex = thisWidget.ZIndex + 1
         CheckboxBox.LayoutOrder = thisWidget.ZIndex + 1
         CheckboxBox.Parent = Checkbox
-        CheckboxBox.TextColor3 = Iris._style.CheckMarkColor
-        CheckboxBox.TextTransparency = Iris._style.CheckMarkTransparency
-        CheckboxBox.BackgroundColor3 = Iris._style.FrameBgColor
-        CheckboxBox.BackgroundTransparency = Iris._style.FrameBgTransparency
+        CheckboxBox.TextColor3 = Iris._config.CheckMarkColor
+        CheckboxBox.TextTransparency = Iris._config.CheckMarkTransparency
+        CheckboxBox.BackgroundColor3 = Iris._config.FrameBgColor
+        CheckboxBox.BackgroundTransparency = Iris._config.FrameBgTransparency
         applyFrameStyle(CheckboxBox, true)
 
         applyInteractionHighlights(Checkbox, CheckboxBox, {
-            ButtonColor = Iris._style.FrameBgColor,
-            ButtonTransparency = Iris._style.FrameBgTransparency,
-            ButtonHoveredColor = Iris._style.FrameBgHoveredColor,
-            ButtonHoveredTransparency = Iris._style.FrameBgHoveredTransparency,
-            ButtonActiveColor = Iris._style.FrameBgActiveColor,
-            ButtonActiveTransparency = Iris._style.FrameBgActiveTransparency,
+            ButtonColor = Iris._config.FrameBgColor,
+            ButtonTransparency = Iris._config.FrameBgTransparency,
+            ButtonHoveredColor = Iris._config.FrameBgHoveredColor,
+            ButtonHoveredTransparency = Iris._config.FrameBgHoveredTransparency,
+            ButtonActiveColor = Iris._config.FrameBgActiveColor,
+            ButtonActiveTransparency = Iris._config.FrameBgActiveTransparency,
         })
 
         Checkbox.MouseButton1Click:Connect(function()
@@ -606,7 +611,7 @@ Iris.WidgetConstructor("Checkbox", true, false){
         local TextLabel = Instance.new("TextLabel")
         TextLabel.Name = "TextLabel"
         applyTextStyle(TextLabel)
-        TextLabel.Position = UDim2.new(0,checkboxSize + Iris._style.ItemInnerSpacing.X, 0.5, 0)
+        TextLabel.Position = UDim2.new(0,checkboxSize + Iris._config.ItemInnerSpacing.X, 0.5, 0)
         TextLabel.ZIndex = thisWidget.ZIndex + 1
         TextLabel.LayoutOrder = thisWidget.ZIndex + 1
         TextLabel.AutomaticSize = Enum.AutomaticSize.XY
@@ -657,7 +662,7 @@ Iris.WidgetConstructor("Tree", true, true){
         Tree.BorderSizePixel = 0
         Tree.ZIndex = thisWidget.ZIndex
         Tree.LayoutOrder = thisWidget.ZIndex
-        Tree.Size = UDim2.new(Iris._style.ItemWidth, UDim.new(0, 0))
+        Tree.Size = UDim2.new(Iris._config.ItemWidth, UDim.new(0, 0))
         Tree.AutomaticSize = Enum.AutomaticSize.Y
 
         thisWidget.hasChildren = false
@@ -675,10 +680,10 @@ Iris.WidgetConstructor("Tree", true, true){
         ChildContainer.Visible = false
         ChildContainer.Parent = Tree
 
-        UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._style.ItemSpacing.Y))
+        UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
         
         local ChildContainerPadding = UIPadding(ChildContainer, Vector2.new(0, 0))
-        ChildContainerPadding.PaddingTop = UDim.new(0, Iris._style.ItemSpacing.Y)
+        ChildContainerPadding.PaddingTop = UDim.new(0, Iris._config.ItemSpacing.Y)
 
         local Header = Instance.new("Frame")
         Header.Name = "Header"
@@ -703,10 +708,10 @@ Iris.WidgetConstructor("Tree", true, true){
         applyInteractionHighlights(Button, Header, {
             ButtonColor = Color3.fromRGB(0, 0, 0),
             ButtonTransparency = 1,
-            ButtonHoveredColor = Iris._style.HeaderHoveredColor,
-            ButtonHoveredTransparency = Iris._style.HeaderHoveredTransparency,
-            ButtonActiveColor = Iris._style.HeaderActiveColor,
-            ButtonActiveTransparency = Iris._style.HeaderActiveTransparency,
+            ButtonHoveredColor = Iris._config.HeaderHoveredColor,
+            ButtonHoveredTransparency = Iris._config.HeaderHoveredTransparency,
+            ButtonActiveColor = Iris._config.HeaderActiveColor,
+            ButtonActiveTransparency = Iris._config.HeaderActiveTransparency,
         })
 
         local ButtonUIListLayout = UIListLayout(Button, Enum.FillDirection.Horizontal, UDim.new(0, 0))
@@ -714,7 +719,7 @@ Iris.WidgetConstructor("Tree", true, true){
 
         local Arrow = Instance.new("TextLabel")
         Arrow.Name = "Arrow"
-        Arrow.Size = UDim2.fromOffset(Iris._style.TextSize, 0)
+        Arrow.Size = UDim2.fromOffset(Iris._config.TextSize, 0)
         Arrow.BackgroundTransparency = 1
         Arrow.BorderSizePixel = 0
         Arrow.ZIndex = thisWidget.ZIndex
@@ -723,7 +728,7 @@ Iris.WidgetConstructor("Tree", true, true){
 
         applyTextStyle(Arrow)
         Arrow.TextXAlignment = Enum.TextXAlignment.Center
-        Arrow.TextSize = Iris._style.TextSize - 4
+        Arrow.TextSize = Iris._config.TextSize - 4
         Arrow.Text = ICONS.RIGHT_POINTING_TRIANGLE
 
         Arrow.Parent = Button
@@ -763,7 +768,7 @@ Iris.WidgetConstructor("Tree", true, true){
         if thisWidget.arguments.NoIndent then
             ChildContainer.UIPadding.PaddingLeft = UDim.new(0, 0)
         else
-            ChildContainer.UIPadding.PaddingLeft = UDim.new(0, Iris._style.IndentSpacing)
+            ChildContainer.UIPadding.PaddingLeft = UDim.new(0, Iris._config.IndentSpacing)
         end
 
     end,
@@ -817,27 +822,27 @@ Iris.WidgetConstructor("InputNum", true, false){
     Generate = function(thisWidget)
         local InputNum = Instance.new("Frame")
         InputNum.Name = "Iris_InputNum"
-        InputNum.Size = UDim2.new(Iris._style.ItemWidth, UDim.new(0, 0))
+        InputNum.Size = UDim2.new(Iris._config.ItemWidth, UDim.new(0, 0))
         InputNum.BackgroundTransparency = 1
         InputNum.BorderSizePixel = 0
         InputNum.ZIndex = thisWidget.ZIndex
         InputNum.LayoutOrder = thisWidget.ZIndex
         InputNum.AutomaticSize = Enum.AutomaticSize.Y
-        UIListLayout(InputNum, Enum.FillDirection.Horizontal, UDim.new(0, Iris._style.ItemInnerSpacing.X))
+        UIListLayout(InputNum, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
 
-        local inputButtonsWidth = Iris._style.TextSize
-        local textLabelHeight = inputButtonsWidth + Iris._style.FramePadding.Y * 2
+        local inputButtonsWidth = Iris._config.TextSize
+        local textLabelHeight = inputButtonsWidth + Iris._config.FramePadding.Y * 2
 
         local InputField = Instance.new("TextBox")
         InputField.Name = "InputField"
         applyFrameStyle(InputField)
         applyTextStyle(InputField)
-        InputField.UIPadding.PaddingLeft = UDim.new(0, Iris._style.ItemInnerSpacing.X)
+        InputField.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
         InputField.ZIndex = thisWidget.ZIndex + 1
         InputField.LayoutOrder = thisWidget.ZIndex + 1
         InputField.AutomaticSize = Enum.AutomaticSize.Y
-        InputField.BackgroundColor3 = Iris._style.FrameBgColor
-        InputField.BackgroundTransparency = Iris._style.FrameBgTransparency
+        InputField.BackgroundColor3 = Iris._config.FrameBgColor
+        InputField.BackgroundTransparency = Iris._config.FrameBgTransparency
         InputField.TextTruncate = Enum.TextTruncate.AtEnd
         InputField.Parent = InputNum
 
@@ -906,7 +911,7 @@ Iris.WidgetConstructor("InputNum", true, false){
         local InputField = thisWidget.Instance.InputField
         InputField.Visible = not thisWidget.arguments.NoField
 
-        local inputButtonsTotalWidth = Iris._style.TextSize * 2 + Iris._style.ItemInnerSpacing.X * 2 + Iris._style.WindowPadding.X + 4
+        local inputButtonsTotalWidth = Iris._config.TextSize * 2 + Iris._config.ItemInnerSpacing.X * 2 + Iris._config.WindowPadding.X + 4
         if thisWidget.arguments.NoButtons then
             InputField.Size = UDim2.new(1, 0, 0, 0)
         else
@@ -937,33 +942,33 @@ Iris.WidgetConstructor("InputText", true, false){
         ["TextHint"] = 2
     },
     Generate = function(thisWidget)
-        local textLabelHeight = Iris._style.TextSize
+        local textLabelHeight = Iris._config.TextSize
 
         local InputText = Instance.new("Frame")
         InputText.Name = "Iris_InputText"
-        InputText.Size = UDim2.new(Iris._style.ItemWidth, UDim.new(0, 0))
+        InputText.Size = UDim2.new(Iris._config.ItemWidth, UDim.new(0, 0))
         InputText.BackgroundTransparency = 1
         InputText.BorderSizePixel = 0
         InputText.ZIndex = thisWidget.ZIndex
         InputText.LayoutOrder = thisWidget.ZIndex
         InputText.AutomaticSize = Enum.AutomaticSize.Y
-        UIListLayout(InputText, Enum.FillDirection.Horizontal, UDim.new(0, Iris._style.ItemInnerSpacing.X))
+        UIListLayout(InputText, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
 
         local InputField = Instance.new("TextBox")
         InputField.Name = "InputField"
         applyFrameStyle(InputField)
         applyTextStyle(InputField)
-        InputField.UIPadding.PaddingLeft = UDim.new(0, Iris._style.ItemInnerSpacing.X)
+        InputField.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
         InputField.UIPadding.PaddingRight = UDim.new(0, 0)
         InputField.ZIndex = thisWidget.ZIndex + 1
         InputField.LayoutOrder = thisWidget.ZIndex + 1
         InputField.AutomaticSize = Enum.AutomaticSize.Y
-        InputField.Size = UDim2.new(Iris._style.ItemWidth, UDim.new(0, 0))
-        InputField.BackgroundColor3 = Iris._style.FrameBgColor
-        InputField.BackgroundTransparency = Iris._style.FrameBgTransparency
+        InputField.Size = UDim2.new(Iris._config.ItemWidth, UDim.new(0, 0))
+        InputField.BackgroundColor3 = Iris._config.FrameBgColor
+        InputField.BackgroundTransparency = Iris._config.FrameBgTransparency
         InputField.ClearTextOnFocus = false
         InputField.Text = ""
-        InputField.PlaceholderColor3 = Iris._style.TextDisabledColor
+        InputField.PlaceholderColor3 = Iris._config.TextDisabledColor
         InputField.TextTruncate = Enum.TextTruncate.AtEnd
 
         InputField.FocusLost:Connect(function()
@@ -975,7 +980,7 @@ Iris.WidgetConstructor("InputText", true, false){
 
         local TextLabel = Instance.new("TextLabel")
         TextLabel.Name = "TextLabel"
-        TextLabel.Position = UDim2.new(1, Iris._style.ItemInnerSpacing.X, 0, 0)
+        TextLabel.Position = UDim2.new(1, Iris._config.ItemInnerSpacing.X, 0, 0)
         TextLabel.Size = UDim2.fromOffset(0, textLabelHeight)
         TextLabel.BackgroundTransparency = 1
         TextLabel.BorderSizePixel = 0
@@ -1053,7 +1058,7 @@ do -- Iris.Table
 
             local Table = Instance.new("Frame")
             Table.Name = "Iris_Table"
-            Table.Size = UDim2.new(Iris._style.ItemWidth, UDim.new(0, 0))
+            Table.Size = UDim2.new(Iris._config.ItemWidth, UDim.new(0, 0))
             Table.BackgroundTransparency = 1
             Table.BorderSizePixel = 0
             Table.ZIndex = thisWidget.ZIndex + 1024 -- allocate room for 1024 cells, because Table UIStroke has to appear above cell UIStroke
@@ -1062,7 +1067,7 @@ do -- Iris.Table
 
             UIListLayout(Table, Enum.FillDirection.Horizontal, UDim.new(0, 0))
 
-            UIStroke(Table, 1, Iris._style.TableBorderStrongColor, Iris._style.TableBorderStrongTransparency)
+            UIStroke(Table, 1, Iris._config.TableBorderStrongColor, Iris._config.TableBorderStrongTransparency)
 
 
             return Table
@@ -1113,7 +1118,7 @@ do -- Iris.Table
             else
                 for rowColumnIndex,v in thisWidget.CellInstances do
                     local currentRow = math.ceil((rowColumnIndex) / thisWidget.InitialNumColumns)    
-                    v.BackgroundTransparency = if currentRow % 2 == 0 then Iris._style.TableRowBgAltTransparency else Iris._style.TableRowBgTransparency
+                    v.BackgroundTransparency = if currentRow % 2 == 0 then Iris._config.TableRowBgAltTransparency else Iris._config.TableRowBgTransparency
                 end
             end
 
@@ -1132,6 +1137,9 @@ do -- Iris.Table
             thisWidget.Instance:Destroy()
         end,
         ChildAdded = function(thisWidget)
+            if thisWidget.RowColumnIndex == 0 then
+                thisWidget.RowColumnIndex = 1
+            end
             local potentialCellParent = thisWidget.CellInstances[thisWidget.RowColumnIndex]
             if potentialCellParent then
                 return potentialCellParent
@@ -1141,27 +1149,27 @@ do -- Iris.Table
             cell.Size = UDim2.new(1, 0, 0, 0)
             cell.BackgroundTransparency = 1
             cell.BorderSizePixel = 0
-            UIPadding(cell, Iris._style.CellPadding)
+            UIPadding(cell, Iris._config.CellPadding)
             local selectedParent = thisWidget.ColumnInstances[((thisWidget.RowColumnIndex - 1) % thisWidget.InitialNumColumns) + 1]
             local newZIndex = selectedParent.ZIndex + thisWidget.RowColumnIndex
             cell.ZIndex = newZIndex
             cell.LayoutOrder = newZIndex
             cell.Name = `Cell_{thisWidget.RowColumnIndex}`
 
-            UIListLayout(cell, Enum.FillDirection.Vertical, UDim.new(0, Iris._style.ItemSpacing.Y))
+            UIListLayout(cell, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
 
             if thisWidget.arguments.BordersInner == false then
-                UIStroke(cell, 0, Iris._style.TableBorderLightColor, Iris._style.TableBorderLightTransparency)
+                UIStroke(cell, 0, Iris._config.TableBorderLightColor, Iris._config.TableBorderLightTransparency)
             else
-                UIStroke(cell, 0.5, Iris._style.TableBorderLightColor, Iris._style.TableBorderLightTransparency)
+                UIStroke(cell, 0.5, Iris._config.TableBorderLightColor, Iris._config.TableBorderLightTransparency)
                 -- this takes advantage of unintended behavior when UIStroke is set to 0.5 to render cell borders,
                 -- at 0.5, only the top and left side of the cell will be rendered with a border. expect to randomly.
             end
 
             if thisWidget.arguments.RowBg ~= false then
                 local currentRow = math.ceil((thisWidget.RowColumnIndex) / thisWidget.InitialNumColumns)
-                local color = if currentRow % 2 == 0 then Iris._style.TableRowBgAltColor else Iris._style.TableRowBgColor
-                local transparency = if currentRow % 2 == 0 then Iris._style.TableRowBgAltTransparency else Iris._style.TableRowBgTransparency
+                local color = if currentRow % 2 == 0 then Iris._config.TableRowBgAltColor else Iris._config.TableRowBgColor
+                local transparency = if currentRow % 2 == 0 then Iris._config.TableRowBgAltTransparency else Iris._config.TableRowBgTransparency
 
                 cell.BackgroundColor3 = color
                 cell.BackgroundTransparency = transparency
@@ -1197,8 +1205,32 @@ do -- Iris.Window
 
     local windowWidgets = {} -- array of widget objects of type window
 
+    local function getAbsoluteSize(thisWidget) -- possible parents are GuiBase2d, CoreGui, PlayerGui
+        -- possibly the stupidest function ever written
+        local size
+        if thisWidget.usesScreenGUI then
+            size = thisWidget.Instance.AbsoluteSize
+        else
+            local rootParent = thisWidget.Instance.Parent
+            if rootParent:IsA("GuiBase2d") then
+                size = rootParent.AbsoluteSize
+            else
+                if rootParent.Parent:IsA("GuiBase2d") then
+                    size = rootParent.AbsoluteSize
+                else
+                    size = workspace.CurrentCamera.ViewportSize
+                end
+            end
+        end
+        return size
+    end
+
     local function quickSwapWindows()
         -- ctrl + tab swapping functionality
+        if Iris._config.UseScreenGUIs == false then
+            return
+        end
+
         local lowest = 0xFFFF
         local lowestWidget
 
@@ -1220,23 +1252,34 @@ do -- Iris.Window
 
     local function fitSizeToWindowBounds(thisWidget, intentedSize)
         local windowSize = Vector2.new(thisWidget.state.position.value.X, thisWidget.state.position.value.Y)
-        local minWindowSize = (Iris._style.TextSize + Iris._style.FramePadding.Y * 2) * 2
+        local minWindowSize = (Iris._config.TextSize + Iris._config.FramePadding.Y * 2) * 2
+        local usableSize = getAbsoluteSize(thisWidget)
+
         local maxWindowSize = (
-            thisWidget.Instance.AbsoluteSize -
+            usableSize -
             windowSize -
-            Vector2.new(Iris._style.WindowBorderSize, Iris._style.WindowBorderSize)
+            Vector2.new(Iris._config.WindowBorderSize, Iris._config.WindowBorderSize)
         )
         return Vector2.new(
-            math.clamp(intentedSize.X, minWindowSize, maxWindowSize.X),
-            math.clamp(intentedSize.Y, minWindowSize, maxWindowSize.Y)
+            math.clamp(intentedSize.X, minWindowSize, math.max(maxWindowSize.X, minWindowSize)),
+            math.clamp(intentedSize.Y, minWindowSize, math.max(maxWindowSize.Y, minWindowSize))
         )
     end
 
     local function fitPositionToWindowBounds(thisWidget, intendedPosition)
         local thisWidgetInstance = thisWidget.Instance
+        local usableSize = getAbsoluteSize(thisWidget)
         return Vector2.new(
-            math.clamp(intendedPosition.X, Iris._style.WindowBorderSize, thisWidgetInstance.AbsoluteSize.X - thisWidgetInstance.WindowButton.AbsoluteSize.X - Iris._style.WindowBorderSize),
-            math.clamp(intendedPosition.Y, Iris._style.WindowBorderSize, thisWidgetInstance.AbsoluteSize.Y - thisWidgetInstance.WindowButton.AbsoluteSize.Y - Iris._style.WindowBorderSize)
+            math.clamp(
+                intendedPosition.X,
+                Iris._config.WindowBorderSize,
+                math.max(Iris._config.WindowBorderSize, usableSize.X - thisWidgetInstance.WindowButton.AbsoluteSize.X - Iris._config.WindowBorderSize)
+            ),
+            math.clamp(
+                intendedPosition.Y,
+                Iris._config.WindowBorderSize, 
+                math.max(Iris._config.WindowBorderSize, usableSize.Y - thisWidgetInstance.WindowButton.AbsoluteSize.Y - Iris._config.WindowBorderSize)
+            )
         )
     end
 
@@ -1248,13 +1291,13 @@ do -- Iris.Window
                 -- update appearance to unfocus
                 local TitleBar = focusedWindow.Instance.WindowButton.TitleBar
                 if focusedWindow.state.isUncollapsed.value then
-                    TitleBar.BackgroundColor3 = Iris._style.TitleBgColor
-                    TitleBar.BackgroundTransparency = Iris._style.TitleBgTransparency
+                    TitleBar.BackgroundColor3 = Iris._config.TitleBgColor
+                    TitleBar.BackgroundTransparency = Iris._config.TitleBgTransparency
                 else
-                    TitleBar.BackgroundColor3 = Iris._style.TitleBgCollapsedColor
-                    TitleBar.BackgroundTransparency = Iris._style.TitleBgCollapsedTransparency
+                    TitleBar.BackgroundColor3 = Iris._config.TitleBgCollapsedColor
+                    TitleBar.BackgroundTransparency = Iris._config.TitleBgCollapsedTransparency
                 end
-                focusedWindow.Instance.WindowButton.UIStroke.Color = Iris._style.BorderColor
+                focusedWindow.Instance.WindowButton.UIStroke.Color = Iris._config.BorderColor
             end
 
             anyFocusedWindow = false
@@ -1266,12 +1309,14 @@ do -- Iris.Window
             anyFocusedWindow = true
             focusedWindow = thisWidget
             local TitleBar = focusedWindow.Instance.WindowButton.TitleBar
-            TitleBar.BackgroundColor3 = Iris._style.TitleBgActiveColor
-            TitleBar.BackgroundTransparency = Iris._style.TitleBgActiveTransparency
-            focusedWindow.Instance.WindowButton.UIStroke.Color = Iris._style.BorderActiveColor
+            TitleBar.BackgroundColor3 = Iris._config.TitleBgActiveColor
+            TitleBar.BackgroundTransparency = Iris._config.TitleBgActiveTransparency
+            focusedWindow.Instance.WindowButton.UIStroke.Color = Iris._config.BorderActiveColor
             
             windowDisplayOrder += 1
-            focusedWindow.Instance.DisplayOrder = windowDisplayOrder
+            if thisWidget.usesScreenGUI then
+                focusedWindow.Instance.DisplayOrder = windowDisplayOrder
+            end
 
             if thisWidget.state.isUncollapsed.value == false then
                 thisWidget.state.isUncollapsed:set(true)
@@ -1402,11 +1447,17 @@ do -- Iris.Window
             ["NoNav"] = 9,
         },
         Generate = function(thisWidget)
+            thisWidget.usesScreenGUI = Iris._config.UseScreenGUIs
             windowWidgets[thisWidget.ID] = thisWidget
 
-            local Window = Instance.new("ScreenGui")
+            local Window
+            if thisWidget.usesScreenGUI then
+                Window = Instance.new("ScreenGui")
+                Window.ResetOnSpawn = false
+            else
+                Window = Instance.new("Folder")
+            end
             Window.Name = "Iris_Window"
-            Window.ResetOnSpawn = false
 
             local WindowButton = Instance.new("TextButton")
             WindowButton.Name = "WindowButton"
@@ -1445,8 +1496,8 @@ do -- Iris.Window
             local UIStroke = Instance.new("UIStroke")
             UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
             UIStroke.LineJoinMode = Enum.LineJoinMode.Miter
-            UIStroke.Color = Iris._style.BorderColor
-            UIStroke.Thickness = Iris._style.WindowBorderSize
+            UIStroke.Color = Iris._config.BorderColor
+            UIStroke.Thickness = Iris._config.WindowBorderSize
 
             UIStroke.Parent = WindowButton
 
@@ -1461,15 +1512,15 @@ do -- Iris.Window
             ChildContainer.Selectable = false
 
             ChildContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
-            ChildContainer.ScrollBarImageTransparency = Iris._style.ScrollbarGrabTransparency
-            ChildContainer.ScrollBarImageColor3 = Iris._style.ScrollbarGrabColor
+            ChildContainer.ScrollBarImageTransparency = Iris._config.ScrollbarGrabTransparency
+            ChildContainer.ScrollBarImageColor3 = Iris._config.ScrollbarGrabColor
             ChildContainer.CanvasSize = UDim2.fromScale(0, 1)
             
-            ChildContainer.BackgroundColor3 = Iris._style.WindowBgColor
-            ChildContainer.BackgroundTransparency = Iris._style.WindowBgTransparency
+            ChildContainer.BackgroundColor3 = Iris._config.WindowBgColor
+            ChildContainer.BackgroundTransparency = Iris._config.WindowBgTransparency
             ChildContainer.Parent = WindowButton
 
-            UIPadding(ChildContainer, Iris._style.WindowPadding)
+            UIPadding(ChildContainer, Iris._config.WindowPadding)
 
             ChildContainer:getPropertyChangedSignal("CanvasPosition"):Connect(function()
                 -- "wrong" use of state here, for optimization
@@ -1488,10 +1539,10 @@ do -- Iris.Window
             TerminatingFrame.BackgroundTransparency = 1
             TerminatingFrame.LayoutOrder = 0x7FFFFFF0
             TerminatingFrame.BorderSizePixel = 0
-            TerminatingFrame.Size = UDim2.fromOffset(0, Iris._style.WindowPadding.Y + Iris._style.FramePadding.Y)
+            TerminatingFrame.Size = UDim2.fromOffset(0, Iris._config.WindowPadding.Y + Iris._config.FramePadding.Y)
             TerminatingFrame.Parent = ChildContainer
 
-            local ChildContainerUIListLayout = UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._style.ItemSpacing.Y))
+            local ChildContainerUIListLayout = UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
             ChildContainerUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 
             local TitleBar = Instance.new("Frame")
@@ -1515,12 +1566,12 @@ do -- Iris.Window
                 end
             end)
 
-            local TitleButtonSize = Iris._style.TextSize + ((Iris._style.FramePadding.Y - 1) * 2)
+            local TitleButtonSize = Iris._config.TextSize + ((Iris._config.FramePadding.Y - 1) * 2)
 
             local CollapseArrow = Instance.new("TextButton")
             CollapseArrow.Name = "CollapseArrow"
             CollapseArrow.Size = UDim2.fromOffset(TitleButtonSize,TitleButtonSize)
-            CollapseArrow.Position = UDim2.new(0, Iris._style.FramePadding.X + 1, 0.5, 0)
+            CollapseArrow.Position = UDim2.new(0, Iris._config.FramePadding.X + 1, 0.5, 0)
             CollapseArrow.AnchorPoint = Vector2.new(0, 0.5)
             CollapseArrow.AutoButtonColor = false
             CollapseArrow.BackgroundTransparency = 1
@@ -1529,7 +1580,7 @@ do -- Iris.Window
             CollapseArrow.AutomaticSize = Enum.AutomaticSize.None
             applyTextStyle(CollapseArrow)
             CollapseArrow.TextXAlignment = Enum.TextXAlignment.Center
-            CollapseArrow.TextSize = Iris._style.TextSize
+            CollapseArrow.TextSize = Iris._config.TextSize
             CollapseArrow.Parent = TitleBar
 
             CollapseArrow.MouseButton1Click:Connect(function()
@@ -1539,18 +1590,18 @@ do -- Iris.Window
             UICorner(CollapseArrow, 1e9)
 
             applyInteractionHighlights(CollapseArrow, CollapseArrow, {
-                ButtonColor = Iris._style.ButtonColor,
+                ButtonColor = Iris._config.ButtonColor,
                 ButtonTransparency = 1,
-                ButtonHoveredColor = Iris._style.ButtonHoveredColor,
-                ButtonHoveredTransparency = Iris._style.ButtonHoveredTransparency,
-                ButtonActiveColor = Iris._style.ButtonActiveColor,
-                ButtonActiveTransparency = Iris._style.ButtonActiveTransparency,
+                ButtonHoveredColor = Iris._config.ButtonHoveredColor,
+                ButtonHoveredTransparency = Iris._config.ButtonHoveredTransparency,
+                ButtonActiveColor = Iris._config.ButtonActiveColor,
+                ButtonActiveTransparency = Iris._config.ButtonActiveTransparency,
             })
 
             local CloseIcon = Instance.new("TextButton")
             CloseIcon.Name = "CloseIcon"
             CloseIcon.Size = UDim2.fromOffset(TitleButtonSize, TitleButtonSize)
-            CloseIcon.Position = UDim2.new(1, -(Iris._style.FramePadding.X + 1), 0.5, 0)
+            CloseIcon.Position = UDim2.new(1, -(Iris._config.FramePadding.X + 1), 0.5, 0)
             CloseIcon.AnchorPoint = Vector2.new(1, 0.5)
             CloseIcon.AutoButtonColor = false
             CloseIcon.BackgroundTransparency = 1
@@ -1560,7 +1611,7 @@ do -- Iris.Window
             applyTextStyle(CloseIcon)
             CloseIcon.TextXAlignment = Enum.TextXAlignment.Center
             CloseIcon.Font = Enum.Font.Code
-            CloseIcon.TextSize = Iris._style.TextSize * 2
+            CloseIcon.TextSize = Iris._config.TextSize * 2
             CloseIcon.Text = ICONS.MULTIPLICATION_SIGN
             CloseIcon.Parent = TitleBar
 
@@ -1571,12 +1622,12 @@ do -- Iris.Window
             end)
 
             applyInteractionHighlights(CloseIcon, CloseIcon, {
-                ButtonColor = Iris._style.ButtonColor,
+                ButtonColor = Iris._config.ButtonColor,
                 ButtonTransparency = 1,
-                ButtonHoveredColor = Iris._style.ButtonHoveredColor,
-                ButtonHoveredTransparency = Iris._style.ButtonHoveredTransparency,
-                ButtonActiveColor = Iris._style.ButtonActiveColor,
-                ButtonActiveTransparency = Iris._style.ButtonActiveTransparency,
+                ButtonHoveredColor = Iris._config.ButtonHoveredColor,
+                ButtonHoveredTransparency = Iris._config.ButtonHoveredTransparency,
+                ButtonActiveColor = Iris._config.ButtonActiveColor,
+                ButtonActiveTransparency = Iris._config.ButtonActiveTransparency,
             })
 
             -- allowing fractional titlebar title location dosent seem useful, as opposed to Enum.LeftRight.
@@ -1590,9 +1641,9 @@ do -- Iris.Window
             applyTextStyle(Title)
             Title.Parent = TitleBar
             local TitleAlign
-            if Iris._style.WindowTitleAlign == Enum.LeftRight.Left then
+            if Iris._config.WindowTitleAlign == Enum.LeftRight.Left then
                 TitleAlign = 0
-            elseif Iris._style.WindowTitleAlign == Enum.LeftRight.Center then
+            elseif Iris._config.WindowTitleAlign == Enum.LeftRight.Center then
                 TitleAlign = 0.5
             else
                 TitleAlign = 1
@@ -1600,9 +1651,9 @@ do -- Iris.Window
             Title.Position = UDim2.fromScale(TitleAlign, 0)
             Title.AnchorPoint = Vector2.new(TitleAlign, 0)
 
-            UIPadding(Title, Iris._style.FramePadding)
+            UIPadding(Title, Iris._config.FramePadding)
 
-            local ResizeButtonSize = Iris._style.TextSize + Iris._style.FramePadding.X
+            local ResizeButtonSize = Iris._config.TextSize + Iris._config.FramePadding.X
 
             local ResizeGrip = Instance.new("TextButton")
             ResizeGrip.Name = "ResizeGrip"
@@ -1615,18 +1666,18 @@ do -- Iris.Window
             ResizeGrip.ZIndex = thisWidget.ZIndex + 3
             ResizeGrip.Position = UDim2.fromScale(1, 1)
             ResizeGrip.TextSize = ResizeButtonSize
-            ResizeGrip.TextColor3 = Iris._style.ButtonColor
-            ResizeGrip.TextTransparency = Iris._style.ButtonTransparency
+            ResizeGrip.TextColor3 = Iris._config.ButtonColor
+            ResizeGrip.TextTransparency = Iris._config.ButtonTransparency
             ResizeGrip.LineHeight = 1.10 -- fix mild rendering issue
             ResizeGrip.Selectable = false
             
             applyInteractionHighlights(ResizeGrip, ResizeGrip, {
-                ButtonColor = Iris._style.ButtonColor,
-                ButtonTransparency = Iris._style.ButtonTransparency,
-                ButtonHoveredColor = Iris._style.ButtonHoveredColor,
-                ButtonHoveredTransparency = Iris._style.ButtonHoveredTransparency,
-                ButtonActiveColor = Iris._style.ButtonActiveColor,
-                ButtonActiveTransparency = Iris._style.ButtonActiveTransparency,
+                ButtonColor = Iris._config.ButtonColor,
+                ButtonTransparency = Iris._config.ButtonTransparency,
+                ButtonHoveredColor = Iris._config.ButtonHoveredColor,
+                ButtonHoveredTransparency = Iris._config.ButtonHoveredTransparency,
+                ButtonActiveColor = Iris._config.ButtonActiveColor,
+                ButtonActiveTransparency = Iris._config.ButtonActiveTransparency,
             }, "Text")
 
             ResizeGrip.MouseButton1Down:Connect(function()
@@ -1646,8 +1697,8 @@ do -- Iris.Window
             ResizeBorder.BorderSizePixel = 0
             ResizeBorder.ZIndex = thisWidget.ZIndex
             ResizeBorder.LayoutOrder = thisWidget.ZIndex
-            ResizeBorder.Size = UDim2.new(1, Iris._style.WindowResizePadding.X * 2, 1, Iris._style.WindowResizePadding.Y * 2)
-            ResizeBorder.Position = UDim2.fromOffset(-Iris._style.WindowResizePadding.X, -Iris._style.WindowResizePadding.Y)
+            ResizeBorder.Size = UDim2.new(1, Iris._config.WindowResizePadding.X * 2, 1, Iris._config.WindowResizePadding.Y * 2)
+            ResizeBorder.Position = UDim2.fromOffset(-Iris._config.WindowResizePadding.X, -Iris._config.WindowResizePadding.Y)
             WindowButton.AutomaticSize = Enum.AutomaticSize.None
             ResizeBorder.ClipsDescendants = false
             ResizeBorder.Text = ""
@@ -1688,13 +1739,13 @@ do -- Iris.Window
             local Title = TitleBar.Title
             local ChildContainer = WindowButton.ChildContainer
             local ResizeGrip = WindowButton.ResizeGrip
-            local TitleBarWidth = Iris._style.TextSize + Iris._style.FramePadding.Y * 2
+            local TitleBarWidth = Iris._config.TextSize + Iris._config.FramePadding.Y * 2
 
             ResizeGrip.Visible = not thisWidget.arguments.NoResize
             if thisWidget.arguments.NoScrollbar then
                 ChildContainer.ScrollBarThickness = 0
             else
-                ChildContainer.ScrollBarThickness = Iris._style.ScrollbarSize
+                ChildContainer.ScrollBarThickness = Iris._config.ScrollbarSize
             end
             if thisWidget.arguments.NoTitleBar then
                 TitleBar.Visible = false
@@ -1710,19 +1761,19 @@ do -- Iris.Window
             if thisWidget.arguments.NoBackground then
                 ChildContainer.BackgroundTransparency = 1
             else
-                ChildContainer.BackgroundTransparency = Iris._style.WindowBgTransparency
+                ChildContainer.BackgroundTransparency = Iris._config.WindowBgTransparency
             end
-            local TitleButtonPaddingSize = Iris._style.FramePadding.X + Iris._style.TextSize + Iris._style.FramePadding.X * 2
+            local TitleButtonPaddingSize = Iris._config.FramePadding.X + Iris._config.TextSize + Iris._config.FramePadding.X * 2
             if thisWidget.arguments.NoCollapse then
                 TitleBar.CollapseArrow.Visible = false
-                TitleBar.Title.UIPadding.PaddingLeft = UDim.new(0, Iris._style.FramePadding.X)
+                TitleBar.Title.UIPadding.PaddingLeft = UDim.new(0, Iris._config.FramePadding.X)
             else
                 TitleBar.CollapseArrow.Visible = true
                 TitleBar.Title.UIPadding.PaddingLeft = UDim.new(0, TitleButtonPaddingSize)
             end
             if thisWidget.arguments.NoClose then
                 TitleBar.CloseIcon.Visible = false
-                TitleBar.Title.UIPadding.PaddingRight = UDim.new(0, Iris._style.FramePadding.X)
+                TitleBar.Title.UIPadding.PaddingRight = UDim.new(0, Iris._config.FramePadding.X)
             else
                 TitleBar.CloseIcon.Visible = true
                 TitleBar.Title.UIPadding.PaddingRight = UDim.new(0, TitleButtonPaddingSize)
@@ -1767,10 +1818,20 @@ do -- Iris.Window
             local ResizeGrip = WindowButton.ResizeGrip
 
             if stateIsOpened then
-                thisWidget.Instance.Enabled = true
+                if thisWidget.usesScreenGUI then
+                    thisWidget.Instance.Enabled = true
+                    WindowButton.Visible = true
+                else
+                    WindowButton.Visible = true
+                end
                 thisWidget.events.opened = true
             else
-                thisWidget.Instance.Enabled = false
+                if thisWidget.usesScreenGUI then
+                    thisWidget.Instance.Enabled = false
+                    WindowButton.Visible = false
+                else
+                    WindowButton.Visible = false
+                end
                 thisWidget.events.closed = true
             end
 
@@ -1783,7 +1844,7 @@ do -- Iris.Window
                 WindowButton.AutomaticSize = Enum.AutomaticSize.None
                 thisWidget.events.uncollapsed = true
             else
-                local collapsedHeight = Iris._style.TextSize + Iris._style.FramePadding.Y * 2
+                local collapsedHeight = Iris._config.TextSize + Iris._config.FramePadding.Y * 2
                 TitleBar.CollapseArrow.Text = ICONS.RIGHT_POINTING_TRIANGLE
 
                 ChildContainer.Visible = false
@@ -1795,9 +1856,9 @@ do -- Iris.Window
             if stateIsOpened and stateIsUncollapsed then
                 Iris.SetFocusedWindow(thisWidget)
             else
-                TitleBar.BackgroundColor3 = Iris._style.TitleBgCollapsedColor
-                TitleBar.BackgroundTransparency = Iris._style.TitleBgCollapsedTransparency
-                WindowButton.UIStroke.Color = Iris._style.BorderColor
+                TitleBar.BackgroundColor3 = Iris._config.TitleBgCollapsedColor
+                TitleBar.BackgroundTransparency = Iris._config.TitleBgCollapsedTransparency
+                WindowButton.UIStroke.Color = Iris._config.BorderColor
 
                 Iris.SetFocusedWindow(nil)
             end

@@ -149,7 +149,7 @@ local templateConfig = {
         CheckMarkTransparency = 0
     },
 
-    sizeClassic = { -- Dear, ImGui default
+    sizeDefault = { -- Dear, ImGui default
         ItemWidth = UDim.new(1, 0),
 
         WindowPadding = Vector2.new(8, 8),
@@ -186,6 +186,10 @@ local templateConfig = {
         WindowBorderSize = 1,
         WindowTitleAlign = Enum.LeftRight.Center,
         ScrollbarSize = 9,
+    },
+
+    utilityDefault = {
+        UseScreenGUIs = true
     }
 }
 
