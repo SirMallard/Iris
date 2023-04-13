@@ -20,6 +20,7 @@ Iris._stackIndex = 1 -- Points to the index that IDStack is currently in, when c
 Iris._cycleTick = 0 -- increments for each call to Cycle, used to determine the relative age and freshness of generated widgets
 Iris._widgetCount = 0 -- only used to compute ZIndex, resets to 0 for every cycle
 Iris._postCycleCallbacks = {}
+Iris._connectedFunctions = {} -- functions which run each Iris cycle, connected by the user
 
 function Iris._generateSelectionImageObject()
     if Iris.SelectionImageObject then
@@ -102,7 +103,7 @@ end
 Iris._lastVDOM = Iris._generateEmptyVDOM()
 Iris._VDOM = Iris._generateEmptyVDOM()
 
-function Iris._cycle(callback)
+function Iris._cycle()
     if Iris._globalRefreshRequested then
         -- rerender every widget
         --debug.profilebegin("Iris Refresh")
@@ -133,7 +134,18 @@ function Iris._cycle(callback)
         error("Iris Parent Instance cant contain GUI")
     end
     --debug.profilebegin("Iris Generate")
-    local status, _error = pcall(callback)
+    for _, callback in Iris._connectedFunctions do
+        local status, _error = pcall(callback)
+        if not status then
+            Iris._stackIndex = 1
+            error(_error, 0)
+        end
+        if Iris._stackIndex ~= 1 then
+            -- has to be larger than 1 because of the check that it isint below 1 in Iris.End
+            Iris._stackIndex = 1
+            error("Callback is missing an Iris.End()", 0)
+        end
+    end
     --debug.profileend()
 
     for _, v in Iris._lastVDOM do
@@ -145,16 +157,6 @@ function Iris._cycle(callback)
 
     Iris._lastVDOM = Iris._VDOM
     Iris._VDOM = Iris._generateEmptyVDOM()
-
-    if not status then
-        Iris._stackIndex = 1
-        error(_error, 0)
-    end
-    if Iris._stackIndex ~= 1 then
-        -- has to be larger than 1 because of the check that it isint below 1 in Iris.End
-        Iris._stackIndex = 1
-        error("Callback is missing an Iris.End()", 0)
-    end
 
     for i, func in Iris._postCycleCallbacks do
         func()
@@ -294,7 +296,7 @@ function Iris._widgetState(thisWidget, stateName, initialValue)
     end
 end
 
-function Iris.Connect(parentInstance, eventConnection: RBXScriptSignal | () -> {}, callback)
+function Iris.Init(parentInstance, eventConnection: RBXScriptSignal | () -> {})
     Iris.parentInstance = parentInstance
     assert(not Iris._started, "Iris.Connect can only be called once.")
     Iris._started = true
@@ -306,14 +308,18 @@ function Iris.Connect(parentInstance, eventConnection: RBXScriptSignal | () -> {
         if typeof(eventConnection) == "function" then
             while true do
                 eventConnection()
-                Iris._cycle(callback)
+                Iris._cycle()
             end
         else
             eventConnection:Connect(function()
-                Iris._cycle(callback)
+                Iris._cycle()
             end)
         end
     end)
+end
+
+function Iris:Connect(callback) -- this uses method syntax for no reason.
+    table.insert(Iris._connectedFunctions, callback)
 end
 
 function Iris._GenNewWidget(widgetType, arguments, widgetState, ID)

@@ -1,0 +1,21 @@
+title = "Iris"  # From Git
+gitRepoUrl = "https://github.com/Michael-48/Iris" # From Git
+
+gitSourceBranch = "master"
+changelog = true
+classOrder = []
+
+[docusaurus]
+onBrokenLinks = "throw"
+onBrokenMarkdownLinks = "warn"
+
+# From git:
+organizationName = "Michael_48"
+projectName = "Iris"
+url = "https://Michael-48.github.io"
+baseUrl = "/Iris"
+tagline = "Iris is an Immediate mode GUI Library for Roblox, Based on Dear ImGui"
+
+[footer]
+style = "dark"
+copyright = "Copyright © 2023 Michael_48"

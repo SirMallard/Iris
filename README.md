@@ -1,38 +1,20 @@
-## Methods:
-- Iris.Connect
-- Iris.State
-- Iris.End
-- Iris.UpdateGlobalConfig
-- Iris.PushConfig
-- Iris.PopConfig
-- Iris.ForceRefresh
-- Iris.WidgetConstructor
+# Iris
+Iris is an Immediate mode GUI Library for Roblox, Based on [Dear ImGui](https://github.com/ocornut/imgui). It aims to solve the same problems as Dear ImGui. It is fast, portable, and self-contained (no external dependencies).
 
-- Iris.NextRow
-- Iris.NextColumn
-- Iris.SetColumnIndex
+:::note what is Dear ImGui, and why is it important?
+Dear ImGui is best known for its widespread use for developing debug UI. Using the Dear ImGui paradigm (Immediate Mode), UI is remarkably easy. Because of this, Dear ImGui has seen adoption in almost every major game engine, including Unity and Unreal Engine (and now Roblox!).
+:::
 
-- Iris.SetFocusedWindow
+Iris favors simplicity and productivity; It is designed to simplify UI, streamlining the process for creating visualization, debug tools, and data input. To accomplish this, Iris offers a different approach to Roblox UI than existing libraries, lacking certain features commonly found in more intricate UI libraries. Iris opts to supercede the Roblox engine UI, instead offering a streamlined Immediate-Mode library and a set of widgets to empower developers to create UI easily.
 
-- Iris.ShowDemoWindow
+## Usage
+the
 
+## How it Works
+the
 
-Things to complete for release:
-- [X] Iris.Window cant resize from its edges
-- [X] @ Iris.Table Rows dont align vertically 
-- [X] PushConfig changes wont be propogated to widgets until they refresh, somehow
-- [X] there is no retained mode interoperability (GUI Instances in Iris, Iris in GUI Instances)
-- [X] Iris cant be used in unusual contexts, (like in CoreGui, BillboardGui, plugins)
-- [X] Gamepad and Touch behavior dont work
-- [X] Window Scrollbar state resets, Window has no state of it
-- [X] Window position and size dont reflect realtime coordinates when moving / resizing
-- [X] State syntax is unintuitive, could be simplified or possibly borrowed from another library?
-- [X] Remove all local vars in Iris.lua, commit fully to Iris._variable
-- [ ] add wally integration
-- [ ] complete documentation (overview, explanation, advanced section, Library docs- section for runtime and widgets)
-- [ ] documentation window for ShowDemoWindow
-- [X] polish error handling
-- [X] fix the visual glitch in tree when an expanded Iris.Tree increases in width while having no children
-- [X] comment out debug.profileBegin and debug.ProfileEnd
+## Integration
+the
 
-@ = Cannot be fixed or would be problematic to fix
+## Credits
+Developed By [Michael_48](https://github.com/Michael-48). Additional thanks to [Omar Cornut](https://www.miracleworld.net/) and [Evaera](https://github.com/evaera) for Design and Implimentation Inspiration.
