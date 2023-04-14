@@ -1,13 +1,15 @@
+### Try the demo: https://www.roblox.com/games/11145814918/Iris-Demonstration
+
 # Iris
 Iris is an Immediate mode GUI Library for Roblox, Based on [Dear ImGui](https://github.com/ocornut/imgui). It aims to solve the same problems as Dear ImGui. It is fast, portable, and self-contained (no external dependencies).
 
 what is Dear ImGui, and why is it important?
 <sub>Dear ImGui is best known for its widespread use for developing debug UI. Using the Dear ImGui paradigm (Immediate Mode), UI is remarkably easy. Because of this, Dear ImGui has seen adoption in almost every major game engine, including Unity and Unreal Engine (and now Roblox!).</sub>
 
-Iris favors simplicity and productivity; It is designed to simplify UI, streamlining the process for creating visualization, debug tools, and data input. To accomplish this, Iris offers a different approach to Roblox UI than existing libraries, lacking certain features commonly found in more intricate UI libraries. Iris opts to supercede the Roblox engine UI, instead offering a streamlined Immediate-Mode library and a set of widgets to empower developers to create UI easily.
+Iris favors simplicity and productivity; It is designed to simplify UI, streamlining the process for creating visualization, debug tools, and data input. To accomplish this, Iris offers a different approach to Roblox UI than existing libraries, lacking certain features commonly found in more intricate UI libraries. Iris opts to supercede the Roblox UI API, instead offering a streamlined Immediate-Mode library and a set of widgets to empower developers to create UI easily.
 
 ### Usage
-The Iris release comes packaged as a single ModuleScript. You can import this ModuleScript into any roblox project, and begin creating UI in any client side script! No external dependences are needed. Iris can be used in any kind of Roblox UI, including PlayerGui, CoreGui, BillboardGui, SurfaceGui, and PluginGui.
+The Iris release comes packaged as a single ModuleScript. You can import this ModuleScript into any roblox project, and begin creating UI in any client side script. No external dependences are needed. Iris can be used in any kind of Roblox UI, including PlayerGui, CoreGui, BillboardGui, SurfaceGui, and PluginGui.
 
 Heres a basic Example:
 ```lua
@@ -63,16 +65,17 @@ Iris:Connect(Iris.ShowDemoWindow)
 ```
 ![Sample Code Output](/assets/simpleLightExample.png)
 
-Finally, Iris comes with a demo window, `Iris.ShowDemoWindow`. This window demonstrates the functionality of aspect of the library, and contains useful utilities, a style editor and a runtime information window. It is the most useful reference that you and other coders will want to refer to.
+Finally, Iris comes with a demo window, `Iris.ShowDemoWindow`. This window demonstrates the functionality of every aspect of the library, and contains useful utilities, a style editor and a runtime information window. It is the most useful reference that you and other coders will want to refer to.
 ![Sample Code Output](/assets/demoWindow.png)
 
 ### How it Works
-the
+Iris is an immediate mode UI library, as opposed to retained mode.
+
+In a retained mode model, you might make a button and connect a clicked event, with code that is invoked when the event happens. The button is retained in the DataModel, and to change the text on it you need to store a reference to it.
+
+But in an immediate mode model, call the button function and check if it's been clicked immediately, and you do that every single frame (60 times per second). There's no need for a clicked event or to store a reference to the button.
 
 Check out the Dear ImGuis [About the IMGUI paradigm](https://github.com/ocornut/imgui/wiki/About-the-IMGUI-paradigm) section if you want to understand the core principles behind the IMGUI paradigm.
 
-### Integration
-the
-
 ### Credits
-Developed By [Michael_48](https://github.com/Michael-48). Design, Inspriation and Feedback: [Omar Cornut](https://www.miracleworld.net/), [Evaera](https://github.com/evaera), and [JakeyWasTaken](https://github.com/JakeyWasTaken). Thanks!
+Developed By [Michael_48](https://github.com/Michael-48). Design, Inspriation, Docs and Feedback: [Omar Cornut](https://www.miracleworld.net/), [Evaera](https://github.com/evaera), and [JakeyWasTaken](https://github.com/JakeyWasTaken). Thanks!
