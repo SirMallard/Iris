@@ -1,17 +1,11 @@
-local RunService = game:GetService("RunService")
 local StarterPlayerScripts = game.StarterPlayer.StarterPlayerScripts
-local Player = game:GetService("Players").LocalPlayer
-local PlayerGui = Player:WaitForChild("PlayerGui")
-
-local Iris = require(StarterPlayerScripts.Client.Iris)
-
-Iris.Init(PlayerGui, RunService.Heartbeat)
+local Iris = require(StarterPlayerScripts.Client.Iris).Init()
 
 Iris:Connect(function()
     Iris.Window({"My First Window!"})
-        Iris.Text({"Hello world!"})
+        Iris.Text({"Hello, World"})
         Iris.Button({"Save"})
-        Iris.InputText({"Input Something!"})
+        Iris.InputNum({"Input"})
     Iris.End()
 end)
 

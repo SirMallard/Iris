@@ -822,7 +822,7 @@ Iris.WidgetConstructor("InputNum", true, false){
     Generate = function(thisWidget)
         local InputNum = Instance.new("Frame")
         InputNum.Name = "Iris_InputNum"
-        InputNum.Size = UDim2.new(Iris._config.ItemWidth, UDim.new(0, 0))
+        InputNum.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
         InputNum.BackgroundTransparency = 1
         InputNum.BorderSizePixel = 0
         InputNum.ZIndex = thisWidget.ZIndex
@@ -946,7 +946,7 @@ Iris.WidgetConstructor("InputText", true, false){
 
         local InputText = Instance.new("Frame")
         InputText.Name = "Iris_InputText"
-        InputText.Size = UDim2.new(Iris._config.ItemWidth, UDim.new(0, 0))
+        InputText.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
         InputText.BackgroundTransparency = 1
         InputText.BorderSizePixel = 0
         InputText.ZIndex = thisWidget.ZIndex
@@ -963,7 +963,7 @@ Iris.WidgetConstructor("InputText", true, false){
         InputField.ZIndex = thisWidget.ZIndex + 1
         InputField.LayoutOrder = thisWidget.ZIndex + 1
         InputField.AutomaticSize = Enum.AutomaticSize.Y
-        InputField.Size = UDim2.new(Iris._config.ItemWidth, UDim.new(0, 0))
+        InputField.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
         InputField.BackgroundColor3 = Iris._config.FrameBgColor
         InputField.BackgroundTransparency = Iris._config.FrameBgTransparency
         InputField.ClearTextOnFocus = false

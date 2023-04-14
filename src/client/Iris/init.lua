@@ -104,6 +104,20 @@ Iris._lastVDOM = Iris._generateEmptyVDOM()
 Iris._VDOM = Iris._generateEmptyVDOM()
 
 function Iris._cycle()
+    for _, v in Iris._lastVDOM do
+        if v.lastCycleTick ~= Iris._cycleTick then
+            -- a widget which used to be rendered was no longer rendered, so we discard
+            Iris._widgets[v.type].Discard(v)
+        end
+    end
+
+    Iris._lastVDOM = Iris._VDOM
+    Iris._VDOM = Iris._generateEmptyVDOM()
+
+    for i, func in Iris._postCycleCallbacks do
+        func()
+    end
+
     if Iris._globalRefreshRequested then
         -- rerender every widget
         --debug.profilebegin("Iris Refresh")
@@ -147,20 +161,6 @@ function Iris._cycle()
         end
     end
     --debug.profileend()
-
-    for _, v in Iris._lastVDOM do
-        if v.lastCycleTick ~= Iris._cycleTick then
-            -- a widget which used to be rendered was no longer rendered, so we discard
-            Iris._widgets[v.type].Discard(v)
-        end
-    end
-
-    Iris._lastVDOM = Iris._VDOM
-    Iris._VDOM = Iris._generateEmptyVDOM()
-
-    for i, func in Iris._postCycleCallbacks do
-        func()
-    end
 end
 
 Iris.Args = {}
@@ -296,7 +296,15 @@ function Iris._widgetState(thisWidget, stateName, initialValue)
     end
 end
 
-function Iris.Init(parentInstance, eventConnection: RBXScriptSignal | () -> {})
+function Iris.Init(parentInstance: Instance | nil, eventConnection: RBXScriptSignal | () -> {} | nil)
+    if parentInstance == nil then
+        -- coalesce to playerGui
+        parentInstance = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+    end
+    if eventConnection == nil then
+        -- coalesce to Heartbeat
+        eventConnection = game:GetService("RunService").Heartbeat
+    end
     Iris.parentInstance = parentInstance
     assert(not Iris._started, "Iris.Connect can only be called once.")
     Iris._started = true
@@ -316,6 +324,8 @@ function Iris.Init(parentInstance, eventConnection: RBXScriptSignal | () -> {})
             end)
         end
     end)
+
+    return Iris
 end
 
 function Iris:Connect(callback) -- this uses method syntax for no reason.
