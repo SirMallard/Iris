@@ -22,7 +22,7 @@ Iris:Connect(function()
     Iris.End()
 end)
 ```
-![Sample Code Output](https://raw.githubusercontent.com/Michael-48/Iris/main/.github/images/simpleDarkExample.png)
+![Sample Code Output](/assets/simpleDarkExample.png)
 
 ### How it Works
 the
