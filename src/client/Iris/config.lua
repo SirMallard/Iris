@@ -191,7 +191,8 @@ local templateConfig = {
     },
 
     utilityDefault = {
-        UseScreenGUIs = true
+        UseScreenGUIs = true,
+        Parent = nil
     }
 }
 

@@ -31,7 +31,7 @@ local Iris = require(StarterPlayerScripts.Client.Iris).Init()
 
 Iris:Connect(function()
 	-- use a unique window size, rather than default
-	local windowSize = Iris.State(Vector2.new(500, 600))
+	local windowSize = Iris.State(Vector2.new(300, 400))
 
 	Iris.Window({"My Second Window"}, {size = windowSize})
 		Iris.Text({"The current time is: " .. os.clock()})
@@ -42,9 +42,10 @@ Iris:Connect(function()
 			print("button was clicked")
 		end
 
-		Iris.Tree({"A list of buttons"})
-			for i = 1,10 do
+		Iris.Table({1})
+			for i = 0, 9 do
 				Iris.Button({"Button - " .. i})
+                Iris.NextColumn()
 			end
 		Iris.End()
 	Iris.End()
@@ -63,6 +64,7 @@ Iris:Connect(Iris.ShowDemoWindow)
 ![Sample Code Output](/assets/simpleLightExample.png)
 
 Finally, Iris comes with a demo window, `Iris.ShowDemoWindow`. This window demonstrates the functionality of aspect of the library, and contains useful utilities, a style editor and a runtime information window. It is the most useful reference that you and other coders will want to refer to.
+![Sample Code Output](/assets/demoWindow.png)
 
 ### How it Works
 the
