@@ -24,7 +24,9 @@ Iris:Connect(function()
     Iris.End()
 end)
 ```
-![Sample Code Output](/assets/simpleDarkExample.png)
+<div align="center">
+    <img src="https://raw.githubusercontent.com/Michael-48/Iris/main/assets/simpleDarkExample.png" alt="Sample Display Output"/>
+</div>
 
 And a more complex Example:
 ```lua
@@ -53,7 +55,9 @@ Iris:Connect(function()
 	Iris.End()
 end)
 ```
-![Sample Code Output](/assets/complexDarkExample.png)
+<div align="center">
+    <img src="https://raw.githubusercontent.com/Michael-48/Iris/main/assets/complexDarkExample.png" alt="Sample Display Output"/>
+</div>
 
 The appearance of Iris is fully customizable; colors, fonts, transparencies, and layout are all customizable. By default, Iris comes with a dark theme and light theme, as well as 2 layout themes.
 
@@ -63,10 +67,14 @@ Iris.UpdateGlobalConfig(Iris.templateConfig.sizeClear)
 
 Iris:Connect(Iris.ShowDemoWindow)
 ```
-![Sample Code Output](/assets/simpleLightExample.png)
+<div align="center">
+    <img src="https://raw.githubusercontent.com/Michael-48/Iris/main/assets/simpleLightExample.png" alt="Sample Display Output"/>
+</div>
 
 Finally, Iris comes with a demo window, `Iris.ShowDemoWindow`. This window demonstrates the functionality of every aspect of the library, and contains useful utilities, a style editor and a runtime information window. It is the most useful reference that you and other coders will want to refer to.
-![Sample Code Output](/assets/demoWindow.png)
+<div align="center">
+    <img src="https://raw.githubusercontent.com/Michael-48/Iris/main/assets/demoWindow.png" alt="Sample Display Output"/>
+</div>
 
 ### How it Works
 Iris is an immediate mode UI library, as opposed to retained mode.
