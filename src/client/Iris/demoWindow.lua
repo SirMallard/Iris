@@ -570,7 +570,7 @@ return function(Iris)
             }
         }
         styleEditor = function()
-            local SelectedPanel = Iris.State(1)
+            local selectedPanel = Iris.State(1)
     
             Iris.Window({"Style Editor"}, {isOpened = showStyleEditor})
                 Iris.Text({"Customize the look of Iris in realtime."})
@@ -603,11 +603,11 @@ return function(Iris)
                 Iris.SameLine()
                     for i,v in ipairs(styleList) do
                         if Iris.SmallButton({v[0]}).clicked then
-                            SelectedPanel:set(i)
+                            selectedPanel:set(i)
                         end
                     end
                 Iris.End()
-                styleList[SelectedPanel:get()][1]()
+                styleList[selectedPanel:get()][1]()
             Iris.End()
         end
     end
@@ -615,46 +615,55 @@ return function(Iris)
     -- showcases how events can be used
     local function widgetEventInteractivity()
         Iris.Tree({"Widget Event Interactivity"})
-            local ClickCount = Iris.State(0)
+            local clickCount = Iris.State(0)
             if Iris.Button({"Click to increase Number"}).clicked then
-                ClickCount:set(ClickCount:get() + 1)
+                clickCount:set(clickCount:get() + 1)
             end
-            Iris.Text({string.format("The Number is: %d", ClickCount:get())})
-            local ShowTextTimer = Iris.State(0)
+            Iris.Text({string.format("The Number is: %d", clickCount:get())})
+            local showTextTimer = Iris.State(0)
             Iris.SameLine()
                 if Iris.Button({"Click to show text for 20 frames"}).clicked then
-                    ShowTextTimer:set(20)
+                    showTextTimer:set(20)
                 end
-                if ShowTextTimer:get() > 0 then
+                if showTextTimer:get() > 0 then
                     Iris.Text({"Here i am!"})
                 end
             Iris.End()
-            ShowTextTimer:set(math.max(0, ShowTextTimer:get() - 1))
-            Iris.Text({string.format("Text Timer: %d", ShowTextTimer:get())})
+            showTextTimer:set(math.max(0, showTextTimer:get() - 1))
+            Iris.Text({string.format("Text Timer: %d", showTextTimer:get())})
         Iris.End()
     end
 
     -- showcases how state can be used
     local function widgetStateInteractivity()
         Iris.Tree({"Widget State Interactivity"})
-            local Checkbox0 = Iris.Checkbox({"Widget-Generated State"})
-            Iris.Text({`isChecked: {Checkbox0.state.isChecked.value}`})
+            local checkbox0 = Iris.Checkbox({"Widget-Generated State"})
+            Iris.Text({`isChecked: {checkbox0.state.isChecked.value}\n`})
             
-            local CheckboxState0 = Iris.State(false)
-            local Checkbox1 = Iris.Checkbox({"User-Generated State"}, {isChecked = CheckboxState0})
-            Iris.Text({`isChecked: {Checkbox1.state.isChecked.value}`})
+            local checkboxState0 = Iris.State(false)
+            local checkbox1 = Iris.Checkbox({"User-Generated State"}, {isChecked = checkboxState0})
+            Iris.Text({`isChecked: {checkbox1.state.isChecked.value}\n`})
 
-            local Checkbox2 = Iris.Checkbox({"Widget Coupled State"})
-            local Checkbox3 = Iris.Checkbox({"Coupled to above Checkbox"}, {isChecked = Checkbox2.state.isChecked})
-            Iris.Text({`isChecked: {Checkbox3.state.isChecked.value}`})
+            local checkbox2 = Iris.Checkbox({"Widget Coupled State"})
+            local checkbox3 = Iris.Checkbox({"Coupled to above Checkbox"}, {isChecked = checkbox2.state.isChecked})
+            Iris.Text({`isChecked: {checkbox3.state.isChecked.value}\n`})
 
-            local CheckboxState1 = Iris.State(false)
-            local Checkbox4 = Iris.Checkbox({"Widget and Code Coupled State"}, {isChecked = CheckboxState1})
+            local checkboxState1 = Iris.State(false)
+            local checkbox4 = Iris.Checkbox({"Widget and Code Coupled State"}, {isChecked = checkboxState1})
             local Button0 = Iris.Button({"Click to toggle above checkbox"})
             if Button0.clicked then
-                CheckboxState1:set(not CheckboxState1:get())
+                checkboxState1:set(not checkboxState1:get())
             end
-            Iris.Text({`isChecked: {CheckboxState1.value}`})
+            Iris.Text({`isChecked: {checkboxState1.value}\n`})
+
+            local checkboxState2 = Iris.State(true)
+            local checkboxState3 = Iris.ComputedState(checkboxState2, function(newValue)
+                return not newValue
+            end)
+            local checkbox5 = Iris.Checkbox({"ComputedState (dynamic coupling)"}, {isChecked = checkboxState2})
+            local checkbox5 = Iris.Checkbox({"Inverted of above checkbox"}, {isChecked = checkboxState3})
+            Iris.Text({`isChecked: {checkboxState3.value}\n`})
+
 
         Iris.End()
     end

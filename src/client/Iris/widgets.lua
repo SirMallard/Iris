@@ -239,7 +239,7 @@ Iris.WidgetConstructor("Root", false, true){
         end
         PseudoWindowScreenGui.Name = "PseudoWindowScreenGui"
         PseudoWindowScreenGui.Parent = Root
-
+        
         local PseudoWindow = Instance.new("Frame")
         PseudoWindow.Name = "PseudoWindow"
         PseudoWindow.Size = UDim2.new(0, 0, 0, 0)

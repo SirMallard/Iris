@@ -104,6 +104,11 @@ Iris._lastVDOM = Iris._generateEmptyVDOM()
 Iris._VDOM = Iris._generateEmptyVDOM()
 
 function Iris._cycle()
+    Iris._rootWidget.lastCycleTick = Iris._cycleTick
+    if Iris._rootInstance == nil then
+        Iris.ForceRefresh()
+    end
+
     for _, v in Iris._lastVDOM do
         if v.lastCycleTick ~= Iris._cycleTick then
             -- a widget which used to be rendered was no longer rendered, so we discard
@@ -133,7 +138,6 @@ function Iris._cycle()
     Iris._cycleTick += 1
     Iris._widgetCount = 0
     table.clear(Iris._usedIDs)
-    Iris._rootWidget.lastCycleTick = Iris._cycleTick
 
     if Iris.parentInstance:IsA("GuiBase2d") and math.min(Iris.parentInstance.AbsoluteSize.X, Iris.parentInstance.AbsoluteSize.Y) < 100 then
         error("Iris Parent Instance is too small")
@@ -265,6 +269,7 @@ end
 function StateClass:onChange(funcToConnect)
     table.insert(self.ConnectedFunctions, funcToConnect)
 end
+-- default constructor
 function Iris.State(initialValue)
     local ID = Iris._getID(2)
     if Iris._states[ID] then
@@ -279,7 +284,26 @@ function Iris.State(initialValue)
         return Iris._states[ID]
     end
 end
--- Generate a state object with ID derived from a widget object
+-- constructor which is bound to another state object
+function Iris.ComputedState(firstState, onChangeCallback)
+    local ID = Iris._getID(2)
+
+    if Iris._states[ID] then
+        return Iris._states[ID]
+    else
+        Iris._states[ID] = {
+            value = onChangeCallback(firstState),
+            ConnectedWidgets = {},
+            ConnectedFunctions = {}
+        }
+        firstState:onChange(function(newValue)
+            Iris._states[ID]:set(onChangeCallback(newValue))
+        end)
+        setmetatable(Iris._states[ID], StateClass)
+        return Iris._states[ID]
+    end
+end
+-- constructor which uses ID derived from a widget object
 function Iris._widgetState(thisWidget, stateName, initialValue)
     local ID = thisWidget.ID .. stateName
     if Iris._states[ID] then
@@ -295,6 +319,7 @@ function Iris._widgetState(thisWidget, stateName, initialValue)
         return Iris._states[ID]
     end
 end
+
 
 function Iris.Init(parentInstance: Instance | nil, eventConnection: RBXScriptSignal | () -> {} | nil)
     if parentInstance == nil then
@@ -468,6 +493,7 @@ Iris.templateConfig = require(script.config)
 Iris.UpdateGlobalConfig(Iris.templateConfig.colorDark) -- use colorDark and sizeDefault themes by default
 Iris.UpdateGlobalConfig(Iris.templateConfig.sizeDefault)
 Iris.UpdateGlobalConfig(Iris.templateConfig.utilityDefault)
+Iris._globalRefreshRequested = false -- UpdatingGlobalConfig changes this to true, leads to Root being generated twice.
 require(script.widgets)(Iris)
 Iris.ShowDemoWindow = require(script.demoWindow)(Iris)
 
