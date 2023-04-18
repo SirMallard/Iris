@@ -9,7 +9,7 @@ what is Dear ImGui, and why is it important?
 Iris favors simplicity and productivity; It is designed to simplify UI, streamlining the process for creating visualization, debug tools, and data input. To accomplish this, Iris offers a different approach to Roblox UI than existing libraries, lacking certain features commonly found in more intricate UI libraries. Iris opts to supercede the Roblox UI API, instead offering a streamlined Immediate-Mode library and a set of widgets to empower developers to create UI easily.
 
 ### Usage
-The Iris release comes packaged as a single ModuleScript. You can import this ModuleScript into any roblox project, and begin creating UI in any client side script. No external dependences are needed. Iris can be used in any kind of Roblox UI, including PlayerGui, CoreGui, BillboardGui, SurfaceGui, and PluginGui.
+The Iris release comes as an rbxm or zip file. You can import the rbxm into any roblox project, and begin creating UI in any client side script. No external dependences are needed. Iris can be used in any kind of Roblox UI, including PlayerGui, CoreGui, BillboardGui, SurfaceGui, and PluginGui.
 
 Heres a basic Example:
 ```lua
