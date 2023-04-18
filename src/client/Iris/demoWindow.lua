@@ -3,6 +3,7 @@ return function(Iris)
     local showWidgetInfo = Iris.State(false)
     local showRuntimeInfo = Iris.State(false)
     local showStyleEditor = Iris.State(false)
+    local showWindowlessDemo = Iris.State(false)
 
     -- shows each widgets functionality
     local widgetDemos = {
@@ -225,6 +226,16 @@ return function(Iris)
                         {"Arguments",        "Events",               "States"      },
                         {"Text: string",     "textChanged: boolean", "text: string"},
                         {"TextHint: string", "",                     ""            }
+                    })
+                Iris.End()
+                Iris.NextColumn()
+                Iris.Tree({"\nIris.Table\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
+                    parse2DArray({
+                        {"Arguments",             "Events","States"},
+                        {"NumColumns: number",    "",      ""      },
+                        {"RowBg: boolean",        "",      ""      },
+                        {"BordersOuter: boolean", "",      ""      },
+                        {"BordersInner: boolean", "",      ""      }
                     })
                 Iris.End()
                 Iris.NextColumn()
@@ -576,27 +587,27 @@ return function(Iris)
                 Iris.Text({"Customize the look of Iris in realtime."})
                 Iris.SameLine()
                     if Iris.SmallButton({"Light Theme"}).clicked then
-                        Iris.UpdateGlobalConfig(Iris.templateConfig.colorLight)
+                        Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorLight)
                         refreshStyleStates()
                     end
                     if Iris.SmallButton({"Dark Theme"}).clicked then
-                        Iris.UpdateGlobalConfig(Iris.templateConfig.colorDark)
+                        Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark)
                         refreshStyleStates()
                     end
                 Iris.End()
                 Iris.SameLine()
                     if Iris.SmallButton({"Classic Size"}).clicked then
-                        Iris.UpdateGlobalConfig(Iris.templateConfig.sizeDefault)
+                        Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
                         refreshStyleStates()
                     end
                     if Iris.SmallButton({"Larger Size"}).clicked then
-                        Iris.UpdateGlobalConfig(Iris.templateConfig.sizeClear)
+                        Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeClear)
                         refreshStyleStates()
                     end
                 Iris.End()
                 if Iris.SmallButton({"Reset Everything"}).clicked then
-                    Iris.UpdateGlobalConfig(Iris.templateConfig.colorDark)
-                    Iris.UpdateGlobalConfig(Iris.templateConfig.sizeDefault)
+                    Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark)
+                    Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
                     refreshStyleStates()
                 end
                 Iris.Separator()
@@ -753,6 +764,17 @@ return function(Iris)
         end
     end
 
+    -- showcases how widgets placed outside of a window are placed inside root
+    local function windowlessDemo()
+        Iris.PushConfig({ItemWidth = UDim.new(0, 150)})
+            Iris.TextWrapped({"Widgets which are placed outside of a window will appear on the top left side of the screen."})
+            Iris.Button()
+            Iris.Tree()
+                Iris.InputText()
+            Iris.End()
+        Iris.PopConfig()
+    end
+
     -- main demo window
     return function()
         local NoTitleBar = Iris.State(false)
@@ -787,6 +809,8 @@ return function(Iris)
                 Iris.Checkbox({"Runtime Info"}, {isChecked = showRuntimeInfo})
                 Iris.NextColumn()
                 Iris.Checkbox({"Style Editor"}, {isChecked = showStyleEditor})
+                Iris.NextColumn()
+                Iris.Checkbox({"Windowless"}, {isChecked = showWindowlessDemo})
             Iris.End()
 
             Iris.Separator()
@@ -842,6 +866,9 @@ return function(Iris)
         end
         if showStyleEditor.value then
             styleEditor()
+        end
+        if showWindowlessDemo.value then
+            windowlessDemo()
         end
     end
 end

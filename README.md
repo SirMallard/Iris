@@ -62,8 +62,8 @@ end)
 The appearance of Iris is fully customizable; colors, fonts, transparencies, and layout are all customizable. By default, Iris comes with a dark theme and light theme, as well as 2 layout themes.
 
 ```lua
-Iris.UpdateGlobalConfig(Iris.templateConfig.colorLight)
-Iris.UpdateGlobalConfig(Iris.templateConfig.sizeClear)
+Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorLight)
+Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeClear)
 
 Iris:Connect(Iris.ShowDemoWindow)
 ```
