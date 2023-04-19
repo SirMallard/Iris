@@ -224,67 +224,80 @@ end
 
 --- @class Widgets
 --- Each widget is available through Iris.<widget name\>
-Iris.WidgetConstructor("Root", false, true, {
-    Args = {},
-    Generate = function(thisWidget)
-        local Root = Instance.new("Folder")
-        Root.Name = "Iris_Root"
 
-        local PseudoWindowScreenGui
-        if Iris._config.UseScreenGUIs then
-            PseudoWindowScreenGui = Instance.new("ScreenGui")
-            PseudoWindowScreenGui.ResetOnSpawn = false
-        else
-            PseudoWindowScreenGui = Instance.new("Folder")
+do -- Root
+    local NumNonWindowChildren = 0
+    Iris.WidgetConstructor("Root", false, true, {
+        Args = {},
+        Generate = function(thisWidget)
+            local Root = Instance.new("Folder")
+            Root.Name = "Iris_Root"
+
+            local PseudoWindowScreenGui
+            if Iris._config.UseScreenGUIs then
+                PseudoWindowScreenGui = Instance.new("ScreenGui")
+                PseudoWindowScreenGui.ResetOnSpawn = false
+                PseudoWindowScreenGui.DisplayOrder = Iris._config.DisplayOrderOffset
+            else
+                PseudoWindowScreenGui = Instance.new("Folder")
+            end
+            PseudoWindowScreenGui.Name = "PseudoWindowScreenGui"
+            PseudoWindowScreenGui.Parent = Root
+            
+            local PseudoWindow = Instance.new("Frame")
+            PseudoWindow.Name = "PseudoWindow"
+            PseudoWindow.Size = UDim2.new(0, 0, 0, 0)
+            PseudoWindow.Position = UDim2.fromOffset(0, 22)
+            PseudoWindow.BorderSizePixel = Iris._config.WindowBorderSize
+            PseudoWindow.BorderColor3 = Iris._config.BorderColor
+            PseudoWindow.BackgroundTransparency = Iris._config.WindowBgTransparency
+            PseudoWindow.BackgroundColor3 = Iris._config.WindowBgColor
+            PseudoWindow.AutomaticSize = Enum.AutomaticSize.XY
+
+            PseudoWindow.Selectable = false
+            PseudoWindow.SelectionGroup = true
+            PseudoWindow.SelectionBehaviorUp = Enum.SelectionBehavior.Stop
+            PseudoWindow.SelectionBehaviorDown = Enum.SelectionBehavior.Stop
+            PseudoWindow.SelectionBehaviorLeft = Enum.SelectionBehavior.Stop
+            PseudoWindow.SelectionBehaviorRight = Enum.SelectionBehavior.Stop
+
+            PseudoWindow.Visible = false
+            UIPadding(PseudoWindow, Iris._config.WindowPadding)
+
+            UIListLayout(PseudoWindow, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
+
+            PseudoWindow.Parent = PseudoWindowScreenGui
+            
+            return Root
+        end,
+        Update = function(thisWidget)
+            if NumNonWindowChildren > 0 then
+                thisWidget.Instance.PseudoWindowScreenGui.PseudoWindow.Visible = true
+            end
+        end,
+        Discard = function(thisWidget)
+            thisWidget.Instance:Destroy()
+        end,
+        ChildAdded = function(thisWidget, childWidget)
+            if childWidget.type == "Window" then
+                return thisWidget.Instance
+            else
+                NumNonWindowChildren += 1
+                thisWidget.Instance.PseudoWindowScreenGui.PseudoWindow.Visible = true
+
+                return thisWidget.Instance.PseudoWindowScreenGui.PseudoWindow
+            end
+        end,
+        ChildDiscarded = function(thisWidget, childWidget)
+            if childWidget.type ~= "Window" then
+                NumNonWindowChildren -= 1
+                if NumNonWindowChildren == 0 then
+                    thisWidget.Instance.PseudoWindowScreenGui.PseudoWindow.Visible = false
+                end
+            end
         end
-        PseudoWindowScreenGui.Name = "PseudoWindowScreenGui"
-        PseudoWindowScreenGui.Parent = Root
-        
-        local PseudoWindow = Instance.new("Frame")
-        PseudoWindow.Name = "PseudoWindow"
-        PseudoWindow.Size = UDim2.new(0, 0, 0, 0)
-        PseudoWindow.Position = UDim2.fromOffset(0, 22)
-        PseudoWindow.BorderSizePixel = Iris._config.WindowBorderSize
-        PseudoWindow.BorderColor3 = Iris._config.BorderColor
-        PseudoWindow.BackgroundTransparency = Iris._config.WindowBgTransparency
-        PseudoWindow.BackgroundColor3 = Iris._config.WindowBgColor
-        PseudoWindow.AutomaticSize = Enum.AutomaticSize.XY
-
-        PseudoWindow.Selectable = false
-        PseudoWindow.SelectionGroup = true
-        PseudoWindow.SelectionBehaviorUp = Enum.SelectionBehavior.Stop
-        PseudoWindow.SelectionBehaviorDown = Enum.SelectionBehavior.Stop
-        PseudoWindow.SelectionBehaviorLeft = Enum.SelectionBehavior.Stop
-        PseudoWindow.SelectionBehaviorRight = Enum.SelectionBehavior.Stop
-
-        PseudoWindow.Visible = false
-        UIPadding(PseudoWindow, Iris._config.WindowPadding)
-
-        UIListLayout(PseudoWindow, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
-
-        PseudoWindow.Parent = PseudoWindowScreenGui
-        
-        return Root
-    end,
-    Update = function(thisWidget)
-        if thisWidget.shouldExist then
-            thisWidget.Instance.PseudoWindowScreenGui.PseudoWindow.Visible = true
-        end
-    end,
-    Discard = function(thisWidget)
-        thisWidget.Instance:Destroy()
-    end,
-    ChildAdded = function(thisWidget, childWidget)
-        if childWidget.type == "Window" then
-            return thisWidget.Instance
-        else
-            thisWidget.shouldExist = true
-            thisWidget.Instance.PseudoWindowScreenGui.PseudoWindow.Visible = true
-
-            return thisWidget.Instance.PseudoWindowScreenGui.PseudoWindow
-        end
-    end
-})
+    })
+end
 
 --- @prop Text Widget
 --- @within Widgets
@@ -1478,7 +1491,7 @@ do -- Iris.Window
             
             windowDisplayOrder += 1
             if thisWidget.usesScreenGUI then
-                focusedWindow.Instance.DisplayOrder = windowDisplayOrder
+                focusedWindow.Instance.DisplayOrder = windowDisplayOrder + Iris._config.DisplayOrderOffset
             end
 
             if thisWidget.state.isUncollapsed.value == false then
@@ -1617,6 +1630,7 @@ do -- Iris.Window
             if thisWidget.usesScreenGUI then
                 Window = Instance.new("ScreenGui")
                 Window.ResetOnSpawn = false
+                Window.DisplayOrder = Iris._config.DisplayOrderOffset
             else
                 Window = Instance.new("Folder")
             end

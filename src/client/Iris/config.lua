@@ -192,7 +192,9 @@ local TemplateConfig = {
 
     utilityDefault = {
         UseScreenGUIs = true,
-        Parent = nil
+        Parent = nil,
+        DisplayOrderOffset = 127,
+        ZIndexOffset = 0
     }
 }
 

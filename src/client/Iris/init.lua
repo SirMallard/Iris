@@ -53,7 +53,7 @@ end
 
 function Iris._generateRootInstance()
     -- unsafe to call before Iris.connect
-    Iris._rootInstance = Iris._widgets["Root"].Generate()
+    Iris._rootInstance = Iris._widgets["Root"].Generate(Iris._widgets["Root"])
     Iris._rootInstance.Parent = Iris.parentInstance
     Iris._rootWidget.Instance = Iris._rootInstance
 end
@@ -116,7 +116,7 @@ function Iris._cycle()
     for _, v in Iris._lastVDOM do
         if v.lastCycleTick ~= Iris._cycleTick then
             -- a widget which used to be rendered was no longer rendered, so we discard
-            Iris._widgets[v.type].Discard(v)
+            Iris._DiscardWidget(v)
         end
     end
 
@@ -133,7 +133,7 @@ function Iris._cycle()
         Iris._generateSelectionImageObject()
         Iris._globalRefreshRequested = false
         for i,v in Iris._lastVDOM do
-            Iris._widgets[v.type].Discard(v)
+            Iris._DiscardWidget(v)
         end
         Iris._generateRootInstance()
         Iris._lastVDOM = Iris._generateEmptyVDOM()
@@ -196,6 +196,9 @@ function Iris.ForceRefresh()
     Iris._globalRefreshRequested = true
 end
 
+function Iris._NoOp() -- This is a value of Iris because i am scared of closures
+
+end
 --- @function WidgetConstructor
 --- @within Iris
 --- @param type string -- Name used to denote the widget
@@ -203,35 +206,73 @@ end
 --- @param hasChildren boolean -- Indicates if the widget will possibly contain any children
 --- @param widgetFunctions table -- table of methods for the new widget
 function Iris.WidgetConstructor(type: string, hasState: boolean, hasChildren: boolean, widgetFunctions: {})
-    local requiredFields = {
-        "Generate",
-        "Update",
-        "Discard",
-        "Args", -- not a function !
-    }
-    local requiredFieldsIfState = {
-        "GenerateState",
-        "UpdateState"
-    }
-    local requiredFieldsIfChildren = {
-        "ChildAdded"
+    local Fields = {
+        All = {
+            Required = {
+                "Generate",
+                "Discard",
+                "Update",
+                "Args", -- not a function !
+            },
+            Optional = {
+
+            }
+        },
+        IfState = {
+            Required = {
+                "GenerateState",
+                "UpdateState"
+            },
+            Optional = {
+
+            }
+        },
+        IfChildren = {
+            Required = {
+                "ChildAdded"
+            },
+            Optional = {
+                "ChildDiscarded"
+            }
+        }
     }
 
     local thisWidget = {}
-    for _, v in requiredFields do
+    for _, v in Fields.All.Required do
         assert(widgetFunctions[v], `{v} is required for all widgets`)
         thisWidget[v] = widgetFunctions[v]
     end
-    if hasState then
-        for _, v in requiredFieldsIfState do
-            assert(widgetFunctions[v], `{v} is required for all widgets with state`)
+    for _, v in Fields.All.Optional do
+        if widgetFunctions[v] == nil then
+            thisWidget[v] = Iris._NoOp
+        else
             thisWidget[v] = widgetFunctions[v]
         end
     end
+    if hasState then
+        for _, v in Fields.IfState.Required do
+            assert(widgetFunctions[v], `{v} is required for all widgets with state`)
+            thisWidget[v] = widgetFunctions[v]
+        end
+        for _, v in Fields.IfState.Optional do
+            if widgetFunctions[v] == nil then
+                thisWidget[v] = Iris._NoOp
+            else
+                thisWidget[v] = widgetFunctions[v]
+            end
+        end
+    end
     if hasChildren then
-        for _, v in requiredFieldsIfChildren do
+        for _, v in Fields.IfChildren.Required do
             assert(widgetFunctions[v], `{v} is required for all widgets with children`)
             thisWidget[v] = widgetFunctions[v]
+        end
+        for _, v in Fields.IfChildren.Optional do
+            if widgetFunctions[v] == nil then
+                thisWidget[v] = Iris._NoOp
+            else
+                thisWidget[v] = widgetFunctions[v]
+            end
         end
     end
     thisWidget.hasState = hasState
@@ -464,8 +505,19 @@ function Iris.Init(parentInstance: Instance | nil, eventConnection: RBXScriptSig
     return Iris
 end
 
+--- @within Iris
+--- @method Connect
+--- @param callback function -- allows users to connect a function which will execute every Iris cycle, (cycle is determined by the callback or event passed to Iris.Init)
 function Iris:Connect(callback) -- this uses method syntax for no reason.
     table.insert(Iris._connectedFunctions, callback)
+end
+
+function Iris._DiscardWidget(widgetToDiscard)
+    local widgetParent = widgetToDiscard.parentWidget
+    if widgetParent then
+        Iris._widgets[widgetParent.type].ChildDiscarded(widgetParent, widgetToDiscard)
+    end
+    Iris._widgets[widgetToDiscard.type].Discard(widgetToDiscard)
 end
 
 function Iris._GenNewWidget(widgetType, arguments, widgetState, ID)
@@ -483,7 +535,7 @@ function Iris._GenNewWidget(widgetType, arguments, widgetState, ID)
 
     local widgetInstanceParent = if Iris._config.Parent then Iris._config.Parent else Iris._widgets[parentWidget.type].ChildAdded(parentWidget, thisWidget)
 
-    thisWidget.ZIndex = parentWidget.ZIndex + (Iris._widgetCount * 0x40)
+    thisWidget.ZIndex = parentWidget.ZIndex + (Iris._widgetCount * 0x40) + Iris._config.ZIndexOffset
 
     thisWidget.Instance = thisWidgetClass.Generate(thisWidget)
     thisWidget.Instance.Parent = widgetInstanceParent
@@ -541,7 +593,7 @@ function Iris._Insert(widgetType, args, widgetState)
     if Iris._lastVDOM[ID] and widgetType == Iris._lastVDOM[ID].type then
         -- found a matching widget from last frame
         if Iris._localRefreshActive then
-            thisWidgetClass.Discard(Iris._lastVDOM[ID])
+            Iris._DiscardWidget(Iris._lastVDOM[ID])
         else
             thisWidget = Iris._lastVDOM[ID]
         end
