@@ -58,7 +58,7 @@ function Iris._generateRootInstance()
     Iris._rootWidget.Instance = Iris._rootInstance
 end
 
-function Iris._deepCompare(t1, t2)
+function Iris._deepCompare(t1: table, t2: table)
     -- unoptimized ?
     for i, v1 in t1 do
         local v2 = t2[i]
@@ -205,7 +205,7 @@ end
 --- @param hasState boolean -- Indicates if the widget will use any state
 --- @param hasChildren boolean -- Indicates if the widget will possibly contain any children
 --- @param widgetFunctions table -- table of methods for the new widget
-function Iris.WidgetConstructor(type: string, hasState: boolean, hasChildren: boolean, widgetFunctions: {})
+function Iris.WidgetConstructor(type: string, hasState: boolean, hasChildren: boolean, widgetFunctions: table)
     local Fields = {
         All = {
             Required = {
@@ -370,7 +370,7 @@ end
 --- @method onChange
 --- @within State
 --- Allows the caller to connect a callback which is called when the states value is changed.
-function StateClass:onChange(funcToConnect)
+function StateClass:onChange(funcToConnect: () -> {})
     table.insert(self.ConnectedFunctions, funcToConnect)
 end
 
@@ -473,7 +473,7 @@ end
 --- :::tip
 --- Want to stop Iris from rendering and consuming performance, but keep all the Iris code? simply comment out the `Iris.Init()` line in your codebase.
 --- :::
-function Iris.Init(parentInstance: Instance | nil, eventConnection: RBXScriptSignal | () -> {} | nil)
+function Iris.Init(parentInstance: Instance?, eventConnection: (RBXScriptSignal | () -> {})?)
     if parentInstance == nil then
         -- coalesce to playerGui
         parentInstance = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
@@ -508,7 +508,7 @@ end
 --- @within Iris
 --- @method Connect
 --- @param callback function -- allows users to connect a function which will execute every Iris cycle, (cycle is determined by the callback or event passed to Iris.Init)
-function Iris:Connect(callback) -- this uses method syntax for no reason.
+function Iris:Connect(callback: () -> {}) -- this uses method syntax for no reason.
     table.insert(Iris._connectedFunctions, callback)
 end
 
@@ -567,7 +567,7 @@ function Iris._GenNewWidget(widgetType, arguments, widgetState, ID)
     return thisWidget
 end
 
-function Iris._Insert(widgetType, args, widgetState)
+function Iris._Insert(widgetType: string, args, widgetState)
     local thisWidget
     local ID = Iris._getID(3)
     --debug.profilebegin(ID)
@@ -638,12 +638,12 @@ end
 --- Allows the caller to insert any Roblox Instance into the current parent Widget.
 function Iris.Append(userInstance)
     local parentWidget = Iris._GetParentWidget()
-    local widgetInstanceParent = 
+    local widgetInstanceParent
     if Iris._config.Parent then
-        Iris._config.Parent
+        widgetInstanceParent = Iris._config.Parent
     else
-        Iris._widgets[parentWidget.type].ChildAdded(parentWidget, {type = "userInstance"})
-
+        widgetInstanceParent = Iris._widgets[parentWidget.type].ChildAdded(parentWidget, {type = "userInstance"})
+    end
     userInstance.Parent = widgetInstanceParent
 end
 
