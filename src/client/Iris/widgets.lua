@@ -276,6 +276,7 @@ do -- Root
             end
         end,
         Discard = function(thisWidget)
+            NumNonWindowChildren = 0
             thisWidget.Instance:Destroy()
         end,
         ChildAdded = function(thisWidget, childWidget)
