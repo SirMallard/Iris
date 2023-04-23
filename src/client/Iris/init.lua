@@ -109,7 +109,7 @@ Iris._VDOM = Iris._generateEmptyVDOM()
 
 function Iris._cycle()
     Iris._rootWidget.lastCycleTick = Iris._cycleTick
-    if Iris._rootInstance == nil then
+    if Iris._rootInstance == nil or Iris._rootInstance.Parent == nil then
         Iris.ForceRefresh()
     end
 
@@ -365,6 +365,7 @@ function StateClass:set(newValue)
     for _, thisFunc in self.ConnectedFunctions do
         thisFunc(newValue)
     end
+    return self.value
 end
 
 --- @method onChange
