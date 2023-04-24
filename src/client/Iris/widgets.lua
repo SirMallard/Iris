@@ -323,7 +323,7 @@ Iris.WidgetConstructor("Text", false, false, {
         Text.AutomaticSize = Enum.AutomaticSize.XY
 
         applyTextStyle(Text)
-        UIPadding(Text, Vector2.new(0, 2)) -- it appears as if this padding is not controlled by any style properties in DearImGui. could change?
+        UIPadding(Text, Vector2.new(0, 2))
 
         return Text
     end,
