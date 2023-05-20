@@ -82,7 +82,7 @@ return function(Iris)
                     [Iris.Args.InputNum.Increment] = Increment.value,
                     [Iris.Args.InputNum.Format] = Format.value,
                 })
-                Iris.Text({string.format("The Value is: %d", InputNum.number.value)})
+                Iris.Text({"The Value is: " .. InputNum.number.value})
                 if Iris.Button({"Randomize Number"}).clicked then
                     InputNum.number:set(math.random(1,99))
                 end
@@ -97,7 +97,7 @@ return function(Iris)
                 Iris.PushConfig({ContentWidth = UDim.new(0, 250)})
                 local InputText = Iris.InputText({"Input Text Test", [Iris.Args.InputText.TextHint] = "Input Text here"})
                 Iris.PopConfig()
-                Iris.Text({string.format("The text is: %s", InputText.text.value)})
+                Iris.Text({"The text is: " .. InputText.text.value})
             Iris.End()
         end
     }
@@ -124,8 +124,8 @@ return function(Iris)
     local function widgetInfo()
         local function parse2DArray(array)
             Iris.Table({#array[1]})
-                for i,v in array do
-                    for i,v2 in v do
+                for _, v in array do
+                    for _, v2 in v do
                         Iris.NextColumn()
                         Iris.Text({tostring(v2)})
                     end
@@ -333,12 +333,12 @@ return function(Iris)
             if Iris.Tree({"Widgets"}).isUncollapsed.value then
                 local widgetCount = 0
                 local widgetStr = ""
-                for i,v in lastVDOM do
+                for _, v in lastVDOM do
                     widgetCount += 1
                     widgetStr ..= "\n" .. v.ID .. " - " .. v.type
                 end
 
-                Iris.Text({string.format("Number of Widgets: %d", widgetCount)})
+                Iris.Text({"Number of Widgets: " .. widgetCount})
 
                 Iris.Text({widgetStr})
             end
@@ -346,12 +346,12 @@ return function(Iris)
             if Iris.Tree({"States"}).isUncollapsed.value then
                 local stateCount = 0
                 local stateStr = ""
-                for i,v in states do
+                for i, v in states do
                     stateCount += 1
                     stateStr ..= "\n" .. i .. " - " .. tostring(v.value)
                 end
 
-                Iris.Text({string.format("Number of States: %d", stateCount)})
+                Iris.Text({"Number of States: " .. stateCount})
 
                 Iris.Text({stateStr})
             end
@@ -365,7 +365,7 @@ return function(Iris)
         -- styleEditor is stupidly coded because Iris dosent have higher-order widgets yet, (Iris.InputNum2 etc.)
         local styleStates = {}
         do -- init style states
-            for i,v in Iris._config do
+            for i, v in Iris._config do
                 if typeof(v) == "Color3" then
                     styleStates[i .. "R"] = Iris.State(v.R * 255)
                     styleStates[i .. "G"] = Iris.State(v.G * 255)
@@ -385,7 +385,7 @@ return function(Iris)
         end
 
         local function refreshStyleStates()
-            for i,v in Iris._config do
+            for i, v in Iris._config do
                 if typeof(v) == "Color3" then
                     styleStates[i .. "R"]:set(v.R * 255)
                     styleStates[i .. "G"]:set(v.G * 255)
@@ -480,20 +480,20 @@ return function(Iris)
 
         local function InputEnum(name, enumType, default)
             Iris.PushConfig({ContentWidth = UDim.new(0, 200)})
-                local V = Iris.InputText(
+                local EnumInputText = Iris.InputText(
                     {name},
                     {text = styleStates[name]}
                 )
-                if V.textChanged then
+                if EnumInputText.textChanged then
                     local isValidEnum = false
                     for _, _enumItem in ipairs(enumType:GetEnumItems()) do
-                        if _enumItem.Name == V.text.value then
+                        if _enumItem.Name == EnumInputText.text.value then
                             isValidEnum = true
                             break
                         end
                     end
                     if isValidEnum then
-                        Iris.UpdateGlobalConfig({[name] = enumType[V.text.value]})
+                        Iris.UpdateGlobalConfig({[name] = enumType[EnumInputText.text.value]})
                     else
                         Iris.UpdateGlobalConfig({[name] = default})
                         styleStates[name]:set(tostring(default))
@@ -612,7 +612,7 @@ return function(Iris)
                 end
                 Iris.Separator()
                 Iris.SameLine()
-                    for i,v in ipairs(styleList) do
+                    for i, v in ipairs(styleList) do
                         if Iris.SmallButton({v[0]}).clicked then
                             selectedPanel:set(i)
                         end
@@ -630,7 +630,7 @@ return function(Iris)
             if Iris.Button({"Click to increase Number"}).clicked then
                 clickCount:set(clickCount:get() + 1)
             end
-            Iris.Text({string.format("The Number is: %d", clickCount:get())})
+            Iris.Text({"The Number is: " .. clickCount:get()})
             local showTextTimer = Iris.State(0)
             Iris.SameLine()
                 if Iris.Button({"Click to show text for 20 frames"}).clicked then
@@ -641,7 +641,7 @@ return function(Iris)
                 end
             Iris.End()
             showTextTimer:set(math.max(0, showTextTimer:get() - 1))
-            Iris.Text({string.format("Text Timer: %d", showTextTimer:get())})
+            Iris.Text({"Text Timer: " .. showTextTimer:get()})
         Iris.End()
     end
 
@@ -687,7 +687,7 @@ return function(Iris)
             if Iris.Button({"Change Color"}).clicked then
                 colorH:set(math.random())
             end
-            Iris.Text({string.format("Hue: %d", math.floor(colorH:get()*255))})
+            Iris.Text({"Hue: " .. math.floor(colorH:get() * 255)})
             Iris.End()
             Iris.PushConfig({TextColor = Color3.fromHSV(colorH:get(), 1, 1)})
                 Iris.Text({"Text with a unique and changable color"})
@@ -708,9 +708,9 @@ return function(Iris)
         else
             Iris.Text({"Table using NextRow and NextColumn syntax:"})
             Iris.Table({3})
-                for i = 1,4 do
+                for i = 1, 4 do
                     Iris.NextRow()
-                    for i2 = 1,3 do
+                    for i2 = 1, 3 do
                         Iris.NextColumn()
                         Iris.Text({`Row: {i}, Column: {i2}`})
                     end
@@ -721,8 +721,8 @@ return function(Iris)
             Iris.Text({"Table using NextColumn only syntax:"})
 
             Iris.Table({2})
-                for i = 1,4 do
-                    for i2 = 1,2 do
+                for i = 1, 4 do
+                    for i2 = 1, 2 do
                         Iris.NextColumn()
                         Iris.Text({`Row: {i}, Column: {i2}`})
                     end
@@ -735,6 +735,7 @@ return function(Iris)
             local TableBordersOuter = Iris.State(false)
             local TableBordersInner = Iris.State(true)
             local TableUseButtons = Iris.State(true)
+            local TableNumRows = Iris.State(3)
 
             Iris.Text({"Table with Customizable Arguments"})
             Iris.Table({
@@ -743,8 +744,8 @@ return function(Iris)
                 [Iris.Args.Table.BordersOuter] = TableBordersOuter.value,
                 [Iris.Args.Table.BordersInner] = TableBordersInner.value
             })
-                for i = 1,3 do
-                    for i2 = 1,4 do
+                for i = 1, TableNumRows:get() do
+                    for i2 = 1, 4 do
                         Iris.NextColumn();
                         if TableUseButtons.value then
                             Iris.Button({`Month: {i}, Week: {i2}`})
@@ -759,6 +760,7 @@ return function(Iris)
             Iris.Checkbox({"BordersOuter"}, {isChecked = TableBordersOuter})
             Iris.Checkbox({"BordersInner"}, {isChecked = TableBordersInner})
             Iris.Checkbox({"Use Buttons"}, {isChecked = TableUseButtons})
+            Iris.InputNum({"Number of rows", [Iris.Args.InputNum.Min] = 0, [Iris.Args.InputNum.Max] = 100, [Iris.Args.InputNum.Format] = "%d"}, {number = TableNumRows})
 
         Iris.End()
         end

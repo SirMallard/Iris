@@ -14,59 +14,38 @@ local ICONS = {
 }
 
 local function UIPadding(Parent, PxPadding)
-    local UIPadding = Instance.new("UIPadding")
-    UIPadding.PaddingLeft = UDim.new(0, PxPadding.X)
-    UIPadding.PaddingRight = UDim.new(0, PxPadding.X)
-    UIPadding.PaddingTop = UDim.new(0, PxPadding.Y)
-    UIPadding.PaddingBottom = UDim.new(0, PxPadding.Y)
-    UIPadding.Parent = Parent
-    return UIPadding
-end
-
-local function Folder(Parent)
-    local ThisFolder = Instance.new("Folder")
-    ThisFolder.Parent = Parent
-    return ThisFolder
-end
-
-local function UISizeConstraint(Parent, MinSize, MaxSize)
-    local UISizeConstraint = Instance.new("UISizeConstraint")
-    UISizeConstraint.MinSize = MinSize
-    UISizeConstraint.MaxSize = MaxSize
-    UISizeConstraint.Parent = Parent
-    return UISizeConstraint
+    local UIPaddingInstance = Instance.new("UIPadding")
+    UIPaddingInstance.PaddingLeft = UDim.new(0, PxPadding.X)
+    UIPaddingInstance.PaddingRight = UDim.new(0, PxPadding.X)
+    UIPaddingInstance.PaddingTop = UDim.new(0, PxPadding.Y)
+    UIPaddingInstance.PaddingBottom = UDim.new(0, PxPadding.Y)
+    UIPaddingInstance.Parent = Parent
+    return UIPaddingInstance
 end
 
 local function UIListLayout(Parent, FillDirection, Padding)
-    local UIListLayout = Instance.new("UIListLayout")
-    UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    UIListLayout.Padding = Padding
-    UIListLayout.FillDirection = FillDirection
-    UIListLayout.Parent = Parent
-    return UIListLayout
+    local UIListLayoutInstance = Instance.new("UIListLayout")
+    UIListLayoutInstance.SortOrder = Enum.SortOrder.LayoutOrder
+    UIListLayoutInstance.Padding = Padding
+    UIListLayoutInstance.FillDirection = FillDirection
+    UIListLayoutInstance.Parent = Parent
+    return UIListLayoutInstance
 end
 
 local function UIStroke(Parent, Thickness, Color, Transparency)
-    local UIStroke = Instance.new("UIStroke")
-    UIStroke.Thickness = Thickness
-    UIStroke.Color = Color
-    UIStroke.Transparency = Transparency
-    UIStroke.Parent = Parent
-    return UIStroke
+    local UIStrokeInstance = Instance.new("UIStroke")
+    UIStrokeInstance.Thickness = Thickness
+    UIStrokeInstance.Color = Color
+    UIStrokeInstance.Transparency = Transparency
+    UIStrokeInstance.Parent = Parent
+    return UIStrokeInstance
 end
 
 local function UICorner(Parent, PxRounding)
-    local UICorner = Instance.new("UICorner")
-    UICorner.CornerRadius = UDim.new(0, PxRounding)
-    UICorner.Parent = Parent
-    return UICorner
-end
-
-local function UITableLayout(Parent)
-    local UITableLayout = Instance.new("UITableLayout")
-    UITableLayout.MajorAxis = Enum.TableMajorAxis.ColumnMajor
-    UITableLayout.Parent = Parent
-    return UITableLayout
+    local UICornerInstance = Instance.new("UICorner")
+    UICornerInstance.CornerRadius = UDim.new(0, PxRounding)
+    UICornerInstance.Parent = Parent
+    return UICornerInstance
 end
 
 return function(Iris)
@@ -82,27 +61,19 @@ local function applyTextStyle(thisInstance)
     thisInstance.RichText = false
 end
 
-local function applyInteractionHighlights(Button, Highlightee, Colors, Mode: "Text" | "Background" | nil)
+local function applyInteractionHighlights(Button, Highlightee, Colors)
     local exitedButton = false
     Button.MouseEnter:Connect(function()
-        if Mode == "Text" then
-            Highlightee.TextColor3 = Colors.ButtonHoveredColor
-            Highlightee.TextTransparency = Colors.ButtonHoveredTransparency
-        else
-            Highlightee.BackgroundColor3 = Colors.ButtonHoveredColor
-            Highlightee.BackgroundTransparency = Colors.ButtonHoveredTransparency
-        end
+        Highlightee.BackgroundColor3 = Colors.ButtonHoveredColor
+        Highlightee.BackgroundTransparency = Colors.ButtonHoveredTransparency
+
         exitedButton = false
     end)
 
     Button.MouseLeave:Connect(function()
-        if Mode == "Text" then
-            Highlightee.TextColor3 = Colors.ButtonColor
-            Highlightee.TextTransparency = Colors.ButtonTransparency
-        else
-            Highlightee.BackgroundColor3 = Colors.ButtonColor
-            Highlightee.BackgroundTransparency = Colors.ButtonTransparency
-        end
+        Highlightee.BackgroundColor3 = Colors.ButtonColor
+        Highlightee.BackgroundTransparency = Colors.ButtonTransparency
+
         exitedButton = true
     end)
 
@@ -110,13 +81,8 @@ local function applyInteractionHighlights(Button, Highlightee, Colors, Mode: "Te
         if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) then
             return
         end
-        if Mode == "Text" then
-            Highlightee.TextColor3 = Colors.ButtonActiveColor
-            Highlightee.TextTransparency = Colors.ButtonActiveTransparency
-        else
-            Highlightee.BackgroundColor3 = Colors.ButtonActiveColor
-            Highlightee.BackgroundTransparency = Colors.ButtonActiveTransparency
-        end
+        Highlightee.BackgroundColor3 = Colors.ButtonActiveColor
+        Highlightee.BackgroundTransparency = Colors.ButtonActiveTransparency
     end)
 
     Button.InputEnded:Connect(function(input)
@@ -124,22 +90,53 @@ local function applyInteractionHighlights(Button, Highlightee, Colors, Mode: "Te
             return
         end
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            if Mode == "Text" then
-                Highlightee.TextColor3 = Colors.ButtonHoveredColor
-                Highlightee.TextTransparency = Colors.ButtonHoveredTransparency
-            else
-                Highlightee.BackgroundColor3 = Colors.ButtonHoveredColor
-                Highlightee.BackgroundTransparency = Colors.ButtonHoveredTransparency
-            end
+            Highlightee.BackgroundColor3 = Colors.ButtonHoveredColor
+            Highlightee.BackgroundTransparency = Colors.ButtonHoveredTransparency
         end
         if input.UserInputType == Enum.UserInputType.Gamepad1 then
-            if Mode == "Text" then
-                Highlightee.TextColor3 = Colors.ButtonColor
-                Highlightee.TextTransparency = Colors.ButtonTransparency
-            else
-                Highlightee.BackgroundColor3 = Colors.ButtonColor
-                Highlightee.BackgroundTransparency = Colors.ButtonTransparency
-            end
+            Highlightee.BackgroundColor3 = Colors.ButtonColor
+            Highlightee.BackgroundTransparency = Colors.ButtonTransparency
+        end
+    end)
+    
+    Button.SelectionImageObject = Iris.SelectionImageObject
+end
+
+local function applyTextInteractionHighlights(Button, Highlightee, Colors)
+    local exitedButton = false
+    Button.MouseEnter:Connect(function()
+        Highlightee.TextColor3 = Colors.ButtonHoveredColor
+        Highlightee.TextTransparency = Colors.ButtonHoveredTransparency
+
+        exitedButton = false
+    end)
+
+    Button.MouseLeave:Connect(function()
+        Highlightee.TextColor3 = Colors.ButtonColor
+        Highlightee.TextTransparency = Colors.ButtonTransparency
+
+        exitedButton = true
+    end)
+
+    Button.InputBegan:Connect(function(input)
+        if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) then
+            return
+        end
+        Highlightee.TextColor3 = Colors.ButtonActiveColor
+        Highlightee.TextTransparency = Colors.ButtonActiveTransparency
+    end)
+
+    Button.InputEnded:Connect(function(input)
+        if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) or exitedButton then
+            return
+        end
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            Highlightee.TextColor3 = Colors.ButtonHoveredColor
+            Highlightee.TextTransparency = Colors.ButtonHoveredTransparency
+        end
+        if input.UserInputType == Enum.UserInputType.Gamepad1 then
+            Highlightee.TextColor3 = Colors.ButtonColor
+            Highlightee.TextTransparency = Colors.ButtonTransparency
         end
     end)
     
@@ -1066,7 +1063,7 @@ end
 --- @prop InputText Widget
 --- @within Widgets
 --- A field which allows the user to enter text.
---- ```json 
+--- ```json
 --- {hasChildren: false, hasState: true}
 --- ```
 --- ##### Arguments
@@ -1849,14 +1846,14 @@ do -- Iris.Window
             ResizeGrip.LineHeight = 1.10 -- fix mild rendering issue
             ResizeGrip.Selectable = false
             
-            applyInteractionHighlights(ResizeGrip, ResizeGrip, {
+            applyTextInteractionHighlights(ResizeGrip, ResizeGrip, {
                 ButtonColor = Iris._config.ButtonColor,
                 ButtonTransparency = Iris._config.ButtonTransparency,
                 ButtonHoveredColor = Iris._config.ButtonHoveredColor,
                 ButtonHoveredTransparency = Iris._config.ButtonHoveredTransparency,
                 ButtonActiveColor = Iris._config.ButtonActiveColor,
                 ButtonActiveTransparency = Iris._config.ButtonActiveTransparency,
-            }, "Text")
+            })
 
             ResizeGrip.MouseButton1Down:Connect(function()
                 if not anyFocusedWindow or not (focusedWindow == thisWidget) then
@@ -2060,7 +2057,7 @@ do -- Iris.Window
             if thisWidget.state.position == nil then
                 thisWidget.state.position = Iris._widgetState(
                     thisWidget,
-                    "position", 
+                    "position",
                     if anyFocusedWindow then focusedWindow.state.position.value + Vector2.new(15, 45) else Vector2.new(150, 250)
                 )
             end
