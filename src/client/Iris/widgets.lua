@@ -224,8 +224,15 @@ end
 
 do -- Root
     local NumNonWindowChildren = 0
-    Iris.WidgetConstructor("Root", false, true, {
-        Args = {},
+    Iris.WidgetConstructor("Root", {
+        hasState = false,
+        hasChildren = true,
+        Args = {
+
+        },
+        Events = {
+        
+        },
         Generate = function(thisWidget)
             local Root = Instance.new("Folder")
             Root.Name = "Iris_Root"
@@ -305,9 +312,14 @@ end
 --- ```
 --- ##### Arguments
 --- - Text: String
-Iris.WidgetConstructor("Text", false, false, {
+Iris.WidgetConstructor("Text", {
+    hasState = false,
+    hasChildren = false,
     Args = {
         ["Text"] = 1
+    },
+    Events = {
+        
     },
     Generate = function(thisWidget)
         local Text = Instance.new("TextLabel")
@@ -348,9 +360,14 @@ end
 --- The width of the text is determined by the ItemWidth config field.
 --- ##### Arguments
 --- - Text: String
-Iris.WidgetConstructor("TextWrapped", false, false, {
+Iris.WidgetConstructor("TextWrapped", {
+    hasState = false,
+    hasChildren = false,
     Args = {
         ["Text"] = 1
+    },
+    Events = {
+
     },
     Generate = function(thisWidget)
         local TextWrapped = Instance.new("TextLabel")
@@ -393,18 +410,29 @@ end
 --- - Text: String
 --- ##### Events
 --- - clicked: boolean
-Iris.WidgetConstructor("Button", false, false, {
+Iris.WidgetConstructor("Button", {
+    hasState = false,
+    hasChildren = false,
     Args = {
         ["Text"] = 1
+    },
+    Events = {
+        ["clicked"] = {
+            ["Init"] = function(thisWidget)
+                thisWidget.lastClickTick = -1
+                thisWidget.Instance.MouseButton1Click:Connect(function()
+                    thisWidget.lastClickTick = Iris._cycleTick + 1
+                end)
+            end,
+            ["Get"] = function(thisWidget)
+                return  thisWidget.lastClickTick == Iris._cycleTick
+            end
+        }
     },
     Generate = function(thisWidget)
         local Button = commonButton()
         Button.ZIndex = thisWidget.ZIndex
         Button.LayoutOrder = thisWidget.ZIndex
-
-        Button.MouseButton1Click:Connect(function()
-            thisWidget.events.clicked = true
-        end)
 
         return Button
     end,
@@ -430,9 +458,24 @@ end
 --- - Text: String
 --- ##### Events
 --- - clicked: boolean
-Iris.WidgetConstructor("SmallButton", false, false, {
+Iris.WidgetConstructor("SmallButton", {
+    hasState = false,
+    hasChildren = false,
     Args = {
         ["Text"] = 1
+    },
+    Events = {
+        ["clicked"] = {
+            ["Init"] = function(thisWidget)
+                thisWidget.lastClickTick = -1
+                thisWidget.Instance.MouseButton1Click:Connect(function()
+                    thisWidget.lastClickTick = Iris._cycleTick + 1
+                end)
+            end,
+            ["Get"] = function(thisWidget)
+                return thisWidget.lastClickTick == Iris._cycleTick
+            end
+        }
     },
     Generate = function(thisWidget)
         local SmallButton = commonButton()
@@ -440,9 +483,6 @@ Iris.WidgetConstructor("SmallButton", false, false, {
         SmallButton.ZIndex = thisWidget.ZIndex
         SmallButton.LayoutOrder = thisWidget.ZIndex
 
-        SmallButton.MouseButton1Click:Connect(function()
-            thisWidget.events.clicked = true
-        end)
         local UIPadding = SmallButton.UIPadding
         UIPadding.PaddingLeft = UDim.new(0, 2)
         UIPadding.PaddingRight = UDim.new(0, 2)
@@ -469,8 +509,15 @@ end
 --- ```json 
 --- {hasChildren: false, hasState: false}
 --- ```
-Iris.WidgetConstructor("Separator", false, false, {
-    Args = {},
+Iris.WidgetConstructor("Separator", {
+    hasState = false,
+    hasChildren = false,
+    Args = {
+
+    },
+    Events = {
+        
+    },
     Generate = function(thisWidget)
         local Separator = Instance.new("Frame")
         Separator.Name = "Iris_Separator"
@@ -510,9 +557,14 @@ end
 --- ```
 --- ##### Arguments
 --- - Width: Number
-Iris.WidgetConstructor("Indent", false, true, {
+Iris.WidgetConstructor("Indent", {
+    hasState = false,
+    hasChildren = true,
     Args = {
         ["Width"] = 1,
+    },
+    Events = {
+        
     },
     Generate = function(thisWidget)
         local Indent = Instance.new("Frame")
@@ -558,10 +610,15 @@ end
 --- ##### Arguments
 --- - Width: Number
 --- - VerticalAlignment: Enum.VerticalAlignment
-Iris.WidgetConstructor("SameLine", false, true, {
+Iris.WidgetConstructor("SameLine", {
+    hasState = false,
+    hasChildren = true,
     Args = {
         ["Width"] = 1,
         ["VerticalAlignment"] = 2
+    },
+    Events = {
+        
     },
     Generate = function(thisWidget)
         local SameLine = Instance.new("Frame")
@@ -609,8 +666,15 @@ end
 --- ```json 
 --- {hasChildren: true, hasState: false}
 --- ```
-Iris.WidgetConstructor("Group", false, true, {
-    Args = {},
+Iris.WidgetConstructor("Group", {
+    hasState = false,
+    hasChildren = true,
+    Args = {
+
+    },
+    Events = {
+        
+    },
     Generate = function(thisWidget)
         local Group = Instance.new("Frame")
         Group.Name = "Iris_Group"
@@ -652,9 +716,29 @@ end
 --- - unchecked: boolean
 --- ##### States
 --- - isChecked: boolean
-Iris.WidgetConstructor("Checkbox", true, false, {
+Iris.WidgetConstructor("Checkbox", {
+    hasState = true,
+    hasChildren = false,
     Args = {
         ["Text"] = 1
+    },
+    Events = {
+        ["checked"] = {
+            ["Init"] = function(thisWidget)
+
+            end,
+            ["Get"] = function(thisWidget)
+                return thisWidget.lastCheckedTick == Iris._cycleTick
+            end
+        },
+        ["unchecked"] = {
+            ["Init"] = function(thisWidget)
+
+            end,
+            ["Get"] = function(thisWidget)
+                return thisWidget.lastUncheckedTick == Iris._cycleTick
+            end
+        }
     },
     Generate = function(thisWidget)
         local Checkbox = Instance.new("TextButton")
@@ -728,10 +812,10 @@ Iris.WidgetConstructor("Checkbox", true, false, {
         local Checkbox = thisWidget.Instance.CheckboxBox
         if thisWidget.state.isChecked.value then
             Checkbox.Text = ICONS.CHECK_MARK
-            thisWidget.events.checked = true
+            thisWidget.lastCheckedTick = Iris._cycleTick + 1
         else
             Checkbox.Text = ""
-            thisWidget.events.unchecked = true
+            thisWidget.lastUncheckedTick = Iris._cycleTick + 1
         end
     end
 })
@@ -754,11 +838,31 @@ end
 --- - uncollapsed: boolean
 --- ##### States
 --- - isUncollapsed: boolean
-Iris.WidgetConstructor("Tree", true, true, {
+Iris.WidgetConstructor("Tree", {
+    hasState = true,
+    hasChildren = true,
     Args = {
         ["Text"] = 1,
         ["SpanAvailWidth"] = 2,
         ["NoIndent"] = 3
+    },
+    Events = {
+        ["collasped"] = {
+            ["Init"] = function(thisWidget)
+
+            end,
+            ["Get"] = function(thisWidget)
+                return thisWidget._lastCollapsedTick == Iris._cycleTick
+            end
+        },
+        ["uncollapsed"] = {
+            ["Init"] = function(thisWidget)
+
+            end,
+            ["Get"] = function(thisWidget)
+                return thisWidget._lastUncollapsedTick == Iris._cycleTick
+            end
+        }
     },
     Generate = function(thisWidget)
         local Tree = Instance.new("Frame")
@@ -897,9 +1001,9 @@ Iris.WidgetConstructor("Tree", true, true, {
         Arrow.Text = (isUncollapsed and ICONS.DOWN_POINTING_TRIANGLE or ICONS.RIGHT_POINTING_TRIANGLE)
 
         if isUncollapsed then
-            thisWidget.events.uncollapsed = true
+            thisWidget.lastUncollaspedTick = Iris._cycleTick + 1
         else
-            thisWidget.events.collapsed = true
+            thisWidget.lastCollapsedTick = Iris._cycleTick + 1
         end
 
         ChildContainer.Visible = isUncollapsed and thisWidget.hasChildren
@@ -933,7 +1037,9 @@ end
 --- - numberChanged: boolean
 --- ##### States
 --- - number: number
-Iris.WidgetConstructor("InputNum", true, false, {
+Iris.WidgetConstructor("InputNum", {
+    hasState = true,
+    hasChildren = false,
     Args = {
         ["Text"] = 1,
         ["Increment"] = 2,
@@ -942,6 +1048,16 @@ Iris.WidgetConstructor("InputNum", true, false, {
         ["Format"] = 5,
         ["NoButtons"] = 6,
         ["NoField"] = 7
+    },
+    Events = {
+        ["numberChanged"] = {
+            ["Init"] = function(thisWidget)
+
+            end,
+            ["Get"] = function(thisWidget)
+                return thisWidget.lastNumchangeTick == Iris._cycleTick
+            end
+        }
     },
     Generate = function(thisWidget)
         local InputNum = Instance.new("Frame")
@@ -975,7 +1091,7 @@ Iris.WidgetConstructor("InputNum", true, false, {
             if newValue ~= nil then
                 newValue = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
                 thisWidget.state.number:set(newValue)
-                thisWidget.events.numberChanged = true
+                thisWidget.lastNumchangeTick = Iris._cycleTick + 1
             else
                 InputField.Text = thisWidget.state.number.value
             end
@@ -994,7 +1110,7 @@ Iris.WidgetConstructor("InputNum", true, false, {
             local newValue = thisWidget.state.number.value - (thisWidget.arguments.Increment or 1)
             newValue = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
             thisWidget.state.number:set(newValue)
-            thisWidget.events.numberChanged = true
+            thisWidget.lastNumchangeTick = Iris._cycleTick + 1
         end)
 
         local AddButton = commonButton()
@@ -1010,7 +1126,7 @@ Iris.WidgetConstructor("InputNum", true, false, {
             local newValue = thisWidget.state.number.value + (thisWidget.arguments.Increment or 1)
             newValue = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
             thisWidget.state.number:set(newValue)
-            thisWidget.events.numberChanged = true
+            thisWidget.lastNumchangeTick = Iris._cycleTick + 1
         end)
 
         local TextLabel = Instance.new("TextLabel")
@@ -1073,10 +1189,22 @@ end
 --- - textChanged: boolean
 --- ##### States
 --- - text: string
-Iris.WidgetConstructor("InputText", true, false, {
+Iris.WidgetConstructor("InputText", {
+    hasState = true,
+    hasChildren = false,
     Args = {
         ["Text"] = 1,
         ["TextHint"] = 2
+    },
+    Events = {
+        ["textChanged"] = {
+            ["Init"] = function(thisWidget)
+
+            end,
+            ["Get"] = function(thisWidget)
+                return thisWidget.lastTextchangeTick == Iris._cycleTick
+            end
+        }
     },
     Generate = function(thisWidget)
         local textLabelHeight = Iris._config.TextSize
@@ -1110,7 +1238,7 @@ Iris.WidgetConstructor("InputText", true, false, {
 
         InputField.FocusLost:Connect(function()
             thisWidget.state.text:set(InputField.Text)
-            thisWidget.events.textChanged = true
+            thisWidget.lastTextchangeTick = Iris._cycleTick
         end)
 
         InputField.Parent = InputText
@@ -1188,12 +1316,17 @@ do -- Iris.Table
         ParentWidget.RowColumnIndex = nextRow
     end
 
-    Iris.WidgetConstructor("Table", false, true, {
+    Iris.WidgetConstructor("Table", {
+        hasState = false,
+        hasChildren = true,
         Args = {
             ["NumColumns"] = 1,
             ["RowBg"] = 2,
             ["BordersOuter"] = 3,
             ["BordersInner"] = 4
+        },
+        Events = {
+        
         },
         Generate = function(thisWidget)
             tableWidgets[thisWidget.ID] = thisWidget
@@ -1608,7 +1741,9 @@ do -- Iris.Window
         end
     end)
 
-    Iris.WidgetConstructor("Window", true, true, {
+    Iris.WidgetConstructor("Window", {
+        hasState = true,
+        hasChildren = true,
         Args = {
             ["Title"] = 1,
             ["NoTitleBar"] = 2,
@@ -1619,6 +1754,40 @@ do -- Iris.Window
             ["NoScrollbar"] = 7,
             ["NoResize"] = 8,
             ["NoNav"] = 9,
+        },
+        Events = {
+            ["closed"] = {
+                ["Init"] = function(thisWidget)
+
+                end,
+                ["Get"] = function(thisWidget)
+                    return thisWidget.lastClosedTick == Iris._cycleTick
+                end
+            },
+            ["opened"] = {
+                ["Init"] = function(thisWidget)
+
+                end,
+                ["Get"] = function(thisWidget)
+                    return thisWidget.lastOpenedTick == Iris._cycleTick
+                end
+            },
+            ["collapsed"] = {
+                ["Init"] = function(thisWidget)
+
+                end,
+                ["Get"] = function(thisWidget)
+                    return thisWidget.lastCollapsedTick == Iris._cycleTick
+                end
+            },
+            ["uncollapsed"] = {
+                ["Init"] = function(thisWidget)
+
+                end,
+                ["Get"] = function(thisWidget)
+                    return thisWidget.lastUncollapsedTick == Iris._cycleTick
+                end
+            }
         },
         Generate = function(thisWidget)
             thisWidget.usesScreenGUI = Iris._config.UseScreenGUIs
@@ -1999,7 +2168,7 @@ do -- Iris.Window
                 else
                     WindowButton.Visible = true
                 end
-                thisWidget.events.opened = true
+                thisWidget.lastOpenedTick = Iris._cycleTick + 1
             else
                 if thisWidget.usesScreenGUI then
                     thisWidget.Instance.Enabled = false
@@ -2007,7 +2176,7 @@ do -- Iris.Window
                 else
                     WindowButton.Visible = false
                 end
-                thisWidget.events.closed = true
+                thisWidget.lastClosedTick = Iris._cycleTick + 1
             end
 
             if stateIsUncollapsed then
@@ -2017,7 +2186,7 @@ do -- Iris.Window
                     ResizeGrip.Visible = true
                 end
                 WindowButton.AutomaticSize = Enum.AutomaticSize.None
-                thisWidget.events.uncollapsed = true
+                thisWidget.lastUncollapsedTick = Iris._cycleTick + 1
             else
                 local collapsedHeight = Iris._config.TextSize + Iris._config.FramePadding.Y * 2
                 TitleBar.CollapseArrow.Text = ICONS.RIGHT_POINTING_TRIANGLE
@@ -2025,7 +2194,7 @@ do -- Iris.Window
                 ChildContainer.Visible = false
                 ResizeGrip.Visible = false
                 WindowButton.Size = UDim2.fromOffset(stateSize.X, collapsedHeight)
-                thisWidget.events.collapsed = true
+                thisWidget.lastCollapsedTick = Iris._cycleTick + 1
             end
 
             if stateIsOpened and stateIsUncollapsed then

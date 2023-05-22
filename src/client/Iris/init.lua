@@ -18,13 +18,15 @@ Iris._rootWidget = {
     ZIndex = 0,
 }
 Iris._states = {} -- Iris.States
+Iris._postCycleCallbacks = {}
+Iris._connectedFunctions = {} -- functions which run each Iris cycle, connected by the user
+-- these following variables aid in computing Iris._cycle, they are variable while the code to render widgets is being caleld
 Iris._IDStack = {"R"}
 Iris._usedIDs = {} -- hash of IDs which are already used in a cycle, value is the # of occurances so that getID can assign a unique ID for each occurance
 Iris._stackIndex = 1 -- Points to the index that IDStack is currently in, when computing cycle
 Iris._cycleTick = 0 -- increments for each call to Cycle, used to determine the relative age and freshness of generated widgets
 Iris._widgetCount = 0 -- only used to compute ZIndex, resets to 0 for every cycle
-Iris._postCycleCallbacks = {}
-Iris._connectedFunctions = {} -- functions which run each Iris cycle, connected by the user
+Iris._lastWidget = Iris._rootWidget -- widget which was most recently rendered
 
 function Iris._generateSelectionImageObject()
     if Iris.SelectionImageObject then
@@ -185,6 +187,20 @@ end
 --- ```
 Iris.Args = {}
 
+function Iris._EventCall(thisWidget, eventName)
+    local Events = Iris._widgets[thisWidget.type].Events
+    local Event = Events[eventName]
+    assert(Event ~= nil, `widget {thisWidget.type} has no event of name {Event}`)
+    
+    if thisWidget.trackedEvents[eventName] == nil then
+        Event.Init(thisWidget)
+        thisWidget.trackedEvents[eventName] = true
+    end
+    return Event.Get(thisWidget)
+end
+
+Iris.Events = {}
+
 --- @function ForceRefresh
 --- @within Iris
 --- Destroys and regenerates all instances used by Iris. useful if you want to propogate state changes.
@@ -202,17 +218,20 @@ end
 --- @function WidgetConstructor
 --- @within Iris
 --- @param type string -- Name used to denote the widget
---- @param hasState boolean -- Indicates if the widget will use any state
---- @param hasChildren boolean -- Indicates if the widget will possibly contain any children
---- @param widgetFunctions table -- table of methods for the new widget
-function Iris.WidgetConstructor(type: string, hasState: boolean, hasChildren: boolean, widgetFunctions: table)
+--- @param widgetClass table -- table of methods for the new widget
+function Iris.WidgetConstructor(type: string, widgetClass: table)
     local Fields = {
         All = {
             Required = {
                 "Generate",
                 "Discard",
                 "Update",
-                "Args", -- not a function !
+
+                -- not methods !
+                "Args",
+                "Events",
+                "hasChildren",
+                "hasState"
             },
             Optional = {
 
@@ -239,50 +258,55 @@ function Iris.WidgetConstructor(type: string, hasState: boolean, hasChildren: bo
 
     local thisWidget = {}
     for _, v in Fields.All.Required do
-        assert(widgetFunctions[v], `{v} is required for all widgets`)
-        thisWidget[v] = widgetFunctions[v]
+        assert(widgetClass[v] ~= nil, `field {v} is missing from widget {type}, it is required for all widgets`)
+        thisWidget[v] = widgetClass[v]
     end
     for _, v in Fields.All.Optional do
-        if widgetFunctions[v] == nil then
+        if widgetClass[v] == nil then
             thisWidget[v] = Iris._NoOp
         else
-            thisWidget[v] = widgetFunctions[v]
+            thisWidget[v] = widgetClass[v]
         end
     end
-    if hasState then
+    if widgetClass.hasState then
         for _, v in Fields.IfState.Required do
-            assert(widgetFunctions[v], `{v} is required for all widgets with state`)
-            thisWidget[v] = widgetFunctions[v]
+            assert(widgetClass[v] ~= nil, `field {v} is missing from widget {type}, it is required for all widgets with state`)
+            thisWidget[v] = widgetClass[v]
         end
         for _, v in Fields.IfState.Optional do
-            if widgetFunctions[v] == nil then
+            if widgetClass[v] == nil then
                 thisWidget[v] = Iris._NoOp
             else
-                thisWidget[v] = widgetFunctions[v]
+                thisWidget[v] = widgetClass[v]
             end
         end
     end
-    if hasChildren then
+    if widgetClass.hasChildren then
         for _, v in Fields.IfChildren.Required do
-            assert(widgetFunctions[v], `{v} is required for all widgets with children`)
-            thisWidget[v] = widgetFunctions[v]
+            assert(widgetClass[v] ~= nil, `field {v} is missing from widget {type}, it is required for all widgets with children`)
+            thisWidget[v] = widgetClass[v]
         end
         for _, v in Fields.IfChildren.Optional do
-            if widgetFunctions[v] == nil then
+            if widgetClass[v] == nil then
                 thisWidget[v] = Iris._NoOp
             else
-                thisWidget[v] = widgetFunctions[v]
+                thisWidget[v] = widgetClass[v]
             end
         end
     end
-    thisWidget.hasState = hasState
-    thisWidget.hasChildren = hasChildren
 
     Iris._widgets[type] = thisWidget
     Iris.Args[type] = thisWidget.Args
     local ArgNames = {}
     for i, v in thisWidget.Args do
         ArgNames[v] = i
+    end
+    for i, v in thisWidget.Events do
+        if Iris.Events[i] == nil then
+            Iris.Events[i] = function()
+                return Iris._EventCall(Iris._lastWidget, i)
+            end
+        end
     end
     thisWidget.ArgNames = ArgNames
 end
@@ -532,7 +556,8 @@ function Iris._GenNewWidget(widgetType, arguments, widgetState, ID)
     thisWidget.ID = ID
     thisWidget.type = widgetType
     thisWidget.parentWidget = parentWidget
-    thisWidget.events = {}
+    thisWidget.events = {} -- TODO delete
+    thisWidget.trackedEvents = {}
 
     local widgetInstanceParent = if Iris._config.Parent then Iris._config.Parent else Iris._widgets[parentWidget.type].ChildAdded(parentWidget, thisWidget)
 
@@ -544,6 +569,7 @@ function Iris._GenNewWidget(widgetType, arguments, widgetState, ID)
     thisWidget.arguments = arguments
     thisWidgetClass.Update(thisWidget)
 
+    local eventMTParent
     if thisWidgetClass.hasState then
         if widgetState then
             for i,v in widgetState do
@@ -564,6 +590,17 @@ function Iris._GenNewWidget(widgetType, arguments, widgetState, ID)
 
         thisWidget.stateMT = {} -- MT cant be itself because state has to explicitly only contain stateClass objects
         setmetatable(thisWidget.state, thisWidget.stateMT)
+
+        thisWidget.__index = thisWidget.state
+        eventMTParent = thisWidget.stateMT
+    else
+       eventMTParent = thisWidget
+    end
+    -- im very upset that this function exists.
+    eventMTParent.__index = function(t, i)
+        return function()
+            return Iris._EventCall(thisWidget, i)
+        end
     end
     return thisWidget
 end
@@ -610,16 +647,6 @@ function Iris._Insert(widgetType: string, args, widgetState)
         thisWidgetClass.Update(thisWidget)
     end
 
-    -- strange __index chaining so that .state AND .events are both indexable through thisWidget
-    local oldEvents = thisWidget.events
-    thisWidget.events = {}
-    if thisWidgetClass.hasState then
-        thisWidget.__index = thisWidget.state
-        thisWidget.stateMT.__index = oldEvents
-    else
-        thisWidget.__index = oldEvents
-    end
-
     thisWidget.lastCycleTick = Iris._cycleTick
 
     if thisWidgetClass.hasChildren then
@@ -628,6 +655,7 @@ function Iris._Insert(widgetType: string, args, widgetState)
     end
 
     Iris._VDOM[ID] = thisWidget
+    Iris._lastWidget = thisWidget
 
     --debug.profileend()
 

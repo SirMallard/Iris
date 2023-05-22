@@ -83,7 +83,7 @@ return function(Iris)
                     [Iris.Args.InputNum.Format] = Format.value,
                 })
                 Iris.Text({"The Value is: " .. InputNum.number.value})
-                if Iris.Button({"Randomize Number"}).clicked then
+                if Iris.Button({"Randomize Number"}).clicked() then
                     InputNum.number:set(math.random(1,99))
                 end
                 Iris.Separator()
@@ -415,7 +415,7 @@ return function(Iris)
                         {name, [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
                         {number = styleStates[name .. "Y"]}
                     )
-                    if X.numberChanged or Y.numberChanged then
+                    if X.numberChanged() or Y.numberChanged() then
                         Iris.UpdateGlobalConfig({[name] = Vector2.new(X.number.value, Y.number.value)})
                     end
                 Iris.End()
@@ -433,7 +433,7 @@ return function(Iris)
                         {name, [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
                         {number = styleStates[name .. "Offset"]}
                     )
-                    if Scale.numberChanged or Offset.numberChanged then
+                    if Scale.numberChanged() or Offset.numberChanged() then
                         Iris.UpdateGlobalConfig({[name] = UDim.new(Scale.number.value, Offset.number.value)})
                     end
                 Iris.End()
@@ -459,7 +459,7 @@ return function(Iris)
                         {name, [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%.3f"},
                         {number = styleStates[transparencyName]}
                     )
-                    if R.numberChanged or G.numberChanged or B.numberChanged or A.numberChanged then
+                    if R.numberChanged() or G.numberChanged() or B.numberChanged() or A.numberChanged() then
                         Iris.UpdateGlobalConfig({[name] = Color3.fromRGB(R.number.value, G.number.value, B.number.value), [transparencyName] = A.number.value})
                     end
                 Iris.End()
@@ -472,7 +472,7 @@ return function(Iris)
                     {name, [Iris.Args.InputNum.NoButtons] = true, [Iris.Args.InputNum.Format] = "%d"},
                     {number = styleStates[name]}
                 )
-                if I.numberChanged then
+                if I.numberChanged() then
                     Iris.UpdateGlobalConfig({[name] = I.number.value})
                 end
             Iris.PopConfig()
@@ -484,7 +484,7 @@ return function(Iris)
                     {name},
                     {text = styleStates[name]}
                 )
-                if EnumInputText.textChanged then
+                if EnumInputText.textChanged() then
                     local isValidEnum = false
                     for _, _enumItem in ipairs(enumType:GetEnumItems()) do
                         if _enumItem.Name == EnumInputText.text.value then
@@ -586,26 +586,26 @@ return function(Iris)
             Iris.Window({"Style Editor"}, {isOpened = showStyleEditor})
                 Iris.Text({"Customize the look of Iris in realtime."})
                 Iris.SameLine()
-                    if Iris.SmallButton({"Light Theme"}).clicked then
+                    if Iris.SmallButton({"Light Theme"}).clicked() then
                         Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorLight)
                         refreshStyleStates()
                     end
-                    if Iris.SmallButton({"Dark Theme"}).clicked then
+                    if Iris.SmallButton({"Dark Theme"}).clicked() then
                         Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark)
                         refreshStyleStates()
                     end
                 Iris.End()
                 Iris.SameLine()
-                    if Iris.SmallButton({"Classic Size"}).clicked then
+                    if Iris.SmallButton({"Classic Size"}).clicked() then
                         Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
                         refreshStyleStates()
                     end
-                    if Iris.SmallButton({"Larger Size"}).clicked then
+                    if Iris.SmallButton({"Larger Size"}).clicked() then
                         Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeClear)
                         refreshStyleStates()
                     end
                 Iris.End()
-                if Iris.SmallButton({"Reset Everything"}).clicked then
+                if Iris.SmallButton({"Reset Everything"}).clicked() then
                     Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark)
                     Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
                     refreshStyleStates()
@@ -613,7 +613,7 @@ return function(Iris)
                 Iris.Separator()
                 Iris.SameLine()
                     for i, v in ipairs(styleList) do
-                        if Iris.SmallButton({v[0]}).clicked then
+                        if Iris.SmallButton({v[0]}).clicked() then
                             selectedPanel:set(i)
                         end
                     end
@@ -627,13 +627,13 @@ return function(Iris)
     local function widgetEventInteractivity()
         Iris.Tree({"Widget Event Interactivity"})
             local clickCount = Iris.State(0)
-            if Iris.Button({"Click to increase Number"}).clicked then
+            if Iris.Button({"Click to increase Number"}).clicked() then
                 clickCount:set(clickCount:get() + 1)
             end
             Iris.Text({"The Number is: " .. clickCount:get()})
             local showTextTimer = Iris.State(0)
             Iris.SameLine()
-                if Iris.Button({"Click to show text for 20 frames"}).clicked then
+                if Iris.Button({"Click to show text for 20 frames"}).clicked() then
                     showTextTimer:set(20)
                 end
                 if showTextTimer:get() > 0 then
@@ -642,6 +642,12 @@ return function(Iris)
             Iris.End()
             showTextTimer:set(math.max(0, showTextTimer:get() - 1))
             Iris.Text({"Text Timer: " .. showTextTimer:get()})
+
+            local checkbox0 = Iris.Checkbox({"Event-tracked checkbox"})
+            Iris.Indent()
+                Iris.Text({"unchecked: " .. tostring(checkbox0.unchecked())})
+                Iris.Text({"checked: " .. tostring(checkbox0.checked())})
+            Iris.End()
         Iris.End()
     end
 
@@ -662,7 +668,7 @@ return function(Iris)
             local checkboxState1 = Iris.State(false)
             local checkbox4 = Iris.Checkbox({"Widget and Code Coupled State"}, {isChecked = checkboxState1})
             local Button0 = Iris.Button({"Click to toggle above checkbox"})
-            if Button0.clicked then
+            if Button0.clicked() then
                 checkboxState1:set(not checkboxState1:get())
             end
             Iris.Text({`isChecked: {checkboxState1.value}\n`})
@@ -684,7 +690,7 @@ return function(Iris)
         Iris.Tree({"Dynamic Styles"})
             local colorH = Iris.State(0)
             Iris.SameLine()
-            if Iris.Button({"Change Color"}).clicked then
+            if Iris.Button({"Change Color"}).clicked() then
                 colorH:set(math.random())
             end
             Iris.Text({"Hue: " .. math.floor(colorH:get() * 255)})
