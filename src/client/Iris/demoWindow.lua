@@ -13,9 +13,7 @@ return function(Iris)
                 Iris.SmallButton({"SmallButton"})
                 Iris.Text({"Text"})
                 Iris.TextWrapped({string.rep("Text Wrapped ", 5)})
-                Iris.PushConfig({TextColor = Color3.fromRGB(255, 128, 0)})
-                    Iris.Text({"Colored Text"})
-                Iris.PopConfig()
+                Iris.TextColored({"Colored Text", Color3.fromRGB(255, 128, 0)})
             Iris.End()
         end,
 
@@ -647,6 +645,11 @@ return function(Iris)
             Iris.Indent()
                 Iris.Text({"unchecked: " .. tostring(checkbox0.unchecked())})
                 Iris.Text({"checked: " .. tostring(checkbox0.checked())})
+            Iris.End()
+            Iris.SameLine()
+            if Iris.Button({"Hover over me"}).hovered() then
+                Iris.Text({"The button is hovered"})
+            end
             Iris.End()
         Iris.End()
     end

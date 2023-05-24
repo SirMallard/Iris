@@ -10,8 +10,16 @@ local ICONS = {
     DOWN_POINTING_TRIANGLE = "\u{25BC}",
     MULTIPLICATION_SIGN = "\u{00D7}", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
     BOTTOM_RIGHT_CORNER = "\u{25E2}", -- used in window resize icon in bottom right
-    CHECK_MARK = "\u{2713}"
+    CHECK_MARK = "\u{2713}" -- curved shape, closest we can get to ImGui Checkmarks
 }
+
+local function extend(superClass, subClass)
+    local newClass = table.clone(superClass)
+    for i, v in subClass do
+        newClass[i] = v
+    end
+    return newClass
+end
 
 local function UIPadding(Parent, PxPadding)
     local UIPaddingInstance = Instance.new("UIPadding")
@@ -189,32 +197,26 @@ local function applyFrameStyle(thisInstance, forceNoPadding)
     end
 end
 
-local function commonButton()
-    local Button = Instance.new("TextButton")
-    Button.Name = "Iris_Button"
-    Button.Size = UDim2.fromOffset(0, 0)
-    Button.BackgroundColor3 = Iris._config.ButtonColor
-    Button.BackgroundTransparency = Iris._config.ButtonTransparency
-    Button.AutoButtonColor = false
-
-    applyTextStyle(Button)
-    Button.AutomaticSize = Enum.AutomaticSize.XY
-
-    applyFrameStyle(Button)
-
-    applyInteractionHighlights(Button, Button, {
-        ButtonColor = Iris._config.ButtonColor,
-        ButtonTransparency = Iris._config.ButtonTransparency,
-        ButtonHoveredColor = Iris._config.ButtonHoveredColor,
-        ButtonHoveredTransparency = Iris._config.ButtonHoveredTransparency,
-        ButtonActiveColor = Iris._config.ButtonActiveColor,
-        ButtonActiveTransparency = Iris._config.ButtonActiveTransparency,
-    })
-    return Button
+local function hoverEvent(pathToHovered)
+    return {
+        ["Init"] = function(thisWidget)
+            local hoveredGuiObject = pathToHovered(thisWidget)
+            hoveredGuiObject.MouseEnter:Connect(function()
+                thisWidget.isHoveredEvent = true
+            end)
+            hoveredGuiObject.MouseLeave:Connect(function()
+                thisWidget.isHoveredEvent = false
+            end)
+            thisWidget.isHoveredEvent = false
+        end,
+        ["Get"] = function(thisWidget)
+            return thisWidget.isHoveredEvent
+        end
+    }
 end
 
 local function discardState(thisWidget)
-    for i,state in thisWidget.state do
+    for _, state in thisWidget.state do
         state.ConnectedWidgets[thisWidget.ID] = nil
     end
 end
@@ -304,26 +306,19 @@ do -- Root
     })
 end
 
---- @prop Text Widget
---- @within Widgets
---- A simple Textbox.
---- ```json 
---- {hasChildren: false, hasState: false}
---- ```
---- ##### Arguments
---- - Text: String
-Iris.WidgetConstructor("Text", {
+local abstractText = {
     hasState = false,
     hasChildren = false,
     Args = {
         ["Text"] = 1
     },
     Events = {
-        
+        ["hovered"] = hoverEvent(function(thisWidget)
+            return thisWidget.Instance
+        end)
     },
     Generate = function(thisWidget)
         local Text = Instance.new("TextLabel")
-        Text.Name = "Iris_Text"
         Text.Size = UDim2.fromOffset(0, 0)
         Text.BackgroundTransparency = 1
         Text.BorderSizePixel = 0
@@ -346,9 +341,61 @@ Iris.WidgetConstructor("Text", {
     Discard = function(thisWidget)
         thisWidget.Instance:Destroy()
     end
-})
+}
+
+--- @prop Text Widget
+--- @within Widgets
+--- A simple Textbox.
+--- ```json 
+--- {hasChildren: false, hasState: false}
+--- ```
+--- ##### Arguments
+--- - Text: String
+Iris.WidgetConstructor("Text", extend(abstractText, {
+    Generate = function(thisWidget)
+        local Text = abstractText.Generate(thisWidget)
+        Text.Name = "Iris_Text"
+
+        return Text
+    end
+}))
 Iris.Text = function(args)
     return Iris._Insert("Text", args)
+end
+
+--- @prop TextColored Widget
+--- @within Widgets
+--- ```json 
+--- {hasChildren: false, hasState: false}
+--- ```
+--- A simple Textbox, which has colored text.
+--- ##### Arguments
+--- - Text: String
+Iris.WidgetConstructor("TextColored", extend(abstractText, {
+    Args = {
+        ["Text"] = 1,
+        ["Color"] = 2
+    },
+    Generate = function(thisWidget)
+        local Text = abstractText.Generate(thisWidget)
+        Text.Name = "Iris_TextColored"
+
+        return Text
+    end,
+    Update = function(thisWidget)
+        local Text = thisWidget.Instance
+        if thisWidget.arguments.Text == nil then
+            error("Iris.Text Text Argument is required", 5)
+        end
+        Text.Text = thisWidget.arguments.Text
+        if thisWidget.arguments.Color == nil then
+            error("Iris.TextColored Color argument is required", 5)
+        end 
+        Text.TextColor3 = thisWidget.arguments.Color
+    end
+}))
+Iris.TextColored = function(args)
+    return Iris._Insert("TextColored", args)
 end
 
 --- @prop TextWrapped Widget
@@ -360,57 +407,21 @@ end
 --- The width of the text is determined by the ItemWidth config field.
 --- ##### Arguments
 --- - Text: String
-Iris.WidgetConstructor("TextWrapped", {
-    hasState = false,
-    hasChildren = false,
-    Args = {
-        ["Text"] = 1
-    },
-    Events = {
-
-    },
+--- - Color: Color3
+Iris.WidgetConstructor("TextWrapped", extend(abstractText, {
     Generate = function(thisWidget)
-        local TextWrapped = Instance.new("TextLabel")
-        TextWrapped.Name = "Iris_Text"
-        TextWrapped.Size = UDim2.new(Iris._config.ItemWidth, UDim.new(0, 0))
-        TextWrapped.BackgroundTransparency = 1
-        TextWrapped.BorderSizePixel = 0
-        TextWrapped.ZIndex = thisWidget.ZIndex
-        TextWrapped.LayoutOrder = thisWidget.ZIndex
-        TextWrapped.AutomaticSize = Enum.AutomaticSize.Y
+        local TextWrapped = abstractText.Generate(thisWidget)
+        TextWrapped.Name = "Iris_TextWrapped"
         TextWrapped.TextWrapped = true
 
-        applyTextStyle(TextWrapped)
-        UIPadding(TextWrapped, Vector2.new(0, 2)) -- it appears as if this padding is not controlled by any style properties in DearImGui. could change?
-
         return TextWrapped
-    end,
-    Update = function(thisWidget)
-        local TextWrapped = thisWidget.Instance
-        if thisWidget.arguments.Text == nil then
-            error("Iris.TextWrapped Text Argument is required", 5)
-        end
-        TextWrapped.Text = thisWidget.arguments.Text
-    end,
-    Discard = function(thisWidget)
-        thisWidget.Instance:Destroy()
     end
-})
+}))
 Iris.TextWrapped = function(args)
     return Iris._Insert("TextWrapped", args)
 end
 
---- @prop Button Widget
---- @within Widgets
---- A simple button.
---- ```json 
---- {hasChildren: false, hasState: false}
---- ```
---- ##### Arguments
---- - Text: String
---- ##### Events
---- - clicked: boolean
-Iris.WidgetConstructor("Button", {
+local abstractButton = {
     hasState = false,
     hasChildren = false,
     Args = {
@@ -427,10 +438,32 @@ Iris.WidgetConstructor("Button", {
             ["Get"] = function(thisWidget)
                 return  thisWidget.lastClickTick == Iris._cycleTick
             end
-        }
+        },
+        ["hovered"] = hoverEvent(function(thisWidget)
+            return thisWidget.Instance
+        end)
     },
     Generate = function(thisWidget)
-        local Button = commonButton()
+        local Button = Instance.new("TextButton")
+        Button.Size = UDim2.fromOffset(0, 0)
+        Button.BackgroundColor3 = Iris._config.ButtonColor
+        Button.BackgroundTransparency = Iris._config.ButtonTransparency
+        Button.AutoButtonColor = false
+    
+        applyTextStyle(Button)
+        Button.AutomaticSize = Enum.AutomaticSize.XY
+    
+        applyFrameStyle(Button)
+    
+        applyInteractionHighlights(Button, Button, {
+            ButtonColor = Iris._config.ButtonColor,
+            ButtonTransparency = Iris._config.ButtonTransparency,
+            ButtonHoveredColor = Iris._config.ButtonHoveredColor,
+            ButtonHoveredTransparency = Iris._config.ButtonHoveredTransparency,
+            ButtonActiveColor = Iris._config.ButtonActiveColor,
+            ButtonActiveTransparency = Iris._config.ButtonActiveTransparency,
+        })
+
         Button.ZIndex = thisWidget.ZIndex
         Button.LayoutOrder = thisWidget.ZIndex
 
@@ -443,7 +476,26 @@ Iris.WidgetConstructor("Button", {
     Discard = function(thisWidget)
         thisWidget.Instance:Destroy()
     end
-})
+}
+
+--- @prop Button Widget
+--- @within Widgets
+--- A simple button.
+--- ```json 
+--- {hasChildren: false, hasState: false}
+--- ```
+--- ##### Arguments
+--- - Text: String
+--- ##### Events
+--- - clicked: boolean
+Iris.WidgetConstructor("Button", extend(abstractButton, {
+    Generate = function(thisWidget)
+        local Button = abstractButton.Generate(thisWidget)
+        Button.Name = "Iris_Button"
+
+        return Button
+    end
+}))
 Iris.Button = function(args)
     return Iris._Insert("Button", args)
 end
@@ -458,30 +510,10 @@ end
 --- - Text: String
 --- ##### Events
 --- - clicked: boolean
-Iris.WidgetConstructor("SmallButton", {
-    hasState = false,
-    hasChildren = false,
-    Args = {
-        ["Text"] = 1
-    },
-    Events = {
-        ["clicked"] = {
-            ["Init"] = function(thisWidget)
-                thisWidget.lastClickTick = -1
-                thisWidget.Instance.MouseButton1Click:Connect(function()
-                    thisWidget.lastClickTick = Iris._cycleTick + 1
-                end)
-            end,
-            ["Get"] = function(thisWidget)
-                return thisWidget.lastClickTick == Iris._cycleTick
-            end
-        }
-    },
+Iris.WidgetConstructor("SmallButton", extend(abstractButton, {
     Generate = function(thisWidget)
-        local SmallButton = commonButton()
+        local SmallButton = abstractButton.Generate(thisWidget)
         SmallButton.Name = "Iris_SmallButton"
-        SmallButton.ZIndex = thisWidget.ZIndex
-        SmallButton.LayoutOrder = thisWidget.ZIndex
 
         local UIPadding = SmallButton.UIPadding
         UIPadding.PaddingLeft = UDim.new(0, 2)
@@ -490,15 +522,8 @@ Iris.WidgetConstructor("SmallButton", {
         UIPadding.PaddingBottom = UDim.new(0, 0)
 
         return SmallButton
-    end,
-    Update = function(thisWidget)
-        local SmallButton = thisWidget.Instance
-        SmallButton.Text = thisWidget.arguments.Text or "SmallButton"
-    end,
-    Discard = function(thisWidget)
-        thisWidget.Instance:Destroy()
     end
-})
+}))
 Iris.SmallButton = function(args)
     return Iris._Insert("SmallButton", args)
 end
@@ -738,7 +763,10 @@ Iris.WidgetConstructor("Checkbox", {
             ["Get"] = function(thisWidget)
                 return thisWidget.lastUncheckedTick == Iris._cycleTick
             end
-        }
+        },
+        ["hovered"] = hoverEvent(function(thisWidget)
+            return thisWidget.Instance
+        end)
     },
     Generate = function(thisWidget)
         local Checkbox = Instance.new("TextButton")
@@ -862,7 +890,10 @@ Iris.WidgetConstructor("Tree", {
             ["Get"] = function(thisWidget)
                 return thisWidget._lastUncollapsedTick == Iris._cycleTick
             end
-        }
+        },
+        ["hovered"] = hoverEvent(function(thisWidget)
+            return thisWidget.Instance
+        end)
     },
     Generate = function(thisWidget)
         local Tree = Instance.new("Frame")
@@ -1057,7 +1088,10 @@ Iris.WidgetConstructor("InputNum", {
             ["Get"] = function(thisWidget)
                 return thisWidget.lastNumchangeTick == Iris._cycleTick
             end
-        }
+        },
+        ["hovered"] = hoverEvent(function(thisWidget)
+            return thisWidget.Instance
+        end)
     },
     Generate = function(thisWidget)
         local InputNum = Instance.new("Frame")
@@ -1083,6 +1117,7 @@ Iris.WidgetConstructor("InputNum", {
         InputField.AutomaticSize = Enum.AutomaticSize.Y
         InputField.BackgroundColor3 = Iris._config.FrameBgColor
         InputField.BackgroundTransparency = Iris._config.FrameBgTransparency
+        InputField.ClearTextOnFocus = false
         InputField.TextTruncate = Enum.TextTruncate.AtEnd
         InputField.Parent = InputNum
 
@@ -1097,7 +1132,11 @@ Iris.WidgetConstructor("InputNum", {
             end
         end)
 
-        local SubButton = commonButton()
+        InputField.Focused:Connect(function()
+            InputField.SelectionStart = 1
+        end)
+
+        local SubButton = abstractButton.Generate(thisWidget)
         SubButton.Name = "SubButton"
         SubButton.ZIndex = thisWidget.ZIndex + 2
         SubButton.LayoutOrder = thisWidget.ZIndex + 2
@@ -1113,7 +1152,7 @@ Iris.WidgetConstructor("InputNum", {
             thisWidget.lastNumchangeTick = Iris._cycleTick + 1
         end)
 
-        local AddButton = commonButton()
+        local AddButton = abstractButton.Generate(thisWidget)
         AddButton.Name = "AddButton"
         AddButton.ZIndex = thisWidget.ZIndex + 3
         AddButton.LayoutOrder = thisWidget.ZIndex + 3
@@ -1204,7 +1243,10 @@ Iris.WidgetConstructor("InputText", {
             ["Get"] = function(thisWidget)
                 return thisWidget.lastTextchangeTick == Iris._cycleTick
             end
-        }
+        },
+        ["hovered"] = hoverEvent(function(thisWidget)
+            return thisWidget.Instance
+        end)
     },
     Generate = function(thisWidget)
         local textLabelHeight = Iris._config.TextSize
@@ -1326,7 +1368,9 @@ do -- Iris.Table
             ["BordersInner"] = 4
         },
         Events = {
-        
+            ["hovered"] = hoverEvent(function(thisWidget)
+                return thisWidget.Instance
+            end)
         },
         Generate = function(thisWidget)
             tableWidgets[thisWidget.ID] = thisWidget
@@ -1561,11 +1605,12 @@ do -- Iris.Window
         local windowSize = Vector2.new(thisWidget.state.position.value.X, thisWidget.state.position.value.Y)
         local minWindowSize = (Iris._config.TextSize + Iris._config.FramePadding.Y * 2) * 2
         local usableSize = getAbsoluteSize(thisWidget)
+        local safeAreaPadding = Vector2.new(Iris._config.WindowBorderSize + Iris._config.DisplaySafeAreaPadding.X, Iris._config.WindowBorderSize + Iris._config.DisplaySafeAreaPadding.Y)
 
         local maxWindowSize = (
             usableSize -
             windowSize -
-            Vector2.new(Iris._config.WindowBorderSize, Iris._config.WindowBorderSize)
+            safeAreaPadding
         )
         return Vector2.new(
             math.clamp(intentedSize.X, minWindowSize, math.max(maxWindowSize.X, minWindowSize)),
@@ -1576,16 +1621,18 @@ do -- Iris.Window
     local function fitPositionToWindowBounds(thisWidget, intendedPosition)
         local thisWidgetInstance = thisWidget.Instance
         local usableSize = getAbsoluteSize(thisWidget)
+        local safeAreaPadding = Vector2.new(Iris._config.WindowBorderSize + Iris._config.DisplaySafeAreaPadding.X, Iris._config.WindowBorderSize + Iris._config.DisplaySafeAreaPadding.Y)
+
         return Vector2.new(
             math.clamp(
                 intendedPosition.X,
-                Iris._config.WindowBorderSize,
-                math.max(Iris._config.WindowBorderSize, usableSize.X - thisWidgetInstance.WindowButton.AbsoluteSize.X - Iris._config.WindowBorderSize)
+                safeAreaPadding.X,
+                math.max(safeAreaPadding.X, usableSize.X - thisWidgetInstance.WindowButton.AbsoluteSize.X - safeAreaPadding.X)
             ),
             math.clamp(
                 intendedPosition.Y,
-                Iris._config.WindowBorderSize, 
-                math.max(Iris._config.WindowBorderSize, usableSize.Y - thisWidgetInstance.WindowButton.AbsoluteSize.Y - Iris._config.WindowBorderSize)
+                safeAreaPadding.Y, 
+                math.max(safeAreaPadding.Y, usableSize.Y - thisWidgetInstance.WindowButton.AbsoluteSize.Y - safeAreaPadding.Y)
             )
         )
     end
@@ -1787,7 +1834,10 @@ do -- Iris.Window
                 ["Get"] = function(thisWidget)
                     return thisWidget.lastUncollapsedTick == Iris._cycleTick
                 end
-            }
+            },
+            ["hovered"] = hoverEvent(function(thisWidget)
+                return thisWidget.Instance.WindowButton
+            end)
         },
         Generate = function(thisWidget)
             thisWidget.usesScreenGUI = Iris._config.UseScreenGUIs

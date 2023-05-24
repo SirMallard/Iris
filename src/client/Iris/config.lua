@@ -159,6 +159,7 @@ local TemplateConfig = {
         ItemSpacing = Vector2.new(8, 4),
         ItemInnerSpacing = Vector2.new(4, 4),
         CellPadding = Vector2.new(4, 2),
+        DisplaySafeAreaPadding = Vector2.new(0, 0),
         IndentSpacing = 21,
 
         TextFont = Enum.Font.Code,
@@ -179,6 +180,7 @@ local TemplateConfig = {
         ItemSpacing = Vector2.new(8, 8),
         ItemInnerSpacing = Vector2.new(8, 8),
         CellPadding = Vector2.new(4, 4),
+        DisplaySafeAreaPadding = Vector2.new(8, 8),
         IndentSpacing = 25,
 
         TextFont = Enum.Font.Ubuntu,
