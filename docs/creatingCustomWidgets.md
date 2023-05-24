@@ -6,10 +6,17 @@ Iris comes with the function `Iris.WidgetConstructor`, which allows you to Const
 
 For Instance, This is the call to `Iris.WidgetConstructor` for the `Iris.Text` widget:
 ```lua
-Iris.WidgetConstructor("Text", false, false, {
+Iris.WidgetConstructor("Text", {
+    hasState = false,
+    hasChildren = false,
     Args = {
         ["Text"] = 1
     },
+    Events  {
+        ["hovered"] = {
+            ...
+        }
+    }
     Generate = function(thisWidget)
         local Text = Instance.new("TextLabel")
         
@@ -26,14 +33,11 @@ Iris.WidgetConstructor("Text", false, false, {
 })
 ```
 
-The First three arguments:
-- `type: string`, which indicates the name of the widget
-- `hasState: boolean`, which indicates if the widget uses any state
-- `hasChildren: boolean`, which indicates if the widget is able to contain child widgets.
+The First argument, `type: string`, specifies a name for the widget
 
-In the instance of Iris.Text, It has no state, and it cant contain other children, so both are false.
 
 The fourth argument contains the class for the widget. The methods which a widget class may have depend on the value of `hasState` and `hasChildren`.
+every widget class should specify if it hasState and hasChildren. In the instance of Iris.Text, It has no state, and it cant contain other widgets, so both are false.
 
 | All Widgets  | Widgets with State | Widgets with Children     |
 |--------------|--------------------|---------------------------|
@@ -41,14 +45,15 @@ The fourth argument contains the class for the widget. The methods which a widge
 | Update       | UpdateState        | ChildDiscarded (optional) |
 | Discard      |                    |                           |
 | Args         |                    |                           |
+| Events       |                    |                           |
 
-### Generate:
+### Generate
 Generate is called when a widget is first instantiated. It should create all the instances and properly adjust them to fit the config properties.
 Generate is also called when style properties change.
 
 Generate should return the instance which acts as the root of the widget. (what should be parented to the parents designated Instance)
 
-### Update:
+### Update
 Update is called only after instantiation and when widget arguments have changed. 
 For instance, in `Iris.Text`
 ```lua
@@ -61,7 +66,7 @@ Update = function(thisWidget)
 end
 ```
 
-### Discard:
+### Discard
 Discard is called when the widget stops being displayed. In most cases the function body should resemble this:
 ```lua
 Discard = function(thisWidget)
@@ -69,7 +74,32 @@ Discard = function(thisWidget)
 end
 ```
 
-### Args:
+### Events
+Events is a table, not a method. It contains all of the possible events which a widget can have. Lets look at the hovered event as an example.
+```lua
+["hovered"] = {
+    ["Init"] = function(thisWidget)
+        local hoveredGuiObject = thisWidget.Instance
+        thisWidget.isHoveredEvent = false
+
+        hoveredGuiObject.MouseEnter:Connect(function()
+            thisWidget.isHoveredEvent = true
+        end)
+        hoveredGuiObject.MouseLeave:Connect(function()
+            thisWidget.isHoveredEvent = false
+        end)
+    end,
+    ["Get"] = function(thisWidget)
+        return thisWidget.isHoveredEvent
+    end
+}
+```
+Every event has 2 methods, `Init` and `Get`. 
+`Init` is called when a widget first polls the value of an event.
+Because of this, you can instantiate events and variables for an event to only widgets which need it.
+`Get` is the actual function which is called by the call to an event (like `Button.hovered()`), it should return the event value.
+
+### Args
 Args is a table, not a method. It enumerates all of the possible arguments which may be passed as arguments into the widget.
 The order of the tables indicies indicate which position the Argument will be interpreted as. For instance, in `Iris.Text`:
 ```lua

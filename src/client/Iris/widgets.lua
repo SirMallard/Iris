@@ -221,9 +221,6 @@ local function discardState(thisWidget)
     end
 end
 
---- @class Widgets
---- Each widget is available through Iris.<widget name\>
-
 do -- Root
     local NumNonWindowChildren = 0
     Iris.WidgetConstructor("Root", {
@@ -343,14 +340,6 @@ local abstractText = {
     end
 }
 
---- @prop Text Widget
---- @within Widgets
---- A simple Textbox.
---- ```json 
---- {hasChildren: false, hasState: false}
---- ```
---- ##### Arguments
---- - Text: String
 Iris.WidgetConstructor("Text", extend(abstractText, {
     Generate = function(thisWidget)
         local Text = abstractText.Generate(thisWidget)
@@ -359,18 +348,7 @@ Iris.WidgetConstructor("Text", extend(abstractText, {
         return Text
     end
 }))
-Iris.Text = function(args)
-    return Iris._Insert("Text", args)
-end
 
---- @prop TextColored Widget
---- @within Widgets
---- ```json 
---- {hasChildren: false, hasState: false}
---- ```
---- A simple Textbox, which has colored text.
---- ##### Arguments
---- - Text: String
 Iris.WidgetConstructor("TextColored", extend(abstractText, {
     Args = {
         ["Text"] = 1,
@@ -394,20 +372,7 @@ Iris.WidgetConstructor("TextColored", extend(abstractText, {
         Text.TextColor3 = thisWidget.arguments.Color
     end
 }))
-Iris.TextColored = function(args)
-    return Iris._Insert("TextColored", args)
-end
 
---- @prop TextWrapped Widget
---- @within Widgets
---- ```json 
---- {hasChildren: false, hasState: false}
---- ```
---- A simple Textbox, which has wrapped text.
---- The width of the text is determined by the ItemWidth config field.
---- ##### Arguments
---- - Text: String
---- - Color: Color3
 Iris.WidgetConstructor("TextWrapped", extend(abstractText, {
     Generate = function(thisWidget)
         local TextWrapped = abstractText.Generate(thisWidget)
@@ -417,9 +382,6 @@ Iris.WidgetConstructor("TextWrapped", extend(abstractText, {
         return TextWrapped
     end
 }))
-Iris.TextWrapped = function(args)
-    return Iris._Insert("TextWrapped", args)
-end
 
 local abstractButton = {
     hasState = false,
@@ -478,16 +440,6 @@ local abstractButton = {
     end
 }
 
---- @prop Button Widget
---- @within Widgets
---- A simple button.
---- ```json 
---- {hasChildren: false, hasState: false}
---- ```
---- ##### Arguments
---- - Text: String
---- ##### Events
---- - clicked: boolean
 Iris.WidgetConstructor("Button", extend(abstractButton, {
     Generate = function(thisWidget)
         local Button = abstractButton.Generate(thisWidget)
@@ -496,20 +448,7 @@ Iris.WidgetConstructor("Button", extend(abstractButton, {
         return Button
     end
 }))
-Iris.Button = function(args)
-    return Iris._Insert("Button", args)
-end
 
---- @prop SmallButton Widget
---- @within Widgets
---- A simple button, with reduced padding.
---- ```json 
---- {hasChildren: false, hasState: false}
---- ```
---- ##### Arguments
---- - Text: String
---- ##### Events
---- - clicked: boolean
 Iris.WidgetConstructor("SmallButton", extend(abstractButton, {
     Generate = function(thisWidget)
         local SmallButton = abstractButton.Generate(thisWidget)
@@ -524,16 +463,7 @@ Iris.WidgetConstructor("SmallButton", extend(abstractButton, {
         return SmallButton
     end
 }))
-Iris.SmallButton = function(args)
-    return Iris._Insert("SmallButton", args)
-end
 
---- @prop Separator Widget
---- @within Widgets
---- A vertical or horizonal line, depending on the context, which visually seperates widgets.
---- ```json 
---- {hasChildren: false, hasState: false}
---- ```
 Iris.WidgetConstructor("Separator", {
     hasState = false,
     hasChildren = false,
@@ -570,18 +500,7 @@ Iris.WidgetConstructor("Separator", {
         thisWidget.Instance:Destroy()
     end
 })
-Iris.Separator = function(args)
-    return Iris._Insert("Separator", args)
-end
 
---- @prop Indent Widget
---- @within Widgets
---- Indents its child widgets.
---- ```json 
---- {hasChildren: true, hasState: false}
---- ```
---- ##### Arguments
---- - Width: Number
 Iris.WidgetConstructor("Indent", {
     hasState = false,
     hasChildren = true,
@@ -622,19 +541,7 @@ Iris.WidgetConstructor("Indent", {
         return thisWidget.Instance
     end
 })
-Iris.Indent = function(args)
-    return Iris._Insert("Indent", args)
-end
 
---- @prop SameLine Widget
---- @within Widgets
---- Positions its children in a row, horizontally 
---- ```json 
---- {hasChildren: true, hasState: false}
---- ```
---- ##### Arguments
---- - Width: Number
---- - VerticalAlignment: Enum.VerticalAlignment
 Iris.WidgetConstructor("SameLine", {
     hasState = false,
     hasChildren = true,
@@ -681,16 +588,7 @@ Iris.WidgetConstructor("SameLine", {
         return thisWidget.Instance
     end
 })
-Iris.SameLine = function(args)
-    return Iris._Insert("SameLine", args)
-end
 
---- @prop Group Widget
---- @within Widgets
---- Layout Widget, contains its children as a single group
---- ```json 
---- {hasChildren: true, hasState: false}
---- ```
 Iris.WidgetConstructor("Group", {
     hasState = false,
     hasChildren = true,
@@ -724,23 +622,7 @@ Iris.WidgetConstructor("Group", {
         return thisWidget.Instance
     end
 })
-Iris.Group = function(args)
-    return Iris._Insert("Group", args)
-end
 
---- @prop Checkbox Widget
---- @within Widgets
---- A checkbox which can be checked or unchecked.
---- ```json 
---- {hasChildren: false, hasState: true}
---- ```
---- ##### Arguments
---- - Text: string
---- ##### Events
---- - checked: boolean
---- - unchecked: boolean
---- ##### States
---- - isChecked: boolean
 Iris.WidgetConstructor("Checkbox", {
     hasState = true,
     hasChildren = false,
@@ -847,25 +729,7 @@ Iris.WidgetConstructor("Checkbox", {
         end
     end
 })
-Iris.Checkbox = function(args, state)
-    return Iris._Insert("Checkbox", args, state)
-end
 
---- @prop Tree Widget
---- @within Widgets
---- A collapsable tree which contains children, positioned vertically.
---- ```json 
---- {hasChildren: true, hasState: true}
---- ```
---- ##### Arguments
---- - Text: string
---- - SpanAvailWidth: boolean
---- - NoIndent: boolean
---- ##### Events
---- - collapsed: boolean
---- - uncollapsed: boolean
---- ##### States
---- - isUncollapsed: boolean
 Iris.WidgetConstructor("Tree", {
     hasState = true,
     hasChildren = true,
@@ -1045,29 +909,7 @@ Iris.WidgetConstructor("Tree", {
         end
     end
 })
-Iris.Tree = function(args, state)
-    return Iris._Insert("Tree", args, state)
-end
 
---- @prop InputNum Widget
---- @within Widgets
---- A field which allows the user to enter a number.
---- Also has buttons to increment and decrement the number.
---- ```json 
---- {hasChildren: false, hasState: true}
---- ```
---- ##### Arguments
---- - Text: string
---- - Increment: number
---- - Min: number
---- - Max: number
---- - Format: string
---- - NoButtons: boolean
---- - NoField: boolean
---- ##### Events
---- - numberChanged: boolean
---- ##### States
---- - number: number
 Iris.WidgetConstructor("InputNum", {
     hasState = true,
     hasChildren = false,
@@ -1211,23 +1053,7 @@ Iris.WidgetConstructor("InputNum", {
         InputField.Text = string.format(thisWidget.arguments.Format or "%f", thisWidget.state.number.value)
     end
 })
-Iris.InputNum = function(args, state)
-    return Iris._Insert("InputNum", args, state)
-end
 
---- @prop InputText Widget
---- @within Widgets
---- A field which allows the user to enter text.
---- ```json
---- {hasChildren: false, hasState: true}
---- ```
---- ##### Arguments
---- - Text: string
---- - TextHint: string
---- ##### Events
---- - textChanged: boolean
---- ##### States
---- - text: string
 Iris.WidgetConstructor("InputText", {
     hasState = true,
     hasChildren = false,
@@ -1318,26 +1144,12 @@ Iris.WidgetConstructor("InputText", {
         thisWidget.Instance.InputField.Text = thisWidget.state.text.value
     end
 })
-Iris.InputText = function(args, state)
-    return Iris._Insert("InputText", args, state)
-end
 
---- @prop Table Widget
---- @within Widgets
---- A layout widget which allows children to be displayed in configurable columns and rows.
---- ```json 
---- {hasChildren: true, hasState: false}
---- ```
---- ##### Arguments
---- - NumColumns: number
---- - RowBg: boolean
---- - BordersOuter: boolean
---- - BordersInner: boolean
 do -- Iris.Table
     local tableWidgets = {}
 
     table.insert(Iris._postCycleCallbacks, function()
-        for i,v in tableWidgets do
+        for _, v in tableWidgets do
             v.RowColumnIndex = 0
         end
     end)
@@ -1441,8 +1253,8 @@ do -- Iris.Table
                     v.BackgroundTransparency = 1
                 end
             else
-                for rowColumnIndex,v in thisWidget.CellInstances do
-                    local currentRow = math.ceil((rowColumnIndex) / thisWidget.InitialNumColumns)    
+                for rowColumnIndex, v in thisWidget.CellInstances do
+                    local currentRow = math.ceil((rowColumnIndex) / thisWidget.InitialNumColumns)
                     v.BackgroundTransparency = if currentRow % 2 == 0 then Iris._config.TableRowBgAltTransparency else Iris._config.TableRowBgTransparency
                 end
             end
@@ -1488,7 +1300,7 @@ do -- Iris.Table
             else
                 UIStroke(cell, 0.5, Iris._config.TableBorderLightColor, Iris._config.TableBorderLightTransparency)
                 -- this takes advantage of unintended behavior when UIStroke is set to 0.5 to render cell borders,
-                -- at 0.5, only the top and left side of the cell will be rendered with a border. expect to randomly.
+                -- at 0.5, only the top and left side of the cell will be rendered with a border.
             end
 
             if thisWidget.arguments.RowBg ~= false then
@@ -1505,37 +1317,8 @@ do -- Iris.Table
             return cell
         end
     })
-    Iris.Table = function(args, state)
-        return Iris._Insert("Table", args, state)
-    end
 end
 
---- @prop Window Widget
---- @within Widgets
---- A Window. should be used to contain most other Widgets. Cannot be inside other Widgets.
---- ```json 
---- {hasChildren: true, hasState: true}
---- ```
---- ##### Arguments
---- - Title: string
---- - NoTitleBar: boolean
---- - NoBackground: boolean
---- - NoCollapse: boolean
---- - NoClose: boolean
---- - NoMove: boolean
---- - NoScrollbar: boolean
---- - NoResize: boolean
---- ##### Events
---- - closed: boolean
---- - opened: boolean
---- - collapsed: boolean
---- - uncollapsed: boolean
---- ##### States
---- - size: Vector2
---- - position: Vector2
---- - isUncollapsed: boolean
---- - isOpened: boolean
---- - scrollDistance: number
 do -- Iris.Window
     local windowDisplayOrder = 0 -- incremental count which is used for determining focused windows ZIndex
     local dragWindow -- window being dragged, may be nil
@@ -2294,9 +2077,6 @@ do -- Iris.Window
             end
         end
     })
-    Iris.Window = function(args, state)
-        return Iris._Insert("Window", args, state)
-    end
 end
 
 end

@@ -706,12 +706,347 @@ Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark) -- use colorDark and size
 Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
 Iris.UpdateGlobalConfig(Iris.TemplateConfig.utilityDefault)
 Iris._globalRefreshRequested = false -- UpdatingGlobalConfig changes this to true, leads to Root being generated twice.
-require(script.widgets)(Iris)
 
 --- @within Iris
 --- @function ShowDemoWindow
 --- ShowDemoWindow is a function which creates a Demonstration window. this window contains many useful utilities for coders, and serves as a refrence for using every aspect of the library.
---- Ideally, the DemoWindow should always be available through your UI. 
+--- Ideally, the DemoWindow should always be available through your UI.
 Iris.ShowDemoWindow = require(script.demoWindow)(Iris)
+
+require(script.widgets)(Iris)
+
+--- @class Widgets
+--- Each widget is available through Iris.<widget name\>
+
+--- @prop Text Widget
+--- @within Widgets
+--- A simple Textbox.
+---
+--- ```json 
+--- hasChildren: false,
+--- hasState: false,
+--- Arguments: {
+---     Text: String
+--- },
+--- Events: {
+---     hovered: boolean
+--- }
+--- ```
+Iris.Text = function(args)
+    return Iris._Insert("Text", args)
+end
+
+--- @prop TextColored Widget
+--- @within Widgets
+--- A simple Textbox, which has colored text.
+---
+--- ```json
+--- hasChildren: false,
+--- hasState: false,
+--- Arguments: {
+---     Text: String
+--- },
+--- Events: {
+---     hovered: boolean
+--- }
+--- ```
+Iris.TextColored = function(args)
+    return Iris._Insert("TextColored", args)
+end
+
+--- @prop TextWrapped Widget
+--- @within Widgets
+--- A simple Textbox, which has wrapped text.
+--- The width of the text is determined by the ItemWidth config field.
+---
+--- ```json 
+--- hasChildren: false,
+--- hasState: false,
+--- Arguments: {
+---     Text: String,
+---     Color: Color3
+--- },
+--- Events: {
+---     hovered: boolean
+--- }
+--- ```
+Iris.TextWrapped = function(args)
+    return Iris._Insert("TextWrapped", args)
+end
+
+--- @prop Button Widget
+--- @within Widgets
+--- A simple button.
+---
+--- ```json 
+--- hasChildren: false,
+--- hasState: false,
+--- Arguments: {
+---     Text: String
+--- },
+--- Events: {
+---     clicked: boolean,
+---     hovered: boolean
+--- }
+--- ```
+Iris.Button = function(args)
+    return Iris._Insert("Button", args)
+end
+
+--- @prop SmallButton Widget
+--- @within Widgets
+--- A simple button, with reduced padding.
+---
+--- ```json 
+--- hasChildren: false,
+--- hasState: false,
+--- Arguments: {
+---     Text: String
+--- },
+--- Events: {
+---     clicked: boolean,
+---     hovered: boolean
+--- }
+--- ```
+Iris.SmallButton = function(args)
+    return Iris._Insert("SmallButton", args)
+end
+
+--- @prop Separator Widget
+--- @within Widgets
+--- A vertical or horizonal line, depending on the context, which visually seperates widgets.
+---
+--- ```json 
+--- hasChildren: false,
+--- hasState: false
+--- ```
+Iris.Separator = function(args)
+    return Iris._Insert("Separator", args)
+end
+
+--- @prop Indent Widget
+--- @within Widgets
+--- Indents its child widgets.
+---
+--- ```json 
+--- hasChildren: true,
+--- hasState: false,
+--- Arguments: {
+---     Width: Number
+--- }
+--- ```
+Iris.Indent = function(args)
+    return Iris._Insert("Indent", args)
+end
+
+--- @prop SameLine Widget
+--- @within Widgets
+--- Positions its children in a row, horizontally
+---
+--- ```json 
+--- hasChildren: true,
+--- hasState: false,
+--- Arguments: {
+---     Width: Number
+---     VerticalAlignment: Enum.VerticalAlignment
+--- }
+--- ```
+Iris.SameLine = function(args)
+    return Iris._Insert("SameLine", args)
+end
+
+--- @prop Group Widget
+--- @within Widgets
+--- Layout Widget, contains its children as a single group
+---
+--- ```json 
+--- hasChildren: true,
+--- hasState: false
+--- ```
+Iris.Group = function(args)
+    return Iris._Insert("Group", args)
+end
+
+--- @prop Checkbox Widget
+--- @within Widgets
+--- A checkbox which can be checked or unchecked.
+---
+--- ```json 
+--- hasChildren: false,
+--- hasState: true,
+--- Arguments: {
+---     Text: string
+--- },
+--- Events: {
+---     checked: boolean,
+---     unchecked: boolean,
+---     hovered: boolean
+--- },
+--- States: {
+---     isChecked: boolean
+--- }
+--- ```
+Iris.Checkbox = function(args, state)
+    return Iris._Insert("Checkbox", args, state)
+end
+
+--- @prop Tree Widget
+--- @within Widgets
+--- A collapsable tree which contains children, positioned vertically.
+---
+--- ```json 
+--- hasChildren: true,
+--- hasState: true,
+--- Arguments: {
+---     Text: string,
+---     SpanAvailWidth: boolean,
+---     NoIndent: boolean
+--- },
+--- Events: {
+---     collapsed: boolean,
+---     uncollapsed: boolean,
+---     hovered: boolean
+--- },
+--- States: {
+---     isUncollapsed: boolean
+--- }
+--- ```
+Iris.Tree = function(args, state)
+    return Iris._Insert("Tree", args, state)
+end
+
+--- @prop InputNum Widget
+--- @within Widgets
+--- A field which allows the user to enter a number.
+--- Also has buttons to increment and decrement the number.
+---
+--- ```json 
+--- hasChildren: false,
+--- hasState: true,
+--- Arguments: {
+---     Text: string,
+---     Increment: number,
+---     Min: number,
+---     Max: number,
+---     Format: string,
+---     NoButtons: boolean,
+---     NoField: boolean
+--- },
+--- Events: {
+---     numberChanged: boolean,
+---     hovered: boolean
+--- },
+--- States: {
+---     number: number
+--- }
+--- ```
+Iris.InputNum = function(args, state)
+    return Iris._Insert("InputNum", args, state)
+end
+
+--- @prop InputText Widget
+--- @within Widgets
+--- A field which allows the user to enter text.
+---
+--- ```json
+--- hasChildren: false,
+--- hasState: true,
+--- Arguments: {
+---     Text: string,
+---     TextHint: string
+--- },
+--- Events:  {
+---     textChanged: boolean,
+---     hovered: boolean
+--- }
+--- States: {
+---     text: string
+--- }
+--- ```
+Iris.InputText = function(args, state)
+    return Iris._Insert("InputText", args, state)
+end
+
+--- @prop Table Widget
+--- @within Widgets
+--- A layout widget which allows children to be displayed in configurable columns and rows.
+---
+--- ```json
+--- hasChildren: true,
+--- hasState: false,
+--- Arguments: {
+---     NumColumns: number,
+---     RowBg: boolean,
+---     BordersOuter: boolean,
+---     BordersInner: boolean
+--- },
+--- Events: {
+---     hovered: boolean
+--- }
+--- ```
+Iris.Table = function(args, state)
+    return Iris._Insert("Table", args, state)
+end
+
+--- @function NextColumn
+--- @within Widgets
+--- In a table, moves to the next available cell. if the current cell is in the last column,
+--- then the next cell will be the first column of the next row.
+Iris.NextColumn = Iris.NextColumn
+
+--- @function SetColumnIndex
+--- @within Widgets
+--- @param index number
+--- In a table, directly sets the index of the column
+Iris.SetColumnIndex = Iris.SetColumnIndex
+
+--- @function NextRow
+--- @within Widgets
+--- In a table, moves to the next available row,
+--- skipping cells in the previous column if the last cell wasn't in the last column
+Iris.NextRow = Iris.NextRow
+
+--- @prop Window Widget
+--- @within Widgets
+--- A Window. should be used to contain most other Widgets. Cannot be inside other Widgets.
+--- 
+--- ```json
+--- hasChildren: true,
+--- hasState: true,
+--- Arguments: {
+---     Title: string,
+---     NoTitleBar: boolean,
+---     NoBackground: boolean,
+---     NoCollapse: boolean,
+---     NoClose: boolean,
+---     NoMove: boolean,
+---     NoScrollbar: boolean,
+---     NoResize: boolean
+--- },
+--- Events: {
+---     closed: boolean,
+---     opened: boolean,
+---     collapsed: boolean,
+---     uncollapsed: boolean,
+---     hovered: boolean
+--- },
+--- States: {
+---     size: Vector2,
+---     position: Vector2,
+---     isUncollapsed: boolean,
+---     isOpened: boolean,
+---     scrollDistance: number
+--- }
+--- ```
+Iris.Window = function(args, state)
+    return Iris._Insert("Window", args, state)
+end
+
+--- @function SetFocusedWindow
+--- @within Widgets
+--- sets the Window widget to be focused
+--- @param thisWidget table
+Iris.SetFocusedWindow = Iris.SetFocusedWindow
+
 
 return Iris
