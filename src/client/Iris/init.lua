@@ -547,7 +547,6 @@ end
 
 function Iris._GenNewWidget(widgetType, arguments, widgetState, ID)
     local parentId = Iris._IDStack[Iris._stackIndex]
-    local parentWidget = Iris._VDOM[parentId]
     local thisWidgetClass = Iris._widgets[widgetType]
 
     local thisWidget = {}
@@ -555,16 +554,13 @@ function Iris._GenNewWidget(widgetType, arguments, widgetState, ID)
 
     thisWidget.ID = ID
     thisWidget.type = widgetType
-    thisWidget.parentWidget = parentWidget
-    thisWidget.events = {} -- TODO delete
+    thisWidget.parentWidget = Iris._VDOM[parentId]
     thisWidget.trackedEvents = {}
 
-    local widgetInstanceParent = if Iris._config.Parent then Iris._config.Parent else Iris._widgets[parentWidget.type].ChildAdded(parentWidget, thisWidget)
-
-    thisWidget.ZIndex = parentWidget.ZIndex + (Iris._widgetCount * 0x40) + Iris._config.ZIndexOffset
+    thisWidget.ZIndex = thisWidget.parentWidget.ZIndex + (Iris._widgetCount * 0x40) + Iris._config.ZIndexOffset
 
     thisWidget.Instance = thisWidgetClass.Generate(thisWidget)
-    thisWidget.Instance.Parent = widgetInstanceParent
+    thisWidget.Instance.Parent = if Iris._config.Parent then Iris._config.Parent else Iris._widgets[thisWidget.parentWidget.type].ChildAdded(thisWidget.parentWidget, thisWidget)
 
     thisWidget.arguments = arguments
     thisWidgetClass.Update(thisWidget)
@@ -965,6 +961,12 @@ end
 --- ```
 Iris.InputText = function(args, state)
     return Iris._Insert("InputText", args, state)
+end
+
+--- @prop Tooltip Widget
+--- @within Widgets
+Iris.Tooltip = function(args)
+    return Iris._Insert("Tooltip", args)
 end
 
 --- @prop Table Widget

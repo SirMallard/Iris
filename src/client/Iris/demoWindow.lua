@@ -97,9 +97,27 @@ return function(Iris)
                 Iris.PopConfig()
                 Iris.Text({"The text is: " .. InputText.text.value})
             Iris.End()
+        end,
+
+        Tooltip = function()
+            Iris.PushConfig({ContentWidth = UDim.new(0, 250)})
+            Iris.Tree({"Tooltip"})
+                if Iris.Text({"Hover over me to reveal a tooltip"}).hovered() then
+                    Iris.Tooltip({"I am some helpful tooltip text"})
+                end
+                local dynamicText = Iris.State("")
+                local numRepeat = Iris.State(3)
+                if Iris.InputNum({"# of repeat", 1, 1, 50}, {number = numRepeat}).numberChanged() then
+                    dynamicText:set(string.rep("Hello ", numRepeat:get()))
+                end
+                if Iris.Checkbox({"Show dynamic text tooltip"}).isChecked.value then
+                    Iris.Tooltip({dynamicText:get()})
+                end
+            Iris.End()
+            Iris.PopConfig()
         end
     }
-    local widgetDemosOrder = {"Basic", "Tree", "Group", "Indent", "InputNum", "InputText"}
+    local widgetDemosOrder = {"Basic", "Tree", "Group", "Indent", "InputNum", "InputText", "Tooltip"}
 
     local function recursiveTree()
         local theTree = Iris.Tree({"Recursive Tree"})
