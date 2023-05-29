@@ -105,8 +105,8 @@ return function(Iris)
                 if Iris.Text({"Hover over me to reveal a tooltip"}).hovered() then
                     Iris.Tooltip({"I am some helpful tooltip text"})
                 end
-                local dynamicText = Iris.State("")
-                local numRepeat = Iris.State(3)
+                local dynamicText = Iris.State("Hello ")
+                local numRepeat = Iris.State(1)
                 if Iris.InputNum({"# of repeat", 1, 1, 50}, {number = numRepeat}).numberChanged() then
                     dynamicText:set(string.rep("Hello ", numRepeat:get()))
                 end

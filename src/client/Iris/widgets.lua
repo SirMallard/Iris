@@ -56,6 +56,14 @@ local function UICorner(Parent, PxRounding)
     return UICornerInstance
 end
 
+local function UISizeConstraint(Parent, MinSize, MaxSize)
+    local UISizeConstraintInstance = Instance.new("UISizeConstraint")
+    UISizeConstraintInstance.MinSize = MinSize
+    UISizeConstraintInstance.MaxSize = MaxSize
+    UISizeConstraintInstance.Parent = Parent
+    return UISizeConstraintInstance
+end
+
 return function(Iris)
 
 local function applyTextStyle(thisInstance)
@@ -251,6 +259,17 @@ do -- Root
                 PopupScreenGui = Instance.new("ScreenGui")
                 PopupScreenGui.ResetOnSpawn = false
                 PopupScreenGui.DisplayOrder = Iris._config.DisplayOrderOffset + 1024 -- room for 1024 regular windows before overlap
+
+                local TooltipContainer = Instance.new("Frame")
+                TooltipContainer.Name = "TooltipContainer"
+                TooltipContainer.AutomaticSize = Enum.AutomaticSize.XY
+                TooltipContainer.Size = UDim2.fromOffset(0, 0)
+                TooltipContainer.BackgroundTransparency = 1
+                TooltipContainer.BorderSizePixel = 0
+
+                UIListLayout(TooltipContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.FrameBorderSize))
+
+                TooltipContainer.Parent = PopupScreenGui
             else
                 PopupScreenGui = Instance.new("Folder")
             end
@@ -296,7 +315,7 @@ do -- Root
             if childWidget.type == "Window" then
                 return thisWidget.Instance
             elseif childWidget.type == "Tooltip" then
-                return thisWidget.Instance.PopupScreenGui
+                return thisWidget.Instance.PopupScreenGui.TooltipContainer
             else
                 NumNonWindowChildren += 1
                 thisWidget.Instance.PseudoWindowScreenGui.PseudoWindow.Visible = true
@@ -1181,21 +1200,20 @@ do -- Iris.Tooltip
         return clampedPos
     end
 
-    local function relocateTooltip(thisWidget)
+    local function relocateTooltips()
+        if Iris._rootInstance == nil then
+            return
+        end
+        local PopupScreenGui = Iris._rootInstance.PopupScreenGui
+        local TooltipContainer = PopupScreenGui.TooltipContainer
         local mouseLocation = UserInputService:GetMouseLocation() - Vector2.new(0, 36)
-        local newPosition = findBestWindowPosForPopup(mouseLocation, thisWidget.Instance.TooltipFrame.AbsoluteSize, Vector2.new(Iris._config.DisplaySafeAreaPadding, Iris._config.DisplaySafeAreaPadding), thisWidget.Instance.Parent.AbsoluteSize)
-        thisWidget.Instance.Position = UDim2.fromOffset(newPosition.X, newPosition.Y)
+        local newPosition = findBestWindowPosForPopup(mouseLocation, TooltipContainer.AbsoluteSize, Vector2.new(Iris._config.DisplaySafeAreaPadding, Iris._config.DisplaySafeAreaPadding), PopupScreenGui.AbsoluteSize)
+        TooltipContainer.Position = UDim2.fromOffset(newPosition.X, newPosition.Y)
     end
 
-    local TooltipWidgets = {}
+    UserInputService.InputChanged:Connect(relocateTooltips)
 
-    UserInputService.InputChanged:Connect(function()
-        for _, thisWidget in TooltipWidgets do
-            relocateTooltip(thisWidget)
-        end
-    end)
-
-    Iris.WidgetConstructor("Tooltip", {
+    Iris.WidgetConstructor("Tooltip", { 
         hasState = false,
         hasChildren = false,
         Args = {
@@ -1206,53 +1224,40 @@ do -- Iris.Tooltip
         },
         Generate = function(thisWidget)
             thisWidget.parentWidget = Iris._rootWidget -- only allow root as parent
-            TooltipWidgets[thisWidget.ID] = thisWidget
 
-            local Tooltip = Instance.new("Frame")
+            local Tooltip = Instance.new("TextLabel")
             Tooltip.Name = "Iris_Tooltip"
-            Tooltip.ZIndex = thisWidget.ZIndex
-            Tooltip.LayoutOrder = thisWidget.ZIndex
-            Tooltip.AutomaticSize = Enum.AutomaticSize.Y
-            Tooltip.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(1, 0))
-            Tooltip.BackgroundTransparency = 1
-            Tooltip.BorderSizePixel = 0
-
-            local TooltipFrame = Instance.new("TextLabel")
-            TooltipFrame.Name = "TooltipFrame"
-            TooltipFrame.Size = UDim2.fromOffset(0, 0)
-            TooltipFrame.ZIndex = thisWidget.ZIndex + 1
-            TooltipFrame.LayoutOrder = thisWidget.ZIndex + 1
-            TooltipFrame.AutomaticSize = Enum.AutomaticSize.XY
+            Tooltip.Size = UDim2.fromOffset(0, 0)
+            Tooltip.ZIndex = thisWidget.ZIndex + 1
+            Tooltip.LayoutOrder = thisWidget.ZIndex + 1
+            Tooltip.AutomaticSize = Enum.AutomaticSize.XY
     
-            applyTextStyle(TooltipFrame)
-            TooltipFrame.BackgroundColor3 = Iris._config.WindowBgColor
-            TooltipFrame.BackgroundTransparency = Iris._config.WindowBgTransparency
-            TooltipFrame.BorderSizePixel = Iris._config.WindowBorderSize
-            TooltipFrame.TextWrapped = true
+            applyTextStyle(Tooltip)
+            Tooltip.BackgroundColor3 = Iris._config.WindowBgColor
+            Tooltip.BackgroundTransparency = Iris._config.WindowBgTransparency
+            Tooltip.BorderSizePixel = Iris._config.WindowBorderSize
+            Tooltip.TextWrapped = true
+
             local UIStroke = Instance.new("UIStroke")
             UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
             UIStroke.LineJoinMode = Enum.LineJoinMode.Round
             UIStroke.Thickness = Iris._config.WindowBorderSize
             UIStroke.Color = Iris._config.BorderActiveColor
-            UIStroke.Parent = TooltipFrame
-            UIPadding(TooltipFrame, Iris._config.FramePadding)
-
-            TooltipFrame.Parent = Tooltip
-
+            UIStroke.Parent = Tooltip
+            UIPadding(Tooltip, Iris._config.FramePadding)
+            UISizeConstraint(Tooltip, Vector2.new(0, 0), Vector2.new(Iris._config.ContentWidth.Offset, 1e9))
             
-    
             return Tooltip
         end,
         Update = function(thisWidget)
-            local TooltipFrame = thisWidget.Instance.TooltipFrame
+            local Tooltip = thisWidget.Instance
             if thisWidget.arguments.Text == nil then
                 error("Iris.Text Text Argument is required", 5)
             end
-            TooltipFrame.Text = thisWidget.arguments.Text
-            relocateTooltip(thisWidget)
+            Tooltip.Text = thisWidget.arguments.Text
+            relocateTooltips()
         end,
         Discard = function(thisWidget)
-            TooltipWidgets[thisWidget.ID] = nil
             thisWidget.Instance:Destroy()
         end
     })
