@@ -43,7 +43,7 @@ local TemplateConfig = {
         ButtonActiveTransparency = 0,
 
         HeaderColor = Color3.fromRGB(66, 150, 250),
-        HeaderTransparency = 0.31,
+        HeaderTransparency = 0.69,
         HeaderHoveredColor = Color3.fromRGB(66, 150, 250),
         HeaderHoveredTransparency = 0.2,
         HeaderActiveColor = Color3.fromRGB(66, 150, 250),

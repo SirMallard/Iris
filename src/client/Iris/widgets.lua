@@ -51,7 +51,7 @@ end
 
 local function UICorner(Parent, PxRounding)
     local UICornerInstance = Instance.new("UICorner")
-    UICornerInstance.CornerRadius = UDim.new(0, PxRounding)
+    UICornerInstance.CornerRadius = UDim.new(PxRounding ~= nil and 0 or 1, PxRounding or 0)
     UICornerInstance.Parent = Parent
     return UICornerInstance
 end
@@ -159,7 +159,7 @@ local function applyTextInteractionHighlights(Button, Highlightee, Colors)
     Button.SelectionImageObject = Iris.SelectionImageObject
 end
 
-local function applyFrameStyle(thisInstance, forceNoPadding)
+local function applyFrameStyle(thisInstance, forceNoPadding, doubleyNoPadding)
     -- padding, border, and rounding
     -- optimized to only use what instances are needed, based on style
     local FramePadding = Iris._config.FramePadding
@@ -171,15 +171,15 @@ local function applyFrameStyle(thisInstance, forceNoPadding)
     if FrameBorderSize > 0 and FrameRounding > 0 then
         thisInstance.BorderSizePixel = 0
 
-        local UIStroke = Instance.new("UIStroke")
-        UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-        UIStroke.LineJoinMode = Enum.LineJoinMode.Round
-        UIStroke.Transparency = FrameBorderTransparency
-        UIStroke.Thickness = FrameBorderSize
-        UIStroke.Color = FrameBorderColor
+        local uiStroke = Instance.new("UIStroke")
+        uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+        uiStroke.LineJoinMode = Enum.LineJoinMode.Round
+        uiStroke.Transparency = FrameBorderTransparency
+        uiStroke.Thickness = FrameBorderSize
+        uiStroke.Color = FrameBorderColor
 
         UICorner(thisInstance, FrameRounding)
-        UIStroke.Parent = thisInstance
+        uiStroke.Parent = thisInstance
 
         if not forceNoPadding then
             UIPadding(thisInstance, Iris._config.FramePadding)
@@ -198,7 +198,7 @@ local function applyFrameStyle(thisInstance, forceNoPadding)
 
         if not forceNoPadding then
             UIPadding(thisInstance, FramePadding - Vector2.new(FrameBorderSize, FrameBorderSize))
-        else
+        elseif not doubleyNoPadding then
             UIPadding(thisInstance, -Vector2.new(FrameBorderSize, FrameBorderSize))
         end
     end
@@ -485,11 +485,11 @@ Iris.WidgetConstructor("SmallButton", extend(abstractButton, {
         local SmallButton = abstractButton.Generate(thisWidget)
         SmallButton.Name = "Iris_SmallButton"
 
-        local UIPadding = SmallButton.UIPadding
-        UIPadding.PaddingLeft = UDim.new(0, 2)
-        UIPadding.PaddingRight = UDim.new(0, 2)
-        UIPadding.PaddingTop = UDim.new(0, 0)
-        UIPadding.PaddingBottom = UDim.new(0, 0)
+        local uiPadding = SmallButton.UIPadding
+        uiPadding.PaddingLeft = UDim.new(0, 2)
+        uiPadding.PaddingRight = UDim.new(0, 2)
+        uiPadding.PaddingTop = UDim.new(0, 0)
+        uiPadding.PaddingBottom = UDim.new(0, 0)
 
         return SmallButton
     end
@@ -599,17 +599,17 @@ Iris.WidgetConstructor("SameLine", {
     end,
     Update = function(thisWidget)
         local itemWidth
-        local UIListLayout = thisWidget.Instance.UIListLayout
+        local uiListLayout = thisWidget.Instance.UIListLayout
         if thisWidget.arguments.Width then
             itemWidth = thisWidget.arguments.Width
         else
             itemWidth = Iris._config.ItemSpacing.X
         end
-        UIListLayout.Padding = UDim.new(0, itemWidth)
+        uiListLayout.Padding = UDim.new(0, itemWidth)
         if thisWidget.arguments.VerticalAlignment then
-            UIListLayout.VerticalAlignment = thisWidget.arguments.VerticalAlignment
+            uiListLayout.VerticalAlignment = thisWidget.arguments.VerticalAlignment
         else
-            UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+            uiListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
         end
     end,
     Discard = function(thisWidget)
@@ -638,8 +638,9 @@ Iris.WidgetConstructor("Group", {
         Group.ZIndex = thisWidget.ZIndex
         Group.LayoutOrder = thisWidget.ZIndex
         Group.AutomaticSize = Enum.AutomaticSize.XY
+		Group.ClipsDescendants = true
 
-        local UIListLayout = UIListLayout(Group, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.X))
+        local uiListLayout = UIListLayout(Group, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.X))
 
         return Group
     end,
@@ -761,6 +762,121 @@ Iris.WidgetConstructor("Checkbox", {
     end
 })
 
+Iris.WidgetConstructor("RadioButton", {
+	hasState = true,
+	hasChildren = false,
+	Args = {
+		["Text"] = 1,
+		["Value"] = 2
+	},
+	Events = {
+		["activated"] = {
+			["Init"] = function(thisWidget)
+				
+			end,
+			["Get"] = function(thisWidget)
+				return thisWidget.lastActiveTick == Iris._cycleTick
+			end
+		},
+		["deactivated"] = {
+			["Init"] = function(thisWidget)
+				
+			end,
+			["Get"] = function(thisWidget)
+				return thisWidget.lastDeactiveTick == Iris._cycleTick
+			end
+		},
+		["hovered"] = hoverEvent(function(thisWidget)
+			return thisWidget.Instance
+		end)
+	},
+	Generate = function(thisWidget)
+		local RadioButton = Instance.new("TextButton")
+        RadioButton.Name = "Iris_RadioButton"
+        RadioButton.BackgroundTransparency = 1
+        RadioButton.BorderSizePixel = 0
+        RadioButton.Size = UDim2.fromOffset(0, 0)
+        RadioButton.Text = ""
+        RadioButton.AutomaticSize = Enum.AutomaticSize.XY
+        RadioButton.ZIndex = thisWidget.ZIndex
+        RadioButton.AutoButtonColor = false
+        RadioButton.LayoutOrder = thisWidget.ZIndex
+
+		local buttonSize = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
+		local Button = Instance.new("Frame")
+        Button.Name = "Button"
+        Button.Size = UDim2.fromOffset(buttonSize, buttonSize)
+        Button.ZIndex = thisWidget.ZIndex + 1
+        Button.LayoutOrder = thisWidget.ZIndex + 1
+        Button.Parent = RadioButton
+        Button.BackgroundColor3 = Iris._config.FrameBgColor
+        Button.BackgroundTransparency = Iris._config.FrameBgTransparency
+
+		UICorner(Button)
+
+		local Circle = Instance.new("Frame")
+		Circle.Name = "Circle"
+		Circle.Position = UDim2.fromOffset(Iris._config.FramePadding.Y, Iris._config.FramePadding.Y)
+        Circle.Size = UDim2.fromOffset(Iris._config.TextSize, Iris._config.TextSize)
+        Circle.ZIndex = thisWidget.ZIndex + 1
+        Circle.LayoutOrder = thisWidget.ZIndex + 1
+        Circle.Parent = Button
+        Circle.BackgroundColor3 = Iris._config.CheckMarkColor
+        Circle.BackgroundTransparency = Iris._config.CheckMarkTransparency
+		UICorner(Circle)
+
+        applyInteractionHighlights(RadioButton, Button, {
+            ButtonColor = Iris._config.FrameBgColor,
+            ButtonTransparency = Iris._config.FrameBgTransparency,
+            ButtonHoveredColor = Iris._config.FrameBgHoveredColor,
+            ButtonHoveredTransparency = Iris._config.FrameBgHoveredTransparency,
+            ButtonActiveColor = Iris._config.FrameBgActiveColor,
+            ButtonActiveTransparency = Iris._config.FrameBgActiveTransparency,
+        })
+
+        RadioButton.MouseButton1Click:Connect(function()
+            thisWidget.state.value:set(thisWidget.arguments.Value)
+        end)
+
+		local TextLabel = Instance.new("TextLabel")
+		TextLabel.Name = "TextLabel"
+        applyTextStyle(TextLabel)
+        TextLabel.Position = UDim2.new(0,buttonSize + Iris._config.ItemInnerSpacing.X, 0.5, 0)
+        TextLabel.ZIndex = thisWidget.ZIndex + 1
+        TextLabel.LayoutOrder = thisWidget.ZIndex + 1
+        TextLabel.AutomaticSize = Enum.AutomaticSize.XY
+        TextLabel.AnchorPoint = Vector2.new(0, 0.5)
+        TextLabel.BackgroundTransparency = 1
+        TextLabel.BorderSizePixel = 0
+        TextLabel.Parent = RadioButton
+
+		return RadioButton
+	end,
+	Update = function(thisWidget)
+		thisWidget.Instance.TextLabel.Text = thisWidget.arguments.Text or "Radio Button"
+	end,
+	Discard = function(thisWidget)
+		thisWidget.Instance:Destroy()
+		discardState(thisWidget)
+	end,
+	GenerateState = function(thisWidget)
+		if thisWidget.state.value == nil then
+			thisWidget.state.value = Iris._widgetState(thisWidget, "value", thisWidget.arguments.Value)
+		end
+	end,
+	UpdateState = function(thisWidget)
+		local Circle = thisWidget.Instance.Button.Circle
+		if thisWidget.state.value.value == thisWidget.arguments.Value then
+			-- only need to hide the circle
+			Circle.BackgroundTransparency = Iris._config.CheckMarkTransparency
+			thisWidget.lastActiveTick = Iris._cycleTick + 1
+		else
+			Circle.BackgroundTransparency = 1
+			thisWidget.lastDeactiveTick = Iris._cycleTick + 1
+		end
+	end
+})
+
 Iris.WidgetConstructor("Tree", {
     hasState = true,
     hasChildren = true,
@@ -849,7 +965,9 @@ Iris.WidgetConstructor("Tree", {
             ButtonActiveTransparency = Iris._config.HeaderActiveTransparency,
         })
 
-        local ButtonUIListLayout = UIListLayout(Button, Enum.FillDirection.Horizontal, UDim.new(0, 0))
+		local uiPadding = UIPadding(Button, Vector2.zero)
+		uiPadding.PaddingLeft = UDim.new(0, Iris._config.FramePadding.X)
+        local ButtonUIListLayout = UIListLayout(Button, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.FramePadding.X))
         ButtonUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
         local Arrow = Instance.new("TextLabel")
@@ -940,6 +1058,177 @@ Iris.WidgetConstructor("Tree", {
         end
     end
 })
+
+Iris.WidgetConstructor("CollapsingHeader", {
+    hasState = true,
+    hasChildren = true,
+    Args = {
+        ["Text"] = 1,
+    },
+    Events = {
+        ["collasped"] = {
+            ["Init"] = function(thisWidget)
+
+            end,
+            ["Get"] = function(thisWidget)
+                return thisWidget._lastCollapsedTick == Iris._cycleTick
+            end
+        },
+        ["uncollapsed"] = {
+            ["Init"] = function(thisWidget)
+
+            end,
+            ["Get"] = function(thisWidget)
+                return thisWidget._lastUncollapsedTick == Iris._cycleTick
+            end
+        },
+        ["hovered"] = hoverEvent(function(thisWidget)
+            return thisWidget.Instance
+        end)
+    },
+    Generate = function(thisWidget)
+        local CollapsingHeader = Instance.new("Frame")
+        CollapsingHeader.Name = "Iris_CollapsingHeader"
+        CollapsingHeader.BackgroundTransparency = 1
+        CollapsingHeader.BorderSizePixel = 0
+        CollapsingHeader.ZIndex = thisWidget.ZIndex
+        CollapsingHeader.LayoutOrder = thisWidget.ZIndex
+        CollapsingHeader.Size = UDim2.new(Iris._config.ItemWidth, UDim.new(0, 0))
+        CollapsingHeader.AutomaticSize = Enum.AutomaticSize.Y
+
+        thisWidget.hasChildren = false
+
+        UIListLayout(CollapsingHeader, Enum.FillDirection.Vertical, UDim.new(0, 0))
+
+        local ChildContainer = Instance.new("Frame")
+        ChildContainer.Name = "ChildContainer"
+        ChildContainer.BackgroundTransparency = 1
+        ChildContainer.BorderSizePixel = 0
+        ChildContainer.ZIndex = thisWidget.ZIndex + 1
+        ChildContainer.LayoutOrder = thisWidget.ZIndex + 1
+        ChildContainer.Size = UDim2.fromScale(1, 0)
+        ChildContainer.AutomaticSize = Enum.AutomaticSize.Y
+        ChildContainer.Visible = false
+        ChildContainer.Parent = CollapsingHeader
+
+        UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
+        
+        local ChildContainerPadding = UIPadding(ChildContainer, Vector2.new(0, 0))
+        ChildContainerPadding.PaddingTop = UDim.new(0, Iris._config.ItemSpacing.Y)
+
+        local Header = Instance.new("Frame")
+        Header.Name = "Header"
+        Header.BackgroundTransparency = 1
+        Header.BorderSizePixel = 0
+        Header.ZIndex = thisWidget.ZIndex
+        Header.LayoutOrder = thisWidget.ZIndex
+        Header.Size = UDim2.fromScale(1, 0)
+        Header.AutomaticSize = Enum.AutomaticSize.Y
+        Header.Parent = CollapsingHeader
+
+		local Collapse = Instance.new("TextButton")
+		Collapse.Name = "Collapse"
+		Collapse.BackgroundColor3 = Iris._config.HeaderColor
+		Collapse.BackgroundTransparency = Iris._config.HeaderTransparency
+		Collapse.BorderSizePixel = 0
+		Collapse.ZIndex = thisWidget.ZIndex
+		Collapse.LayoutOrder = thisWidget.ZIndex
+		Collapse.Size = UDim2.new(1, 2 * Iris._config.FramePadding.X, 0, 0)
+		Collapse.Position = UDim2.fromOffset(-4, 0)
+		Collapse.AutomaticSize = Enum.AutomaticSize.Y
+		Collapse.Text = ""
+		Collapse.AutoButtonColor = false
+		Collapse.Parent = Header
+
+		UIPadding(Collapse, Vector2.new(2 * Iris._config.FramePadding.X, Iris._config.FramePadding.Y)) -- we add a custom padding because it extends on both sides
+		applyFrameStyle(Collapse, true, true)
+
+        applyInteractionHighlights(Collapse, Collapse, {
+            ButtonColor = Iris._config.HeaderColor,
+            ButtonTransparency = Iris._config.HeaderTransparency,
+            ButtonHoveredColor = Iris._config.HeaderHoveredColor,
+            ButtonHoveredTransparency = Iris._config.HeaderHoveredTransparency,
+            ButtonActiveColor = Iris._config.HeaderActiveColor,
+            ButtonActiveTransparency = Iris._config.HeaderActiveTransparency,
+        })
+
+        local ButtonUIListLayout = UIListLayout(Collapse, Enum.FillDirection.Horizontal, UDim.new(0, 2 * Iris._config.FramePadding.X))
+        ButtonUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+
+        local Arrow = Instance.new("TextLabel")
+        Arrow.Name = "Arrow"
+        Arrow.Size = UDim2.fromOffset(Iris._config.TextSize, 0)
+        Arrow.BackgroundTransparency = 1
+        Arrow.BorderSizePixel = 0
+        Arrow.ZIndex = thisWidget.ZIndex
+        Arrow.LayoutOrder = thisWidget.ZIndex
+        Arrow.AutomaticSize = Enum.AutomaticSize.Y
+
+        applyTextStyle(Arrow)
+        Arrow.TextXAlignment = Enum.TextXAlignment.Center
+        Arrow.TextSize = Iris._config.TextSize - 4
+        Arrow.Text = ICONS.RIGHT_POINTING_TRIANGLE
+
+        Arrow.Parent = Collapse
+
+        local TextLabel = Instance.new("TextLabel")
+        TextLabel.Name = "TextLabel"
+        TextLabel.Size = UDim2.fromOffset(0, 0)
+        TextLabel.BackgroundTransparency = 1
+        TextLabel.BorderSizePixel = 0
+        TextLabel.ZIndex = thisWidget.ZIndex
+        TextLabel.LayoutOrder = thisWidget.ZIndex
+        TextLabel.AutomaticSize = Enum.AutomaticSize.XY
+        TextLabel.Parent = Collapse
+        local TextPadding = UIPadding(TextLabel,Vector2.new(0, 0))
+        TextPadding.PaddingRight = UDim.new(0, 21)
+
+        applyTextStyle(TextLabel)
+
+        Collapse.MouseButton1Click:Connect(function()
+            thisWidget.state.isUncollapsed:set(not thisWidget.state.isUncollapsed.value)
+        end)
+
+        return CollapsingHeader
+    end,
+    Update = function(thisWidget)
+        local Collapse = thisWidget.Instance.Header.Collapse
+        Collapse.TextLabel.Text = thisWidget.arguments.Text or "Collapsing Header"
+    end,
+    Discard = function(thisWidget)
+        thisWidget.Instance:Destroy()
+        discardState(thisWidget)
+    end,
+    ChildAdded = function(thisWidget)
+        local ChildContainer = thisWidget.Instance.ChildContainer
+        local isUncollapsed = thisWidget.state.isUncollapsed.value
+
+        thisWidget.hasChildren = true
+        ChildContainer.Visible = isUncollapsed and thisWidget.hasChildren
+
+        return thisWidget.Instance.ChildContainer
+    end,
+    UpdateState = function(thisWidget)
+        local isUncollapsed = thisWidget.state.isUncollapsed.value
+        local Arrow = thisWidget.Instance.Header.Collapse.Arrow
+        local ChildContainer = thisWidget.Instance.ChildContainer
+        Arrow.Text = (isUncollapsed and ICONS.DOWN_POINTING_TRIANGLE or ICONS.RIGHT_POINTING_TRIANGLE)
+
+        if isUncollapsed then
+            thisWidget.lastUncollaspedTick = Iris._cycleTick + 1
+        else
+            thisWidget.lastCollapsedTick = Iris._cycleTick + 1
+        end
+
+        ChildContainer.Visible = isUncollapsed and thisWidget.hasChildren
+    end,
+    GenerateState = function(thisWidget)
+        if thisWidget.state.isUncollapsed == nil then
+            thisWidget.state.isUncollapsed = Iris._widgetState(thisWidget, "isUncollapsed", false)
+        end
+    end
+})
+
 
 Iris.WidgetConstructor("InputNum", {
     hasState = true,
@@ -1238,12 +1527,12 @@ do -- Iris.Tooltip
             Tooltip.BorderSizePixel = Iris._config.WindowBorderSize
             Tooltip.TextWrapped = true
 
-            local UIStroke = Instance.new("UIStroke")
-            UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            UIStroke.LineJoinMode = Enum.LineJoinMode.Round
-            UIStroke.Thickness = Iris._config.WindowBorderSize
-            UIStroke.Color = Iris._config.BorderActiveColor
-            UIStroke.Parent = Tooltip
+            local uiStroke = Instance.new("UIStroke")
+            uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            uiStroke.LineJoinMode = Enum.LineJoinMode.Round
+            uiStroke.Thickness = Iris._config.WindowBorderSize
+            uiStroke.Color = Iris._config.BorderActiveColor
+            uiStroke.Parent = Tooltip
             UIPadding(Tooltip, Iris._config.FramePadding)
             UISizeConstraint(Tooltip, Vector2.new(0, 0), Vector2.new(Iris._config.ContentWidth.Offset, 1e9))
             
@@ -1319,6 +1608,7 @@ do -- Iris.Table
             Table.ZIndex = thisWidget.ZIndex + 1024 -- allocate room for 1024 cells, because Table UIStroke has to appear above cell UIStroke
             Table.LayoutOrder = thisWidget.ZIndex
             Table.AutomaticSize = Enum.AutomaticSize.Y
+			Table.ClipsDescendants = true
 
             UIListLayout(Table, Enum.FillDirection.Horizontal, UDim.new(0, 0))
 
@@ -1353,6 +1643,7 @@ do -- Iris.Table
                     column.LayoutOrder = ColumnZIndex
                     column.AutomaticSize = Enum.AutomaticSize.Y
                     column.Size = UDim2.new(1 / thisWidget.InitialNumColumns, 0, 0, 0)
+					column.ClipsDescendants = true
 
                     UIListLayout(column, Enum.FillDirection.Vertical, UDim.new(0, 0))
 
@@ -1486,12 +1777,12 @@ do -- Iris.Window
         local lowest = 0xFFFF
         local lowestWidget
 
-        for i,v in windowWidgets do
-            if v.state.isOpened.value and (not v.arguments.NoNav) then
-                local value = v.Instance.DisplayOrder
+        for _, widget in windowWidgets do
+            if widget.state.isOpened.value and (not widget.arguments.NoNav) then
+                local value = widget.Instance.DisplayOrder
                 if value < lowest then
                     lowest = value
-                    lowestWidget = v
+                    lowestWidget = widget
                 end
             end
         end
@@ -1538,7 +1829,7 @@ do -- Iris.Window
         )
     end
 
-    Iris.SetFocusedWindow = function(thisWidget: table | nil)
+    Iris.SetFocusedWindow = function(thisWidget: { [any]: any } | nil)
         if focusedWindow == thisWidget then return end
 
         if anyFocusedWindow then
@@ -1600,7 +1891,7 @@ do -- Iris.Window
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             if isInsideResize and not isInsideWindow and anyFocusedWindow then
                 local midWindow = focusedWindow.state.position.value + (focusedWindow.state.size.value / 2)
-                local cursorPosition = UserInputService:getMouseLocation() - Vector2.new(0, 36) - midWindow
+                local cursorPosition = UserInputService:GetMouseLocation() - Vector2.new(0, 36) - midWindow
 
                 -- check which axis its closest to, then check which side is closest with math.sign
                 if math.abs(cursorPosition.X) * focusedWindow.state.size.value.Y >= math.abs(cursorPosition.Y) * focusedWindow.state.size.value.X then
@@ -1616,7 +1907,7 @@ do -- Iris.Window
         end
     end)
 
-    UserInputService.TouchTapInWorld:Connect(function(input, gameProcessedEvent)
+    UserInputService.TouchTapInWorld:Connect(function(_, gameProcessedEvent)
         if not gameProcessedEvent then
             Iris.SetFocusedWindow(nil)
         end
@@ -1673,7 +1964,7 @@ do -- Iris.Window
         lastCursorPosition = UserInputService:getMouseLocation()
     end)
 
-    UserInputService.InputEnded:Connect(function(input, gameProcessedEvent)
+    UserInputService.InputEnded:Connect(function(input, _)
         if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and isDragging then
             local dragInstance = dragWindow.Instance.WindowButton
             isDragging = false
@@ -1786,17 +2077,17 @@ do -- Iris.Window
                 if not thisWidget.arguments.NoMove and input.UserInputType == Enum.UserInputType.MouseButton1 then
                     dragWindow = thisWidget
                     isDragging = true
-                    moveDeltaCursorPosition = UserInputService:getMouseLocation() - thisWidget.state.position.value
+                    moveDeltaCursorPosition = UserInputService:GetMouseLocation() - thisWidget.state.position.value
                 end
             end)
 
-            local UIStroke = Instance.new("UIStroke")
-            UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            UIStroke.LineJoinMode = Enum.LineJoinMode.Miter
-            UIStroke.Color = Iris._config.BorderColor
-            UIStroke.Thickness = Iris._config.WindowBorderSize
+            local uiStroke = Instance.new("UIStroke")
+            uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            uiStroke.LineJoinMode = Enum.LineJoinMode.Miter
+            uiStroke.Color = Iris._config.BorderColor
+            uiStroke.Thickness = Iris._config.WindowBorderSize
 
-            UIStroke.Parent = WindowButton
+            uiStroke.Parent = WindowButton
 
             local ChildContainer = Instance.new("ScrollingFrame")
             ChildContainer.Name = "ChildContainer"
@@ -1819,7 +2110,7 @@ do -- Iris.Window
 
             UIPadding(ChildContainer, Iris._config.WindowPadding)
 
-            ChildContainer:getPropertyChangedSignal("CanvasPosition"):Connect(function()
+            ChildContainer:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
                 -- "wrong" use of state here, for optimization
                 thisWidget.state.scrollDistance.value = ChildContainer.CanvasPosition.Y
             end)
