@@ -9,11 +9,18 @@ return function(Iris)
     local widgetDemos = {
         Basic = function()
             Iris.Tree({"Basic"})
+				local radioButtonState = Iris.State(1)
                 Iris.Button({"Button"})
                 Iris.SmallButton({"SmallButton"})
                 Iris.Text({"Text"})
                 Iris.TextWrapped({string.rep("Text Wrapped ", 5)})
                 Iris.TextColored({"Colored Text", Color3.fromRGB(255, 128, 0)})
+				Iris.SameLine()
+					Iris.RadioButton({"Index '1'", 1}, radioButtonState)
+					Iris.RadioButton({"Index 'two'", "two"}, radioButtonState)
+					Iris.RadioButton({"Index 'false'", false}, radioButtonState)
+				Iris.End()
+				Iris.Text({"The Index is: " .. tostring(radioButtonState.value.value)})
             Iris.End()
         end,
 
@@ -34,6 +41,21 @@ return function(Iris)
                 
             Iris.End()
         end,
+
+		CollapsingHeader = function()
+			Iris.Tree({"Collapsing Headers"})
+				Iris.CollapsingHeader({"A header"})
+					Iris.Text({"This is under the first header!"})
+				Iris.End()
+
+				local secondHeader = Iris.State(true)
+				Iris.CollapsingHeader({"Another header"}, { isUncollapsed = secondHeader })
+					if Iris.Button({"Shhh... secret button!"}).clicked() then
+						secondHeader:set(false)
+					end
+				Iris.End()
+			Iris.End()
+		end,
 
         Group = function()
             Iris.Tree({"Groups"})
@@ -117,7 +139,7 @@ return function(Iris)
             Iris.PopConfig()
         end
     }
-    local widgetDemosOrder = {"Basic", "Tree", "Group", "Indent", "InputNum", "InputText", "Tooltip"}
+    local widgetDemosOrder = {"Basic", "Tree", "CollapsingHeader", "Group", "Indent", "InputNum", "InputText", "Tooltip"}
 
     local function recursiveTree()
         local theTree = Iris.Tree({"Recursive Tree"})
@@ -214,6 +236,14 @@ return function(Iris)
                         {"",             "unchecked: boolean", ""                  }
                     })
                 Iris.End()
+				Iris.NextColumn()
+				Iris.Tree({"\nIris.RadioButton\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
+					parse2DArray({
+						{"Arguments",	 "Events", "States"		 			 },	
+						{"Text: string", "activated: boolean",	 "value: any"},
+						{"Value: any",	 "deactivated: boolean", ""			 }
+					})
+				Iris.End()
                 Iris.NextColumn()
                 Iris.Tree({"\nIris.Tree\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
                     parse2DArray({
@@ -221,6 +251,14 @@ return function(Iris)
                         {"Text: string",            "collapsed: boolean",   "isUncollapsed: boolean"},
                         {"SpanAvailWidth: boolean", "uncollapsed: boolean", ""                      },
                         {"NoIndent: boolean",       "",                     ""                      }
+                    })
+                Iris.End()
+				Iris.NextColumn()
+                Iris.Tree({"\nIris.CollapsingHeader\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
+                    parse2DArray({
+                        {"Arguments",    "Events",               "States"                },
+                        {"Text: string", "collapsed: boolean",   "isUncollapsed: boolean"},
+                        {"",			 "uncollapsed: boolean", ""                      },
                     })
                 Iris.End()
                 Iris.NextColumn()
@@ -641,7 +679,7 @@ return function(Iris)
 
     -- showcases how events can be used
     local function widgetEventInteractivity()
-        Iris.Tree({"Widget Event Interactivity"})
+        Iris.CollapsingHeader({"Widget Event Interactivity"})
             local clickCount = Iris.State(0)
             if Iris.Button({"Click to increase Number"}).clicked() then
                 clickCount:set(clickCount:get() + 1)
@@ -674,7 +712,7 @@ return function(Iris)
 
     -- showcases how state can be used
     local function widgetStateInteractivity()
-        Iris.Tree({"Widget State Interactivity"})
+        Iris.CollapsingHeader({"Widget State Interactivity"})
             local checkbox0 = Iris.Checkbox({"Widget-Generated State"})
             Iris.Text({`isChecked: {checkbox0.state.isChecked.value}\n`})
             
@@ -708,7 +746,7 @@ return function(Iris)
 
     -- showcases how dynamic styles can be used
     local function dynamicStyle()
-        Iris.Tree({"Dynamic Styles"})
+        Iris.CollapsingHeader({"Dynamic Styles"})
             local colorH = Iris.State(0)
             Iris.SameLine()
             if Iris.Button({"Change Color"}).clicked() then
@@ -726,7 +764,7 @@ return function(Iris)
     local function tablesDemo()
         local showTablesTree = Iris.State(false)
 
-        Iris.Tree({"Tables & Columns", [Iris.Args.Tree.NoIndent] = true}, {isUncollapsed = showTablesTree})
+        Iris.CollapsingHeader({"Tables & Columns"}, {isUncollapsed = showTablesTree})
         if showTablesTree.value == false then
             -- optimization to skip code which draws GUI which wont be seen.
             -- its a trade off because when the tree becomes opened widgets will all have to be generated again.
@@ -844,7 +882,7 @@ return function(Iris)
 
             Iris.Separator()
 
-            Iris.Tree({"Window Options"})
+            Iris.CollapsingHeader({"Window Options"})
                 Iris.Table({3, false, false, false})
                     Iris.NextColumn()
                     Iris.Checkbox({"NoTitleBar"}, {isChecked = NoTitleBar})
@@ -869,13 +907,15 @@ return function(Iris)
 
             widgetStateInteractivity()
 
-            recursiveTree()
+			Iris.CollapsingHeader({"Recursive Tree"})
+            	recursiveTree()
+			Iris.End()
 
             dynamicStyle()
 
             Iris.Separator()
 
-            Iris.Tree({"Widgets"})
+            Iris.CollapsingHeader({"Widgets"})
                 for _, name in widgetDemosOrder do
                     widgetDemos[name]()
                 end

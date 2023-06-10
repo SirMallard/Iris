@@ -60,7 +60,7 @@ function Iris._generateRootInstance()
     Iris._rootWidget.Instance = Iris._rootInstance
 end
 
-function Iris._deepCompare(t1: table, t2: table)
+function Iris._deepCompare(t1: {}, t2: {})
     -- unoptimized ?
     for i, v1 in t1 do
         local v2 = t2[i]
@@ -115,18 +115,18 @@ function Iris._cycle()
         Iris.ForceRefresh()
     end
 
-    for _, v in Iris._lastVDOM do
-        if v.lastCycleTick ~= Iris._cycleTick then
+    for _, widget in Iris._lastVDOM do
+        if widget.lastCycleTick ~= Iris._cycleTick then
             -- a widget which used to be rendered was no longer rendered, so we discard
-            Iris._DiscardWidget(v)
+            Iris._DiscardWidget(widget)
         end
     end
 
     Iris._lastVDOM = Iris._VDOM
     Iris._VDOM = Iris._generateEmptyVDOM()
 
-    for i, func in Iris._postCycleCallbacks do
-        func()
+    for _, callback in Iris._postCycleCallbacks do
+        callback()
     end
 
     if Iris._globalRefreshRequested then
@@ -134,8 +134,8 @@ function Iris._cycle()
         --debug.profilebegin("Iris Refresh")
         Iris._generateSelectionImageObject()
         Iris._globalRefreshRequested = false
-        for i,v in Iris._lastVDOM do
-            Iris._DiscardWidget(v)
+        for _, widget in Iris._lastVDOM do
+            Iris._DiscardWidget(widget)
         end
         Iris._generateRootInstance()
         Iris._lastVDOM = Iris._generateEmptyVDOM()
@@ -159,11 +159,12 @@ function Iris._cycle()
     end
     --debug.profilebegin("Iris Generate")
     for _, callback in Iris._connectedFunctions do
-        local status, _error = pcall(callback)
-        if not status then
-            Iris._stackIndex = 1
-            error(_error, 0)
-        end
+        -- local status, _error = pcall(callback)
+        -- if not status then
+        --     Iris._stackIndex = 1
+        --     error(_error, 0)
+        -- end
+		callback() -- this is useful to see the full stack trace of any issues.
         if Iris._stackIndex ~= 1 then
             -- has to be larger than 1 because of the check that it isint below 1 in Iris.End
             Iris._stackIndex = 1
@@ -219,7 +220,7 @@ end
 --- @within Iris
 --- @param type string -- Name used to denote the widget
 --- @param widgetClass table -- table of methods for the new widget
-function Iris.WidgetConstructor(type: string, widgetClass: table)
+function Iris.WidgetConstructor(type: string, widgetClass: { [any]: any })
     local Fields = {
         All = {
             Required = {
@@ -298,13 +299,13 @@ function Iris.WidgetConstructor(type: string, widgetClass: table)
     Iris._widgets[type] = thisWidget
     Iris.Args[type] = thisWidget.Args
     local ArgNames = {}
-    for i, v in thisWidget.Args do
-        ArgNames[v] = i
+    for index, argument in thisWidget.Args do
+        ArgNames[argument] = index
     end
-    for i, v in thisWidget.Events do
-        if Iris.Events[i] == nil then
-            Iris.Events[i] = function()
-                return Iris._EventCall(Iris._lastWidget, i)
+    for index, _ in thisWidget.Events do
+        if Iris.Events[index] == nil then
+            Iris.Events[index] = function()
+                return Iris._EventCall(Iris._lastWidget, index)
             end
         end
     end
@@ -320,9 +321,9 @@ end
 --- this function internally calls [Iris.ForceRefresh] so that style changes are propogated, it may cause **performance issues** when used with many widgets.
 --- In **no** case should it be called every frame.
 --- :::
-function Iris.UpdateGlobalConfig(deltaStyle: table)
-    for i, v in deltaStyle do
-        Iris._rootConfig[i] = v
+function Iris.UpdateGlobalConfig(deltaStyle: { [any]: any })
+    for index, style in deltaStyle do
+        Iris._rootConfig[index] = style
     end
     Iris.ForceRefresh()
 end
@@ -338,7 +339,7 @@ end
 ---     Iris.Text({"Colored Text!"})
 --- Iris.PopConfig()
 --- ```
-function Iris.PushConfig(deltaStyle: table)
+function Iris.PushConfig(deltaStyle: { [any]: any })
     local ID = Iris.State(-1)
     if ID.value == -1 then
         ID:set(deltaStyle)
@@ -618,8 +619,8 @@ function Iris._Insert(widgetType: string, args, widgetState)
         if type(args) ~= "table" then
             error("Args must be a table.", 3)
         end
-        for i, v in args do
-            arguments[thisWidgetClass.ArgNames[i]] = v
+        for index, argument in args do
+            arguments[thisWidgetClass.ArgNames[index]] = argument
         end
     end
     table.freeze(arguments)
@@ -886,6 +887,30 @@ Iris.Checkbox = function(args, state)
     return Iris._Insert("Checkbox", args, state)
 end
 
+--- @prop Radio Button Widget
+--- @within Widgets
+--- A single button used to represent a single state when used with multiple radio buttons.
+---
+--- ```json 
+--- hasChildren: false,
+--- hasState: true,
+--- Arguments: {
+---     Text: string,
+---     Value: any
+--- },
+--- Events: {
+---     activated: boolean,
+---     deactivated: boolean,
+---     hovered: boolean
+--- },
+--- States: {
+---     value: any
+--- }
+--- ```
+Iris.RadioButton = function(args, state)
+	return Iris._Insert("RadioButton", args, state)
+end
+
 --- @prop Tree Widget
 --- @within Widgets
 --- A collapsable tree which contains children, positioned vertically.
@@ -909,6 +934,29 @@ end
 --- ```
 Iris.Tree = function(args, state)
     return Iris._Insert("Tree", args, state)
+end
+
+--- @prop Collapsing Header Widget
+--- @within Widgets
+--- A collapsable header designed for top level window widget management.
+---
+--- ```json 
+--- hasChildren: true,
+--- hasState: true,
+--- Arguments: {
+---     Text: string,
+--- },
+--- Events: {
+---     collapsed: boolean,
+---     uncollapsed: boolean,
+---     hovered: boolean
+--- },
+--- States: {
+---     isUncollapsed: boolean
+--- }
+--- ```
+Iris.CollapsingHeader = function(args, state)
+    return Iris._Insert("CollapsingHeader", args, state)
 end
 
 --- @prop InputNum Widget
