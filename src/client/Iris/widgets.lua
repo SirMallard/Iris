@@ -786,6 +786,14 @@ Iris.WidgetConstructor("RadioButton", {
 				return thisWidget.lastDeactiveTick == Iris._cycleTick
 			end
 		},
+        ["selected"] = {
+            ["Init"] = function(thisWidget)
+				
+			end,
+			["Get"] = function(thisWidget)
+				return thisWidget.state.value.value == thisWidget.arguments.Value
+			end
+        },
 		["hovered"] = hoverEvent(function(thisWidget)
 			return thisWidget.Instance
 		end)
@@ -802,7 +810,7 @@ Iris.WidgetConstructor("RadioButton", {
         RadioButton.AutoButtonColor = false
         RadioButton.LayoutOrder = thisWidget.ZIndex
 
-		local buttonSize = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
+		local buttonSize = Iris._config.TextSize + 2 * (Iris._config.FramePadding.Y - 1)
 		local Button = Instance.new("Frame")
         Button.Name = "Button"
         Button.Size = UDim2.fromOffset(buttonSize, buttonSize)
@@ -817,7 +825,7 @@ Iris.WidgetConstructor("RadioButton", {
 		local Circle = Instance.new("Frame")
 		Circle.Name = "Circle"
 		Circle.Position = UDim2.fromOffset(Iris._config.FramePadding.Y, Iris._config.FramePadding.Y)
-        Circle.Size = UDim2.fromOffset(Iris._config.TextSize, Iris._config.TextSize)
+        Circle.Size = UDim2.fromOffset(Iris._config.TextSize - 2, Iris._config.TextSize - 2 )
         Circle.ZIndex = thisWidget.ZIndex + 1
         Circle.LayoutOrder = thisWidget.ZIndex + 1
         Circle.Parent = Button
@@ -1228,7 +1236,6 @@ Iris.WidgetConstructor("CollapsingHeader", {
         end
     end
 })
-
 
 Iris.WidgetConstructor("InputNum", {
     hasState = true,
