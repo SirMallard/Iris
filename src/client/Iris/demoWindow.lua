@@ -176,141 +176,123 @@ return function(Iris)
         end
         Iris.Window({"Widget Info"},{size = Iris.State(Vector2.new(600, 300)), isOpened = showWidgetInfo})
             Iris.Text({"information of Iris Widgets."})
-            Iris.Table({1, [Iris.Args.Table.RowBg] = false})
-                Iris.NextColumn()
-                Iris.Tree({"\nIris.Text\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
-                    parse2DArray({
-                        {"Arguments",    "Events", "States"}, 
-                        {"Text: String", "",       ""      }, 
-                    })
-                Iris.End()
-                Iris.NextColumn()
-                Iris.Tree({"\nIris.TextWrapped\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
-                    parse2DArray({
-                        {"Arguments",    "Events", "States"}, 
-                        {"Text: String", "",       ""      }, 
-                    })
-                Iris.End()
-                Iris.NextColumn()
-                Iris.Tree({"\nIris.Button\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
-                    parse2DArray({
-                        {"Arguments",    "Events",           "States"}, 
-                        {"Text: string", "clicked: boolean", ""      }
-                    })
-                Iris.End()
-                Iris.NextColumn()
-                Iris.Tree({"\nIris.SmallButton\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
-                    parse2DArray({
-                        {"Arguments",    "Events",           "States"}, 
-                        {"Text: string", "clicked: boolean", ""      }
-                    })
-                Iris.End()
-                Iris.NextColumn()
-                Iris.Tree({"\nIris.Separator\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
-                    parse2DArray({
-                        {"Arguments", "Events", "States"},
-                    })
-                Iris.End()
-                Iris.NextColumn()
-                Iris.Tree({"\nIris.Indent\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
-                    parse2DArray({
-                        {"Arguments",     "Events", "States"},
-                        {"Width: number", "",       ""      }
-                    })
-                Iris.End()
-                Iris.NextColumn()
-                Iris.Tree({"\nIris.SameLine\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
-                    parse2DArray({
-                        {"Arguments",                                 "Events", "States"},
-                        {"Width: number",                             "",       ""      },
-                        {"VerticalAlignment: Enum.VerticalAlignment", "",       ""      }
-                    })
-                Iris.End()
-                Iris.NextColumn()
-                Iris.Tree({"\nIris.Group\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
-                    parse2DArray({
-                        {"Arguments", "Events", "States"},
-                    })
-                Iris.End()
-                Iris.NextColumn()
-                Iris.Tree({"\nIris.Checkbox\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
-                    parse2DArray({
-                        {"Arguments",    "Events",             "States"            },
-                        {"Text: string", "checked: boolean",   "isChecked: boolean"},
-                        {"",             "unchecked: boolean", ""                  }
-                    })
-                Iris.End()
-				Iris.NextColumn()
-				Iris.Tree({"\nIris.RadioButton\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
-					parse2DArray({
-						{"Arguments",	 "Events",               "States"	 },	
-						{"Text: string", "activated: boolean",	 "value: any"},
-						{"Value: any",	 "deactivated: boolean", ""			 },
-                        {"",             "selected: boolean",      ""          }
-					})
-				Iris.End()
-                Iris.NextColumn()
-                Iris.Tree({"\nIris.Tree\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
-                    parse2DArray({
-                        {"Arguments",               "Events",               "States"                },
-                        {"Text: string",            "collapsed: boolean",   "isUncollapsed: boolean"},
-                        {"SpanAvailWidth: boolean", "uncollapsed: boolean", ""                      },
-                        {"NoIndent: boolean",       "",                     ""                      }
-                    })
-                Iris.End()
-				Iris.NextColumn()
-                Iris.Tree({"\nIris.CollapsingHeader\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
-                    parse2DArray({
-                        {"Arguments",    "Events",               "States"                },
-                        {"Text: string", "collapsed: boolean",   "isUncollapsed: boolean"},
-                        {"",			 "uncollapsed: boolean", ""                      },
-                    })
-                Iris.End()
-                Iris.NextColumn()
-                Iris.Tree({"\nIris.InputNum\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
-                    parse2DArray({
-                        {"Arguments",          "Events",                 "States"        },
-                        {"Text: string",       "numberChanged: boolean", "number: number"},
-                        {"Increment: number",  "",                       ""              },
-                        {"Min: number",        "",                       ""              },
-                        {"Max: number",        "",                       ""              },
-                        {"Format: string",     "",                       ""              },
-                        {"NoButtons: boolean", "",                       ""              },
-                        {"NoField: boolean",   "",                       ""              }
-                    })
-                Iris.End()
-                Iris.NextColumn()
-                Iris.Tree({"\nIris.InputText\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
-                    parse2DArray({
-                        {"Arguments",        "Events",               "States"      },
-                        {"Text: string",     "textChanged: boolean", "text: string"},
-                        {"TextHint: string", "",                     ""            }
-                    })
-                Iris.End()
-                Iris.NextColumn()
-                Iris.Tree({"\nIris.Table\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
-                    parse2DArray({
-                        {"Arguments",             "Events","States"},
-                        {"NumColumns: number",    "",      ""      },
-                        {"RowBg: boolean",        "",      ""      },
-                        {"BordersOuter: boolean", "",      ""      },
-                        {"BordersInner: boolean", "",      ""      }
-                    })
-                Iris.End()
-                Iris.NextColumn()
-                Iris.Tree({"\nIris.Window\n", [Iris.Args.Tree.NoIndent] = true, [Iris.Args.Tree.SpanAvailWidth] = true})
-                    parse2DArray({
-                        {"Arguments",             "Events",               "States"                },
-                        {"Title: string",         "closed: boolean",      "size: Vector2"         },
-                        {"NoTitleBar: boolean",   "opened: boolean",      "position: Vector2"     },
-                        {"NoBackground: boolean", "collapsed: boolean",   "isUncollapsed: boolean"},
-                        {"NoCollapse: boolean",   "uncollapsed: boolean", "isOpened: boolean"     },
-                        {"NoClose: boolean",      "",                     "scrollDistance: number"},
-                        {"NoMove: boolean",       "",                     ""                      },
-                        {"NoScrollbar: boolean",  "",                     ""                      },
-                        {"NoResize: boolean",     "",                     ""                      }
-                    })
-                Iris.End()
+            Iris.CollapsingHeader({"Iris.Text"})
+                parse2DArray({
+                    {"Arguments",    "Events", "States"}, 
+                    {"Text: String", "",       ""      }, 
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.TextWrapped"})
+                parse2DArray({
+                    {"Arguments",    "Events", "States"}, 
+                    {"Text: String", "",       ""      }, 
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.Button"})
+                parse2DArray({
+                    {"Arguments",    "Events",           "States"}, 
+                    {"Text: string", "clicked: boolean", ""      }
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.SmallButton"})
+                parse2DArray({
+                    {"Arguments",    "Events",           "States"}, 
+                    {"Text: string", "clicked: boolean", ""      }
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.Separator"})
+                parse2DArray({
+                    {"Arguments", "Events", "States"},
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.Indent"})
+                parse2DArray({
+                    {"Arguments",     "Events", "States"},
+                    {"Width: number", "",       ""      }
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.SameLine"})
+                parse2DArray({
+                    {"Arguments",                                 "Events", "States"},
+                    {"Width: number",                             "",       ""      },
+                    {"VerticalAlignment: Enum.VerticalAlignment", "",       ""      }
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.Group"})
+                parse2DArray({
+                    {"Arguments", "Events", "States"},
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.Checkbox"})
+                parse2DArray({
+                    {"Arguments",    "Events",             "States"            },
+                    {"Text: string", "checked: boolean",   "isChecked: boolean"},
+                    {"",             "unchecked: boolean", ""                  }
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.RadioButton"})
+                parse2DArray({
+                    {"Arguments",	 "Events",               "States"	 },	
+                    {"Text: string", "activated: boolean",	 "value: any"},
+                    {"Value: any",	 "deactivated: boolean", ""			 },
+                    {"",             "selected: boolean",      ""          }
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.Tree"})
+                parse2DArray({
+                    {"Arguments",               "Events",               "States"                },
+                    {"Text: string",            "collapsed: boolean",   "isUncollapsed: boolean"},
+                    {"SpanAvailWidth: boolean", "uncollapsed: boolean", ""                      },
+                    {"NoIndent: boolean",       "",                     ""                      }
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.CollapsingHeader"})
+                parse2DArray({
+                    {"Arguments",    "Events",               "States"                },
+                    {"Text: string", "collapsed: boolean",   "isUncollapsed: boolean"},
+                    {"",			 "uncollapsed: boolean", ""                      },
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.InputNum"})
+                parse2DArray({
+                    {"Arguments",          "Events",                 "States"        },
+                    {"Text: string",       "numberChanged: boolean", "number: number"},
+                    {"Increment: number",  "",                       ""              },
+                    {"Min: number",        "",                       ""              },
+                    {"Max: number",        "",                       ""              },
+                    {"Format: string",     "",                       ""              },
+                    {"NoButtons: boolean", "",                       ""              },
+                    {"NoField: boolean",   "",                       ""              }
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.InputText"})
+                parse2DArray({
+                    {"Arguments",        "Events",               "States"      },
+                    {"Text: string",     "textChanged: boolean", "text: string"},
+                    {"TextHint: string", "",                     ""            }
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.Table"})
+                parse2DArray({
+                    {"Arguments",             "Events","States"},
+                    {"NumColumns: number",    "",      ""      },
+                    {"RowBg: boolean",        "",      ""      },
+                    {"BordersOuter: boolean", "",      ""      },
+                    {"BordersInner: boolean", "",      ""      }
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.Window"})
+                parse2DArray({
+                    {"Arguments",             "Events",               "States"                },
+                    {"Title: string",         "closed: boolean",      "size: Vector2"         },
+                    {"NoTitleBar: boolean",   "opened: boolean",      "position: Vector2"     },
+                    {"NoBackground: boolean", "collapsed: boolean",   "isUncollapsed: boolean"},
+                    {"NoCollapse: boolean",   "uncollapsed: boolean", "isOpened: boolean"     },
+                    {"NoClose: boolean",      "",                     "scrollDistance: number"},
+                    {"NoMove: boolean",       "",                     ""                      },
+                    {"NoScrollbar: boolean",  "",                     ""                      },
+                    {"NoResize: boolean",     "",                     ""                      }
+                })
             Iris.End()
         Iris.End()
     end
