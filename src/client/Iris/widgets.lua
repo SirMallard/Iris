@@ -1521,36 +1521,46 @@ do -- Iris.Tooltip
         Generate = function(thisWidget)
             thisWidget.parentWidget = Iris._rootWidget -- only allow root as parent
 
-            local Tooltip = Instance.new("TextLabel")
+            local Tooltip = Instance.new("Frame")
             Tooltip.Name = "Iris_Tooltip"
-            Tooltip.Size = UDim2.fromOffset(0, 0)
+            Tooltip.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+            Tooltip.BorderSizePixel = 0
+            Tooltip.BackgroundTransparency = 1
             Tooltip.ZIndex = thisWidget.ZIndex + 1
             Tooltip.LayoutOrder = thisWidget.ZIndex + 1
-            Tooltip.AutomaticSize = Enum.AutomaticSize.XY
+            Tooltip.AutomaticSize = Enum.AutomaticSize.Y
+
+            local TooltipText = Instance.new("TextLabel")
+            TooltipText.Name = "TooltipText"
+            TooltipText.Size = UDim2.fromOffset(0, 0)
+            TooltipText.ZIndex = thisWidget.ZIndex + 1
+            TooltipText.LayoutOrder = thisWidget.ZIndex + 1
+            TooltipText.AutomaticSize = Enum.AutomaticSize.XY
     
-            applyTextStyle(Tooltip)
-            Tooltip.BackgroundColor3 = Iris._config.WindowBgColor
-            Tooltip.BackgroundTransparency = Iris._config.WindowBgTransparency
-            Tooltip.BorderSizePixel = Iris._config.WindowBorderSize
-            Tooltip.TextWrapped = true
+            applyTextStyle(TooltipText)
+            TooltipText.BackgroundColor3 = Iris._config.WindowBgColor
+            TooltipText.BackgroundTransparency = Iris._config.WindowBgTransparency
+            TooltipText.BorderSizePixel = Iris._config.WindowBorderSize
+            TooltipText.TextWrapped = true
 
             local uiStroke = Instance.new("UIStroke")
             uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
             uiStroke.LineJoinMode = Enum.LineJoinMode.Round
             uiStroke.Thickness = Iris._config.WindowBorderSize
             uiStroke.Color = Iris._config.BorderActiveColor
-            uiStroke.Parent = Tooltip
-            UIPadding(Tooltip, Iris._config.FramePadding)
-            UISizeConstraint(Tooltip, Vector2.new(0, 0), Vector2.new(Iris._config.ContentWidth.Offset, 1e9))
+            uiStroke.Parent = TooltipText
+            UIPadding(TooltipText, Iris._config.FramePadding)
+
+            TooltipText.Parent = Tooltip
             
             return Tooltip
         end,
         Update = function(thisWidget)
-            local Tooltip = thisWidget.Instance
+            local TooltipText = thisWidget.Instance.TooltipText
             if thisWidget.arguments.Text == nil then
                 error("Iris.Text Text Argument is required", 5)
             end
-            Tooltip.Text = thisWidget.arguments.Text
+            TooltipText.Text = thisWidget.arguments.Text
             relocateTooltips()
         end,
         Discard = function(thisWidget)
