@@ -111,7 +111,7 @@ return function(Iris)
         end,
 
         InputNum = function()
-            Iris.Tree({"InputNum & SliderNum"})
+            Iris.Tree({"InputNum, SliderNum & DragNum"})
                 local NoField, NoButtons, Min, Max, Increment, Format = 
                 Iris.State(false), Iris.State(false), Iris.State(0), Iris.State(100), Iris.State(1), Iris.State("%d")
 
@@ -143,6 +143,18 @@ return function(Iris)
                     Iris.SliderNum({"Odd Ranges", 0.001, -math.pi, math.pi, "%f radians"})
                     Iris.SliderNum({"Big Numbers", 1e4, 1e5, 1e7})
                     Iris.SliderNum({"Few Numbers", 1, 0, 3})
+                Iris.PopConfig()
+
+                Iris.Separator()
+
+                Iris.SameLine()
+                    Iris.Text({"Drag Numbers"})
+                    helpMarker("ctrl + click or double click drag number widgets to input a number, hold shift/alt while dragging to increase/decrease speed")
+                Iris.End()
+                Iris.PushConfig({ContentWidth = UDim.new(0, 350)})
+                    Iris.DragNum({"Drag Int"})
+                    Iris.DragNum({"Slide Float", 0.001, -10, 10})
+                    Iris.DragNum({"Percentage", 1, 0, 100, "%d %%"})
                 Iris.PopConfig()
             Iris.End()
         end,
@@ -282,6 +294,16 @@ return function(Iris)
                     {"Arguments",    "Events",               "States"                },
                     {"Text: string", "collapsed: boolean",   "isUncollapsed: boolean"},
                     {"",			 "uncollapsed: boolean", ""                      },
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.DragNum"})
+                parse2DArray({
+                    {"Arguments",          "Events",                 "States"              },
+                    {"Text: string",       "numberChanged: boolean", "number: number"      },
+                    {"Increment: number",  "",                       "editingText: boolean"},
+                    {"Min: number",        "",                       ""                    },
+                    {"Max: number",        "",                       ""                    },
+                    {"Format: string",     "",                       ""                    },
                 })
             Iris.End()
             Iris.CollapsingHeader({"Iris.SliderNum"})

@@ -1315,6 +1315,210 @@ Iris.WidgetConstructor("CollapsingHeader", {
     end
 })
 
+do -- Iris.DragNum
+    local AnyActiveDragNum = false
+    local LastMouseXPos = 0
+    local ActiveDragNum
+
+    UserInputService.InputEnded:Connect(function(inputObject)
+        if inputObject.UserInputType == Enum.UserInputType.MouseButton1 and AnyActiveDragNum then
+            AnyActiveDragNum = false
+            ActiveDragNum = nil
+        end
+    end)
+
+    local function updateActiveDrag()
+        local currentMouseX = UserInputService:GetMouseLocation().X
+        local mouseXDelta = currentMouseX - LastMouseXPos
+        LastMouseXPos = currentMouseX
+        if AnyActiveDragNum == false then
+            return
+        end
+
+        local oldNum = ActiveDragNum.state.number.value
+
+        local Min = ActiveDragNum.arguments.Min or -1e5
+        local Max = ActiveDragNum.arguments.Max or 1e5
+
+        local Increment = (ActiveDragNum.arguments.Increment or 1)
+        Increment *= (UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) or UserInputService:IsKeyDown(Enum.KeyCode.RightShift)) and 10 or 1
+        Increment *= (UserInputService:IsKeyDown(Enum.KeyCode.LeftAlt) or UserInputService:IsKeyDown(Enum.KeyCode.RightAlt)) and 0.1 or 1
+
+        local newNum = math.clamp(oldNum + (mouseXDelta * Increment), Min, Max)
+        ActiveDragNum.state.number:set(newNum)
+    end
+
+    local function InputFieldContainerOnClick(thisWidget, x, y)
+
+        local currentTime = time()
+        local isTimeValid = currentTime - thisWidget.lastClickedTime < Iris._config.MouseDoubleClickTime
+        local isCtrlHeld = UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
+        if (isTimeValid and (Vector2.new(x, y) - thisWidget.lastClickedPosition).Magnitude < Iris._config.MouseDoubleClickMaxDist) or isCtrlHeld then
+            thisWidget.state.editingText:set(true)
+        else
+            thisWidget.lastClickedTime = currentTime
+            thisWidget.lastClickedPosition = Vector2.new(x, y)
+
+            AnyActiveDragNum = true
+            ActiveDragNum = thisWidget
+            updateActiveDrag()
+        end
+    end
+
+    UserInputService.InputChanged:Connect(updateActiveDrag)
+
+    Iris.WidgetConstructor("DragNum", {
+        hasState = true,
+        hasChildren = false,
+        Args = {
+            ["Text"] = 1,
+            ["Increment"] = 2,
+            ["Min"] = 3,
+            ["Max"] = 4,
+            ["Format"] = 5,
+        },
+        Events = {
+            ["numberChanged"] = {
+                ["Init"] = function(thisWidget)
+
+                end,
+                ["Get"] = function(thisWidget)
+                    return thisWidget.lastNumchangeTick == Iris._cycleTick
+                end
+            },
+            ["hovered"] = EVENTS.hover(function(thisWidget)
+                return thisWidget.Instance
+            end)
+        },
+        Generate = function(thisWidget)
+            local InputSlider = Instance.new("Frame")
+            InputSlider.Name = "Iris_InputSlider"
+            InputSlider.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+            InputSlider.BackgroundTransparency = 1
+            InputSlider.BorderSizePixel = 0
+            InputSlider.ZIndex = thisWidget.ZIndex
+            InputSlider.LayoutOrder = thisWidget.ZIndex
+            InputSlider.AutomaticSize = Enum.AutomaticSize.Y
+            UIListLayout(InputSlider, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+
+            local inputButtonsWidth = Iris._config.TextSize
+            local textLabelHeight = inputButtonsWidth + Iris._config.FramePadding.Y * 2
+
+            local InputFieldContainer = Instance.new("TextButton")
+            InputFieldContainer.Name = "InputFieldContainer"
+            applyFrameStyle(InputFieldContainer)
+            applyTextStyle(InputFieldContainer)
+            InputFieldContainer.TextXAlignment = Enum.TextXAlignment.Center
+            InputFieldContainer.ZIndex = thisWidget.ZIndex + 1
+            InputFieldContainer.LayoutOrder = thisWidget.ZIndex + 1
+            InputFieldContainer.Size = UDim2.new(1, 0, 0, 0)
+            InputFieldContainer.AutomaticSize = Enum.AutomaticSize.Y
+            InputFieldContainer.AutoButtonColor = false
+            InputFieldContainer.Text = ""
+            InputFieldContainer.BackgroundColor3 = Iris._config.FrameBgColor
+            InputFieldContainer.BackgroundTransparency = Iris._config.FrameBgTransparency
+            InputFieldContainer.Parent = InputSlider
+
+            applyInteractionHighlights(InputFieldContainer, InputFieldContainer, {
+                ButtonColor = Iris._config.FrameBgColor,
+                ButtonTransparency = Iris._config.FrameBgTransparency,
+                ButtonHoveredColor = Iris._config.FrameBgHoveredColor,
+                ButtonHoveredTransparency = Iris._config.FrameBgHoveredTransparency,
+                ButtonActiveColor = Iris._config.FrameBgActiveColor,
+                ButtonActiveTransparency = Iris._config.FrameBgActiveTransparency,
+            })
+
+            local InputField = Instance.new("TextBox")
+            InputField.Name = "InputField"
+            applyFrameStyle(InputField, true)
+            applyTextStyle(InputField)
+            InputField.ZIndex = thisWidget.ZIndex + 2
+            InputField.LayoutOrder = thisWidget.ZIndex + 2
+            InputField.Size = UDim2.new(1, 0, 1, 0)
+            InputField.BackgroundTransparency = 1
+            InputField.ClearTextOnFocus = false
+            InputField.TextTruncate = Enum.TextTruncate.AtEnd
+            InputField.Visible = false
+            InputField.Parent = InputFieldContainer
+
+            InputField.FocusLost:Connect(function()
+                local newValue = tonumber(InputField.Text)
+                if newValue ~= nil then
+                    newValue = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
+                    thisWidget.state.number:set(newValue)
+                    thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+                else
+                    InputField.Text = thisWidget.state.number.value
+                end
+
+                thisWidget.state.editingText:set(false)
+
+                InputField:ReleaseFocus(true)
+                -- there is a very strange roblox UI bug where for some reason InputFieldContainer will stop sinking input unless this line is here
+                -- it only starts sinking input again once a different UI is interacted with
+            end)
+
+            InputField.Focused:Connect(function()
+                InputField.SelectionStart = 1
+            end)
+
+            thisWidget.lastClickedTime = -1
+            thisWidget.lastClickedPosition = Vector2.zero
+
+            InputFieldContainer.MouseButton1Down:Connect(function(x, y)
+                InputFieldContainerOnClick(thisWidget, x, y)
+            end)
+
+            local TextLabel = Instance.new("TextLabel")
+            TextLabel.Name = "TextLabel"
+            TextLabel.Size = UDim2.fromOffset(0, textLabelHeight)
+            TextLabel.BackgroundTransparency = 1
+            TextLabel.BorderSizePixel = 0
+            TextLabel.ZIndex = thisWidget.ZIndex + 4
+            TextLabel.LayoutOrder = thisWidget.ZIndex + 4
+            TextLabel.AutomaticSize = Enum.AutomaticSize.X
+            applyTextStyle(TextLabel)
+            TextLabel.Parent = InputSlider
+
+            return InputSlider
+        end,
+        Update = function(thisWidget)
+            local TextLabel = thisWidget.Instance.TextLabel
+            TextLabel.Text = thisWidget.arguments.Text or "Input Slider"
+        end,
+        Discard = function(thisWidget)
+            thisWidget.Instance:Destroy()
+            discardState(thisWidget)
+        end,
+        GenerateState = function(thisWidget)
+            if thisWidget.state.number == nil then
+                local Min = thisWidget.arguments.Min or 0
+                local Max = thisWidget.arguments.Max or 100
+                thisWidget.state.number = Iris._widgetState(thisWidget, "number", math.clamp(0, Min, Max))
+            end
+            if thisWidget.state.editingText == nil then
+                thisWidget.state.editingText = Iris._widgetState(thisWidget, "editingText", false)
+            end
+        end,
+        UpdateState = function(thisWidget)
+            local InputFieldContainer = thisWidget.Instance.InputFieldContainer
+            local InputField = InputFieldContainer.InputField
+            local newText = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value)
+            InputFieldContainer.Text = newText
+            InputField.Text = tostring(thisWidget.state.number.value)
+
+            if thisWidget.state.editingText.value then
+                InputField.Visible = true
+                InputField:CaptureFocus()
+                InputFieldContainer.TextTransparency = 1
+            else
+                InputField.Visible = false
+                InputFieldContainer.TextTransparency = 0
+            end
+        end
+    })
+end
+
 do -- Iris.SliderNum
     local AnyActiveSliderNum = false
     local ActiveSliderNum
@@ -1522,7 +1726,7 @@ do -- Iris.SliderNum
             local InputField = InputFieldContainer.InputField
             local newText = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value)
             InputFieldContainer.Text = newText
-            InputField.Text = newText
+            InputField.Text = tostring(thisWidget.state.number.value)
 
             local Increment = thisWidget.arguments.Increment or 1
             local Min = thisWidget.arguments.Min or 0
