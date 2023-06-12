@@ -32,9 +32,9 @@ return function(Iris)
                 Iris.TextWrapped({string.rep("Text Wrapped ", 5)}) 
                 Iris.TextColored({"Colored Text", Color3.fromRGB(255, 128, 0)})
 				Iris.SameLine()
-					Iris.RadioButton({"Index '1'", 1}, {value = radioButtonState})
-					Iris.RadioButton({"Index 'two'", "two"}, {value = radioButtonState})
-                    if Iris.RadioButton({"Index 'false'", false}, {value = radioButtonState}).selected() == false then
+					Iris.RadioButton({"Index '1'", 1}, {index = radioButtonState})
+					Iris.RadioButton({"Index 'two'", "two"}, {index = radioButtonState})
+                    if Iris.RadioButton({"Index 'false'", false}, {index = radioButtonState}).selected() == false then
                         if Iris.SmallButton({"Select last"}).clicked() then
                             radioButtonState:set(false)
                         end
@@ -276,9 +276,9 @@ return function(Iris)
             Iris.CollapsingHeader({"Iris.RadioButton"})
                 parse2DArray({
                     {"Arguments",	 "Events",               "States"	 },	
-                    {"Text: string", "activated: boolean",	 "value: any"},
-                    {"Value: any",	 "deactivated: boolean", ""			 },
-                    {"",             "selected: boolean",      ""          }
+                    {"Text: string", "activated: boolean",	 "index: any"},
+                    {"Index: any",	 "deactivated: boolean", ""			 },
+                    {"",             "selected: boolean",    ""          }
                 })
             Iris.End()
             Iris.CollapsingHeader({"Iris.Tree"})
@@ -722,7 +722,7 @@ return function(Iris)
                 Iris.Separator()
                 Iris.SameLine()
                     for i, v in ipairs(styleList) do
-                        Iris.RadioButton({v[0], i}, {value = selectedPanel})
+                        Iris.RadioButton({v[0], i}, {index = selectedPanel})
                     end
                 Iris.End()
                 styleList[selectedPanel:get()][1]()
@@ -744,10 +744,10 @@ return function(Iris)
             local showEventText = Iris.State(false)
             local selectedEvent = Iris.State("clicked")
             Iris.SameLine()
-                Iris.RadioButton({"clicked", "clicked"}, {value = selectedEvent})
-                Iris.RadioButton({"rightClicked", "rightClicked"}, {value = selectedEvent})
-                Iris.RadioButton({"doubleClicked", "doubleClicked"}, {value = selectedEvent})
-                Iris.RadioButton({"ctrlClicked", "ctrlClicked"}, {value = selectedEvent})
+                Iris.RadioButton({"clicked", "clicked"}, {index = selectedEvent})
+                Iris.RadioButton({"rightClicked", "rightClicked"}, {index = selectedEvent})
+                Iris.RadioButton({"doubleClicked", "doubleClicked"}, {index = selectedEvent})
+                Iris.RadioButton({"ctrlClicked", "ctrlClicked"}, {index = selectedEvent})
             Iris.End()
             Iris.SameLine()
                 if Iris.Button({selectedEvent:get() .. " to reveal text"})[selectedEvent:get()]() then
@@ -908,8 +908,8 @@ return function(Iris)
             Iris.Checkbox({"BordersOuter"}, {isChecked = TableBordersOuter})
             Iris.Checkbox({"BordersInner"}, {isChecked = TableBordersInner})
             Iris.SameLine()
-                Iris.RadioButton({"Buttons", true}, {value = TableUseButtons})
-                Iris.RadioButton({"Text", false}, {value = TableUseButtons})
+                Iris.RadioButton({"Buttons", true}, {index = TableUseButtons})
+                Iris.RadioButton({"Text", false}, {index = TableUseButtons})
             Iris.End()
             Iris.InputNum({"Number of rows", [Iris.Args.InputNum.Min] = 0, [Iris.Args.InputNum.Max] = 100, [Iris.Args.InputNum.Format] = "%d"}, {number = TableNumRows})
 

@@ -845,7 +845,7 @@ Iris.WidgetConstructor("RadioButton", {
 	hasChildren = false,
 	Args = {
 		["Text"] = 1,
-		["Value"] = 2
+		["Index"] = 2
 	},
 	Events = {
 		["activated"] = {
@@ -869,7 +869,7 @@ Iris.WidgetConstructor("RadioButton", {
 				
 			end,
 			["Get"] = function(thisWidget)
-				return thisWidget.state.value.value == thisWidget.arguments.Value
+				return thisWidget.state.index.value == thisWidget.arguments.Index
 			end
         },
 		["hovered"] = EVENTS.hover(function(thisWidget)
@@ -921,7 +921,7 @@ Iris.WidgetConstructor("RadioButton", {
         })
 
         RadioButton.MouseButton1Click:Connect(function()
-            thisWidget.state.value:set(thisWidget.arguments.Value)
+            thisWidget.state.index:set(thisWidget.arguments.Index)
         end)
 
 		local TextLabel = Instance.new("TextLabel")
@@ -946,13 +946,13 @@ Iris.WidgetConstructor("RadioButton", {
 		discardState(thisWidget)
 	end,
 	GenerateState = function(thisWidget)
-		if thisWidget.state.value == nil then
-			thisWidget.state.value = Iris._widgetState(thisWidget, "value", thisWidget.arguments.Value)
+		if thisWidget.state.index == nil then
+			thisWidget.state.index = Iris._widgetState(thisWidget, "index", thisWidget.arguments.Value)
 		end
 	end,
 	UpdateState = function(thisWidget)
 		local Circle = thisWidget.Instance.Button.Circle
-		if thisWidget.state.value.value == thisWidget.arguments.Value then
+		if thisWidget.state.index.value == thisWidget.arguments.Index then
 			-- only need to hide the circle
 			Circle.BackgroundTransparency = Iris._config.CheckMarkTransparency
 			thisWidget.lastActiveTick = Iris._cycleTick + 1

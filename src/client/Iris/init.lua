@@ -896,7 +896,7 @@ end
 --- hasState: true,
 --- Arguments: {
 ---     Text: string,
----     Value: any
+---     Index: any
 --- },
 --- Events: {
 ---     activated: boolean,
@@ -904,7 +904,7 @@ end
 ---     hovered: boolean
 --- },
 --- States: {
----     value: any
+---     index: any
 --- }
 --- ```
 Iris.RadioButton = function(args, state)
