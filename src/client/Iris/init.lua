@@ -959,6 +959,34 @@ Iris.CollapsingHeader = function(args, state)
     return Iris._Insert("CollapsingHeader", args, state)
 end
 
+--- @prop SliderNum Widget
+--- @within Widgets
+--- A field which allows the user to slide a grip to enter a number within a range
+--- You can ctrl + click to directly input a number, like InputNum
+---
+--- ```json 
+--- hasChildren: false,
+--- hasState: true,
+--- Arguments: {
+---     Text: string,
+---     Increment: number,
+---     Min: number,
+---     Max: number,
+---     Format: string,
+--- },
+--- Events: {
+---     numberChanged: boolean,
+---     hovered: boolean
+--- },
+--- States: {
+---     number: number,
+---     editingText: boolean
+--- }
+--- ```
+Iris.SliderNum = function(args, state)
+    return Iris._Insert("SliderNum", args, state)
+end
+
 --- @prop InputNum Widget
 --- @within Widgets
 --- A field which allows the user to enter a number.

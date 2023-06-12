@@ -42,6 +42,11 @@ local TemplateConfig = {
         ButtonActiveColor = Color3.fromRGB(15, 135, 250),
         ButtonActiveTransparency = 0,
 
+        SliderGrabColor = Color3.fromRGB(66, 150, 250),
+        SliderGrabTransparency = 0.22,
+        SliderGrabActiveColor = Color3.fromRGB(117, 138, 204),
+        SliderGrabActiveTransparency = 0.4,
+
         HeaderColor = Color3.fromRGB(66, 150, 250),
         HeaderTransparency = 0.69,
         HeaderHoveredColor = Color3.fromRGB(66, 150, 250),
@@ -123,6 +128,11 @@ local TemplateConfig = {
         HeaderActiveColor = Color3.fromRGB(66, 150, 250),
         HeaderActiveTransparency = 0,
 
+        SliderGrabColor = Color3.fromRGB(61, 133, 224),
+        SliderGrabTransparency = 0,
+        SliderGrabActiveColor = Color3.fromRGB(66, 150, 250),
+        SliderGrabActiveTransparency = 0,
+
         SelectionImageObjectColor = Color3.fromRGB(0, 0, 0),
         SelectionImageObjectTransparency = 0.8,
         SelectionImageObjectBorderColor = Color3.fromRGB(0, 0, 0),
@@ -166,9 +176,11 @@ local TemplateConfig = {
         TextSize = 13,
         FrameBorderSize = 0,
         FrameRounding = 0,
+        GrabRounding = 0,
         WindowBorderSize = 1,
         WindowTitleAlign = Enum.LeftRight.Left,
         ScrollbarSize = 7,
+        GrabMinSize = 10,
     },
     sizeClear = { -- easier to read and manuveure
         ItemWidth = UDim.new(1, 0),
@@ -187,9 +199,11 @@ local TemplateConfig = {
         TextSize = 15,
         FrameBorderSize = 1,
         FrameRounding = 4,
+        GrabRounding = 4,
         WindowBorderSize = 1,
         WindowTitleAlign = Enum.LeftRight.Center,
         ScrollbarSize = 9,
+        GrabMinSize = 14,
     },
 
     utilityDefault = {

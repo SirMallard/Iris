@@ -111,7 +111,7 @@ return function(Iris)
         end,
 
         InputNum = function()
-            Iris.Tree({"Input Num"})
+            Iris.Tree({"InputNum & SliderNum"})
                 local NoField, NoButtons, Min, Max, Increment, Format = 
                 Iris.State(false), Iris.State(false), Iris.State(0), Iris.State(100), Iris.State(1), Iris.State("%d")
 
@@ -127,9 +127,23 @@ return function(Iris)
                 if Iris.Button({"Randomize Number"}).clicked() then
                     InputNum.number:set(math.random(1,99))
                 end
-                Iris.Separator()
                 Iris.Checkbox({"NoField"}, {isChecked = NoField})
                 Iris.Checkbox({"NoButtons"}, {isChecked = NoButtons})
+
+                Iris.Separator()
+
+                Iris.SameLine()
+                    Iris.Text({"Slider Numbers"})
+                    helpMarker("ctrl + click slider number widgets to input a number")
+                Iris.End()
+                Iris.PushConfig({ContentWidth = UDim.new(0, 350)})
+                    Iris.SliderNum({"Slide Int", 1, 1, 8})
+                    Iris.SliderNum({"Slide Float", 0.01, 0, 100})
+                    Iris.SliderNum({"Small Numbers", 0.001, -2, 1, "%f radians"})
+                    Iris.SliderNum({"Odd Ranges", 0.001, -math.pi, math.pi, "%f radians"})
+                    Iris.SliderNum({"Big Numbers", 1e4, 1e5, 1e7})
+                    Iris.SliderNum({"Few Numbers", 1, 0, 3})
+                Iris.PopConfig()
             Iris.End()
         end,
 
@@ -268,6 +282,16 @@ return function(Iris)
                     {"Arguments",    "Events",               "States"                },
                     {"Text: string", "collapsed: boolean",   "isUncollapsed: boolean"},
                     {"",			 "uncollapsed: boolean", ""                      },
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.SliderNum"})
+                parse2DArray({
+                    {"Arguments",          "Events",                 "States"              },
+                    {"Text: string",       "numberChanged: boolean", "number: number"      },
+                    {"Increment: number",  "",                       "editingText: boolean"},
+                    {"Min: number",        "",                       ""                    },
+                    {"Max: number",        "",                       ""                    },
+                    {"Format: string",     "",                       ""                    },
                 })
             Iris.End()
             Iris.CollapsingHeader({"Iris.InputNum"})
