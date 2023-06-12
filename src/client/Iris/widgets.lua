@@ -204,23 +204,100 @@ local function applyFrameStyle(thisInstance, forceNoPadding, doubleyNoPadding)
     end
 end
 
-local function hoverEvent(pathToHovered)
-    return {
-        ["Init"] = function(thisWidget)
-            local hoveredGuiObject = pathToHovered(thisWidget)
-            hoveredGuiObject.MouseEnter:Connect(function()
-                thisWidget.isHoveredEvent = true
-            end)
-            hoveredGuiObject.MouseLeave:Connect(function()
+local EVENTS = {
+    hover = function(pathToHovered)
+        return {
+            ["Init"] = function(thisWidget)
+                local hoveredGuiObject = pathToHovered(thisWidget)
+                hoveredGuiObject.MouseEnter:Connect(function()
+                    thisWidget.isHoveredEvent = true
+                end)
+                hoveredGuiObject.MouseLeave:Connect(function()
+                    thisWidget.isHoveredEvent = false
+                end)
                 thisWidget.isHoveredEvent = false
-            end)
-            thisWidget.isHoveredEvent = false
-        end,
-        ["Get"] = function(thisWidget)
-            return thisWidget.isHoveredEvent
-        end
-    }
-end
+            end,
+            ["Get"] = function(thisWidget)
+                return thisWidget.isHoveredEvent
+            end
+        }
+    end,
+
+    click = function(pathToClicked)
+        return {
+            ["Init"] = function(thisWidget)
+                local clickedGuiObject = pathToClicked(thisWidget)
+                thisWidget.lastClickedTick = -1
+
+                clickedGuiObject.MouseButton1Click:Connect(function()
+                    thisWidget.lastClickedTick = Iris._cycleTick + 1
+                end)
+            end,
+            ["Get"] = function(thisWidget)
+                return thisWidget.lastClickedTick == Iris._cycleTick
+            end
+        }
+    end,
+
+    rightClick = function(pathToClicked)
+        return {
+            ["Init"] = function(thisWidget)
+                local clickedGuiObject = pathToClicked(thisWidget)
+                thisWidget.lastRightClickedTick = -1
+
+                clickedGuiObject.MouseButton2Click:Connect(function()
+                    thisWidget.lastRightClickedTick = Iris._cycleTick + 1
+                end)
+            end,
+            ["Get"] = function(thisWidget)
+                return thisWidget.lastRightClickedTick == Iris._cycleTick
+            end
+        }
+    end,
+
+    doubleClick = function(pathToClicked)
+        return {
+            ["Init"] = function(thisWidget)
+                local clickedGuiObject = pathToClicked(thisWidget)
+                thisWidget.lastClickedTime = -1
+                thisWidget.lastClickedPosition = Vector2.zero
+                thisWidget.lastDoubleClickedTick = -1
+
+                clickedGuiObject.MouseButton1Down:Connect(function(x, y)
+                    local currentTime = time()
+                    local isTimeValid = currentTime - thisWidget.lastClickedTime < Iris._config.MouseDoubleClickTime
+                    if isTimeValid and (Vector2.new(x, y) - thisWidget.lastClickedPosition).Magnitude < Iris._config.MouseDoubleClickMaxDist then
+                        thisWidget.lastDoubleClickedTick = Iris._cycleTick + 1
+                    else
+                        thisWidget.lastClickedTime = currentTime
+                        thisWidget.lastClickedPosition = Vector2.new(x, y)
+                    end
+                end)
+            end,
+            ["Get"] = function(thisWidget)
+                return thisWidget.lastDoubleClickedTick == Iris._cycleTick
+            end
+        }
+    end,
+
+    ctrlClick = function(pathToClicked)
+        return {
+            ["Init"] = function(thisWidget)
+                local clickedGuiObject = pathToClicked(thisWidget)
+                thisWidget.lastCtrlClickedTick = -1
+
+                clickedGuiObject.MouseButton1Click:Connect(function()
+                    if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl) then
+                        thisWidget.lastCtrlClickedTick = Iris._cycleTick + 1
+                    end
+                end)
+            end,
+            ["Get"] = function(thisWidget)
+                return thisWidget.lastCtrlClickedTick == Iris._cycleTick
+            end
+        }
+    end
+}
 
 local function discardState(thisWidget)
     for _, state in thisWidget.state do
@@ -341,7 +418,7 @@ local abstractText = {
         ["Text"] = 1
     },
     Events = {
-        ["hovered"] = hoverEvent(function(thisWidget)
+        ["hovered"] = EVENTS.hover(function(thisWidget)
             return thisWidget.Instance
         end)
     },
@@ -421,18 +498,19 @@ local abstractButton = {
         ["Text"] = 1
     },
     Events = {
-        ["clicked"] = {
-            ["Init"] = function(thisWidget)
-                thisWidget.lastClickTick = -1
-                thisWidget.Instance.MouseButton1Click:Connect(function()
-                    thisWidget.lastClickTick = Iris._cycleTick + 1
-                end)
-            end,
-            ["Get"] = function(thisWidget)
-                return  thisWidget.lastClickTick == Iris._cycleTick
-            end
-        },
-        ["hovered"] = hoverEvent(function(thisWidget)
+        ["clicked"] = EVENTS.click(function(thisWidget)
+            return thisWidget.Instance
+        end),
+        ["rightClicked"] = EVENTS.rightClick(function(thisWidget)
+            return thisWidget.Instance
+        end),
+        ["doubleClicked"] = EVENTS.doubleClick(function(thisWidget)
+            return thisWidget.Instance
+        end),
+        ["ctrlClicked"] = EVENTS.ctrlClick(function(thisWidget)
+            return thisWidget.Instance
+        end),
+        ["hovered"] = EVENTS.hover(function(thisWidget)
             return thisWidget.Instance
         end)
     },
@@ -678,7 +756,7 @@ Iris.WidgetConstructor("Checkbox", {
                 return thisWidget.lastUncheckedTick == Iris._cycleTick
             end
         },
-        ["hovered"] = hoverEvent(function(thisWidget)
+        ["hovered"] = EVENTS.hover(function(thisWidget)
             return thisWidget.Instance
         end)
     },
@@ -794,7 +872,7 @@ Iris.WidgetConstructor("RadioButton", {
 				return thisWidget.state.value.value == thisWidget.arguments.Value
 			end
         },
-		["hovered"] = hoverEvent(function(thisWidget)
+		["hovered"] = EVENTS.hover(function(thisWidget)
 			return thisWidget.Instance
 		end)
 	},
@@ -910,7 +988,7 @@ Iris.WidgetConstructor("Tree", {
                 return thisWidget._lastUncollapsedTick == Iris._cycleTick
             end
         },
-        ["hovered"] = hoverEvent(function(thisWidget)
+        ["hovered"] = EVENTS.hover(function(thisWidget)
             return thisWidget.Instance
         end)
     },
@@ -1090,7 +1168,7 @@ Iris.WidgetConstructor("CollapsingHeader", {
                 return thisWidget._lastUncollapsedTick == Iris._cycleTick
             end
         },
-        ["hovered"] = hoverEvent(function(thisWidget)
+        ["hovered"] = EVENTS.hover(function(thisWidget)
             return thisWidget.Instance
         end)
     },
@@ -1258,7 +1336,7 @@ Iris.WidgetConstructor("InputNum", {
                 return thisWidget.lastNumchangeTick == Iris._cycleTick
             end
         },
-        ["hovered"] = hoverEvent(function(thisWidget)
+        ["hovered"] = EVENTS.hover(function(thisWidget)
             return thisWidget.Instance
         end)
     },
@@ -1397,7 +1475,7 @@ Iris.WidgetConstructor("InputText", {
                 return thisWidget.lastTextchangeTick == Iris._cycleTick
             end
         },
-        ["hovered"] = hoverEvent(function(thisWidget)
+        ["hovered"] = EVENTS.hover(function(thisWidget)
             return thisWidget.Instance
         end)
     },
@@ -1604,7 +1682,7 @@ do -- Iris.Table
             ["BordersInner"] = 4
         },
         Events = {
-            ["hovered"] = hoverEvent(function(thisWidget)
+            ["hovered"] = EVENTS.hover(function(thisWidget)
                 return thisWidget.Instance
             end)
         },
@@ -2044,7 +2122,7 @@ do -- Iris.Window
                     return thisWidget.lastUncollapsedTick == Iris._cycleTick
                 end
             },
-            ["hovered"] = hoverEvent(function(thisWidget)
+            ["hovered"] = EVENTS.hover(function(thisWidget)
                 return thisWidget.Instance.WindowButton
             end)
         },

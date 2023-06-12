@@ -196,7 +196,11 @@ local TemplateConfig = {
         UseScreenGUIs = true,
         Parent = nil,
         DisplayOrderOffset = 127,
-        ZIndexOffset = 0
+        ZIndexOffset = 0,
+
+        MouseDoubleClickTime = 0.30, -- Time for a double-click, in seconds.
+        MouseDoubleClickMaxDist = 6.0, -- Distance threshold to stay in to validate a double-click, in pixels.
+        MouseDragThreshold = 6.0 -- Distance threshold before considering we are dragging.
     }
 }
 

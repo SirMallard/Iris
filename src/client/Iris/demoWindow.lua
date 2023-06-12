@@ -670,6 +670,28 @@ return function(Iris)
                 clickCount:set(clickCount:get() + 1)
             end
             Iris.Text({"The Number is: " .. clickCount:get()})
+
+            Iris.Separator()
+
+            local showEventText = Iris.State(false)
+            local selectedEvent = Iris.State("clicked")
+            Iris.SameLine()
+                Iris.RadioButton({"clicked", "clicked"}, {value = selectedEvent})
+                Iris.RadioButton({"rightClicked", "rightClicked"}, {value = selectedEvent})
+                Iris.RadioButton({"doubleClicked", "doubleClicked"}, {value = selectedEvent})
+                Iris.RadioButton({"ctrlClicked", "ctrlClicked"}, {value = selectedEvent})
+            Iris.End()
+            Iris.SameLine()
+                if Iris.Button({selectedEvent:get() .. " to reveal text"})[selectedEvent:get()]() then
+                    showEventText:set(not showEventText:get())
+                end
+                if showEventText:get() then
+                    Iris.Text({"Here i am!"})
+                end
+            Iris.End()
+
+            Iris.Separator()
+
             local showTextTimer = Iris.State(0)
             Iris.SameLine()
                 if Iris.Button({"Click to show text for 20 frames"}).clicked() then
