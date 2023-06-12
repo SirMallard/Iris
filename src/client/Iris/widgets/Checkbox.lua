@@ -1,0 +1,108 @@
+return function(Iris, widgets)
+    Iris.WidgetConstructor("Checkbox", {
+        hasState = true,
+        hasChildren = false,
+        Args = {
+            ["Text"] = 1
+        },
+        Events = {
+            ["checked"] = {
+                ["Init"] = function(thisWidget)
+
+                end,
+                ["Get"] = function(thisWidget)
+                    return thisWidget.lastCheckedTick == Iris._cycleTick
+                end
+            },
+            ["unchecked"] = {
+                ["Init"] = function(thisWidget)
+
+                end,
+                ["Get"] = function(thisWidget)
+                    return thisWidget.lastUncheckedTick == Iris._cycleTick
+                end
+            },
+            ["hovered"] = widgets.EVENTS.hover(function(thisWidget)
+                return thisWidget.Instance
+            end)
+        },
+        Generate = function(thisWidget)
+            local Checkbox = Instance.new("TextButton")
+            Checkbox.Name = "Iris_Checkbox"
+            Checkbox.BackgroundTransparency = 1
+            Checkbox.BorderSizePixel = 0
+            Checkbox.Size = UDim2.fromOffset(0, 0)
+            Checkbox.Text = ""
+            Checkbox.AutomaticSize = Enum.AutomaticSize.XY
+            Checkbox.ZIndex = thisWidget.ZIndex
+            Checkbox.AutoButtonColor = false
+            Checkbox.LayoutOrder = thisWidget.ZIndex
+
+            local CheckboxBox = Instance.new("TextLabel")
+            CheckboxBox.Name = "CheckboxBox"
+            CheckboxBox.AutomaticSize = Enum.AutomaticSize.None
+            local checkboxSize = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
+            CheckboxBox.Size = UDim2.fromOffset(checkboxSize, checkboxSize)
+            CheckboxBox.TextSize = checkboxSize
+            CheckboxBox.LineHeight = 1.1
+            CheckboxBox.ZIndex = thisWidget.ZIndex + 1
+            CheckboxBox.LayoutOrder = thisWidget.ZIndex + 1
+            CheckboxBox.Parent = Checkbox
+            CheckboxBox.TextColor3 = Iris._config.CheckMarkColor
+            CheckboxBox.TextTransparency = Iris._config.CheckMarkTransparency
+            CheckboxBox.BackgroundColor3 = Iris._config.FrameBgColor
+            CheckboxBox.BackgroundTransparency = Iris._config.FrameBgTransparency
+            widgets.applyFrameStyle(CheckboxBox, true)
+
+            widgets.applyInteractionHighlights(Checkbox, CheckboxBox, {
+                ButtonColor = Iris._config.FrameBgColor,
+                ButtonTransparency = Iris._config.FrameBgTransparency,
+                ButtonHoveredColor = Iris._config.FrameBgHoveredColor,
+                ButtonHoveredTransparency = Iris._config.FrameBgHoveredTransparency,
+                ButtonActiveColor = Iris._config.FrameBgActiveColor,
+                ButtonActiveTransparency = Iris._config.FrameBgActiveTransparency,
+            })
+
+            Checkbox.MouseButton1Click:Connect(function()
+                local wasChecked = thisWidget.state.isChecked.value
+                thisWidget.state.isChecked:set(not wasChecked)
+            end)
+
+            local TextLabel = Instance.new("TextLabel")
+            TextLabel.Name = "TextLabel"
+            widgets.applyTextStyle(TextLabel)
+            TextLabel.Position = UDim2.new(0,checkboxSize + Iris._config.ItemInnerSpacing.X, 0.5, 0)
+            TextLabel.ZIndex = thisWidget.ZIndex + 1
+            TextLabel.LayoutOrder = thisWidget.ZIndex + 1
+            TextLabel.AutomaticSize = Enum.AutomaticSize.XY
+            TextLabel.AnchorPoint = Vector2.new(0, 0.5)
+            TextLabel.BackgroundTransparency = 1
+            TextLabel.BorderSizePixel = 0
+            TextLabel.Parent = Checkbox
+
+            return Checkbox
+        end,
+        Update = function(thisWidget)
+            thisWidget.Instance.TextLabel.Text = thisWidget.arguments.Text or "Checkbox"
+        end,
+        Discard = function(thisWidget)
+            thisWidget.Instance:Destroy()
+            widgets.discardState(thisWidget)
+        end,
+        GenerateState = function(thisWidget)
+            if thisWidget.state.isChecked == nil then
+                thisWidget.state.isChecked = Iris._widgetState(thisWidget, "checked", false)
+            end
+        end,
+        UpdateState = function(thisWidget)
+            local Checkbox = thisWidget.Instance.CheckboxBox
+            if thisWidget.state.isChecked.value then
+                Checkbox.Text = widgets.ICONS.CHECK_MARK
+                thisWidget.lastCheckedTick = Iris._cycleTick + 1
+            else
+                Checkbox.Text = ""
+                thisWidget.lastUncheckedTick = Iris._cycleTick + 1
+            end
+        end
+    })
+end
