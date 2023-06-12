@@ -5,15 +5,31 @@ return function(Iris)
     local showStyleEditor = Iris.State(false)
     local showWindowlessDemo = Iris.State(false)
 
+    local function helpMarker(helpText)
+        Iris.PushConfig({TextColor = Iris._config.TextDisabledColor})
+            Iris.Text({"(?)"})
+        Iris.PopConfig()
+
+        Iris.PushConfig({ContentWidth = UDim.new(0, 350)})
+        if Iris.Events.hovered() then
+            Iris.Tooltip({helpText})
+        end
+        Iris.PopConfig()
+    end
+
     -- shows each widgets functionality
     local widgetDemos = {
         Basic = function()
             Iris.Tree({"Basic"})
+                Iris.SameLine()
+                    Iris.Text({"Simple, common widgets"})
+                    helpMarker("The Widgets shown are, in order, Iris.Button, Iris.SmallButton, Iris.Text, Iris.TextWrapped, Iris.TextColored, and Iris.RadioButton")
+                Iris.End()
 				local radioButtonState = Iris.State(1)
                 Iris.Button({"Button"})
                 Iris.SmallButton({"SmallButton"})
                 Iris.Text({"Text"})
-                Iris.TextWrapped({string.rep("Text Wrapped ", 5)})
+                Iris.TextWrapped({string.rep("Text Wrapped ", 5)}) 
                 Iris.TextColored({"Colored Text", Color3.fromRGB(255, 128, 0)})
 				Iris.SameLine()
 					Iris.RadioButton({"Index '1'", 1}, {value = radioButtonState})
@@ -31,6 +47,7 @@ return function(Iris)
         Tree = function()
             Iris.Tree({"Trees"})
                 Iris.Tree({"Tree using SpanAvailWidth", [Iris.Args.Tree.SpanAvailWidth] = true})
+                    helpMarker("SpanAvailWidth determines if the Tree is selectable from its entire with, or only the text area")
                 Iris.End()
 
                 local tree1 = Iris.Tree({"Tree with Children"})
@@ -318,8 +335,13 @@ return function(Iris)
                 runtimeInfoWindow.size.value.X, runtimeInfoWindow.size.value.Y
             )})
 
+            Iris.SameLine()
+                Iris.Text({"Enter an ID to learn more about it."})
+                helpMarker("every widget and state has an ID which Iris tracks to remember which widget is which. below lists all widgets and states, with their respective IDs")
+            Iris.End()
+
             Iris.PushConfig({ItemWidth = UDim.new(0.5, 100)})
-            local enteredText = Iris.InputText({"Enter an ID to learn more about it."}, {text = Iris.State(runtimeInfoWindow.ID)}).text.value
+            local enteredText = Iris.InputText({"ID field"}, {text = Iris.State(runtimeInfoWindow.ID)}).text.value
             Iris.PopConfig()
 
             Iris.Indent()
@@ -760,6 +782,7 @@ return function(Iris)
                 colorH:set(math.random())
             end
             Iris.Text({"Hue: " .. math.floor(colorH:get() * 255)})
+            helpMarker("Using PushConfig with a changing value, this can be done with any config field")
             Iris.End()
             Iris.PushConfig({TextColor = Color3.fromHSV(colorH:get(), 1, 1)})
                 Iris.Text({"Text with a unique and changable color"})
@@ -778,7 +801,10 @@ return function(Iris)
             -- Dear ImGui utilizes the same trick, but its less useful here because the Retained mode Backend
         Iris.End()
         else
-            Iris.Text({"Table using NextRow and NextColumn syntax:"})
+            Iris.SameLine()
+                Iris.Text({"Table using NextRow and NextColumn syntax:"})
+                helpMarker("calling Iris.NextRow() in the outer loop, and Iris.NextColumn()in the inner loop")
+            Iris.End()
             Iris.Table({3})
                 for i = 1, 4 do
                     Iris.NextRow()
@@ -790,7 +816,11 @@ return function(Iris)
             Iris.End()
 
             Iris.Text({""})
-            Iris.Text({"Table using NextColumn only syntax:"})
+
+            Iris.SameLine()
+                Iris.Text({"Table using NextColumn only syntax:"})
+                helpMarker("only calling Iris.NextColumn() in the inner loop, the result is identical")
+            Iris.End()
 
             Iris.Table({2})
                 for i = 1, 4 do
@@ -844,7 +874,10 @@ return function(Iris)
     -- showcases how widgets placed outside of a window are placed inside root
     local function windowlessDemo()
         Iris.PushConfig({ItemWidth = UDim.new(0, 150)})
-            Iris.TextWrapped({"Widgets which are placed outside of a window will appear on the top left side of the screen."})
+            Iris.SameLine()
+                Iris.TextWrapped({"Windowless widgets"})
+                helpMarker("Widgets which are placed outside of a window will appear on the top left side of the screen.")
+            Iris.End()
             Iris.Button()
             Iris.Tree()
                 Iris.InputText()
@@ -874,7 +907,7 @@ return function(Iris)
             [Iris.Args.Window.NoNav] = NoNav.value
         }, {size = Iris.State(Vector2.new(600, 550)), position = Iris.State(Vector2.new(100, 25))})
 
-            Iris.Text{"Iris says hello!"}
+            Iris.Text{"Iris says hello. (2.0.0)"}
             Iris.Separator()
 
             Iris.Table({3, false, false, false})
