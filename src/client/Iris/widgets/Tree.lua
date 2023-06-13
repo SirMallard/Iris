@@ -1,12 +1,7 @@
 return function(Iris, widgets)
-    Iris.WidgetConstructor("Tree", {
+    local abstractTree = {
         hasState = true,
         hasChildren = true,
-        Args = {
-            ["Text"] = 1,
-            ["SpanAvailWidth"] = 2,
-            ["NoIndent"] = 3
-        },
         Events = {
             ["collasped"] = {
                 ["Init"] = function(thisWidget)
@@ -27,6 +22,46 @@ return function(Iris, widgets)
             ["hovered"] = widgets.EVENTS.hover(function(thisWidget)
                 return thisWidget.Instance
             end)
+        },
+        Discard = function(thisWidget)
+            thisWidget.Instance:Destroy()
+            widgets.discardState(thisWidget)
+        end,
+        ChildAdded = function(thisWidget)
+            local ChildContainer = thisWidget.Instance.ChildContainer
+            local isUncollapsed = thisWidget.state.isUncollapsed.value
+    
+            thisWidget.hasChildren = true
+            ChildContainer.Visible = isUncollapsed and thisWidget.hasChildren
+    
+            return thisWidget.Instance.ChildContainer
+        end,
+        UpdateState = function(thisWidget)
+            local isUncollapsed = thisWidget.state.isUncollapsed.value
+            local Arrow = thisWidget.ArrowInstance
+            local ChildContainer = thisWidget.Instance.ChildContainer
+            Arrow.Text = (isUncollapsed and widgets.ICONS.DOWN_POINTING_TRIANGLE or widgets.ICONS.RIGHT_POINTING_TRIANGLE)
+    
+            if isUncollapsed then
+                thisWidget.lastUncollaspedTick = Iris._cycleTick + 1
+            else
+                thisWidget.lastCollapsedTick = Iris._cycleTick + 1
+            end
+    
+            ChildContainer.Visible = isUncollapsed and thisWidget.hasChildren
+        end,
+        GenerateState = function(thisWidget)
+            if thisWidget.state.isUncollapsed == nil then
+                thisWidget.state.isUncollapsed = Iris._widgetState(thisWidget, "isUncollapsed", false)
+            end
+        end
+    }
+
+    Iris.WidgetConstructor("Tree", widgets.extend(abstractTree, {
+        Args = {
+            ["Text"] = 1,
+            ["SpanAvailWidth"] = 2,
+            ["NoIndent"] = 3
         },
         Generate = function(thisWidget)
             local Tree = Instance.new("Frame")
@@ -104,9 +139,9 @@ return function(Iris, widgets)
             widgets.applyTextStyle(Arrow)
             Arrow.TextXAlignment = Enum.TextXAlignment.Center
             Arrow.TextSize = Iris._config.TextSize - 4
-            Arrow.Text = widgets.ICONS.RIGHT_POINTING_TRIANGLE
     
             Arrow.Parent = Button
+            thisWidget.ArrowInstance = Arrow
     
             local TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
@@ -146,67 +181,12 @@ return function(Iris, widgets)
                 ChildContainer.UIPadding.PaddingLeft = UDim.new(0, Iris._config.IndentSpacing)
             end
     
-        end,
-        Discard = function(thisWidget)
-            thisWidget.Instance:Destroy()
-            widgets.discardState(thisWidget)
-        end,
-        ChildAdded = function(thisWidget)
-            local ChildContainer = thisWidget.Instance.ChildContainer
-            local isUncollapsed = thisWidget.state.isUncollapsed.value
-    
-            thisWidget.hasChildren = true
-            ChildContainer.Visible = isUncollapsed and thisWidget.hasChildren
-    
-            return thisWidget.Instance.ChildContainer
-        end,
-        UpdateState = function(thisWidget)
-            local isUncollapsed = thisWidget.state.isUncollapsed.value
-            local Arrow = thisWidget.Instance.Header.Button.Arrow
-            local ChildContainer = thisWidget.Instance.ChildContainer
-            Arrow.Text = (isUncollapsed and widgets.ICONS.DOWN_POINTING_TRIANGLE or widgets.ICONS.RIGHT_POINTING_TRIANGLE)
-    
-            if isUncollapsed then
-                thisWidget.lastUncollaspedTick = Iris._cycleTick + 1
-            else
-                thisWidget.lastCollapsedTick = Iris._cycleTick + 1
-            end
-    
-            ChildContainer.Visible = isUncollapsed and thisWidget.hasChildren
-        end,
-        GenerateState = function(thisWidget)
-            if thisWidget.state.isUncollapsed == nil then
-                thisWidget.state.isUncollapsed = Iris._widgetState(thisWidget, "isUncollapsed", false)
-            end
         end
-    })
+    }))
     
-    Iris.WidgetConstructor("CollapsingHeader", {
-        hasState = true,
-        hasChildren = true,
+    Iris.WidgetConstructor("CollapsingHeader", widgets.extend(abstractTree, {
         Args = {
             ["Text"] = 1,
-        },
-        Events = {
-            ["collasped"] = {
-                ["Init"] = function(thisWidget)
-    
-                end,
-                ["Get"] = function(thisWidget)
-                    return thisWidget._lastCollapsedTick == Iris._cycleTick
-                end
-            },
-            ["uncollapsed"] = {
-                ["Init"] = function(thisWidget)
-    
-                end,
-                ["Get"] = function(thisWidget)
-                    return thisWidget._lastUncollapsedTick == Iris._cycleTick
-                end
-            },
-            ["hovered"] = widgets.EVENTS.hover(function(thisWidget)
-                return thisWidget.Instance
-            end)
         },
         Generate = function(thisWidget)
             local CollapsingHeader = Instance.new("Frame")
@@ -289,9 +269,9 @@ return function(Iris, widgets)
             widgets.applyTextStyle(Arrow)
             Arrow.TextXAlignment = Enum.TextXAlignment.Center
             Arrow.TextSize = Iris._config.TextSize - 4
-            Arrow.Text = widgets.ICONS.RIGHT_POINTING_TRIANGLE
-    
+
             Arrow.Parent = Collapse
+            thisWidget.ArrowInstance = Arrow
     
             local TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
@@ -316,38 +296,6 @@ return function(Iris, widgets)
         Update = function(thisWidget)
             local Collapse = thisWidget.Instance.Header.Collapse
             Collapse.TextLabel.Text = thisWidget.arguments.Text or "Collapsing Header"
-        end,
-        Discard = function(thisWidget)
-            thisWidget.Instance:Destroy()
-            widgets.discardState(thisWidget)
-        end,
-        ChildAdded = function(thisWidget)
-            local ChildContainer = thisWidget.Instance.ChildContainer
-            local isUncollapsed = thisWidget.state.isUncollapsed.value
-    
-            thisWidget.hasChildren = true
-            ChildContainer.Visible = isUncollapsed and thisWidget.hasChildren
-    
-            return thisWidget.Instance.ChildContainer
-        end,
-        UpdateState = function(thisWidget)
-            local isUncollapsed = thisWidget.state.isUncollapsed.value
-            local Arrow = thisWidget.Instance.Header.Collapse.Arrow
-            local ChildContainer = thisWidget.Instance.ChildContainer
-            Arrow.Text = (isUncollapsed and widgets.ICONS.DOWN_POINTING_TRIANGLE or widgets.ICONS.RIGHT_POINTING_TRIANGLE)
-    
-            if isUncollapsed then
-                thisWidget.lastUncollaspedTick = Iris._cycleTick + 1
-            else
-                thisWidget.lastCollapsedTick = Iris._cycleTick + 1
-            end
-    
-            ChildContainer.Visible = isUncollapsed and thisWidget.hasChildren
-        end,
-        GenerateState = function(thisWidget)
-            if thisWidget.state.isUncollapsed == nil then
-                thisWidget.state.isUncollapsed = Iris._widgetState(thisWidget, "isUncollapsed", false)
-            end
         end
-    })
+    }))
 end

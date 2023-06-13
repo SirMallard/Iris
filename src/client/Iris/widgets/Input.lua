@@ -1,4 +1,61 @@
+local TextService = game:GetService("TextService")
 return function(Iris, widgets)
+
+    local numberChanged = {
+        ["Init"] = function(thisWidget)
+
+        end,
+        ["Get"] = function(thisWidget)
+            return thisWidget.lastNumchangeTick == Iris._cycleTick
+        end
+    }
+
+    local function GenerateRootFrame(thisWidget, name)
+        local Frame = Instance.new("Frame")
+        Frame.Name = name
+        Frame.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+        Frame.BackgroundTransparency = 1
+        Frame.BorderSizePixel = 0
+        Frame.ZIndex = thisWidget.ZIndex
+        Frame.LayoutOrder = thisWidget.ZIndex
+        Frame.AutomaticSize = Enum.AutomaticSize.Y
+        widgets.UIListLayout(Frame, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+
+        return Frame
+    end
+
+    local function GenerateInputField(thisWidget)
+        local InputField = Instance.new("TextBox")
+        InputField.Name = "InputField"
+        widgets.applyFrameStyle(InputField, true)
+        widgets.applyTextStyle(InputField)
+        InputField.ZIndex = thisWidget.ZIndex + 2
+        InputField.LayoutOrder = thisWidget.ZIndex + 2
+        InputField.Size = UDim2.new(1, 0, 1, 0)
+        InputField.BackgroundTransparency = 1
+        InputField.ClearTextOnFocus = false
+        InputField.TextTruncate = Enum.TextTruncate.AtEnd
+        InputField.Visible = false
+
+        return InputField
+    end
+
+    local function GenerateTextLabel(thisWidget)
+        local textLabelHeight = Iris._config.TextSize + Iris._config.FramePadding.Y * 2
+
+        local TextLabel = Instance.new("TextLabel")
+        TextLabel.Name = "TextLabel"
+        TextLabel.Size = UDim2.fromOffset(0, textLabelHeight)
+        TextLabel.BackgroundTransparency = 1
+        TextLabel.BorderSizePixel = 0
+        TextLabel.ZIndex = thisWidget.ZIndex + 4
+        TextLabel.LayoutOrder = thisWidget.ZIndex + 4
+        TextLabel.AutomaticSize = Enum.AutomaticSize.X
+        widgets.applyTextStyle(TextLabel)
+
+        return TextLabel
+    end
+    
     local AnyActiveDragNum = false
     local LastMouseXPos = 0
     local ActiveDragNum
@@ -61,31 +118,13 @@ return function(Iris, widgets)
             ["Format"] = 5,
         },
         Events = {
-            ["numberChanged"] = {
-                ["Init"] = function(thisWidget)
-
-                end,
-                ["Get"] = function(thisWidget)
-                    return thisWidget.lastNumchangeTick == Iris._cycleTick
-                end
-            },
+            ["numberChanged"] = numberChanged,
             ["hovered"] = widgets.EVENTS.hover(function(thisWidget)
                 return thisWidget.Instance
             end)
         },
         Generate = function(thisWidget)
-            local InputSlider = Instance.new("Frame")
-            InputSlider.Name = "Iris_InputSlider"
-            InputSlider.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
-            InputSlider.BackgroundTransparency = 1
-            InputSlider.BorderSizePixel = 0
-            InputSlider.ZIndex = thisWidget.ZIndex
-            InputSlider.LayoutOrder = thisWidget.ZIndex
-            InputSlider.AutomaticSize = Enum.AutomaticSize.Y
-            widgets.UIListLayout(InputSlider, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
-
-            local inputButtonsWidth = Iris._config.TextSize
-            local textLabelHeight = inputButtonsWidth + Iris._config.FramePadding.Y * 2
+            local DragNum = GenerateRootFrame(thisWidget, "Iris_DragNum")
 
             local InputFieldContainer = Instance.new("TextButton")
             InputFieldContainer.Name = "InputFieldContainer"
@@ -100,7 +139,7 @@ return function(Iris, widgets)
             InputFieldContainer.Text = ""
             InputFieldContainer.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldContainer.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputFieldContainer.Parent = InputSlider
+            InputFieldContainer.Parent = DragNum
 
             widgets.applyInteractionHighlights(InputFieldContainer, InputFieldContainer, {
                 ButtonColor = Iris._config.FrameBgColor,
@@ -111,17 +150,7 @@ return function(Iris, widgets)
                 ButtonActiveTransparency = Iris._config.FrameBgActiveTransparency,
             })
 
-            local InputField = Instance.new("TextBox")
-            InputField.Name = "InputField"
-            widgets.applyFrameStyle(InputField, true)
-            widgets.applyTextStyle(InputField)
-            InputField.ZIndex = thisWidget.ZIndex + 2
-            InputField.LayoutOrder = thisWidget.ZIndex + 2
-            InputField.Size = UDim2.new(1, 0, 1, 0)
-            InputField.BackgroundTransparency = 1
-            InputField.ClearTextOnFocus = false
-            InputField.TextTruncate = Enum.TextTruncate.AtEnd
-            InputField.Visible = false
+            local InputField = GenerateInputField(thisWidget)
             InputField.Parent = InputFieldContainer
 
             InputField.FocusLost:Connect(function()
@@ -152,18 +181,10 @@ return function(Iris, widgets)
                 InputFieldContainerOnClick(thisWidget, x, y)
             end)
 
-            local TextLabel = Instance.new("TextLabel")
-            TextLabel.Name = "TextLabel"
-            TextLabel.Size = UDim2.fromOffset(0, textLabelHeight)
-            TextLabel.BackgroundTransparency = 1
-            TextLabel.BorderSizePixel = 0
-            TextLabel.ZIndex = thisWidget.ZIndex + 4
-            TextLabel.LayoutOrder = thisWidget.ZIndex + 4
-            TextLabel.AutomaticSize = Enum.AutomaticSize.X
-            widgets.applyTextStyle(TextLabel)
-            TextLabel.Parent = InputSlider
+            local TextLabel = GenerateTextLabel(thisWidget)
+            TextLabel.Parent = DragNum
 
-            return InputSlider
+            return DragNum
         end,
         Update = function(thisWidget)
             local TextLabel = thisWidget.Instance.TextLabel
@@ -200,7 +221,6 @@ return function(Iris, widgets)
             end
         end
     })
-    
     
     local AnyActiveSliderNum = false
     local ActiveSliderNum
@@ -257,31 +277,13 @@ return function(Iris, widgets)
             ["Format"] = 5,
         },
         Events = {
-            ["numberChanged"] = {
-                ["Init"] = function(thisWidget)
-
-                end,
-                ["Get"] = function(thisWidget)
-                    return thisWidget.lastNumchangeTick == Iris._cycleTick
-                end
-            },
+            ["numberChanged"] = numberChanged,
             ["hovered"] = widgets.EVENTS.hover(function(thisWidget)
                 return thisWidget.Instance
             end)
         },
         Generate = function(thisWidget)
-            local InputSlider = Instance.new("Frame")
-            InputSlider.Name = "Iris_InputSlider"
-            InputSlider.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
-            InputSlider.BackgroundTransparency = 1
-            InputSlider.BorderSizePixel = 0
-            InputSlider.ZIndex = thisWidget.ZIndex
-            InputSlider.LayoutOrder = thisWidget.ZIndex
-            InputSlider.AutomaticSize = Enum.AutomaticSize.Y
-            widgets.UIListLayout(InputSlider, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
-
-            local inputButtonsWidth = Iris._config.TextSize
-            local textLabelHeight = inputButtonsWidth + Iris._config.FramePadding.Y * 2
+            local SliderNum = GenerateRootFrame(thisWidget, "Iris_SliderNum")
 
             local InputFieldContainer = Instance.new("TextButton")
             InputFieldContainer.Name = "InputFieldContainer"
@@ -296,7 +298,7 @@ return function(Iris, widgets)
             InputFieldContainer.Text = ""
             InputFieldContainer.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldContainer.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputFieldContainer.Parent = InputSlider
+            InputFieldContainer.Parent = SliderNum
 
             widgets.applyInteractionHighlights(InputFieldContainer, InputFieldContainer, {
                 ButtonColor = Iris._config.FrameBgColor,
@@ -307,17 +309,7 @@ return function(Iris, widgets)
                 ButtonActiveTransparency = Iris._config.FrameBgActiveTransparency,
             })
 
-            local InputField = Instance.new("TextBox")
-            InputField.Name = "InputField"
-            widgets.applyFrameStyle(InputField, true)
-            widgets.applyTextStyle(InputField)
-            InputField.ZIndex = thisWidget.ZIndex + 2
-            InputField.LayoutOrder = thisWidget.ZIndex + 2
-            InputField.Size = UDim2.new(1, 0, 1, 0)
-            InputField.BackgroundTransparency = 1
-            InputField.ClearTextOnFocus = false
-            InputField.TextTruncate = Enum.TextTruncate.AtEnd
-            InputField.Visible = false
+            local InputField = GenerateInputField(thisWidget)
             InputField.Parent = InputFieldContainer
 
             InputField.FocusLost:Connect(function()
@@ -360,19 +352,10 @@ return function(Iris, widgets)
             end
             GrabBar.Parent = InputFieldContainer
 
+            local TextLabel = GenerateTextLabel(thisWidget)
+            TextLabel.Parent = SliderNum
 
-            local TextLabel = Instance.new("TextLabel")
-            TextLabel.Name = "TextLabel"
-            TextLabel.Size = UDim2.fromOffset(0, textLabelHeight)
-            TextLabel.BackgroundTransparency = 1
-            TextLabel.BorderSizePixel = 0
-            TextLabel.ZIndex = thisWidget.ZIndex + 4
-            TextLabel.LayoutOrder = thisWidget.ZIndex + 4
-            TextLabel.AutomaticSize = Enum.AutomaticSize.X
-            widgets.applyTextStyle(TextLabel)
-            TextLabel.Parent = InputSlider
-
-            return InputSlider
+            return SliderNum
         end,
         Update = function(thisWidget)
             local TextLabel = thisWidget.Instance.TextLabel
@@ -435,7 +418,6 @@ return function(Iris, widgets)
         end
     })
 
-    
     Iris.WidgetConstructor("InputNum", {
         hasState = true,
         hasChildren = false,
@@ -449,31 +431,15 @@ return function(Iris, widgets)
             ["NoField"] = 7
         },
         Events = {
-            ["numberChanged"] = {
-                ["Init"] = function(thisWidget)
-    
-                end,
-                ["Get"] = function(thisWidget)
-                    return thisWidget.lastNumchangeTick == Iris._cycleTick
-                end
-            },
+            ["numberChanged"] = numberChanged,
             ["hovered"] = widgets.EVENTS.hover(function(thisWidget)
                 return thisWidget.Instance
             end)
         },
         Generate = function(thisWidget)
-            local InputNum = Instance.new("Frame")
-            InputNum.Name = "Iris_InputNum"
-            InputNum.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
-            InputNum.BackgroundTransparency = 1
-            InputNum.BorderSizePixel = 0
-            InputNum.ZIndex = thisWidget.ZIndex
-            InputNum.LayoutOrder = thisWidget.ZIndex
-            InputNum.AutomaticSize = Enum.AutomaticSize.Y
-            widgets.UIListLayout(InputNum, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+            local InputNum = GenerateRootFrame(thisWidget, "Iris_InputNum")
     
             local inputButtonsWidth = Iris._config.TextSize
-            local textLabelHeight = inputButtonsWidth + Iris._config.FramePadding.Y * 2
     
             local InputField = Instance.new("TextBox")
             InputField.Name = "InputField"
@@ -536,15 +502,7 @@ return function(Iris, widgets)
                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
             end)
     
-            local TextLabel = Instance.new("TextLabel")
-            TextLabel.Name = "TextLabel"
-            TextLabel.Size = UDim2.fromOffset(0, textLabelHeight)
-            TextLabel.BackgroundTransparency = 1
-            TextLabel.BorderSizePixel = 0
-            TextLabel.ZIndex = thisWidget.ZIndex + 4
-            TextLabel.LayoutOrder = thisWidget.ZIndex + 4
-            TextLabel.AutomaticSize = Enum.AutomaticSize.X
-            widgets.applyTextStyle(TextLabel)
+            local TextLabel = GenerateTextLabel(thisWidget)
             TextLabel.Parent = InputNum
     
             return InputNum
@@ -605,15 +563,7 @@ return function(Iris, widgets)
         Generate = function(thisWidget)
             local textLabelHeight = Iris._config.TextSize
     
-            local InputText = Instance.new("Frame")
-            InputText.Name = "Iris_InputText"
-            InputText.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
-            InputText.BackgroundTransparency = 1
-            InputText.BorderSizePixel = 0
-            InputText.ZIndex = thisWidget.ZIndex
-            InputText.LayoutOrder = thisWidget.ZIndex
-            InputText.AutomaticSize = Enum.AutomaticSize.Y
-            widgets.UIListLayout(InputText, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+            local InputText = GenerateRootFrame(thisWidget, "Iris_InputText")
     
             local InputField = Instance.new("TextBox")
             InputField.Name = "InputField"
@@ -639,16 +589,7 @@ return function(Iris, widgets)
     
             InputField.Parent = InputText
     
-            local TextLabel = Instance.new("TextLabel")
-            TextLabel.Name = "TextLabel"
-            TextLabel.Position = UDim2.new(1, Iris._config.ItemInnerSpacing.X, 0, 0)
-            TextLabel.Size = UDim2.fromOffset(0, textLabelHeight)
-            TextLabel.BackgroundTransparency = 1
-            TextLabel.BorderSizePixel = 0
-            TextLabel.ZIndex = thisWidget.ZIndex + 2
-            TextLabel.LayoutOrder = thisWidget.ZIndex + 2
-            TextLabel.AutomaticSize = Enum.AutomaticSize.X
-            widgets.applyTextStyle(TextLabel)
+            local TextLabel = GenerateTextLabel(thisWidget)
             TextLabel.Parent = InputText
     
             return InputText
