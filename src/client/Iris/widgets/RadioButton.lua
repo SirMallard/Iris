@@ -7,23 +7,23 @@ return function(Iris, widgets)
             ["Index"] = 2
         },
         Events = {
-            ["activated"] = {
-                ["Init"] = function(thisWidget)
-                    
-                end,
-                ["Get"] = function(thisWidget)
-                    return thisWidget.lastActiveTick == Iris._cycleTick
-                end
-            },
-            ["deactivated"] = {
-                ["Init"] = function(thisWidget)
-                    
-                end,
-                ["Get"] = function(thisWidget)
-                    return thisWidget.lastDeactiveTick == Iris._cycleTick
-                end
-            },
             ["selected"] = {
+                ["Init"] = function(thisWidget)
+                    
+                end,
+                ["Get"] = function(thisWidget)
+                    return thisWidget.lastSelectedTick == Iris._cycleTick
+                end
+            },
+            ["unselected"] = {
+                ["Init"] = function(thisWidget)
+                    
+                end,
+                ["Get"] = function(thisWidget)
+                    return thisWidget.lastUnselectedTick == Iris._cycleTick
+                end
+            },
+            ["active"] = {
                 ["Init"] = function(thisWidget)
                     
                 end,
@@ -114,10 +114,10 @@ return function(Iris, widgets)
             if thisWidget.state.index.value == thisWidget.arguments.Index then
                 -- only need to hide the circle
                 Circle.BackgroundTransparency = Iris._config.CheckMarkTransparency
-                thisWidget.lastActiveTick = Iris._cycleTick + 1
+                thisWidget.lastSelectedTick = Iris._cycleTick + 1
             else
                 Circle.BackgroundTransparency = 1
-                thisWidget.lastDeactiveTick = Iris._cycleTick + 1
+                thisWidget.lastUnselectedTick = Iris._cycleTick + 1
             end
         end
     })

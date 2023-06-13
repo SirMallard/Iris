@@ -313,6 +313,7 @@ return function(Iris)
     require(script.RadioButton)(Iris, widgets)
     require(script.Tree)       (Iris, widgets)
     require(script.Input)      (Iris, widgets)
+    require(script.Combo)      (Iris, widgets)
     require(script.Table)      (Iris, widgets)
     require(script.Window)     (Iris, widgets)
 end

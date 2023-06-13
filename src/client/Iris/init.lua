@@ -1074,6 +1074,12 @@ Iris.Tooltip = function(args)
     return Iris._Insert("Tooltip", args)
 end
 
+--- @prop Tooltip Widget
+--- @within Widgets
+Iris.Selectable = function(args, state)
+    return Iris._Insert("Selectable", args, state)
+end
+
 --- @prop Table Widget
 --- @within Widgets
 --- A layout widget which allows children to be displayed in configurable columns and rows.

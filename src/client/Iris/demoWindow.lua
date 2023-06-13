@@ -34,7 +34,7 @@ return function(Iris)
 				Iris.SameLine()
 					Iris.RadioButton({"Index '1'", 1}, {index = radioButtonState})
 					Iris.RadioButton({"Index 'two'", "two"}, {index = radioButtonState})
-                    if Iris.RadioButton({"Index 'false'", false}, {index = radioButtonState}).selected() == false then
+                    if Iris.RadioButton({"Index 'false'", false}, {index = radioButtonState}).active() == false then
                         if Iris.SmallButton({"Select last"}).clicked() then
                             radioButtonState:set(false)
                         end
@@ -184,9 +184,25 @@ return function(Iris)
                 end
             Iris.End()
             Iris.PopConfig()
+        end,
+
+        Selectable = function()
+            Iris.Tree({"Selectable"})
+            local sharedIndex = Iris.State(2)
+            Iris.Selectable({"Selectable #1", 1}, {index = sharedIndex})
+            Iris.Selectable({"Selectable #2", 2}, {index = sharedIndex})
+            if Iris.Selectable({"Double click Selectable", 3, true}, {index = sharedIndex}).doubleClicked() then
+                sharedIndex:set(3)
+            end
+            Iris.Selectable({"Impossible to select", 4, true}, {index = sharedIndex})
+            if Iris.Button({"Select the last one"}).clicked() then
+                sharedIndex:set(4)
+            end
+            Iris.Selectable({"Independant Selectable"})
+            Iris.End()
         end
     }
-    local widgetDemosOrder = {"Basic", "Tree", "CollapsingHeader", "Group", "Indent", "InputNum", "InputText", "Tooltip"}
+    local widgetDemosOrder = {"Basic", "Tree", "CollapsingHeader", "Group", "Indent", "InputNum", "InputText", "Tooltip", "Selectable"}
 
     local function recursiveTree()
         local theTree = Iris.Tree({"Recursive Tree"})
@@ -276,9 +292,17 @@ return function(Iris)
             Iris.CollapsingHeader({"Iris.RadioButton"})
                 parse2DArray({
                     {"Arguments",	 "Events",               "States"	 },	
-                    {"Text: string", "activated: boolean",	 "index: any"},
-                    {"Index: any",	 "deactivated: boolean", ""			 },
-                    {"",             "selected: boolean",    ""          }
+                    {"Text: string", "selected: boolean",	 "index: any"},
+                    {"Index: any",	 "unselected: boolean",  ""			 },
+                    {"",             "active: boolean",      ""          }
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.Selectable"})
+                parse2DArray({
+                    {"Arguments",	    "Events",               "States"	 },	
+                    {"Text: string",    "selected: boolean",	"index: any" },
+                    {"Index: any",	    "unselected: boolean",  ""			 },
+                    {"NoClick: boolean","active: boolean",      ""           }
                 })
             Iris.End()
             Iris.CollapsingHeader({"Iris.Tree"})
