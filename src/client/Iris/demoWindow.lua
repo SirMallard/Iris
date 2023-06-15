@@ -1,4 +1,5 @@
 return function(Iris)
+    local showMainWindow = Iris.State(true)
     local showRecursiveWindow = Iris.State(false)
     local showWidgetInfo = Iris.State(false)
     local showRuntimeInfo = Iris.State(false)
@@ -195,10 +196,10 @@ return function(Iris)
                 sharedIndex:set(3)
             end
             Iris.Selectable({"Impossible to select", 4, true}, {index = sharedIndex})
-            if Iris.Button({"Select the last one"}).clicked() then
+            if Iris.Button({"Select last"}).clicked() then
                 sharedIndex:set(4)
             end
-            Iris.Selectable({"Independant Selectable"})
+            Iris.Selectable({"Independent Selectable"})
             Iris.End()
         end
     }
@@ -966,6 +967,11 @@ return function(Iris)
         local NoResize = Iris.State(false)
         local NoNav = Iris.State(false)
 
+        if showMainWindow.value == false then
+            Iris.Checkbox({"Open main window"}, {isChecked = showMainWindow})
+            return
+        end
+
         Iris.Window({"Iris Demo Window",
             [Iris.Args.Window.NoTitleBar] = NoTitleBar.value,
             [Iris.Args.Window.NoBackground] = NoBackground.value,
@@ -975,7 +981,7 @@ return function(Iris)
             [Iris.Args.Window.NoScrollbar] = NoScrollbar.value,
             [Iris.Args.Window.NoResize] = NoResize.value,
             [Iris.Args.Window.NoNav] = NoNav.value
-        }, {size = Iris.State(Vector2.new(600, 550)), position = Iris.State(Vector2.new(100, 25))})
+        }, {size = Iris.State(Vector2.new(600, 550)), position = Iris.State(Vector2.new(100, 25)), isOpened = showMainWindow})
 
             Iris.Text{"Iris says hello. (2.0.0)"}
             Iris.Separator()

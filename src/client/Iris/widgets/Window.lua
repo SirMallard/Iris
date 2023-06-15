@@ -1,27 +1,4 @@
 return function(Iris, widgets)
-    local function findBestWindowPosForPopup(refPos, size, outerMin, outerMax)
-        local CURSOR_OFFSET_DIST = 20
-        
-        if refPos.X + size.X + CURSOR_OFFSET_DIST > outerMax.X then
-            if refPos.Y + size.Y + CURSOR_OFFSET_DIST > outerMax.Y then
-                -- placed to the top
-                refPos += Vector2.new(0, - (CURSOR_OFFSET_DIST + size.Y))
-            else
-                -- placed to the bottom
-                refPos += Vector2.new(0, CURSOR_OFFSET_DIST)
-            end
-        else
-            -- placed to the right
-            refPos += Vector2.new(CURSOR_OFFSET_DIST, 0)
-        end
-
-        local clampedPos = Vector2.new(
-            math.max(math.min(refPos.X + size.X, outerMax.X) - size.X, outerMin.X),
-            math.max(math.min(refPos.Y + size.Y, outerMax.Y) - size.Y, outerMin.Y)
-        )
-        return clampedPos
-    end
-
     local function relocateTooltips()
         if Iris._rootInstance == nil then
             return
@@ -29,7 +6,7 @@ return function(Iris, widgets)
         local PopupScreenGui = Iris._rootInstance.PopupScreenGui
         local TooltipContainer = PopupScreenGui.TooltipContainer
         local mouseLocation = widgets.UserInputService:GetMouseLocation() - Vector2.new(0, 36)
-        local newPosition = findBestWindowPosForPopup(mouseLocation, TooltipContainer.AbsoluteSize, Vector2.new(Iris._config.DisplaySafeAreaPadding, Iris._config.DisplaySafeAreaPadding), PopupScreenGui.AbsoluteSize)
+        local newPosition = widgets.findBestWindowPosForPopup(mouseLocation, TooltipContainer.AbsoluteSize, Vector2.new(Iris._config.DisplaySafeAreaPadding, Iris._config.DisplaySafeAreaPadding), PopupScreenGui.AbsoluteSize)
         TooltipContainer.Position = UDim2.fromOffset(newPosition.X, newPosition.Y)
     end
 
@@ -66,7 +43,10 @@ return function(Iris, widgets)
             widgets.applyTextStyle(TooltipText)
             TooltipText.BackgroundColor3 = Iris._config.WindowBgColor
             TooltipText.BackgroundTransparency = Iris._config.WindowBgTransparency
-            TooltipText.BorderSizePixel = Iris._config.WindowBorderSize
+            TooltipText.BorderSizePixel = Iris._config.PopupBorderSize
+            if Iris._config.PopupRounding > 0 then
+                widgets.UICorner(TooltipText, Iris._config.PopupRounding)
+            end
             TooltipText.TextWrapped = true
 
             local uiStroke = Instance.new("UIStroke")

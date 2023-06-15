@@ -13,6 +13,29 @@ return function(Iris)
         CHECK_MARK = "\u{2713}" -- curved shape, closest we can get to ImGui Checkmarks
     }
 
+    function widgets.findBestWindowPosForPopup(refPos, size, outerMin, outerMax)
+        local CURSOR_OFFSET_DIST = 20
+        
+        if refPos.X + size.X + CURSOR_OFFSET_DIST > outerMax.X then
+            if refPos.Y + size.Y + CURSOR_OFFSET_DIST > outerMax.Y then
+                -- placed to the top
+                refPos += Vector2.new(0, - (CURSOR_OFFSET_DIST + size.Y))
+            else
+                -- placed to the bottom
+                refPos += Vector2.new(0, CURSOR_OFFSET_DIST)
+            end
+        else
+            -- placed to the right
+            refPos += Vector2.new(CURSOR_OFFSET_DIST, 0)
+        end
+
+        local clampedPos = Vector2.new(
+            math.max(math.min(refPos.X + size.X, outerMax.X) - size.X, outerMin.X),
+            math.max(math.min(refPos.Y + size.Y, outerMax.Y) - size.Y, outerMin.Y)
+        )
+        return clampedPos
+    end
+
     function widgets.extend(superClass, subClass)
         local newClass = table.clone(superClass)
         for i, v in subClass do
