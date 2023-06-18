@@ -36,6 +36,10 @@ return function(Iris)
         return clampedPos
     end
 
+    function widgets.isPosInsideRect(pos, rectMin, rectMax)
+        return pos.X > rectMin.X and pos.X < rectMax.X and pos.Y > rectMin.Y and pos.Y < rectMax.Y
+    end
+
     function widgets.extend(superClass, subClass)
         local newClass = table.clone(superClass)
         for i, v in subClass do
@@ -135,6 +139,55 @@ return function(Iris)
             if input.UserInputType == Enum.UserInputType.Gamepad1 then
                 Highlightee.BackgroundColor3 = Colors.ButtonColor
                 Highlightee.BackgroundTransparency = Colors.ButtonTransparency
+            end
+        end)
+        
+        Button.SelectionImageObject = Iris.SelectionImageObject
+    end
+
+    function widgets.applyInteractionHighlightsWithMultiHighlightee(Button, Highlightees)
+        local exitedButton = false
+        Button.MouseEnter:Connect(function()
+            for _, Highlightee in Highlightees do
+                Highlightee[1].BackgroundColor3 = Highlightee[2].ButtonHoveredColor
+                Highlightee[1].BackgroundTransparency = Highlightee[2].ButtonHoveredTransparency
+    
+                exitedButton = false
+            end
+        end)
+
+        Button.MouseLeave:Connect(function()
+            for _, Highlightee in Highlightees do
+                Highlightee[1].BackgroundColor3 = Highlightee[2].ButtonColor
+                Highlightee[1].BackgroundTransparency = Highlightee[2].ButtonTransparency
+
+                exitedButton = true
+            end
+        end)
+
+        Button.InputBegan:Connect(function(input)
+            if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) then
+                return
+            end
+            for _, Highlightee in Highlightees do
+                Highlightee[1].BackgroundColor3 = Highlightee[2].ButtonActiveColor
+                Highlightee[1].BackgroundTransparency = Highlightee[2].ButtonActiveTransparency
+            end
+        end)
+
+        Button.InputEnded:Connect(function(input)
+            if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) or exitedButton then
+                return
+            end
+            for _, Highlightee in Highlightees do
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    Highlightee[1].BackgroundColor3 = Highlightee[2].ButtonHoveredColor
+                    Highlightee[1].BackgroundTransparency = Highlightee[2].ButtonHoveredTransparency
+                end
+                if input.UserInputType == Enum.UserInputType.Gamepad1 then
+                    Highlightee[1].BackgroundColor3 = Highlightee[2].ButtonColor
+                    Highlightee[1].BackgroundTransparency = Highlightee[2].ButtonTransparency
+                end
             end
         end)
         

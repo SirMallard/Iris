@@ -128,8 +128,14 @@ return function(Iris)
                 if Iris.Button({"Randomize Number"}).clicked() then
                     InputNum.number:set(math.random(1,99))
                 end
-                Iris.Checkbox({"NoField"}, {isChecked = NoField})
-                Iris.Checkbox({"NoButtons"}, {isChecked = NoButtons})
+                local NoFieldCheckbox = Iris.Checkbox({"NoField"}, {isChecked = NoField})
+                local NoButtonsCheckbox = Iris.Checkbox({"NoButtons"}, {isChecked = NoButtons})
+                if NoFieldCheckbox.checked() and NoButtonsCheckbox.isChecked.value == true then
+                    NoButtonsCheckbox.isChecked:set(false)
+                end
+                if NoButtonsCheckbox.checked() and NoFieldCheckbox.isChecked.value == true then
+                    NoFieldCheckbox.isChecked:set(false)
+                end
 
                 Iris.Separator()
 
@@ -189,21 +195,59 @@ return function(Iris)
 
         Selectable = function()
             Iris.Tree({"Selectable"})
-            local sharedIndex = Iris.State(2)
-            Iris.Selectable({"Selectable #1", 1}, {index = sharedIndex})
-            Iris.Selectable({"Selectable #2", 2}, {index = sharedIndex})
-            if Iris.Selectable({"Double click Selectable", 3, true}, {index = sharedIndex}).doubleClicked() then
-                sharedIndex:set(3)
-            end
-            Iris.Selectable({"Impossible to select", 4, true}, {index = sharedIndex})
-            if Iris.Button({"Select last"}).clicked() then
-                sharedIndex:set(4)
-            end
-            Iris.Selectable({"Independent Selectable"})
+                local sharedIndex = Iris.State(2)
+                Iris.Selectable({"Selectable #1", 1}, {index = sharedIndex})
+                Iris.Selectable({"Selectable #2", 2}, {index = sharedIndex})
+                if Iris.Selectable({"Double click Selectable", 3, true}, {index = sharedIndex}).doubleClicked() then
+                    sharedIndex:set(3)
+                end
+                Iris.Selectable({"Impossible to select", 4, true}, {index = sharedIndex})
+                if Iris.Button({"Select last"}).clicked() then
+                    sharedIndex:set(4)
+                end
+                Iris.Selectable({"Independent Selectable"})
+            Iris.End()
+        end,
+
+        Combo = function()
+            Iris.Tree({"Combo"})
+                Iris.PushConfig({ContentWidth = UDim.new(0, 350)})
+                    local sharedComboIndex = Iris.State("No Selection")
+                    Iris.SameLine()
+                        local NoPreview = Iris.Checkbox({"No Preview"})
+                        local NoButton = Iris.Checkbox({"No Button"})
+                        if NoPreview.checked() and NoButton.isChecked.value == true then
+                            NoButton.isChecked:set(false)
+                        end
+                        if NoButton.checked() and NoPreview.isChecked.value == true then
+                            NoPreview.isChecked:set(false)
+                        end
+                    Iris.End()
+                    Iris.Combo({"Basic Usage", NoButton.isChecked:get(), NoPreview.isChecked:get()}, {index = sharedComboIndex})
+                        Iris.Selectable({"Select 1", "One"}, {index = sharedComboIndex})
+                        Iris.Selectable({"Select 2", "Two"}, {index = sharedComboIndex})
+                        Iris.Selectable({"Select 3", "Three"}, {index = sharedComboIndex})
+                    Iris.End()
+
+                    Iris.ComboArray({"Using ComboArray"}, {index = "No Selection"}, {"Red", "Green", "Blue"})
+
+                    local sharedComboIndex2 = Iris.State("7 AM")
+                    Iris.Combo({"Combo with Inner widgets"}, {index = sharedComboIndex2})
+                        Iris.Tree({"Morning Shifts"})
+                            Iris.Selectable({"Shift at 7 AM", "7 AM"}, {index = sharedComboIndex2})
+                            Iris.Selectable({"Shift at 11 AM", "11 AM"}, {index = sharedComboIndex2})
+                            Iris.Selectable({"Shist at 3 PM", "3 PM"}, {index = sharedComboIndex2})
+                        Iris.End()
+                        Iris.Tree({"Night Shifts"})
+                            Iris.Selectable({"Shift at 6 PM", "6 PM"}, {index = sharedComboIndex2})
+                            Iris.Selectable({"Shift at 9 PM", "9 PM"}, {index = sharedComboIndex2})
+                        Iris.End()
+                    Iris.End()
+                Iris.PopConfig()
             Iris.End()
         end
     }
-    local widgetDemosOrder = {"Basic", "Tree", "CollapsingHeader", "Group", "Indent", "InputNum", "InputText", "Tooltip", "Selectable"}
+    local widgetDemosOrder = {"Basic", "Tree", "CollapsingHeader", "Group", "Indent", "InputNum", "InputText", "Tooltip", "Selectable", "Combo"}
 
     local function recursiveTree()
         local theTree = Iris.Tree({"Recursive Tree"})
@@ -304,6 +348,14 @@ return function(Iris)
                     {"Text: string",    "selected: boolean",	"index: any" },
                     {"Index: any",	    "unselected: boolean",  ""			 },
                     {"NoClick: boolean","active: boolean",      ""           }
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.Selectable"})
+                parse2DArray({
+                    {"Arguments",	      "Events",           "States"	         },	
+                    {"Text: string",      "opened: boolean",  "index: any"       },
+                    {"NoButton: boolean", "closed: boolean",  "isOpened: boolean"},
+                    {"NoPreview: boolean","clicked: boolean", ""                 }
                 })
             Iris.End()
             Iris.CollapsingHeader({"Iris.Tree"})

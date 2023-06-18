@@ -1,4 +1,5 @@
 local TextService = game:GetService("TextService")
+local UserInputService = game:GetService("UserInputService")
 return function(Iris, widgets)
 
     local numberChanged = {
@@ -480,7 +481,9 @@ return function(Iris, widgets)
             SubButton.Parent = InputNum
     
             SubButton.MouseButton1Click:Connect(function()
-                local newValue = thisWidget.state.number.value - (thisWidget.arguments.Increment or 1)
+                local isCtrlHeld = UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
+                local changeValue = (thisWidget.arguments.Increment or 1) * (isCtrlHeld and 100 or 1)
+                local newValue = thisWidget.state.number.value - changeValue
                 newValue = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
                 thisWidget.state.number:set(newValue)
                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
@@ -496,7 +499,9 @@ return function(Iris, widgets)
             AddButton.Parent = InputNum
     
             AddButton.MouseButton1Click:Connect(function()
-                local newValue = thisWidget.state.number.value + (thisWidget.arguments.Increment or 1)
+                local isCtrlHeld = UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
+                local changeValue = (thisWidget.arguments.Increment or 1) * (isCtrlHeld and 100 or 1)
+                local newValue = thisWidget.state.number.value + changeValue
                 newValue = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
                 thisWidget.state.number:set(newValue)
                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1

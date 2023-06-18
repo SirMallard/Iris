@@ -55,7 +55,7 @@ return function(Iris, widgets)
             uiStroke.Thickness = Iris._config.WindowBorderSize
             uiStroke.Color = Iris._config.BorderActiveColor
             uiStroke.Parent = TooltipText
-            widgets.UIPadding(TooltipText, Iris._config.FramePadding)
+            widgets.UIPadding(TooltipText, Iris._config.WindowPadding)
 
             TooltipText.Parent = Tooltip
             
@@ -448,6 +448,7 @@ return function(Iris, widgets)
             ChildContainer.ScrollBarImageTransparency = Iris._config.ScrollbarGrabTransparency
             ChildContainer.ScrollBarImageColor3 = Iris._config.ScrollbarGrabColor
             ChildContainer.CanvasSize = UDim2.fromScale(0, 1)
+            ChildContainer.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
             
             ChildContainer.BackgroundColor3 = Iris._config.WindowBgColor
             ChildContainer.BackgroundTransparency = Iris._config.WindowBgTransparency

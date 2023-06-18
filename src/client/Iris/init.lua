@@ -1074,11 +1074,21 @@ Iris.Tooltip = function(args)
     return Iris._Insert("Tooltip", args)
 end
 
---- @prop Tooltip Widget
+--- @prop Selectable Widget
 --- @within Widgets
 Iris.Selectable = function(args, state)
     return Iris._Insert("Selectable", args, state)
 end
+
+--- @prop Combo Widget
+--- @within Widgets
+Iris.Combo = function(args, state)
+    return Iris._Insert("Combo", args, state)
+end
+
+--- @prop ComboArray Widget
+--- @within Widgets
+Iris.ComboArray = Iris.ComboArray
 
 --- @prop Table Widget
 --- @within Widgets
