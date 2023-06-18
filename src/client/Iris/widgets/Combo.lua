@@ -442,7 +442,8 @@ return function(Iris, widgets)
                 ChildContainer.Visible = false
             end
 
-            PreviewLabel.Text = tostring(thisWidget.state.index.value)
+            local stateIndex = thisWidget.state.index.value
+            PreviewLabel.Text = if (typeof(stateIndex) == "EnumItem") then stateIndex.Name else tostring(stateIndex)
         end,
         Discard = function(thisWidget)
             thisWidget.Instance:Destroy()
@@ -463,5 +464,24 @@ return function(Iris, widgets)
             Iris._Insert("Selectable", {Selection, Selection}, {index = sharedIndex})
         end
         Iris.End()
+
+        return thisWidget
+    end
+
+    Iris.InputEnum = function(args, state, enumType)
+        local defaultState
+        if state == nil then
+            defaultState = Iris.State(enumType[1])
+        else
+            defaultState = state
+        end
+        local thisWidget = Iris._Insert("Combo", args, defaultState)
+        local sharedIndex = thisWidget.state.index
+        for _, Selection in enumType:GetEnumItems() do
+            Iris._Insert("Selectable", {Selection.Name, Selection}, {index = sharedIndex})
+        end 
+        Iris.End()
+
+        return thisWidget
     end
 end

@@ -1090,6 +1090,10 @@ end
 --- @within Widgets
 Iris.ComboArray = Iris.ComboArray
 
+--- @prop InputEnum Widget
+--- @within Widgets
+Iris.InputEnum = Iris.InputEnum
+
 --- @prop Table Widget
 --- @within Widgets
 --- A layout widget which allows children to be displayed in configurable columns and rows.

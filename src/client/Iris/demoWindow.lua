@@ -243,6 +243,9 @@ return function(Iris)
                             Iris.Selectable({"Shift at 9 PM", "9 PM"}, {index = sharedComboIndex2})
                         Iris.End()
                     Iris.End()
+
+                    local InputEnum = Iris.InputEnum({"Using InputEnum"}, {index = Enum.UserInputState.Begin}, Enum.UserInputState)
+                    Iris.Text({"Selected: " .. InputEnum.index:get().Name})
                 Iris.PopConfig()
             Iris.End()
         end
