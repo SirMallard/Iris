@@ -1,4 +1,3 @@
-local TextService = game:GetService("TextService")
 local UserInputService = game:GetService("UserInputService")
 return function(Iris, widgets)
 
@@ -14,7 +13,7 @@ return function(Iris, widgets)
     local function GenerateRootFrame(thisWidget, name)
         local Frame = Instance.new("Frame")
         Frame.Name = name
-        Frame.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+        Frame.Size = UDim2.fromScale(1, 0)
         Frame.BackgroundTransparency = 1
         Frame.BorderSizePixel = 0
         Frame.ZIndex = thisWidget.ZIndex
@@ -131,16 +130,18 @@ return function(Iris, widgets)
             InputFieldContainer.Name = "InputFieldContainer"
             widgets.applyFrameStyle(InputFieldContainer)
             widgets.applyTextStyle(InputFieldContainer)
+			widgets.UISizeConstraint(InputFieldContainer, Vector2.new(1, 0))
             InputFieldContainer.TextXAlignment = Enum.TextXAlignment.Center
             InputFieldContainer.ZIndex = thisWidget.ZIndex + 1
             InputFieldContainer.LayoutOrder = thisWidget.ZIndex + 1
-            InputFieldContainer.Size = UDim2.new(1, 0, 0, 0)
+            InputFieldContainer.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
             InputFieldContainer.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldContainer.AutoButtonColor = false
             InputFieldContainer.Text = ""
             InputFieldContainer.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldContainer.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputFieldContainer.Parent = DragNum
+			InputFieldContainer.ClipsDescendants = true
 
             widgets.applyInteractionHighlights(InputFieldContainer, InputFieldContainer, {
                 ButtonColor = Iris._config.FrameBgColor,
@@ -290,16 +291,29 @@ return function(Iris, widgets)
             InputFieldContainer.Name = "InputFieldContainer"
             widgets.applyFrameStyle(InputFieldContainer)
             widgets.applyTextStyle(InputFieldContainer)
+			widgets.UISizeConstraint(InputFieldContainer, Vector2.new(1, 0))
             InputFieldContainer.TextXAlignment = Enum.TextXAlignment.Center
             InputFieldContainer.ZIndex = thisWidget.ZIndex + 1
             InputFieldContainer.LayoutOrder = thisWidget.ZIndex + 1
-            InputFieldContainer.Size = UDim2.new(1, 0, 0, 0)
+            InputFieldContainer.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
             InputFieldContainer.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldContainer.AutoButtonColor = false
             InputFieldContainer.Text = ""
             InputFieldContainer.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldContainer.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputFieldContainer.Parent = SliderNum
+			InputFieldContainer.ClipsDescendants = true
+
+			local OverlayText = Instance.new("TextLabel")
+			OverlayText.Name = "OverlayText"
+			OverlayText.Size = UDim2.fromScale(1, 1)
+			OverlayText.BackgroundTransparency = 1
+			OverlayText.BorderSizePixel = 0
+			OverlayText.ZIndex = thisWidget.ZIndex + 10
+			widgets.applyTextStyle(OverlayText)
+			OverlayText.TextXAlignment = Enum.TextXAlignment.Center
+			OverlayText.Parent = InputFieldContainer
+			OverlayText.ClipsDescendants = true
 
             widgets.applyInteractionHighlights(InputFieldContainer, InputFieldContainer, {
                 ButtonColor = Iris._config.FrameBgColor,
@@ -391,7 +405,7 @@ return function(Iris, widgets)
             local GrabBar = InputFieldContainer.GrabBar
             local InputField = InputFieldContainer.InputField
             local newText = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value)
-            InputFieldContainer.Text = newText
+            InputFieldContainer.OverlayText.Text = newText
             InputField.Text = tostring(thisWidget.state.number.value)
 
             local Increment = thisWidget.arguments.Increment or 1
@@ -446,15 +460,18 @@ return function(Iris, widgets)
             InputField.Name = "InputField"
             widgets.applyFrameStyle(InputField)
             widgets.applyTextStyle(InputField)
+			widgets.UISizeConstraint(InputField, Vector2.new(1, 0))
             InputField.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputField.ZIndex = thisWidget.ZIndex + 1
             InputField.LayoutOrder = thisWidget.ZIndex + 1
+			InputField.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
             InputField.AutomaticSize = Enum.AutomaticSize.Y
             InputField.BackgroundColor3 = Iris._config.FrameBgColor
             InputField.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputField.ClearTextOnFocus = false
             InputField.TextTruncate = Enum.TextTruncate.AtEnd
             InputField.Parent = InputNum
+			InputField.ClipsDescendants = true
     
             InputField.FocusLost:Connect(function()
                 local newValue = tonumber(InputField.Text)
@@ -523,9 +540,9 @@ return function(Iris, widgets)
     
             local inputButtonsTotalWidth = Iris._config.TextSize * 2 + Iris._config.ItemInnerSpacing.X * 2 + Iris._config.WindowPadding.X + 4
             if thisWidget.arguments.NoButtons then
-                InputField.Size = UDim2.new(1, 0, 0, 0)
+                InputField.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
             else
-                InputField.Size = UDim2.new(1, -inputButtonsTotalWidth, 0, 0)
+                InputField.Size = UDim2.new(Iris._config.ContentWidth + UDim.new(0, -inputButtonsTotalWidth), UDim.new(0, 0))
             end
         end,
         Discard = function(thisWidget)
@@ -574,6 +591,7 @@ return function(Iris, widgets)
             InputField.Name = "InputField"
             widgets.applyFrameStyle(InputField)
             widgets.applyTextStyle(InputField)
+			widgets.UISizeConstraint(InputField, Vector2.new(1, 0)) -- prevents sizes beaking when getting too small.
             InputField.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputField.UIPadding.PaddingRight = UDim.new(0, 0)
             InputField.ZIndex = thisWidget.ZIndex + 1
@@ -586,6 +604,7 @@ return function(Iris, widgets)
             InputField.Text = ""
             InputField.PlaceholderColor3 = Iris._config.TextDisabledColor
             InputField.TextTruncate = Enum.TextTruncate.AtEnd
+			InputField.ClipsDescendants = true
     
             InputField.FocusLost:Connect(function()
                 thisWidget.state.text:set(InputField.Text)

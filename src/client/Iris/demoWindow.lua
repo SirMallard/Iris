@@ -73,7 +73,7 @@ return function(Iris)
 				local secondHeader = Iris.State(true)
 				Iris.CollapsingHeader({"Another header"}, { isUncollapsed = secondHeader })
 					if Iris.Button({"Shhh... secret button!"}).clicked() then
-						secondHeader:set(false)
+						secondHeader:set(true)
 					end
 				Iris.End()
 			Iris.End()
@@ -116,6 +116,7 @@ return function(Iris)
                 local NoField, NoButtons, Min, Max, Increment, Format = 
                 Iris.State(false), Iris.State(false), Iris.State(0), Iris.State(100), Iris.State(1), Iris.State("%d")
 
+                Iris.PushConfig({ContentWidth = UDim.new(1, -120)})
                 local InputNum = Iris.InputNum({"Input Number",
                     [Iris.Args.InputNum.NoField] = NoField.value,
                     [Iris.Args.InputNum.NoButtons] = NoButtons.value,
@@ -124,6 +125,7 @@ return function(Iris)
                     [Iris.Args.InputNum.Increment] = Increment.value,
                     [Iris.Args.InputNum.Format] = Format.value,
                 })
+                Iris.PopConfig()
                 Iris.Text({"The Value is: " .. InputNum.number.value})
                 if Iris.Button({"Randomize Number"}).clicked() then
                     InputNum.number:set(math.random(1,99))
@@ -143,7 +145,7 @@ return function(Iris)
                     Iris.Text({"Slider Numbers"})
                     helpMarker("ctrl + click slider number widgets to input a number")
                 Iris.End()
-                Iris.PushConfig({ContentWidth = UDim.new(0, 350)})
+                Iris.PushConfig({ContentWidth = UDim.new(1, -120)})
                     Iris.SliderNum({"Slide Int", 1, 1, 8})
                     Iris.SliderNum({"Slide Float", 0.01, 0, 100})
                     Iris.SliderNum({"Small Numbers", 0.001, -2, 1, "%f radians"})
@@ -158,7 +160,7 @@ return function(Iris)
                     Iris.Text({"Drag Numbers"})
                     helpMarker("ctrl + click or double click drag number widgets to input a number, hold shift/alt while dragging to increase/decrease speed")
                 Iris.End()
-                Iris.PushConfig({ContentWidth = UDim.new(0, 350)})
+                Iris.PushConfig({ContentWidth = UDim.new(1, -120)})
                     Iris.DragNum({"Drag Int"})
                     Iris.DragNum({"Slide Float", 0.001, -10, 10})
                     Iris.DragNum({"Percentage", 1, 0, 100, "%d %%"})
@@ -466,7 +468,7 @@ return function(Iris)
                 helpMarker("every widget and state has an ID which Iris tracks to remember which widget is which. below lists all widgets and states, with their respective IDs")
             Iris.End()
 
-            Iris.PushConfig({ItemWidth = UDim.new(0.5, 100)})
+            Iris.PushConfig({ItemWidth = UDim.new(1, -150)})
             local enteredText = Iris.InputText({"ID field"}, {text = Iris.State(runtimeInfoWindow.ID)}).text.value
             Iris.PopConfig()
 
@@ -997,6 +999,48 @@ return function(Iris)
         end
     end
 
+	local function layoutDemo()
+		Iris.CollapsingHeader({"Widget Layout"})
+			Iris.Tree({"Content Width"})
+				local value = Iris.State(50)
+
+				Iris.Text({"The Content Width is a size property which determines the width of input fields."})
+				Iris.SameLine()
+					Iris.Text({"By default the value is UDim.new(0.65, 0)"})
+					helpMarker("This is the default value from Dear ImGui.\nIt is 65% of the window width.")
+				Iris.End()
+				Iris.Text({"This works well, but sometimes we know how wide elements are going to be and want to maximise the space."})
+				Iris.Text({"Therefore, we can use Iris.PushConfig() to change the width"})
+
+				Iris.Separator()
+
+				Iris.SameLine()
+					Iris.Text({"Content Width = 150 pixels"})
+					helpMarker("UDim.new(0, 150)")
+				Iris.End()
+				Iris.PushConfig({ContentWidth = UDim.new(0, 150)})
+					Iris.DragNum({"number", 1, 0, 100}, {number = value})
+				Iris.PopConfig()
+
+				Iris.SameLine()
+					Iris.Text({"Content Width = 50% window width"})
+					helpMarker("UDim.new(0.5, 0)")
+				Iris.End()
+				Iris.PushConfig({ContentWidth = UDim.new(0.5, 0)})
+					Iris.DragNum({"number", 1, 0, 100}, {number = value})
+				Iris.PopConfig()
+
+				Iris.SameLine()
+					Iris.Text({"Content Width = -150 pixels from the right side"})
+					helpMarker("UDim.new(1, -150)")
+				Iris.End()
+				Iris.PushConfig({ContentWidth = UDim.new(1, -150)})
+					Iris.DragNum({"number", 1, 0, 100}, {number = value})
+				Iris.PopConfig()
+			Iris.End()
+		Iris.End()
+	end	
+
     -- showcases how widgets placed outside of a window are placed inside root
     local function windowlessDemo()
         Iris.PushConfig({ItemWidth = UDim.new(0, 150)})
@@ -1096,6 +1140,8 @@ return function(Iris)
             Iris.End()
 
             tablesDemo()
+
+			layoutDemo()
         Iris.End()
 
         if showRecursiveWindow.value then

@@ -230,7 +230,7 @@ return function(Iris, widgets)
 
             ComboLine.Parent = Combo
 
-            local PreviewContainer = Instance.new("Frame")
+            local PreviewContainer = Instance.new("TextButton")
             PreviewContainer.Name = "PreviewContainer"
             PreviewContainer.Size = UDim2.fromScale(0, 1)
             PreviewContainer.AutomaticSize = Enum.AutomaticSize.X
@@ -238,6 +238,7 @@ return function(Iris, widgets)
             PreviewContainer.BackgroundTransparency = 1
             PreviewContainer.ZIndex = thisWidget.ZIndex + 2
             PreviewContainer.LayoutOrder = thisWidget.ZIndex + 2
+			PreviewContainer.Text = ""
             widgets.UIListLayout(PreviewContainer, Enum.FillDirection.Horizontal, UDim.new(0, 0))
 
             PreviewContainer.Parent = ComboLine
@@ -344,6 +345,7 @@ return function(Iris, widgets)
             -- appear over everything else
             ChildContainer.ZIndex = thisWidget.ZIndex + 6
             ChildContainer.LayoutOrder = thisWidget.ZIndex + 6
+			ChildContainer.ClipsDescendants = true
 
             local ChildContainerUIListLayout = widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
             ChildContainerUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top

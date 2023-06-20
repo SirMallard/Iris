@@ -86,6 +86,7 @@ return function(Iris, widgets)
             ChildContainer.Size = UDim2.fromScale(1, 0)
             ChildContainer.AutomaticSize = Enum.AutomaticSize.Y
             ChildContainer.Visible = false
+			ChildContainer.ClipsDescendants = true
             ChildContainer.Parent = Tree
     
             widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
@@ -211,6 +212,7 @@ return function(Iris, widgets)
             ChildContainer.Size = UDim2.fromScale(1, 0)
             ChildContainer.AutomaticSize = Enum.AutomaticSize.Y
             ChildContainer.Visible = false
+			ChildContainer.ClipsDescendants = true
             ChildContainer.Parent = CollapsingHeader
     
             widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
