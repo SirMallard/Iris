@@ -1045,6 +1045,18 @@ Iris.InputNum = function(args, state)
     return Iris._Insert("InputNum", args, state)
 end
 
+--- @prop InputVector2 Widget
+--- @within Widgets
+Iris.InputVector2 = function(args, state)
+    return Iris._Insert("InputVector2", args, state)
+end
+
+--- @prop InputVector3 Widget
+--- @within Widgets
+Iris.InputVector3 = function(args, state)
+    return Iris._Insert("InputVector3", args, state)
+end
+
 --- @prop InputText Widget
 --- @within Widgets
 --- A field which allows the user to enter text.

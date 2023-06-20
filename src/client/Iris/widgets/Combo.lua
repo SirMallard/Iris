@@ -332,9 +332,10 @@ return function(Iris, widgets)
             ChildContainer.BackgroundColor3 = Iris._config.WindowBgColor
             ChildContainer.BackgroundTransparency = Iris._config.WindowBgTransparency
             ChildContainer.BorderSizePixel = 0
-            if Iris._config.PopupRounding > 0 then
-                widgets.UICorner(ChildContainer, Iris._config.PopupRounding)
-            end
+            -- Unfortunatley, ScrollingFrame does not work with UICorner
+            -- if Iris._config.PopupRounding > 0 then
+            --     widgets.UICorner(ChildContainer, Iris._config.PopupRounding)
+            -- end
 
             local uiStroke = Instance.new("UIStroke")
             uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -401,7 +402,6 @@ return function(Iris, widgets)
             else
                 thisWidget.NumChildrenForSize -= 1
             end  
-            UpdateChildContainerTransform(thisWidget)
         end,
         GenerateState = function(thisWidget)
             if thisWidget.state.index == nil then
