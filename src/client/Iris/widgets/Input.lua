@@ -405,7 +405,8 @@ return function(Iris, widgets)
             local GrabBar = InputFieldContainer.GrabBar
             local InputField = InputFieldContainer.InputField
             local newText = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value)
-            InputFieldContainer.OverlayText.Text = newText
+            local OverlayText = InputFieldContainer.OverlayText
+            OverlayText.Text = newText
             InputField.Text = tostring(thisWidget.state.number.value)
 
             local Increment = thisWidget.arguments.Increment or 1
@@ -422,11 +423,13 @@ return function(Iris, widgets)
 
             if thisWidget.state.editingText.value then
                 InputField.Visible = true
+                OverlayText.Visible = false
+                GrabBar.Visible = false
                 InputField:CaptureFocus()
                 InputFieldContainer.TextTransparency = 1
-                GrabBar.Visible = false
             else
                 InputField.Visible = false
+                OverlayText.Visible = true
                 GrabBar.Visible = true
                 InputFieldContainer.TextTransparency = 0
             end

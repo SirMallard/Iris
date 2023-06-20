@@ -239,6 +239,7 @@ return function(Iris, widgets)
             PreviewContainer.ZIndex = thisWidget.ZIndex + 2
             PreviewContainer.LayoutOrder = thisWidget.ZIndex + 2
 			PreviewContainer.Text = ""
+            PreviewContainer.AutoButtonColor = false
             widgets.UIListLayout(PreviewContainer, Enum.FillDirection.Horizontal, UDim.new(0, 0))
 
             PreviewContainer.Parent = ComboLine
