@@ -85,8 +85,8 @@ return function(Iris)
 
     function widgets.UISizeConstraint(Parent, MinSize, MaxSize)
         local UISizeConstraintInstance = Instance.new("UISizeConstraint")
-        UISizeConstraintInstance.MinSize = MinSize
-        UISizeConstraintInstance.MaxSize = MaxSize
+        UISizeConstraintInstance.MinSize = MinSize or UISizeConstraintInstance.MinSize -- made these optional
+        UISizeConstraintInstance.MaxSize = MaxSize or UISizeConstraintInstance.MaxSize
         UISizeConstraintInstance.Parent = Parent
         return UISizeConstraintInstance
     end

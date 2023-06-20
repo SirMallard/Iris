@@ -43,9 +43,9 @@ local TemplateConfig = {
         ButtonActiveTransparency = 0,
 
         SliderGrabColor = Color3.fromRGB(66, 150, 250),
-        SliderGrabTransparency = 0.22,
+        SliderGrabTransparency = 0, --0.22,
         SliderGrabActiveColor = Color3.fromRGB(117, 138, 204),
-        SliderGrabActiveTransparency = 0.4,
+        SliderGrabActiveTransparency = 0, --0.4,
 
         HeaderColor = Color3.fromRGB(66, 150, 250),
         HeaderTransparency = 0.69,
@@ -161,7 +161,7 @@ local TemplateConfig = {
 
     sizeDefault = { -- Dear, ImGui default
         ItemWidth = UDim.new(1, 0),
-        ContentWidth = UDim.new(0, 125),
+        ContentWidth = UDim.new(0.65, 0),
 
         WindowPadding = Vector2.new(8, 8),
         WindowResizePadding = Vector2.new(6, 6),
@@ -186,7 +186,7 @@ local TemplateConfig = {
     },
     sizeClear = { -- easier to read and manuveure
         ItemWidth = UDim.new(1, 0),
-        ContentWidth = UDim.new(0, 125),
+        ContentWidth = UDim.new(0.65, 0),
 
         WindowPadding = Vector2.new(12, 8),
         WindowResizePadding = Vector2.new(8, 8),
