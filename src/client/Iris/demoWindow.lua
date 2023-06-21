@@ -139,6 +139,11 @@ return function(Iris)
                     NoFieldCheckbox.isChecked:set(false)
                 end
 
+                Iris.PushConfig({ContentWidth = UDim.new(1, -120)})
+                Iris.InputVector2({"InputVector2"})
+                Iris.InputVector3({"InputVector3"})
+                Iris.PopConfig()
+
                 Iris.Separator()
 
                 Iris.SameLine()
@@ -355,7 +360,7 @@ return function(Iris)
                     {"NoClick: boolean","active: boolean",      ""           }
                 })
             Iris.End()
-            Iris.CollapsingHeader({"Iris.Selectable"})
+            Iris.CollapsingHeader({"Iris.Combo"})
                 parse2DArray({
                     {"Arguments",	      "Events",           "States"	         },	
                     {"Text: string",      "opened: boolean",  "index: any"       },
@@ -408,6 +413,26 @@ return function(Iris)
                     {"Format: string",     "",                       ""              },
                     {"NoButtons: boolean", "",                       ""              },
                     {"NoField: boolean",   "",                       ""              }
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.InputVector2"})
+                parse2DArray({
+                    {"Arguments",           "Events",                "States"               },
+                    {"Text: string",        "numberChanged: boolean","number: Vector2"      },
+                    {"Increment: Vector2",  "",                       ""                    },
+                    {"Min: Vector2",        "",                       ""                    },
+                    {"Max: Vector2",        "",                       ""                    },
+                    {"Format: string",      "",                       ""                    },
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.InputVector3"})
+                parse2DArray({
+                    {"Arguments",           "Events",                "States"               },
+                    {"Text: string",        "numberChanged: boolean","number: Vector3"      },
+                    {"Increment: Vector3",  "",                       ""                    },
+                    {"Min: Vector3",        "",                       ""                    },
+                    {"Max: Vector3",        "",                       ""                    },
+                    {"Format: string",      "",                       ""                    },
                 })
             Iris.End()
             Iris.CollapsingHeader({"Iris.InputText"})
@@ -993,7 +1018,16 @@ return function(Iris)
                 Iris.RadioButton({"Buttons", true}, {index = TableUseButtons})
                 Iris.RadioButton({"Text", false}, {index = TableUseButtons})
             Iris.End()
-            Iris.InputNum({"Number of rows", [Iris.Args.InputNum.Min] = 0, [Iris.Args.InputNum.Max] = 100, [Iris.Args.InputNum.Format] = "%d"}, {number = TableNumRows})
+            Iris.InputNum(
+                {
+                    "Number of rows",
+                    [Iris.Args.InputNum.Min] = 0,
+                    [Iris.Args.InputNum.Max] = 100,
+                    [Iris.Args.InputNum.Format] = "%d",
+                    [Iris.Args.InputNum.NoField] = true
+                }, 
+                {number = TableNumRows}
+            )
 
         Iris.End()
         end
