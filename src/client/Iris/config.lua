@@ -178,7 +178,7 @@ local TemplateConfig = {
         DisplaySafeAreaPadding = Vector2.new(0, 0),
         IndentSpacing = 21,
 
-        TextFont = Enum.Font.Code,
+        TextFont = Font.fromEnum(Enum.Font.Code),
         TextSize = 13,
         FrameBorderSize = 0,
         FrameRounding = 0,
@@ -203,7 +203,7 @@ local TemplateConfig = {
         DisplaySafeAreaPadding = Vector2.new(8, 8),
         IndentSpacing = 25,
 
-        TextFont = Enum.Font.Ubuntu,
+        TextFont = Font.fromEnum(Enum.Font.Ubuntu),
         TextSize = 15,
         FrameBorderSize = 1,
         FrameRounding = 4,
