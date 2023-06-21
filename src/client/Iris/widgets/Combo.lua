@@ -133,14 +133,13 @@ return function(Iris, widgets)
 
     local function UpdateChildContainerTransform(thisWidget)
         local Iris_Combo = thisWidget.Instance
-        local ComboLine = Iris_Combo.ComboLine
-        local PreviewContainer = ComboLine.PreviewContainer
+        local PreviewContainer = Iris_Combo.PreviewContainer
         local PreviewLabel = PreviewContainer.PreviewLabel
         local ChildContainer = thisWidget.ChildContainer
 
         local ChildContainerBorderSize = Iris._config.PopupBorderSize
         local ChildContainerHeight = thisWidget.LabelHeight * math.min(thisWidget.NumChildrenForSize, 8) - 2 * ChildContainerBorderSize
-        local ChildContainerWidth = UDim.new(thisWidget.ContentWidth.Scale, thisWidget.ContentWidth.Offset - 2 * ChildContainerBorderSize)
+        local ChildContainerWidth = UDim.new(0, PreviewContainer.AbsoluteSize.X - 2 * ChildContainerBorderSize)
         ChildContainer.Size = UDim2.new(ChildContainerWidth, UDim.new(0, ChildContainerHeight))
 
         local ScreenSize = ChildContainer.Parent.AbsoluteSize
@@ -211,29 +210,18 @@ return function(Iris, widgets)
 
             local Combo = Instance.new("Frame")
             Combo.Name = "Iris_Combo"
-            Combo.Size = UDim2.fromOffset(0, thisWidget.LabelHeight)
-            Combo.AutomaticSize = Enum.AutomaticSize.X
+            Combo.Size = UDim2.fromScale(1, 0)
+            Combo.AutomaticSize = Enum.AutomaticSize.Y
             Combo.BackgroundTransparency = 1
             Combo.BorderSizePixel = 0
             Combo.ZIndex = thisWidget.ZIndex
             Combo.LayoutOrder = thisWidget.ZIndex
-
-            local ComboLine = Instance.new("Frame")
-            ComboLine.Name = "ComboLine"
-            ComboLine.Size = UDim2.fromScale(0, 1)
-            ComboLine.AutomaticSize = Enum.AutomaticSize.X
-            ComboLine.BackgroundTransparency = 1
-            ComboLine.BorderSizePixel = 0
-            ComboLine.ZIndex = thisWidget.ZIndex + 1
-            ComboLine.LayoutOrder = thisWidget.ZIndex + 1
-            widgets.UIListLayout(ComboLine, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.Y))
-
-            ComboLine.Parent = Combo
+            widgets.UIListLayout(Combo, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.Y))
 
             local PreviewContainer = Instance.new("TextButton")
             PreviewContainer.Name = "PreviewContainer"
-            PreviewContainer.Size = UDim2.fromScale(0, 1)
-            PreviewContainer.AutomaticSize = Enum.AutomaticSize.X
+            PreviewContainer.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+            PreviewContainer.AutomaticSize = Enum.AutomaticSize.Y
             widgets.applyFrameStyle(PreviewContainer, true, true)
             PreviewContainer.BackgroundTransparency = 1
             PreviewContainer.ZIndex = thisWidget.ZIndex + 2
@@ -242,11 +230,11 @@ return function(Iris, widgets)
             PreviewContainer.AutoButtonColor = false
             widgets.UIListLayout(PreviewContainer, Enum.FillDirection.Horizontal, UDim.new(0, 0))
 
-            PreviewContainer.Parent = ComboLine
+            PreviewContainer.Parent = Combo
 
             local PreviewLabel = Instance.new("TextLabel")
             PreviewLabel.Name = "PreviewLabel"
-            PreviewLabel.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+            PreviewLabel.Size = UDim2.new(1, 0, 0, 0)
             PreviewLabel.BackgroundColor3 = Iris._config.FrameBgColor
             PreviewLabel.BackgroundTransparency = Iris._config.FrameBgTransparency
             PreviewLabel.BorderSizePixel = 0
@@ -268,6 +256,7 @@ return function(Iris, widgets)
             DropdownButton.ZIndex = thisWidget.ZIndex + 4
             DropdownButton.LayoutOrder = thisWidget.ZIndex + 4
             widgets.applyTextStyle(DropdownButton)
+            DropdownButton.TextXAlignment = Enum.TextXAlignment.Center
 
             DropdownButton.Parent = PreviewContainer
 
@@ -318,7 +307,7 @@ return function(Iris, widgets)
             TextLabel.AutomaticSize = Enum.AutomaticSize.X
             widgets.applyTextStyle(TextLabel)
 
-            TextLabel.Parent = ComboLine
+            TextLabel.Parent = Combo
 
             local ChildContainer = Instance.new("ScrollingFrame")
             ChildContainer.Name = "ChildContainer"
@@ -360,30 +349,30 @@ return function(Iris, widgets)
         end,
         Update = function(thisWidget)
             local Iris_Combo = thisWidget.Instance
-            local ComboLine = Iris_Combo.ComboLine
-            local PreviewContainer = ComboLine.PreviewContainer
+            local PreviewContainer = Iris_Combo.PreviewContainer
             local PreviewLabel = PreviewContainer.PreviewLabel
             local DropdownButton = PreviewContainer.DropdownButton
-            local TextLabel = ComboLine.TextLabel
-            local ChildContainer = thisWidget.ChildContainer
-
-            DropdownButton.TextXAlignment = Enum.TextXAlignment.Center
+            local TextLabel = Iris_Combo.TextLabel
 
             TextLabel.Text = thisWidget.arguments.Text or "Combo"
             
             if thisWidget.arguments.NoButton then
                 DropdownButton.Visible = false
-                PreviewLabel.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+                PreviewLabel.Size = UDim2.new(1, 0, 0, 0)
             else
                 DropdownButton.Visible = true
                 local DropdownButtonSize = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
-                PreviewLabel.Size = UDim2.new(UDim.new(Iris._config.ContentWidth.Scale, Iris._config.ContentWidth.Offset - DropdownButtonSize), UDim.new(0, 0))
+                PreviewLabel.Size = UDim2.new(1, - DropdownButtonSize, 0, 0)
             end
 
             if thisWidget.arguments.NoPreview then
                 PreviewLabel.Visible = false
+				PreviewContainer.Size = UDim2.new(0, 0, 0, 0)
+				PreviewContainer.AutomaticSize = Enum.AutomaticSize.X
             else
                 PreviewLabel.Visible = true
+				PreviewContainer.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+				PreviewContainer.AutomaticSize = Enum.AutomaticSize.Y
             end
         end,
         ChildAdded = function(thisWidget, thisChild)
@@ -418,11 +407,9 @@ return function(Iris, widgets)
         end,
         UpdateState = function(thisWidget)
             local Iris_Combo = thisWidget.Instance
-            local ComboLine = Iris_Combo.ComboLine
-            local PreviewContainer = ComboLine.PreviewContainer
+            local PreviewContainer = Iris_Combo.PreviewContainer
             local PreviewLabel = PreviewContainer.PreviewLabel
             local DropdownButton = PreviewContainer.DropdownButton
-            local TextLabel = ComboLine.TextLabel
             local ChildContainer = thisWidget.ChildContainer
 
             -- ImGui also does not do this, and the Arrow is always facing down

@@ -1072,12 +1072,50 @@ end
 
 --- @prop InputVector2 Widget
 --- @within Widgets
+--- A field which allows for the input of a Vector2.
+---
+--- ```json 
+--- hasChildren: false,
+--- hasState: true,
+--- Arguments: {
+---     Text: string,
+---     Increment: Vector2,
+---     Min: Vector2,
+---     Max: Vector2,
+---     Format: string
+--- },
+--- Events: {
+---     numberChanged: boolean
+--- },
+--- States: {
+---     number: Vector2
+--- }
+--- ```
 Iris.InputVector2 = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
     return Iris._Insert("InputVector2", args, state)
 end
 
 --- @prop InputVector3 Widget
 --- @within Widgets
+--- A field which allows for the input of a Vector3.
+---
+--- ```json 
+--- hasChildren: false,
+--- hasState: true,
+--- Arguments: {
+---     Text: string,
+---     Increment: Vector3,
+---     Min: Vector3,
+---     Max: Vector3,
+---     Format: string
+--- },
+--- Events: {
+---     numberChanged: boolean
+--- },
+--- States: {
+---     number: Vector3
+--- }
+--- ```
 Iris.InputVector3 = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
     return Iris._Insert("InputVector3", args, state)
 end
@@ -1113,22 +1151,107 @@ end
 
 --- @prop Selectable Widget
 --- @within Widgets
+--- An object which can be selected.
+---
+--- ```json 
+--- hasChildren: false,
+--- hasState: true,
+--- Arguments: {
+---     Text: string,
+---     Index: any,
+---     NoClick: boolean
+--- },
+--- Events: {
+---     selected: boolean,
+--- 	unselected: boolean,
+--- 	active: boolean
+--- },
+--- States: {
+---     index: any
+--- }
+--- ```
 Iris.Selectable = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
 	return Iris._Insert("Selectable", args, state)
 end
 
 --- @prop Combo Widget
 --- @within Widgets
+--- A selection box to choose a value from a range of values.
+---
+--- ```json 
+--- hasChildren: true,
+--- hasState: true,
+--- Arguments: {
+---     Text: string,
+--- 	NoButton: boolean,
+--- 	NoPreview: boolean
+--- },
+--- Events: {
+---     opened: boolean,
+--- 	closed: boolean,
+--- 	clicked: boolean
+--- },
+--- States: {
+---     index: any,
+--- 	isOpened: boolean
+--- }
+--- ```
 Iris.Combo = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
 	return Iris._Insert("Combo", args, state)
 end
 
 --- @prop ComboArray Widget
 --- @within Widgets
+--- A selection box to choose a value from an array.
+---
+--- ```json 
+--- hasChildren: true,
+--- hasState: true,
+--- Arguments: {
+---     Text: string,
+--- 	NoButton: boolean,
+--- 	NoPreview: boolean
+--- },
+--- Events: {
+---     opened: boolean,
+--- 	closed: boolean,
+--- 	clicked: boolean
+--- },
+--- States: {
+---     index: any,
+--- 	isOpened: boolean
+--- },
+--- Extra: {
+--- 	selectionArray: { any }	
+--- }
+--- ```
 Iris.ComboArray = Iris.ComboArray
 
 --- @prop InputEnum Widget
 --- @within Widgets
+--- A selection box to choose a value from an Enum.
+---
+--- ```json 
+--- hasChildren: true,
+--- hasState: true,
+--- Arguments: {
+---     Text: string,
+--- 	NoButton: boolean,
+--- 	NoPreview: boolean
+--- },
+--- Events: {
+---     opened: boolean,
+--- 	closed: boolean,
+--- 	clicked: boolean
+--- },
+--- States: {
+---     index: any,
+--- 	isOpened: boolean
+--- },
+--- Extra: {
+--- 	enumType: Enum	
+--- }
+--- ```
 Iris.InputEnum = Iris.InputEnum
 
 --- @prop Table Widget
