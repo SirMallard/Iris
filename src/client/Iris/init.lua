@@ -510,7 +510,7 @@ end
 --- :::tip
 --- Want to stop Iris from rendering and consuming performance, but keep all the Iris code? simply comment out the `Iris.Init()` line in your codebase.
 --- :::
-function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSignal | () -> {})?)
+function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSignal | () -> {})?): Types.Iris
 	if parentInstance == nil then
 		-- coalesce to playerGui
 		parentInstance = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
