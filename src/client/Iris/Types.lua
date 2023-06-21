@@ -153,7 +153,7 @@ export type Iris = {
 	_widgetState: (thisWidget: Widget, stateName: string, initialValue: any) -> State,
 
 	Init: (parentInstance: BasePlayerGui?, eventConnection: (RBXScriptConnection | () -> {})?) -> (),
-	Connect: (callback: () -> ()) -> (),
+	Connect: (self: Iris, callback: () -> ()) -> (),
 
 	_DiscardWidget: (widgetToDiscard: Widget) -> (),
 	_GenNewWidget: (widgetType: string, arguments: Arguments, widgetState: States?, ID: ID) -> Widget,
