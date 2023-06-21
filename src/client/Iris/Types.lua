@@ -149,10 +149,10 @@ export type Iris = {
 	PopConfig: () -> (),
 
 	State: (initialValue: any) -> (),
-	ComputatedState: (firstState: State, onChangeCallback: (firstState: any) -> (any)) -> State,
+	ComputedState: (firstState: State, onChangeCallback: (firstState: any) -> (any)) -> State,
 	_widgetState: (thisWidget: Widget, stateName: string, initialValue: any) -> State,
 
-	Init: (parentInstance: BasePlayerGui?, eventConnection: (RBXScriptConnection | () -> {})?) -> (),
+	Init: (parentInstance: BasePlayerGui?, eventConnection: (RBXScriptConnection | () -> {})?) -> Iris,
 	Connect: (self: Iris, callback: () -> ()) -> (),
 
 	_DiscardWidget: (widgetToDiscard: Widget) -> (),
