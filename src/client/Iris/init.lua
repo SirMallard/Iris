@@ -1,9 +1,10 @@
 --!optimize 2
+local Types = require(script.Types)
 
 --- @class Iris
 --- 
 --- Iris is the base class which contains everything you need to use the library.
-local Iris = {}
+local Iris = {} :: Types.Iris
 
 Iris._started = false -- has Iris.connect been called yet
 Iris._globalRefreshRequested = false -- refresh means that all GUI is destroyed and regenerated, usually because a style change was made and needed to be propogated to all UI
@@ -11,11 +12,12 @@ Iris._localRefreshActive = false -- if true, when _Insert is called, the widget 
 Iris._widgets = {}
 Iris._rootConfig = {} -- root style which all widgets derive from
 Iris._config = Iris._rootConfig
+Iris._rootInstance = nil
 Iris._rootWidget = {
-    ID = "R",
-    type = "Root",
-    Instance = Iris._rootInstance,
-    ZIndex = 0,
+	ID = "R",
+	type = "Root",
+	Instance = Iris._rootInstance,
+	ZIndex = 0,
 }
 Iris._states = {} -- Iris.States
 Iris._postCycleCallbacks = {}
@@ -29,63 +31,68 @@ Iris._widgetCount = 0 -- only used to compute ZIndex, resets to 0 for every cycl
 Iris._lastWidget = Iris._rootWidget -- widget which was most recently rendered
 
 function Iris._generateSelectionImageObject()
-    if Iris.SelectionImageObject then
-        Iris.SelectionImageObject:Destroy()
-    end
-    local SelectionImageObject = Instance.new("Frame")
-    Iris.SelectionImageObject = SelectionImageObject
-    SelectionImageObject.BackgroundColor3 = Iris._config.SelectionImageObjectColor
-    SelectionImageObject.BackgroundTransparency = Iris._config.SelectionImageObjectTransparency
-    SelectionImageObject.Position = UDim2.fromOffset(-1, -1)
-    SelectionImageObject.Size = UDim2.new(1, 2, 1, 2)
-    SelectionImageObject.BorderSizePixel = 0
+	if Iris.SelectionImageObject then
+		Iris.SelectionImageObject:Destroy()
+	end
+	local SelectionImageObject: Frame = Instance.new("Frame")
+	Iris.SelectionImageObject = SelectionImageObject
+	SelectionImageObject.BackgroundColor3 = Iris._config.SelectionImageObjectColor
+	SelectionImageObject.BackgroundTransparency = Iris._config.SelectionImageObjectTransparency
+	SelectionImageObject.Position = UDim2.fromOffset(-1, -1)
+	SelectionImageObject.Size = UDim2.new(1, 2, 1, 2)
+	SelectionImageObject.BorderSizePixel = 0
 
-    local UIStroke = Instance.new("UIStroke")
-    UIStroke.Thickness = 1
-    UIStroke.Color = Iris._config.SelectionImageObjectBorderColor
-    UIStroke.Transparency = Iris._config.SelectionImageObjectBorderColor
-    UIStroke.LineJoinMode = Enum.LineJoinMode.Round
-    UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    UIStroke.Parent = SelectionImageObject
+	local UIStroke: UIStroke = Instance.new("UIStroke")
+	UIStroke.Thickness = 1
+	UIStroke.Color = Iris._config.SelectionImageObjectBorderColor
+	UIStroke.Transparency = Iris._config.SelectionImageObjectBorderColor
+	UIStroke.LineJoinMode = Enum.LineJoinMode.Round
+	UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	UIStroke.Parent = SelectionImageObject
 
-    local Rounding = Instance.new("UICorner")
-    Rounding.CornerRadius = UDim.new(0, 2)
-    Rounding.Parent = SelectionImageObject
+	local Rounding: UICorner = Instance.new("UICorner")
+	Rounding.CornerRadius = UDim.new(0, 2)
+	Rounding.Parent = SelectionImageObject
 end
 
 function Iris._generateRootInstance()
-    -- unsafe to call before Iris.connect
-    Iris._rootInstance = Iris._widgets["Root"].Generate(Iris._widgets["Root"])
-    Iris._rootInstance.Parent = Iris.parentInstance
-    Iris._rootWidget.Instance = Iris._rootInstance
+	-- unsafe to call before Iris.connect
+	Iris._rootInstance = Iris._widgets["Root"].Generate(Iris._widgets["Root"])
+	Iris._rootInstance.Parent = Iris.parentInstance
+	Iris._rootWidget.Instance = Iris._rootInstance
 end
 
-function Iris._deepCompare(t1: {}, t2: {})
-    -- unoptimized ?
-    for i, v1 in t1 do
-        local v2 = t2[i]
-        if type(v1) == "table" then
-            if v2 and type(v2) == "table" then
-                if Iris._deepCompare(v1, v2) == false then
-                    return false
-                end
-            else
-                return false
-            end
-        else
-            if type(v1) ~= type(v2) or v1 ~= v2 then
-                return false
-            end
-        end
-    end
+function Iris._deepCompare(t1: {}, t2: {}): boolean
+	-- unoptimized ?
+	for i, v1 in t1 do
+		local v2 = t2[i]
+		if type(v1) == "table" then
+			if v2 and type(v2) == "table" then
+				if Iris._deepCompare(v1, v2) == false then
+					return false
+				end
+			else
+				return false
+			end
+		else
+			if type(v1) ~= type(v2) or v1 ~= v2 then
+				return false
+			end
+		end
+	end
 
-    return true
+	return true
 end
 
-function Iris._getID(levelsToIgnore: number)
-	local i = 1 + (levelsToIgnore or 1)
-	local ID = ""
-	local levelInfo = debug.info(i, "l")
+function Iris._getID(levelsToIgnore: number): Types.ID
+	if Iris._nextWidgetId then
+		local ID: Types.ID = Iris._nextWidgetId
+		Iris._nextWidgetId = nil
+		return ID
+	end
+	local i: number = 1 + (levelsToIgnore or 1)
+	local ID: Types.ID = ""
+	local levelInfo: number = debug.info(i, "l")
 	while levelInfo ~= -1 and levelInfo ~= nil do
 		ID ..= "+" .. levelInfo
 		i += 1
@@ -100,82 +107,86 @@ function Iris._getID(levelsToIgnore: number)
 	return ID .. ":" .. Iris._usedIDs[ID]
 end
 
-function Iris._generateEmptyVDOM()
-    return {
-        ["R"] = Iris._rootWidget
-    }
+function Iris.SetNextWidgetID(ID: Types.ID)
+	Iris._nextWidgetId = ID
+end
+
+function Iris._generateEmptyVDOM(): { [Types.ID]: Types.Widget }
+	return {
+		["R"] = Iris._rootWidget
+	}
 end
 
 Iris._lastVDOM = Iris._generateEmptyVDOM()
 Iris._VDOM = Iris._generateEmptyVDOM()
 
 function Iris._cycle()
-    Iris._rootWidget.lastCycleTick = Iris._cycleTick
-    if Iris._rootInstance == nil or Iris._rootInstance.Parent == nil then
-        Iris.ForceRefresh()
-    end
+	Iris._rootWidget.lastCycleTick = Iris._cycleTick
+	if Iris._rootInstance == nil or Iris._rootInstance.Parent == nil then
+		Iris.ForceRefresh()
+	end
 
-    for _, widget in Iris._lastVDOM do
-        if widget.lastCycleTick ~= Iris._cycleTick then
-            -- a widget which used to be rendered was no longer rendered, so we discard
-            Iris._DiscardWidget(widget)
-        end
-    end
+	for _, widget: Types.Widget in Iris._lastVDOM do
+		if widget.lastCycleTick ~= Iris._cycleTick then
+			-- a widget which used to be rendered was no longer rendered, so we discard
+			Iris._DiscardWidget(widget)
+		end
+	end
 
-    Iris._lastVDOM = Iris._VDOM
-    Iris._VDOM = Iris._generateEmptyVDOM()
+	Iris._lastVDOM = Iris._VDOM
+	Iris._VDOM = Iris._generateEmptyVDOM()
 
-    for _, callback in Iris._postCycleCallbacks do
-        callback()
-    end
+	for _, callback: () -> () in Iris._postCycleCallbacks do
+		callback()
+	end
 
-    if Iris._globalRefreshRequested then
-        -- rerender every widget
-        --debug.profilebegin("Iris Refresh")
-        Iris._generateSelectionImageObject()
-        Iris._globalRefreshRequested = false
-        for _, widget in Iris._lastVDOM do
-            Iris._DiscardWidget(widget)
-        end
-        Iris._generateRootInstance()
-        Iris._lastVDOM = Iris._generateEmptyVDOM()
-        --debug.profileend()
-    end
-    Iris._cycleTick += 1
-    Iris._widgetCount = 0
-    table.clear(Iris._usedIDs)
+	if Iris._globalRefreshRequested then
+		-- rerender every widget
+		--debug.profilebegin("Iris Refresh")
+		Iris._generateSelectionImageObject()
+		Iris._globalRefreshRequested = false
+		for _, widget: Types.Widget in Iris._lastVDOM do
+			Iris._DiscardWidget(widget)
+		end
+		Iris._generateRootInstance()
+		Iris._lastVDOM = Iris._generateEmptyVDOM()
+		--debug.profileend()
+	end
+	Iris._cycleTick += 1
+	Iris._widgetCount = 0
+	table.clear(Iris._usedIDs)
 
-    if Iris.parentInstance:IsA("GuiBase2d") and math.min(Iris.parentInstance.AbsoluteSize.X, Iris.parentInstance.AbsoluteSize.Y) < 100 then
-        error("Iris Parent Instance is too small")
-    end
-    local compatibleParent = (
-        Iris.parentInstance:IsA("GuiBase2d") or 
-        Iris.parentInstance:IsA("CoreGui") or 
-        Iris.parentInstance:IsA("PluginGui") or 
-        Iris.parentInstance:IsA("PlayerGui")
-    ) 
-    if compatibleParent == false then
-        error("Iris Parent Instance cant contain GUI")
-    end
-    --debug.profilebegin("Iris Generate")
-    for _, callback in Iris._connectedFunctions do
-        -- local status, _error = pcall(callback)
-        -- if not status then
-        --     Iris._stackIndex = 1
-        --     error(_error, 0)
-        -- end
+	if Iris.parentInstance:IsA("GuiBase2d") and math.min(Iris.parentInstance.AbsoluteSize.X, Iris.parentInstance.AbsoluteSize.Y) < 100 then
+		error("Iris Parent Instance is too small")
+	end
+	local compatibleParent: boolean = (
+		Iris.parentInstance:IsA("GuiBase2d") or 
+		Iris.parentInstance:IsA("CoreGui") or 
+		Iris.parentInstance:IsA("PluginGui") or 
+		Iris.parentInstance:IsA("PlayerGui")
+	) 
+	if compatibleParent == false then
+		error("Iris Parent Instance cant contain GUI")
+	end
+	--debug.profilebegin("Iris Generate")
+	for _, callback: () -> () in Iris._connectedFunctions do
+		-- local status: boolean, _error: string = pcall(callback)
+		-- if not status then
+		--     Iris._stackIndex = 1
+		--     error(_error, 0)
+		-- end
 		callback() -- this is useful to see the full stack trace of any issues.
-        if Iris._stackIndex ~= 1 then
-            -- has to be larger than 1 because of the check that it isint below 1 in Iris.End
-            Iris._stackIndex = 1
-            error("Callback has too few calls to Iris.End()", 0)
-        end
-    end
-    --debug.profileend()
+		if Iris._stackIndex ~= 1 then
+			-- has to be larger than 1 because of the check that it isint below 1 in Iris.End
+			Iris._stackIndex = 1
+			error("Callback has too few calls to Iris.End()", 0)
+		end
+	end
+	--debug.profileend()
 end
 
-function Iris._GetParentWidget()
-    return Iris._VDOM[Iris._IDStack[Iris._stackIndex]]
+function Iris._GetParentWidget(): Types.Widget
+	return Iris._VDOM[Iris._IDStack[Iris._stackIndex]]
 end
 
 --- @prop Args table
@@ -188,16 +199,16 @@ end
 --- ```
 Iris.Args = {}
 
-function Iris._EventCall(thisWidget, eventName)
-    local Events = Iris._widgets[thisWidget.type].Events
-    local Event = Events[eventName]
-    assert(Event ~= nil, `widget {thisWidget.type} has no event of name {Event}`)
-    
-    if thisWidget.trackedEvents[eventName] == nil then
-        Event.Init(thisWidget)
-        thisWidget.trackedEvents[eventName] = true
-    end
-    return Event.Get(thisWidget)
+function Iris._EventCall(thisWidget: Types.Widget, eventName: string): boolean
+	local Events: Types.Events = Iris._widgets[thisWidget.type].Events
+	local Event: Types.Event = Events[eventName]
+	assert(Event ~= nil, `widget {thisWidget.type} has no event of name {Event}`)
+	
+	if thisWidget.trackedEvents[eventName] == nil then
+		Event.Init(thisWidget)
+		thisWidget.trackedEvents[eventName] = true
+	end
+	return Event.Get(thisWidget)
 end
 
 Iris.Events = {}
@@ -210,7 +221,7 @@ Iris.Events = {}
 --- In **no** case should it be called every frame.
 --- :::
 function Iris.ForceRefresh()
-    Iris._globalRefreshRequested = true
+	Iris._globalRefreshRequested = true
 end
 
 function Iris._NoOp() -- This is a value of Iris because i am scared of closures
@@ -220,96 +231,96 @@ end
 --- @within Iris
 --- @param type string -- Name used to denote the widget
 --- @param widgetClass table -- table of methods for the new widget
-function Iris.WidgetConstructor(type: string, widgetClass: { [any]: any })
-    local Fields = {
-        All = {
-            Required = {
-                "Generate",
-                "Discard",
-                "Update",
+function Iris.WidgetConstructor(type: string, widgetClass: Types.WidgetClass)
+	local Fields = {
+		All = {
+			Required = {
+				"Generate",
+				"Discard",
+				"Update",
 
-                -- not methods !
-                "Args",
-                "Events",
-                "hasChildren",
-                "hasState"
-            },
-            Optional = {
+				-- not methods !
+				"Args",
+				"Events",
+				"hasChildren",
+				"hasState"
+			},
+			Optional = {
 
-            }
-        },
-        IfState = {
-            Required = {
-                "GenerateState",
-                "UpdateState"
-            },
-            Optional = {
+			}
+		},
+		IfState = {
+			Required = {
+				"GenerateState",
+				"UpdateState"
+			},
+			Optional = {
 
-            }
-        },
-        IfChildren = {
-            Required = {
-                "ChildAdded"
-            },
-            Optional = {
-                "ChildDiscarded"
-            }
-        }
-    }
+			}
+		},
+		IfChildren = {
+			Required = {
+				"ChildAdded"
+			},
+			Optional = {
+				"ChildDiscarded"
+			}
+		}
+	}
 
-    local thisWidget = {}
-    for _, v in Fields.All.Required do
-        assert(widgetClass[v] ~= nil, `field {v} is missing from widget {type}, it is required for all widgets`)
-        thisWidget[v] = widgetClass[v]
-    end
-    for _, v in Fields.All.Optional do
-        if widgetClass[v] == nil then
-            thisWidget[v] = Iris._NoOp
-        else
-            thisWidget[v] = widgetClass[v]
-        end
-    end
-    if widgetClass.hasState then
-        for _, v in Fields.IfState.Required do
-            assert(widgetClass[v] ~= nil, `field {v} is missing from widget {type}, it is required for all widgets with state`)
-            thisWidget[v] = widgetClass[v]
-        end
-        for _, v in Fields.IfState.Optional do
-            if widgetClass[v] == nil then
-                thisWidget[v] = Iris._NoOp
-            else
-                thisWidget[v] = widgetClass[v]
-            end
-        end
-    end
-    if widgetClass.hasChildren then
-        for _, v in Fields.IfChildren.Required do
-            assert(widgetClass[v] ~= nil, `field {v} is missing from widget {type}, it is required for all widgets with children`)
-            thisWidget[v] = widgetClass[v]
-        end
-        for _, v in Fields.IfChildren.Optional do
-            if widgetClass[v] == nil then
-                thisWidget[v] = Iris._NoOp
-            else
-                thisWidget[v] = widgetClass[v]
-            end
-        end
-    end
+	local thisWidget = {} :: Types.Widget
+	for _, field: string in Fields.All.Required do
+		assert(widgetClass[field] ~= nil, `field {field} is missing from widget {type}, it is required for all widgets`)
+		thisWidget[field] = widgetClass[field]
+	end
+	for _, field: string in Fields.All.Optional do
+		if widgetClass[field] == nil then
+			thisWidget[field] = Iris._NoOp
+		else
+			thisWidget[field] = widgetClass[field]
+		end
+	end
+	if widgetClass.hasState then
+		for _, field: string in Fields.IfState.Required do
+			assert(widgetClass[field] ~= nil, `field {field} is missing from widget {type}, it is required for all widgets with state`)
+			thisWidget[field] = widgetClass[field]
+		end
+		for _, field: string in Fields.IfState.Optional do
+			if widgetClass[field] == nil then
+				thisWidget[field] = Iris._NoOp
+			else
+				thisWidget[field] = widgetClass[field]
+			end
+		end
+	end
+	if widgetClass.hasChildren then
+		for _, field: string in Fields.IfChildren.Required do
+			assert(widgetClass[field] ~= nil, `field {field} is missing from widget {type}, it is required for all widgets with children`)
+			thisWidget[field] = widgetClass[field]
+		end
+		for _, field: string in Fields.IfChildren.Optional do
+			if widgetClass[field] == nil then
+				thisWidget[field] = Iris._NoOp
+			else
+				thisWidget[field] = widgetClass[field]
+			end
+		end
+	end
 
-    Iris._widgets[type] = thisWidget
-    Iris.Args[type] = thisWidget.Args
-    local ArgNames = {}
-    for index, argument in thisWidget.Args do
-        ArgNames[argument] = index
-    end
-    for index, _ in thisWidget.Events do
-        if Iris.Events[index] == nil then
-            Iris.Events[index] = function()
-                return Iris._EventCall(Iris._lastWidget, index)
-            end
-        end
-    end
-    thisWidget.ArgNames = ArgNames
+	Iris._widgets[type] = thisWidget
+	Iris.Args[type] = thisWidget.Args
+	local ArgNames: { [number]: string } = {}
+	for index: string, argument: number in thisWidget.Args do
+		ArgNames[argument] = index
+	end
+	for index: string, _ in thisWidget.Events do
+		if Iris.Events[index] == nil then
+			Iris.Events[index] = function()
+				return Iris._EventCall(Iris._lastWidget, index)
+			end
+		end
+	end
+	thisWidget.ArgNames = ArgNames
 end
 
 --- @function UpdateGlobalConfig
@@ -322,10 +333,10 @@ end
 --- In **no** case should it be called every frame.
 --- :::
 function Iris.UpdateGlobalConfig(deltaStyle: { [any]: any })
-    for index, style in deltaStyle do
-        Iris._rootConfig[index] = style
-    end
-    Iris.ForceRefresh()
+	for index, style in deltaStyle do
+		Iris._rootConfig[index] = style
+	end
+	Iris.ForceRefresh()
 end
 
 --- @function PushConfig
@@ -340,20 +351,20 @@ end
 --- Iris.PopConfig()
 --- ```
 function Iris.PushConfig(deltaStyle: { [any]: any })
-    local ID = Iris.State(-1)
-    if ID.value == -1 then
-        ID:set(deltaStyle)
-    else
-        -- compare tables
-        if Iris._deepCompare(ID:get(), deltaStyle) == false then
-            -- refresh local
-            Iris._localRefreshActive = true
-            ID:set(deltaStyle)
-        end
-    end
-    Iris._config = setmetatable(deltaStyle, {
-        __index = Iris._config
-    })
+	local ID = Iris.State(-1)
+	if ID.value == -1 then
+		ID:set(deltaStyle)
+	else
+		-- compare tables
+		if Iris._deepCompare(ID:get(), deltaStyle) == false then
+			-- refresh local
+			Iris._localRefreshActive = true
+			ID:set(deltaStyle)
+		end
+	end
+	Iris._config = setmetatable(deltaStyle, {
+		__index = Iris._config
+	})
 end
 
 --- @function PopConfig
@@ -361,8 +372,8 @@ end
 --- Ends a PushConfig style.
 --- Each call to [Iris.PushConfig] must be paired with a call to Iris.PopConfig.
 function Iris.PopConfig()
-    Iris._localRefreshActive = false
-    Iris._config = getmetatable(Iris._config).__index
+	Iris._localRefreshActive = false
+	Iris._config = getmetatable(Iris._config).__index
 end
 
 --- @class State
@@ -375,29 +386,29 @@ StateClass.__index = StateClass
 --- @within State
 --- @return any
 --- Returns the states current value.
-function StateClass:get() -- you can also simply use .value
-    return self.value
+function StateClass:get(): any -- you can also simply use .value
+	return self.value
 end
 
 --- @method set
 --- @within State
 --- allows the caller to assign the state object a new value.
-function StateClass:set(newValue)
-    self.value = newValue
-    for _, thisWidget in self.ConnectedWidgets do
-        Iris._widgets[thisWidget.type].UpdateState(thisWidget)
-    end
-    for _, thisFunc in self.ConnectedFunctions do
-        thisFunc(newValue)
-    end
-    return self.value
+function StateClass:set(newValue: any): any
+	self.value = newValue
+	for _, thisWidget: Types.Widget in self.ConnectedWidgets do
+		Iris._widgets[thisWidget.type].UpdateState(thisWidget)
+	end
+	for _, thisFunc in self.ConnectedFunctions do
+		thisFunc(newValue)
+	end
+	return self.value
 end
 
 --- @method onChange
 --- @within State
 --- Allows the caller to connect a callback which is called when the states value is changed.
 function StateClass:onChange(funcToConnect: () -> {})
-    table.insert(self.ConnectedFunctions, funcToConnect)
+	table.insert(self.ConnectedFunctions, funcToConnect)
 end
 
 --- @function State
@@ -427,19 +438,19 @@ end
 --- ```
 --- In this example, the code will work properly, and increment every frame.
 --- :::
-function Iris.State(initialValue)
-    local ID = Iris._getID(2)
-    if Iris._states[ID] then
-        return Iris._states[ID]
-    else
-        Iris._states[ID] = {
-            value = initialValue,
-            ConnectedWidgets = {},
-            ConnectedFunctions = {}
-        }
-        setmetatable(Iris._states[ID], StateClass)
-        return Iris._states[ID]
-    end
+function Iris.State(initialValue: any): Types.State
+	local ID: Types.ID = Iris._getID(2)
+	if Iris._states[ID] then
+		return Iris._states[ID]
+	else
+		Iris._states[ID] = {
+			value = initialValue,
+			ConnectedWidgets = {},
+			ConnectedFunctions = {}
+		}
+		setmetatable(Iris._states[ID], StateClass)
+		return Iris._states[ID]
+	end
 end
 
 --- @function ComputedState
@@ -455,39 +466,39 @@ end
 --- end)
 --- ```
 --- :::
-function Iris.ComputedState(firstState, onChangeCallback)
-    local ID = Iris._getID(2)
+function Iris.ComputedState(firstState: Types.State, onChangeCallback: (firstState: any) -> (any)): Types.State
+	local ID: Types.ID = Iris._getID(2)
 
-    if Iris._states[ID] then
-        return Iris._states[ID]
-    else
-        Iris._states[ID] = {
-            value = onChangeCallback(firstState),
-            ConnectedWidgets = {},
-            ConnectedFunctions = {}
-        }
-        firstState:onChange(function(newValue)
-            Iris._states[ID]:set(onChangeCallback(newValue))
-        end)
-        setmetatable(Iris._states[ID], StateClass)
-        return Iris._states[ID]
-    end
+	if Iris._states[ID] then
+		return Iris._states[ID]
+	else
+		Iris._states[ID] = {
+			value = onChangeCallback(firstState.value),
+			ConnectedWidgets = {},
+			ConnectedFunctions = {}
+		}
+		firstState:onChange(function(newValue: any)
+			Iris._states[ID]:set(onChangeCallback(newValue))
+		end)
+		setmetatable(Iris._states[ID], StateClass)
+		return Iris._states[ID]
+	end
 end
 -- constructor which uses ID derived from a widget object
-function Iris._widgetState(thisWidget, stateName, initialValue)
-    local ID = thisWidget.ID .. stateName
-    if Iris._states[ID] then
-        Iris._states[ID].ConnectedWidgets[thisWidget.ID] = thisWidget
-        return Iris._states[ID]
-    else
-        Iris._states[ID] = {
-            value = initialValue,
-            ConnectedWidgets = {[thisWidget.ID] = thisWidget},
-            ConnectedFunctions = {}
-        }
-        setmetatable(Iris._states[ID], StateClass)
-        return Iris._states[ID]
-    end
+function Iris._widgetState(thisWidget: Types.Widget, stateName: string, initialValue: any): Types.State
+	local ID: Types.ID = thisWidget.ID .. stateName
+	if Iris._states[ID] then
+		Iris._states[ID].ConnectedWidgets[thisWidget.ID] = thisWidget
+		return Iris._states[ID]
+	else
+		Iris._states[ID] = {
+			value = initialValue,
+			ConnectedWidgets = {[thisWidget.ID] = thisWidget},
+			ConnectedFunctions = {}
+		}
+		setmetatable(Iris._states[ID], StateClass)
+		return Iris._states[ID]
+	end
 end
 
 --- @within Iris
@@ -499,178 +510,192 @@ end
 --- :::tip
 --- Want to stop Iris from rendering and consuming performance, but keep all the Iris code? simply comment out the `Iris.Init()` line in your codebase.
 --- :::
-function Iris.Init(parentInstance: Instance?, eventConnection: (RBXScriptSignal | () -> {})?)
-    if parentInstance == nil then
-        -- coalesce to playerGui
-        parentInstance = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
-    end
-    if eventConnection == nil then
-        -- coalesce to Heartbeat
-        eventConnection = game:GetService("RunService").Heartbeat
-    end
-    Iris.parentInstance = parentInstance
-    assert(not Iris._started, "Iris.Connect can only be called once.")
-    Iris._started = true
+function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSignal | () -> {})?)
+	if parentInstance == nil then
+		-- coalesce to playerGui
+		parentInstance = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+	end
+	if eventConnection == nil then
+		-- coalesce to Heartbeat
+		eventConnection = game:GetService("RunService").Heartbeat
+	end
+	Iris.parentInstance = parentInstance
+	assert(not Iris._started, "Iris.Connect can only be called once.")
+	Iris._started = true
 
-    Iris._generateRootInstance()
-    Iris._generateSelectionImageObject()
-    
-    task.spawn(function()
-        if typeof(eventConnection) == "function" then
-            while true do
-                eventConnection()
-                Iris._cycle()
-            end
-        else
-            eventConnection:Connect(function()
-                Iris._cycle()
-            end)
-        end
-    end)
+	Iris._generateRootInstance()
+	Iris._generateSelectionImageObject()
+	
+	task.spawn(function()
+		if typeof(eventConnection) == "function" then
+			while true do
+				eventConnection()
+				Iris._cycle()
+			end
+		elseif eventConnection ~= nil then
+			eventConnection:Connect(function()
+				Iris._cycle()
+			end)
+		end
+	end)
 
-    return Iris
+	return Iris
 end
 
 --- @within Iris
 --- @method Connect
 --- @param callback function -- allows users to connect a function which will execute every Iris cycle, (cycle is determined by the callback or event passed to Iris.Init)
 function Iris:Connect(callback: () -> {}) -- this uses method syntax for no reason.
-    table.insert(Iris._connectedFunctions, callback)
+	table.insert(Iris._connectedFunctions, callback)
 end
 
-function Iris._DiscardWidget(widgetToDiscard)
-    local widgetParent = widgetToDiscard.parentWidget
-    if widgetParent then
-        Iris._widgets[widgetParent.type].ChildDiscarded(widgetParent, widgetToDiscard)
-    end
-    Iris._widgets[widgetToDiscard.type].Discard(widgetToDiscard)
+function Iris._DiscardWidget(widgetToDiscard: Types.Widget)
+	local widgetParent = widgetToDiscard.parentWidget
+	if widgetParent then
+		Iris._widgets[widgetParent.type].ChildDiscarded(widgetParent, widgetToDiscard)
+	end
+	Iris._widgets[widgetToDiscard.type].Discard(widgetToDiscard)
 end
 
-function Iris._GenNewWidget(widgetType, arguments, widgetState, ID)
-    local parentId = Iris._IDStack[Iris._stackIndex]
-    local thisWidgetClass = Iris._widgets[widgetType]
+function Iris._GenNewWidget(widgetType: string, arguments: Types.Arguments, widgetState: Types.States?, ID: Types.ID): Types.Widget
+	local parentId: Types.ID = Iris._IDStack[Iris._stackIndex]
+	local thisWidgetClass: Types.WidgetClass = Iris._widgets[widgetType]
 
-    local thisWidget = {}
-    setmetatable(thisWidget, thisWidget)
+	local thisWidget = {} :: Types.Widget
+	setmetatable(thisWidget, thisWidget)
 
-    thisWidget.ID = ID
-    thisWidget.type = widgetType
-    thisWidget.parentWidget = Iris._VDOM[parentId]
-    thisWidget.trackedEvents = {}
+	thisWidget.ID = ID
+	thisWidget.type = widgetType
+	thisWidget.parentWidget = Iris._VDOM[parentId]
+	thisWidget.trackedEvents = {}
 
-    thisWidget.ZIndex = thisWidget.parentWidget.ZIndex + (Iris._widgetCount * 0x40) + Iris._config.ZIndexOffset
+	thisWidget.ZIndex = thisWidget.parentWidget.ZIndex + (Iris._widgetCount * 0x40) + Iris._config.ZIndexOffset
 
-    thisWidget.Instance = thisWidgetClass.Generate(thisWidget)
-    thisWidget.Instance.Parent = if Iris._config.Parent then Iris._config.Parent else Iris._widgets[thisWidget.parentWidget.type].ChildAdded(thisWidget.parentWidget, thisWidget)
+	thisWidget.Instance = thisWidgetClass.Generate(thisWidget)
+	thisWidget.Instance.Parent = if Iris._config.Parent then Iris._config.Parent else Iris._widgets[thisWidget.parentWidget.type].ChildAdded(thisWidget.parentWidget, thisWidget)
 
-    thisWidget.arguments = arguments
-    thisWidgetClass.Update(thisWidget)
+	thisWidget.arguments = arguments
+	thisWidgetClass.Update(thisWidget)
 
-    local eventMTParent
-    if thisWidgetClass.hasState then
-        if widgetState then
-            for i,v in widgetState do
-                if not (type(v) == "table" and getmetatable(v) == StateClass) then
-                    widgetState[i] = Iris._widgetState(thisWidget, i, v)
-                end
-            end
-            thisWidget.state = widgetState
-            for i,v in widgetState do
-                v.ConnectedWidgets[thisWidget.ID] = thisWidget
-            end
-        else
-            thisWidget.state = {}
-        end
+	local eventMTParent
+	if thisWidgetClass.hasState then
+		if widgetState then
+			for index: string, state: Types.State in widgetState do
+				if not (type(state) == "table" and getmetatable(state) == StateClass) then
+					widgetState[index] = Iris._widgetState(thisWidget, index, state)
+				end
+			end
+			thisWidget.state = widgetState
+			for _, state: Types.State in widgetState do
+				state.ConnectedWidgets[thisWidget.ID] = thisWidget
+			end
+		else
+			thisWidget.state = {}
+		end
 
-        thisWidgetClass.GenerateState(thisWidget)
-        thisWidgetClass.UpdateState(thisWidget)
+		thisWidgetClass.GenerateState(thisWidget)
+		thisWidgetClass.UpdateState(thisWidget)
 
-        thisWidget.stateMT = {} -- MT cant be itself because state has to explicitly only contain stateClass objects
-        setmetatable(thisWidget.state, thisWidget.stateMT)
+		thisWidget.stateMT = {} -- MT cant be itself because state has to explicitly only contain stateClass objects
+		setmetatable(thisWidget.state, thisWidget.stateMT)
 
-        thisWidget.__index = thisWidget.state
-        eventMTParent = thisWidget.stateMT
-    else
-       eventMTParent = thisWidget
-    end
-    -- im very upset that this function exists.
-    eventMTParent.__index = function(t, i)
-        return function()
-            return Iris._EventCall(thisWidget, i)
-        end
-    end
-    return thisWidget
+		thisWidget.__index = thisWidget.state
+		eventMTParent = thisWidget.stateMT
+	else
+	   eventMTParent = thisWidget
+	end
+	-- im very upset that this function exists.
+	eventMTParent.__index = function(_, eventName: string)
+		return function()
+			return Iris._EventCall(thisWidget, eventName)
+		end
+	end
+	return thisWidget
 end
 
-function Iris._Insert(widgetType: string, args, widgetState)
-    local thisWidget
-    local ID = Iris._getID(3)
-    --debug.profilebegin(ID)
+function Iris._Insert(widgetType: string, args: { [number]: any }, widgetState: Types.States?): Types.Widget
+	local thisWidget: Types.Widget
+	local ID: Types.ID = Iris._getID(3)
+	--debug.profilebegin(ID)
 
-    local thisWidgetClass = Iris._widgets[widgetType]
-    Iris._widgetCount += 1
+	local thisWidgetClass: Types.WidgetClass = Iris._widgets[widgetType]
+	Iris._widgetCount += 1
 
-    if Iris._VDOM[ID] then
-        error("Multiple widgets cannot occupy the same ID", 3)
-    end
+	if Iris._VDOM[ID] then
+		-- error("Multiple widgets cannot occupy the same ID", 3)
+		return Iris._ContinueWidget(ID, widgetType)
+	end
 
-    local arguments = {}
-    if args ~= nil then
-        if type(args) ~= "table" then
-            error("Args must be a table.", 3)
-        end
-        for index, argument in args do
-            arguments[thisWidgetClass.ArgNames[index]] = argument
-        end
-    end
-    table.freeze(arguments)
+	local arguments: Types.Arguments = {}
+	if args ~= nil then
+		if type(args) ~= "table" then
+			error("Args must be a table.", 3)
+		end
+		for index: number, argument: Types.Argument in args do
+			arguments[thisWidgetClass.ArgNames[index]] = argument
+		end
+	end
+	table.freeze(arguments)
 
-    if Iris._lastVDOM[ID] and widgetType == Iris._lastVDOM[ID].type then
-        -- found a matching widget from last frame
-        if Iris._localRefreshActive then
-            Iris._DiscardWidget(Iris._lastVDOM[ID])
-        else
-            thisWidget = Iris._lastVDOM[ID]
-        end
-    end
-    if thisWidget == nil then
-        -- didnt find a match, generate a new widget
-        thisWidget = Iris._GenNewWidget(widgetType, arguments, widgetState, ID)
-    end
+	if Iris._lastVDOM[ID] and widgetType == Iris._lastVDOM[ID].type then
+		-- found a matching widget from last frame
+		if Iris._localRefreshActive then
+			Iris._DiscardWidget(Iris._lastVDOM[ID])
+		else
+			thisWidget = Iris._lastVDOM[ID]
+		end
+	end
+	if thisWidget == nil then
+		-- didnt find a match, generate a new widget
+		thisWidget = Iris._GenNewWidget(widgetType, arguments, widgetState, ID)
+	end
 
-    if Iris._deepCompare(thisWidget.arguments, arguments) == false then
-        -- the widgets arguments have changed, the widget should update to reflect changes.
-        thisWidget.arguments = arguments
-        thisWidgetClass.Update(thisWidget)
-    end
+	if Iris._deepCompare(thisWidget.arguments, arguments) == false then
+		-- the widgets arguments have changed, the widget should update to reflect changes.
+		thisWidget.arguments = arguments
+		thisWidgetClass.Update(thisWidget)
+	end
 
-    thisWidget.lastCycleTick = Iris._cycleTick
+	thisWidget.lastCycleTick = Iris._cycleTick
 
-    if thisWidgetClass.hasChildren then
-        Iris._stackIndex += 1
-        Iris._IDStack[Iris._stackIndex] = thisWidget.ID
-    end
+	if thisWidgetClass.hasChildren then
+		Iris._stackIndex += 1
+		Iris._IDStack[Iris._stackIndex] = thisWidget.ID
+	end
 
-    Iris._VDOM[ID] = thisWidget
-    Iris._lastWidget = thisWidget
+	Iris._VDOM[ID] = thisWidget
+	Iris._lastWidget = thisWidget
 
-    --debug.profileend()
+	--debug.profileend()
 
-    return thisWidget
+	return thisWidget
+end
+
+function Iris._ContinueWidget(ID: Types.ID, widgetType: string): Types.Widget
+	local thisWidgetClass: Types.WidgetClass = Iris._widgets[widgetType]
+	local thisWidget: Types.Widget = Iris._VDOM[ID]
+
+	if thisWidgetClass.hasChildren then
+		Iris._stackIndex += 1
+		Iris._IDStack[Iris._stackIndex] = thisWidget.ID
+	end
+
+	Iris._lastWidget = thisWidget
+	return thisWidget
 end
 
 --- @within Iris
 --- @function Append
 --- Allows the caller to insert any Roblox Instance into the current parent Widget.
-function Iris.Append(userInstance)
-    local parentWidget = Iris._GetParentWidget()
-    local widgetInstanceParent
-    if Iris._config.Parent then
-        widgetInstanceParent = Iris._config.Parent
-    else
-        widgetInstanceParent = Iris._widgets[parentWidget.type].ChildAdded(parentWidget, {type = "userInstance"})
-    end
-    userInstance.Parent = widgetInstanceParent
+function Iris.Append(userInstance: GuiObject)
+	local parentWidget: Types.Widget = Iris._GetParentWidget()
+	local widgetInstanceParent: GuiObject
+	if Iris._config.Parent then
+		widgetInstanceParent = Iris._config.Parent
+	else
+		widgetInstanceParent = Iris._widgets[parentWidget.type].ChildAdded(parentWidget, {type = "userInstance"})
+	end
+	userInstance.Parent = widgetInstanceParent
 end
 
 --- @within Iris
@@ -688,11 +713,11 @@ end
 --- Using the wrong amount of `Iris.End()` calls in your code will lead to an error. Each widget called which might have children should be paired with a call to `Iris.End()`, **Even if the Widget doesnt currently have any children**.
 --- :::
 function Iris.End()
-    if Iris._stackIndex == 1 then
-        error("Callback has too many calls to Iris.End()", 2)
-    end
-    Iris._IDStack[Iris._stackIndex] = nil
-    Iris._stackIndex -= 1
+	if Iris._stackIndex == 1 then
+		error("Callback has too many calls to Iris.End()", 2)
+	end
+	Iris._IDStack[Iris._stackIndex] = nil
+	Iris._stackIndex -= 1
 end
 
 --- @within Iris
@@ -729,8 +754,8 @@ require(script.widgets)(Iris)
 ---     hovered: boolean
 --- }
 --- ```
-Iris.Text = function(args)
-    return Iris._Insert("Text", args)
+Iris.Text = function(args: Types.WidgetArguments): Types.Widget
+	return Iris._Insert("Text", args)
 end
 
 --- @prop TextColored Widget
@@ -747,8 +772,8 @@ end
 ---     hovered: boolean
 --- }
 --- ```
-Iris.TextColored = function(args)
-    return Iris._Insert("TextColored", args)
+Iris.TextColored = function(args: Types.WidgetArguments): Types.Widget
+	return Iris._Insert("TextColored", args)
 end
 
 --- @prop TextWrapped Widget
@@ -767,8 +792,8 @@ end
 ---     hovered: boolean
 --- }
 --- ```
-Iris.TextWrapped = function(args)
-    return Iris._Insert("TextWrapped", args)
+Iris.TextWrapped = function(args: Types.WidgetArguments): Types.Widget
+	return Iris._Insert("TextWrapped", args)
 end
 
 --- @prop Button Widget
@@ -786,8 +811,8 @@ end
 ---     hovered: boolean
 --- }
 --- ```
-Iris.Button = function(args)
-    return Iris._Insert("Button", args)
+Iris.Button = function(args: Types.WidgetArguments): Types.Widget
+	return Iris._Insert("Button", args)
 end
 
 --- @prop SmallButton Widget
@@ -805,8 +830,8 @@ end
 ---     hovered: boolean
 --- }
 --- ```
-Iris.SmallButton = function(args)
-    return Iris._Insert("SmallButton", args)
+Iris.SmallButton = function(args: Types.WidgetArguments): Types.Widget
+	return Iris._Insert("SmallButton", args)
 end
 
 --- @prop Separator Widget
@@ -817,8 +842,8 @@ end
 --- hasChildren: false,
 --- hasState: false
 --- ```
-Iris.Separator = function(args)
-    return Iris._Insert("Separator", args)
+Iris.Separator = function(args: Types.WidgetArguments): Types.Widget
+	return Iris._Insert("Separator", args)
 end
 
 --- @prop Indent Widget
@@ -832,8 +857,8 @@ end
 ---     Width: Number
 --- }
 --- ```
-Iris.Indent = function(args)
-    return Iris._Insert("Indent", args)
+Iris.Indent = function(args: Types.WidgetArguments): Types.Widget
+	return Iris._Insert("Indent", args)
 end
 
 --- @prop SameLine Widget
@@ -848,8 +873,8 @@ end
 ---     VerticalAlignment: Enum.VerticalAlignment
 --- }
 --- ```
-Iris.SameLine = function(args)
-    return Iris._Insert("SameLine", args)
+Iris.SameLine = function(args: Types.WidgetArguments): Types.Widget
+	return Iris._Insert("SameLine", args)
 end
 
 --- @prop Group Widget
@@ -860,8 +885,8 @@ end
 --- hasChildren: true,
 --- hasState: false
 --- ```
-Iris.Group = function(args)
-    return Iris._Insert("Group", args)
+Iris.Group = function(args: Types.WidgetArguments): Types.Widget
+	return Iris._Insert("Group", args)
 end
 
 --- @prop Checkbox Widget
@@ -883,8 +908,8 @@ end
 ---     isChecked: boolean
 --- }
 --- ```
-Iris.Checkbox = function(args, state)
-    return Iris._Insert("Checkbox", args, state)
+Iris.Checkbox = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+	return Iris._Insert("Checkbox", args, state)
 end
 
 --- @prop Radio Button Widget
@@ -907,7 +932,7 @@ end
 ---     index: any
 --- }
 --- ```
-Iris.RadioButton = function(args, state)
+Iris.RadioButton = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
 	return Iris._Insert("RadioButton", args, state)
 end
 
@@ -932,8 +957,8 @@ end
 ---     isUncollapsed: boolean
 --- }
 --- ```
-Iris.Tree = function(args, state)
-    return Iris._Insert("Tree", args, state)
+Iris.Tree = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+	return Iris._Insert("Tree", args, state)
 end
 
 --- @prop Collapsing Header Widget
@@ -955,8 +980,8 @@ end
 ---     isUncollapsed: boolean
 --- }
 --- ```
-Iris.CollapsingHeader = function(args, state)
-    return Iris._Insert("CollapsingHeader", args, state)
+Iris.CollapsingHeader = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+	return Iris._Insert("CollapsingHeader", args, state)
 end
 
 --- @prop DragNum Widget
@@ -984,8 +1009,8 @@ end
 ---     editingText: boolean
 --- }
 --- ```
-Iris.DragNum = function(args, state)
-    return Iris._Insert("DragNum", args, state)
+Iris.DragNum = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+	return Iris._Insert("DragNum", args, state)
 end
 
 --- @prop SliderNum Widget
@@ -1012,8 +1037,8 @@ end
 ---     editingText: boolean
 --- }
 --- ```
-Iris.SliderNum = function(args, state)
-    return Iris._Insert("SliderNum", args, state)
+Iris.SliderNum = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+	return Iris._Insert("SliderNum", args, state)
 end
 
 --- @prop InputNum Widget
@@ -1041,8 +1066,8 @@ end
 ---     number: number
 --- }
 --- ```
-Iris.InputNum = function(args, state)
-    return Iris._Insert("InputNum", args, state)
+Iris.InputNum = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+	return Iris._Insert("InputNum", args, state)
 end
 
 --- @prop InputText Widget
@@ -1064,26 +1089,26 @@ end
 ---     text: string
 --- }
 --- ```
-Iris.InputText = function(args, state)
-    return Iris._Insert("InputText", args, state)
+Iris.InputText = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+	return Iris._Insert("InputText", args, state)
 end
 
 --- @prop Tooltip Widget
 --- @within Widgets
-Iris.Tooltip = function(args)
-    return Iris._Insert("Tooltip", args)
+Iris.Tooltip = function(args: Types.WidgetArguments): Types.Widget
+	return Iris._Insert("Tooltip", args)
 end
 
 --- @prop Selectable Widget
 --- @within Widgets
-Iris.Selectable = function(args, state)
-    return Iris._Insert("Selectable", args, state)
+Iris.Selectable = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+	return Iris._Insert("Selectable", args, state)
 end
 
 --- @prop Combo Widget
 --- @within Widgets
-Iris.Combo = function(args, state)
-    return Iris._Insert("Combo", args, state)
+Iris.Combo = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+	return Iris._Insert("Combo", args, state)
 end
 
 --- @prop ComboArray Widget
@@ -1111,8 +1136,8 @@ Iris.InputEnum = Iris.InputEnum
 ---     hovered: boolean
 --- }
 --- ```
-Iris.Table = function(args, state)
-    return Iris._Insert("Table", args, state)
+Iris.Table = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+	return Iris._Insert("Table", args, state)
 end
 
 --- @function NextColumn
@@ -1165,8 +1190,8 @@ Iris.NextRow = Iris.NextRow
 ---     scrollDistance: number
 --- }
 --- ```
-Iris.Window = function(args, state)
-    return Iris._Insert("Window", args, state)
+Iris.Window = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+	return Iris._Insert("Window", args, state)
 end
 
 --- @function SetFocusedWindow

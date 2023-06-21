@@ -28,6 +28,9 @@ local TemplateConfig = {
         TitleBgCollapsedColor = Color3.fromRGB(0, 0, 0),
         TitleBgCollapsedTransparency = 0.5,
 
+		MenubarBgColor = Color3.fromRGB(36, 36, 36),
+		MenubarBgTransparency = 0,
+
         FrameBgColor = Color3.fromRGB(41, 74, 122),
         FrameBgTransparency = 0.46,
         FrameBgHoveredColor = Color3.fromRGB(66, 150, 250),
@@ -103,6 +106,9 @@ local TemplateConfig = {
         TitleBgActiveTransparency = 0,
         TitleBgCollapsedColor = Color3.fromRGB(255, 255, 255),
         TitleBgCollapsedTransparency = 0.5,
+
+		MenubarBgColor = Color3.fromRGB(219, 219, 219),
+		MenubarBgTransparency = 0,
 
         ScrollbarGrabColor = Color3.fromRGB(96, 96, 96),
         ScrollbarGrabTransparency = 0,

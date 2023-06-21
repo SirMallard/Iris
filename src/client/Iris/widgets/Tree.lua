@@ -242,6 +242,7 @@ return function(Iris, widgets)
             Collapse.AutomaticSize = Enum.AutomaticSize.Y
             Collapse.Text = ""
             Collapse.AutoButtonColor = false
+			Collapse.ClipsDescendants = true
             Collapse.Parent = Header
     
             widgets.UIPadding(Collapse, Vector2.new(2 * Iris._config.FramePadding.X, Iris._config.FramePadding.Y)) -- we add a custom padding because it extends on both sides

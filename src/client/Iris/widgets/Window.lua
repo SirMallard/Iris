@@ -439,7 +439,7 @@ return function(Iris, widgets)
             ChildContainer.Position = UDim2.fromOffset(0, 0)
             ChildContainer.BorderSizePixel = 0
             ChildContainer.ZIndex = thisWidget.ZIndex + 2
-            ChildContainer.LayoutOrder = thisWidget.ZIndex + 2
+            ChildContainer.LayoutOrder = thisWidget.ZIndex + 3
             ChildContainer.AutomaticSize = Enum.AutomaticSize.None
             ChildContainer.Size = UDim2.fromScale(1, 1)
             ChildContainer.Selectable = false
