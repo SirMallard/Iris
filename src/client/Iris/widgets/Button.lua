@@ -1,4 +1,6 @@
-return function(Iris, widgets)
+local Types = require(script.Parent.Parent.Types)
+
+return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
     local abstractButton = {
         hasState = false,
         hasChildren = false,
@@ -6,24 +8,24 @@ return function(Iris, widgets)
             ["Text"] = 1
         },
         Events = {
-            ["clicked"] = widgets.EVENTS.click(function(thisWidget)
+            ["clicked"] = widgets.EVENTS.click(function(thisWidget: Types.Widget)
                 return thisWidget.Instance
             end),
-            ["rightClicked"] = widgets.EVENTS.rightClick(function(thisWidget)
+            ["rightClicked"] = widgets.EVENTS.rightClick(function(thisWidget: Types.Widget)
                 return thisWidget.Instance
             end),
-            ["doubleClicked"] = widgets.EVENTS.doubleClick(function(thisWidget)
+            ["doubleClicked"] = widgets.EVENTS.doubleClick(function(thisWidget: Types.Widget)
                 return thisWidget.Instance
             end),
-            ["ctrlClicked"] = widgets.EVENTS.ctrlClick(function(thisWidget)
+            ["ctrlClicked"] = widgets.EVENTS.ctrlClick(function(thisWidget: Types.Widget)
                 return thisWidget.Instance
             end),
-            ["hovered"] = widgets.EVENTS.hover(function(thisWidget)
+            ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
                 return thisWidget.Instance
             end)
         },
-        Generate = function(thisWidget)
-            local Button = Instance.new("TextButton")
+        Generate = function(thisWidget: Types.Widget): TextButton
+            local Button: TextButton = Instance.new("TextButton")
             Button.Size = UDim2.fromOffset(0, 0)
             Button.BackgroundColor3 = Iris._config.ButtonColor
             Button.BackgroundTransparency = Iris._config.ButtonTransparency
@@ -48,31 +50,31 @@ return function(Iris, widgets)
     
             return Button
         end,
-        Update = function(thisWidget)
-            local Button = thisWidget.Instance
+        Update = function(thisWidget: Types.Widget)
+            local Button = thisWidget.Instance :: TextButton
             Button.Text = thisWidget.arguments.Text or "Button"
         end,
-        Discard = function(thisWidget)
+        Discard = function(thisWidget: Types.Widget)
             thisWidget.Instance:Destroy()
         end
-    }
+    } :: Types.WidgetClass
     widgets.abstractButton = abstractButton
     
     Iris.WidgetConstructor("Button", widgets.extend(abstractButton, {
-        Generate = function(thisWidget)
-            local Button = abstractButton.Generate(thisWidget)
+        Generate = function(thisWidget: Types.Widget): TextButton
+            local Button: TextButton = abstractButton.Generate(thisWidget)
             Button.Name = "Iris_Button"
     
             return Button
         end
-    }))
+    } :: Types.WidgetClass))
     
     Iris.WidgetConstructor("SmallButton", widgets.extend(abstractButton, {
-        Generate = function(thisWidget)
-            local SmallButton = abstractButton.Generate(thisWidget)
+        Generate = function(thisWidget): TextButton
+            local SmallButton = abstractButton.Generate(thisWidget) :: TextButton
             SmallButton.Name = "Iris_SmallButton"
     
-            local uiPadding = SmallButton.UIPadding
+            local uiPadding = SmallButton.UIPadding :: UIPadding
             uiPadding.PaddingLeft = UDim.new(0, 2)
             uiPadding.PaddingRight = UDim.new(0, 2)
             uiPadding.PaddingTop = UDim.new(0, 0)
@@ -80,5 +82,5 @@ return function(Iris, widgets)
     
             return SmallButton
         end
-    }))
+    } :: Types.WidgetClass))
 end

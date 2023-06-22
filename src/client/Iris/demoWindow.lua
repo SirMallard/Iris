@@ -218,7 +218,7 @@ return function(Iris)
 
         Combo = function()
             Iris.Tree({"Combo"})
-                Iris.PushConfig({ContentWidth = UDim.new(0, 350)})
+                Iris.PushConfig({ContentWidth = UDim.new(1, -120)})
                     local sharedComboIndex = Iris.State("No Selection")
                     Iris.SameLine()
                         local NoPreview = Iris.Checkbox({"No Preview"})
@@ -366,6 +366,22 @@ return function(Iris)
                     {"Text: string",      "opened: boolean",  "index: any"       },
                     {"NoButton: boolean", "closed: boolean",  "isOpened: boolean"},
                     {"NoPreview: boolean","clicked: boolean", ""                 }
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.ComboArray"})
+                parse2DArray({
+                    {"Arguments",	      "Events",           "States",			   "Extra"		   },	
+                    {"Text: string",      "opened: boolean",  "index: any",		   "array: { any }"},
+                    {"NoButton: boolean", "closed: boolean",  "isOpened: boolean", ""			   },
+                    {"NoPreview: boolean","clicked: boolean", "",				   ""			   }
+                })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.ComboEnum"})
+                parse2DArray({
+                    {"Arguments",	      "Events",           "States",			   "Extra"	   },	
+                    {"Text: string",      "opened: boolean",  "index: any",		   "enum: Enum"},
+                    {"NoButton: boolean", "closed: boolean",  "isOpened: boolean", ""		   },
+                    {"NoPreview: boolean","clicked: boolean", "",				   ""		   }
                 })
             Iris.End()
             Iris.CollapsingHeader({"Iris.Tree"})
@@ -1037,6 +1053,7 @@ return function(Iris)
 		Iris.CollapsingHeader({"Widget Layout"})
 			Iris.Tree({"Content Width"})
 				local value = Iris.State(50)
+				local index = Iris.State(Enum.Axis.X)
 
 				Iris.Text({"The Content Width is a size property which determines the width of input fields."})
 				Iris.SameLine()
@@ -1054,6 +1071,7 @@ return function(Iris)
 				Iris.End()
 				Iris.PushConfig({ContentWidth = UDim.new(0, 150)})
 					Iris.DragNum({"number", 1, 0, 100}, {number = value})
+					Iris.InputEnum({"axis"}, {index = index}, Enum.Axis)
 				Iris.PopConfig()
 
 				Iris.SameLine()
@@ -1062,6 +1080,7 @@ return function(Iris)
 				Iris.End()
 				Iris.PushConfig({ContentWidth = UDim.new(0.5, 0)})
 					Iris.DragNum({"number", 1, 0, 100}, {number = value})
+					Iris.InputEnum({"axis"}, {index = index}, Enum.Axis)
 				Iris.PopConfig()
 
 				Iris.SameLine()
@@ -1070,6 +1089,7 @@ return function(Iris)
 				Iris.End()
 				Iris.PushConfig({ContentWidth = UDim.new(1, -150)})
 					Iris.DragNum({"number", 1, 0, 100}, {number = value})
+					Iris.InputEnum({"axis"}, {index = index}, Enum.Axis)
 				Iris.PopConfig()
 			Iris.End()
 		Iris.End()

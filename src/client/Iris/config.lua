@@ -28,6 +28,9 @@ local TemplateConfig = {
         TitleBgCollapsedColor = Color3.fromRGB(0, 0, 0),
         TitleBgCollapsedTransparency = 0.5,
 
+		MenubarBgColor = Color3.fromRGB(36, 36, 36),
+		MenubarBgTransparency = 0,
+
         FrameBgColor = Color3.fromRGB(41, 74, 122),
         FrameBgTransparency = 0.46,
         FrameBgHoveredColor = Color3.fromRGB(66, 150, 250),
@@ -104,6 +107,9 @@ local TemplateConfig = {
         TitleBgCollapsedColor = Color3.fromRGB(255, 255, 255),
         TitleBgCollapsedTransparency = 0.5,
 
+		MenubarBgColor = Color3.fromRGB(219, 219, 219),
+		MenubarBgTransparency = 0,
+
         ScrollbarGrabColor = Color3.fromRGB(96, 96, 96),
         ScrollbarGrabTransparency = 0,
 
@@ -172,7 +178,7 @@ local TemplateConfig = {
         DisplaySafeAreaPadding = Vector2.new(0, 0),
         IndentSpacing = 21,
 
-        TextFont = Enum.Font.Code,
+        TextFont = Font.fromEnum(Enum.Font.Code),
         TextSize = 13,
         FrameBorderSize = 0,
         FrameRounding = 0,
@@ -197,7 +203,7 @@ local TemplateConfig = {
         DisplaySafeAreaPadding = Vector2.new(8, 8),
         IndentSpacing = 25,
 
-        TextFont = Enum.Font.Ubuntu,
+        TextFont = Font.fromEnum(Enum.Font.Ubuntu),
         TextSize = 15,
         FrameBorderSize = 1,
         FrameRounding = 4,
