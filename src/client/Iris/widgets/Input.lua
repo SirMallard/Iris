@@ -191,8 +191,9 @@ return function(Iris, widgets)
         UpdateState = function(thisWidget)
             local InputFieldScale = thisWidget.Instance.InputFieldScale
             local InputFieldOffset = thisWidget.Instance.InputFieldOffset
-            local newTextScale = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.Scale)
-            local newTextOffset = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.Offset)
+            local formatText = thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f")
+            local newTextScale = string.format("Scale: " .. formatText, thisWidget.state.number.value.Scale)
+            local newTextOffset = string.format("Offset: " .. formatText, thisWidget.state.number.value.Offset)
             InputFieldScale.Text = newTextScale
             InputFieldOffset.Text = newTextOffset
         end
@@ -229,15 +230,16 @@ return function(Iris, widgets)
         UpdateState = function(thisWidget)
             local InputFieldXScale = thisWidget.Instance.InputFieldXScale
             local InputFieldXOffset = thisWidget.Instance.InputFieldXOffset
-            local newTextXScale = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.X.Scale)
-            local newTextXOffset = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.X.Offset)
+            local formatText = thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f")
+            local newTextXScale = string.format("X Scale: " .. formatText, thisWidget.state.number.value.X.Scale)
+            local newTextXOffset = string.format("X Offset: " .. formatText, thisWidget.state.number.value.X.Offset)
             InputFieldXScale.Text = newTextXScale
             InputFieldXOffset.Text = newTextXOffset
 
             local InputFieldYScale = thisWidget.Instance.InputFieldYScale
             local InputFieldYOffset = thisWidget.Instance.InputFieldYOffset
-            local newTextYScale = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.Y.Scale)
-            local newTextYOffset = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.Y.Offset)
+            local newTextYScale = string.format("Y Scale: " .. formatText, thisWidget.state.number.value.Y.Scale)
+            local newTextYOffset = string.format("Y Offset: " .. formatText, thisWidget.state.number.value.Y.Offset)
             InputFieldYScale.Text = newTextYScale
             InputFieldYOffset.Text = newTextYOffset
         end
@@ -990,15 +992,7 @@ return function(Iris, widgets)
         Generate = function(thisWidget)
             local InputUDim = GenerateRootFrame(thisWidget, "Iris_InputUDim")
 
-            local TextSize = 7 * Iris._config.TextSize + 4 * Iris._config.ItemInnerSpacing.X -- this only works for mono fonts
-            local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 2, (Iris._config.ContentWidth.Offset - (TextSize + Iris._config.ItemInnerSpacing.X)) / 2)
-        
-            local ScaleTextLabel = GenerateTextLabel(thisWidget)
-            ScaleTextLabel.Name = "ScaleTextLabel"
-            ScaleTextLabel.ZIndex = thisWidget.ZIndex + 1
-            ScaleTextLabel.LayoutOrder = thisWidget.ZIndex + 1
-            ScaleTextLabel.Text = "Scale: "
-            ScaleTextLabel.Parent = InputUDim
+            local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 2, (Iris._config.ContentWidth.Offset - Iris._config.ItemInnerSpacing.X) / 2)
 
             local InputFieldScale = Instance.new("TextBox")
             InputFieldScale.Name = "InputFieldScale"
@@ -1006,8 +1000,8 @@ return function(Iris, widgets)
             widgets.applyTextStyle(InputFieldScale)
 			widgets.UISizeConstraint(InputFieldScale, Vector2.new(1, 0))
             InputFieldScale.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldScale.ZIndex = thisWidget.ZIndex + 2
-            InputFieldScale.LayoutOrder = thisWidget.ZIndex + 2
+            InputFieldScale.ZIndex = thisWidget.ZIndex + 1
+            InputFieldScale.LayoutOrder = thisWidget.ZIndex + 1
 			InputFieldScale.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldScale.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldScale.BackgroundColor3 = Iris._config.FrameBgColor
@@ -1018,7 +1012,7 @@ return function(Iris, widgets)
             InputFieldScale.Parent = InputUDim
     
             InputFieldScale.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldScale.Text)
+                local newValue = tonumber(InputFieldScale.Text:match("%d+"))
                 if newValue ~= nil then
                     newValue = math.clamp(
                         newValue,
@@ -1031,7 +1025,7 @@ return function(Iris, widgets)
                     thisWidget.state.number:set(UDim.new(newValue, thisWidget.state.number.value.Offset))
                     thisWidget.lastNumchangeTick = Iris._cycleTick + 1
                 else
-                    InputFieldScale.Text = thisWidget.state.number.value.Scale
+                    thisWidget.state.number:set(thisWidget.state.number.value)
                 end
             end)
     
@@ -1039,21 +1033,14 @@ return function(Iris, widgets)
                 InputFieldScale.SelectionStart = 1
             end)
 
-            local OffsetTextLabel = GenerateTextLabel(thisWidget)
-            OffsetTextLabel.Name = "OffsetTextLabel"
-            OffsetTextLabel.ZIndex = thisWidget.ZIndex + 3
-            OffsetTextLabel.LayoutOrder = thisWidget.ZIndex + 3
-            OffsetTextLabel.Text = "Offset:"
-            OffsetTextLabel.Parent = InputUDim
-
             local InputFieldOffset = Instance.new("TextBox")
             InputFieldOffset.Name = "InputFieldOffset"
             widgets.applyFrameStyle(InputFieldOffset)
             widgets.applyTextStyle(InputFieldOffset)
 			widgets.UISizeConstraint(InputFieldOffset, Vector2.new(1, 0))
             InputFieldOffset.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldOffset.ZIndex = thisWidget.ZIndex + 4
-            InputFieldOffset.LayoutOrder = thisWidget.ZIndex + 4
+            InputFieldOffset.ZIndex = thisWidget.ZIndex + 2
+            InputFieldOffset.LayoutOrder = thisWidget.ZIndex + 2
 			InputFieldOffset.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldOffset.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldOffset.BackgroundColor3 = Iris._config.FrameBgColor
@@ -1064,7 +1051,7 @@ return function(Iris, widgets)
             InputFieldOffset.Parent = InputUDim
     
             InputFieldOffset.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldOffset.Text)
+                local newValue = tonumber(InputFieldOffset.Text:match("%d+"))
                 if newValue ~= nil then
                     newValue = math.clamp(
                         newValue,
@@ -1077,7 +1064,7 @@ return function(Iris, widgets)
                     thisWidget.state.number:set(UDim.new(thisWidget.state.number.value.Scale, newValue))
                     thisWidget.lastNumchangeTick = Iris._cycleTick + 1
                 else
-                    InputFieldOffset.Text = thisWidget.state.number.value.Offset
+                    thisWidget.state.number:set(thisWidget.state.number.value)
                 end
             end)
     
@@ -1086,28 +1073,17 @@ return function(Iris, widgets)
             end)
     
             local TextLabel = GenerateTextLabel(thisWidget)
-            TextLabel.ZIndex = thisWidget.ZIndex + 5
-            TextLabel.LayoutOrder = thisWidget.ZIndex + 5
             TextLabel.Parent = InputUDim
     
             return InputUDim
         end
     }))
 
-    
     Iris.WidgetConstructor("InputUDim2", widgets.extend(abstractInputUDim2, {
         Generate = function(thisWidget)
             local InputUDim2 = GenerateRootFrame(thisWidget, "Iris_InputUDim2")
 
-            local TextSize = 14 * Iris._config.TextSize + 11 * Iris._config.ItemInnerSpacing.X -- this only works for mono fonts
-            local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 4, (Iris._config.ContentWidth.Offset - TextSize) / 4)
-        
-            local ScaleXTextLabel = GenerateTextLabel(thisWidget)
-            ScaleXTextLabel.Name = "ScaleXTextLabel"
-            ScaleXTextLabel.ZIndex = thisWidget.ZIndex + 1
-            ScaleXTextLabel.LayoutOrder = thisWidget.ZIndex + 1
-            ScaleXTextLabel.Text = "Scale: "
-            ScaleXTextLabel.Parent = InputUDim2
+            local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 4, Iris._config.ContentWidth.Offset / 4 - math.round(Iris._config.ItemInnerSpacing.X * (3/4)))
 
             local InputFieldXScale = Instance.new("TextBox")
             InputFieldXScale.Name = "InputFieldXScale"
@@ -1115,8 +1091,8 @@ return function(Iris, widgets)
             widgets.applyTextStyle(InputFieldXScale)
 			widgets.UISizeConstraint(InputFieldXScale, Vector2.new(1, 0))
             InputFieldXScale.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldXScale.ZIndex = thisWidget.ZIndex + 2
-            InputFieldXScale.LayoutOrder = thisWidget.ZIndex + 2
+            InputFieldXScale.ZIndex = thisWidget.ZIndex + 1
+            InputFieldXScale.LayoutOrder = thisWidget.ZIndex + 1
 			InputFieldXScale.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldXScale.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldXScale.BackgroundColor3 = Iris._config.FrameBgColor
@@ -1127,7 +1103,7 @@ return function(Iris, widgets)
             InputFieldXScale.Parent = InputUDim2
     
             InputFieldXScale.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldXScale.Text)
+                local newValue = tonumber(InputFieldXScale.Text:match("%d+"))
                 if newValue ~= nil then
                     newValue = math.clamp(
                         newValue,
@@ -1140,7 +1116,7 @@ return function(Iris, widgets)
                     thisWidget.state.number:set(UDim2.new(UDim.new(newValue, thisWidget.state.number.value.X.Offset), thisWidget.state.number.value.Y))
                     thisWidget.lastNumchangeTick = Iris._cycleTick + 1
                 else
-                    InputFieldXScale.Text = thisWidget.state.number.value.X.Scale
+                    thisWidget.state.number:set(thisWidget.state.number.value)
                 end
             end)
     
@@ -1148,21 +1124,14 @@ return function(Iris, widgets)
                 InputFieldXScale.SelectionStart = 1
             end)
 
-            local OffsetXTextLabel = GenerateTextLabel(thisWidget)
-            OffsetXTextLabel.Name = "OffsetXTextLabel"
-            OffsetXTextLabel.ZIndex = thisWidget.ZIndex + 3
-            OffsetXTextLabel.LayoutOrder = thisWidget.ZIndex + 3
-            OffsetXTextLabel.Text = "Offset:"
-            OffsetXTextLabel.Parent = InputUDim2
-
             local InputFieldXOffset = Instance.new("TextBox")
             InputFieldXOffset.Name = "InputFieldXOffset"
             widgets.applyFrameStyle(InputFieldXOffset)
             widgets.applyTextStyle(InputFieldXOffset)
 			widgets.UISizeConstraint(InputFieldXOffset, Vector2.new(1, 0))
             InputFieldXOffset.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldXOffset.ZIndex = thisWidget.ZIndex + 4
-            InputFieldXOffset.LayoutOrder = thisWidget.ZIndex + 4
+            InputFieldXOffset.ZIndex = thisWidget.ZIndex + 2
+            InputFieldXOffset.LayoutOrder = thisWidget.ZIndex + 2
 			InputFieldXOffset.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldXOffset.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldXOffset.BackgroundColor3 = Iris._config.FrameBgColor
@@ -1173,7 +1142,7 @@ return function(Iris, widgets)
             InputFieldXOffset.Parent = InputUDim2
     
             InputFieldXOffset.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldXOffset.Text)
+                local newValue = tonumber(InputFieldXOffset.Text:match("%d+"))
                 if newValue ~= nil then
                     newValue = math.clamp(
                         newValue,
@@ -1186,7 +1155,7 @@ return function(Iris, widgets)
                     thisWidget.state.number:set(UDim2.new(UDim.new(thisWidget.state.number.value.X.Scale, newValue), thisWidget.state.number.value.Y))
                     thisWidget.lastNumchangeTick = Iris._cycleTick + 1
                 else
-                    InputFieldXOffset.Text = thisWidget.state.number.value.X.Offset
+                    thisWidget.state.number:set(thisWidget.state.number.value)
                 end
             end)
     
@@ -1194,21 +1163,14 @@ return function(Iris, widgets)
                 InputFieldXOffset.SelectionStart = 1
             end)
 
-            local ScaleYTextLabel = GenerateTextLabel(thisWidget)
-            ScaleYTextLabel.Name = "ScaleYTextLabel"
-            ScaleYTextLabel.ZIndex = thisWidget.ZIndex + 5
-            ScaleYTextLabel.LayoutOrder = thisWidget.ZIndex + 5
-            ScaleYTextLabel.Text = "Scale: "
-            ScaleYTextLabel.Parent = InputUDim2
-
             local InputFieldYScale = Instance.new("TextBox")
             InputFieldYScale.Name = "InputFieldYScale"
             widgets.applyFrameStyle(InputFieldYScale)
             widgets.applyTextStyle(InputFieldYScale)
 			widgets.UISizeConstraint(InputFieldYScale, Vector2.new(1, 0))
             InputFieldYScale.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldYScale.ZIndex = thisWidget.ZIndex + 6
-            InputFieldYScale.LayoutOrder = thisWidget.ZIndex + 6
+            InputFieldYScale.ZIndex = thisWidget.ZIndex + 3
+            InputFieldYScale.LayoutOrder = thisWidget.ZIndex + 3
 			InputFieldYScale.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldYScale.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldYScale.BackgroundColor3 = Iris._config.FrameBgColor
@@ -1219,7 +1181,7 @@ return function(Iris, widgets)
             InputFieldYScale.Parent = InputUDim2
     
             InputFieldYScale.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldYScale.Text)
+                local newValue = tonumber(InputFieldYScale.Text:match("%d+"))
                 if newValue ~= nil then
                     newValue = math.clamp(
                         newValue,
@@ -1232,7 +1194,7 @@ return function(Iris, widgets)
                     thisWidget.state.number:set(UDim2.new(thisWidget.state.number.value.X, UDim.new(newValue, thisWidget.state.number.value.Y.Offset)))
                     thisWidget.lastNumchangeTick = Iris._cycleTick + 1
                 else
-                    InputFieldYScale.Text = thisWidget.state.number.value.Y.Scale
+                    thisWidget.state.number:set(thisWidget.state.number.value)
                 end
             end)
     
@@ -1240,21 +1202,14 @@ return function(Iris, widgets)
                 InputFieldYScale.SelectionStart = 1
             end)
 
-            local OffsetYTextLabel = GenerateTextLabel(thisWidget)
-            OffsetYTextLabel.Name = "OffsetYTextLabel"
-            OffsetYTextLabel.ZIndex = thisWidget.ZIndex + 7
-            OffsetYTextLabel.LayoutOrder = thisWidget.ZIndex + 7
-            OffsetYTextLabel.Text = "Offset:"
-            OffsetYTextLabel.Parent = InputUDim2
-
             local InputFieldYOffset = Instance.new("TextBox")
             InputFieldYOffset.Name = "InputFieldYOffset"
             widgets.applyFrameStyle(InputFieldYOffset)
             widgets.applyTextStyle(InputFieldYOffset)
 			widgets.UISizeConstraint(InputFieldYOffset, Vector2.new(1, 0))
             InputFieldYOffset.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldYOffset.ZIndex = thisWidget.ZIndex + 8
-            InputFieldYOffset.LayoutOrder = thisWidget.ZIndex + 8
+            InputFieldYOffset.ZIndex = thisWidget.ZIndex + 4
+            InputFieldYOffset.LayoutOrder = thisWidget.ZIndex + 4
 			InputFieldYOffset.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldYOffset.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldYOffset.BackgroundColor3 = Iris._config.FrameBgColor
@@ -1265,7 +1220,7 @@ return function(Iris, widgets)
             InputFieldYOffset.Parent = InputUDim2
     
             InputFieldYOffset.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldYOffset.Text)
+                local newValue = tonumber(InputFieldYOffset.Text:match("%d+"))
                 if newValue ~= nil then
                     newValue = math.clamp(
                         newValue,
@@ -1278,7 +1233,7 @@ return function(Iris, widgets)
                     thisWidget.state.number:set(UDim2.new(thisWidget.state.number.value.X, UDim.new(thisWidget.state.number.value.Y.Scale, newValue)))
                     thisWidget.lastNumchangeTick = Iris._cycleTick + 1
                 else
-                    InputFieldYOffset.Text = thisWidget.state.number.value.Y.Offset
+                    thisWidget.state.number:set(thisWidget.state.number.value)
                 end
             end)
     
@@ -1287,8 +1242,8 @@ return function(Iris, widgets)
             end)
     
             local TextLabel = GenerateTextLabel(thisWidget)
-            TextLabel.ZIndex = thisWidget.ZIndex + 9
-            TextLabel.LayoutOrder = thisWidget.ZIndex + 9
+            TextLabel.ZIndex = thisWidget.ZIndex + 5
+            TextLabel.LayoutOrder = thisWidget.ZIndex + 5
             TextLabel.Parent = InputUDim2
     
             return InputUDim2
