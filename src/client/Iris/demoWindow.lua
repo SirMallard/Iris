@@ -142,6 +142,8 @@ return function(Iris)
                 Iris.PushConfig({ContentWidth = UDim.new(1, -120)})
                 Iris.InputVector2({"InputVector2"})
                 Iris.InputVector3({"InputVector3"})
+                Iris.InputUDim({"InputUDim"})
+                Iris.InputUDim2({"InputUDim2"})
                 Iris.PopConfig()
 
                 Iris.Separator()
@@ -450,6 +452,26 @@ return function(Iris)
                     {"Max: Vector3",        "",                       ""                    },
                     {"Format: string",      "",                       ""                    },
                 })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.InputUDim"})
+            parse2DArray({
+                {"Arguments",       "Events",                 "States"              },
+                {"Text: string",    "numberChanged: boolean", "number: UDim"        },
+                {"Increment: UDim", "",                       ""                    },
+                {"Min: UDim",       "",                       ""                    },
+                {"Max: UDim",       "",                       ""                    },
+                {"Format: string",  "",                       ""                    },
+            })
+            Iris.End()
+            Iris.CollapsingHeader({"Iris.InputUDim2"})
+            parse2DArray({
+                {"Arguments",        "Events",                 "States"              },
+                {"Text: string",     "numberChanged: boolean", "number: UDim2"       },
+                {"Increment: UDim2", "",                       ""                    },
+                {"Min: UDim2",       "",                       ""                    },
+                {"Max: UDim2",       "",                       ""                    },
+                {"Format: string",   "",                       ""                    },
+            })
             Iris.End()
             Iris.CollapsingHeader({"Iris.InputText"})
                 parse2DArray({
