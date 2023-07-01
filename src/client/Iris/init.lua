@@ -1120,6 +1120,56 @@ Iris.InputVector3 = function(args: Types.WidgetArguments, state: Types.States?):
     return Iris._Insert("InputVector3", args, state)
 end
 
+--- @prop InputUDim Widget
+--- @within Widgets
+--- A field which allows for the input of a UDim.
+---
+--- ```json 
+--- hasChildren: false,
+--- hasState: true,
+--- Arguments: {
+---     Text: string,
+---     Increment: UDim,
+---     Min: UDim,
+---     Max: UDim,
+---     Format: string
+--- },
+--- Events: {
+---     numberChanged: boolean
+--- },
+--- States: {
+---     number: UDim
+--- }
+--- ```
+Iris.InputUDim = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+    return Iris._Insert("InputUDim", args, state)
+end
+
+--- @prop InputUDim2 Widget
+--- @within Widgets
+--- A field which allows for the input of a UDim2.
+---
+--- ```json 
+--- hasChildren: false,
+--- hasState: true,
+--- Arguments: {
+---     Text: string,
+---     Increment: UDim2,
+---     Min: UDim2,
+---     Max: UDim2,
+---     Format: string
+--- },
+--- Events: {
+---     numberChanged: boolean
+--- },
+--- States: {
+---     number: UDim
+--- }
+--- ```
+Iris.InputUDim2 = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+    return Iris._Insert("InputUDim2", args, state)
+end
+
 --- @prop InputText Widget
 --- @within Widgets
 --- A field which allows the user to enter text.
