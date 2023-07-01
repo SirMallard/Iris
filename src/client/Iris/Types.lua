@@ -24,12 +24,14 @@ export type Widget = {
 
 	parentWidget: Widget,
 	Instance: GuiObject,
+	ChildContainer: GuiObject,
 	arguments: Arguments,
 
 	ZIndex: number,
 
 	trackedEvents: {},
 	lastCycleTick: number,
+	LabelHeight: number,
 
 	isHoveredEvent: boolean,
 	lastClickedTick: number,
@@ -40,6 +42,9 @@ export type Widget = {
 	lastCtrlClickedTick: number,
 	lastCheckedTick: number,
 	lastUncheckedTick: number,
+
+	lastMenuTick: number,
+	menuID: ID,
 }
 
 export type Argument = any
@@ -75,6 +80,8 @@ export type WidgetUtility = {
         BOTTOM_RIGHT_CORNER: string,
         CHECK_MARK: string
 	},
+
+	GuiInset: Vector2,
 
 	findBestWindowPosForPopup: (refPos: Vector2, size: Vector2, outerMin: Vector2, outerMax: Vector2) -> Vector2,
 	isPosInsideRect: (pos: Vector2, rectMin: Vector2, rectMax: Vector2) -> boolean,
@@ -116,7 +123,7 @@ export type Iris = {
 	_states: { [ID]: State },
 	_postCycleCallbacks: {},
 	_connectedFunctions: {},
-	_IDStack: { State },
+	_IDStack: { [number]: ID },
 	_usedIDs: { [ID]: number },
 	_stackIndex: number,
 	_cycleTick: number,
@@ -135,6 +142,7 @@ export type Iris = {
 	_generateRootInstance: () -> (),
 	_deepCompare: ( t1: {}, t2: {} ) -> boolean,
 	_getID: (levelsToIgnore: number) -> ID,
+	_getCurrentWindow: () -> Widget?,
 	SetNextWidgetID: (ID: ID) -> (),
 	_generateEmptyVDOM: () -> { [ID]: Widget },
 	_cycle: () -> (),

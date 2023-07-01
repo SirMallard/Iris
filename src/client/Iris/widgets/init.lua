@@ -15,6 +15,9 @@ return function(Iris: Types.Iris)
         CHECK_MARK = "\u{2713}" -- curved shape, closest we can get to ImGui Checkmarks
     }
 
+	local x: number, y: number = widgets.GuiService:GetGuiInset()
+	widgets.GuiInset = Vector2.new(x, y)
+
     function widgets.findBestWindowPosForPopup(refPos: Vector2, size: Vector2, outerMin: Vector2, outerMax: Vector2): Vector2
         local CURSOR_OFFSET_DIST: number = 20
         

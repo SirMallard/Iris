@@ -107,6 +107,16 @@ function Iris._getID(levelsToIgnore: number): Types.ID
 	return ID .. ":" .. Iris._usedIDs[ID]
 end
 
+function Iris:_getCurrentWindow(): Types.Widget?
+	for level = Iris._stackIndex, 1, -1 do
+		local widget: Types.Widget = Iris._VDOM[Iris._IDStack[level]]
+		if widget.type == "Window" then
+			return widget
+		end
+	end
+	return nil
+end
+
 function Iris.SetNextWidgetID(ID: Types.ID)
 	Iris._nextWidgetId = ID
 end
@@ -1292,6 +1302,30 @@ Iris.SetColumnIndex = Iris.SetColumnIndex
 --- In a table, moves to the next available row,
 --- skipping cells in the previous column if the last cell wasn't in the last column
 Iris.NextRow = Iris.NextRow
+
+--- @function MenuBar
+--- @within Widgets
+--- Starts the creation of a menu widget which attaches to the current window.
+---
+---'''json
+---```
+Iris.MenuBar = function()
+	local window: Types.Widget? = Iris:_getCurrentWindow()
+	if window == nil then
+		error("There is currently no window.")
+	end
+
+	local ID: Types.ID = window.menuID
+	if window.lastMenuTick ~= Iris._cycleTick then
+		ID = Iris:_getID(2)
+		window.menuID = ID
+	end
+
+	window.lastMenuTick = Iris._cycleTick
+
+	Iris._stackIndex += 1
+	Iris._IDStack[Iris._stackIndex] = ID
+end
 
 --- @prop Window Widget
 --- @within Widgets

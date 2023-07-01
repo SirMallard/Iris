@@ -338,6 +338,7 @@ return function(Iris, widgets)
             ["NoScrollbar"] = 7,
             ["NoResize"] = 8,
             ["NoNav"] = 9,
+			["NoMenu"] = 10,
         },
         Events = {
             ["closed"] = {
@@ -438,7 +439,7 @@ return function(Iris, widgets)
             ChildContainer.Name = "ChildContainer"
             ChildContainer.Position = UDim2.fromOffset(0, 0)
             ChildContainer.BorderSizePixel = 0
-            ChildContainer.ZIndex = thisWidget.ZIndex + 2
+            ChildContainer.ZIndex = thisWidget.ZIndex + 3
             ChildContainer.LayoutOrder = thisWidget.ZIndex + 3
             ChildContainer.AutomaticSize = Enum.AutomaticSize.None
             ChildContainer.Size = UDim2.fromScale(1, 1)
@@ -588,6 +589,22 @@ return function(Iris, widgets)
 
             widgets.UIPadding(Title, Iris._config.FramePadding)
 
+			-- for the menubar if specified
+
+			thisWidget.hasMenu = false
+			local MenuBar: Frame = Instance.new("Frame")
+			MenuBar.Name = "MenuBar"
+			MenuBar.BorderSizePixel = 0
+			MenuBar.ZIndex = thisWidget.ZIndex + 2
+			MenuBar.LayoutOrder = thisWidget.ZIndex + 2
+			MenuBar.AutomaticSize = Enum.AutomaticSize.Y
+			MenuBar.Size = UDim2.fromScale(1, 0)
+			MenuBar.ClipsDescendants = true
+			MenuBar.Parent = WindowButton
+
+			widgets.UIPadding(MenuBar, Vector2.new(Iris._config.ItemSpacing.X, 1))
+			widgets.UIListLayout(MenuBar, Enum.FillDirection.Horizontal, UDim.new())
+
             local ResizeButtonSize = Iris._config.TextSize + Iris._config.FramePadding.X
 
             local ResizeGrip = Instance.new("TextButton")
@@ -605,6 +622,7 @@ return function(Iris, widgets)
             ResizeGrip.TextTransparency = Iris._config.ButtonTransparency
             ResizeGrip.LineHeight = 1.10 -- fix mild rendering issue
             ResizeGrip.Selectable = false
+			ResizeGrip.Parent = WindowButton
             
             widgets.applyTextInteractionHighlights(ResizeGrip, ResizeGrip, {
                 ButtonColor = Iris._config.ButtonColor,
@@ -664,17 +682,17 @@ return function(Iris, widgets)
                 end
             end)
 
-            ResizeGrip.Parent = WindowButton
-
             return Window
         end,
         Update = function(thisWidget)
-            local WindowButton = thisWidget.Instance.WindowButton
-            local TitleBar = WindowButton.TitleBar
-            local Title = TitleBar.Title
+            local WindowButton = thisWidget.Instance.WindowButton :: TextButton
+            local TitleBar = WindowButton.TitleBar :: Frame
+            local Title = TitleBar.Title :: TextLabel
+			local MenuBar = WindowButton.MenuBar :: Frame
             local ChildContainer = WindowButton.ChildContainer
             local ResizeGrip = WindowButton.ResizeGrip
-            local TitleBarWidth = Iris._config.TextSize + Iris._config.FramePadding.Y * 2
+            local TitleBarHeight: number = Iris._config.TextSize + Iris._config.FramePadding.Y * 2
+			local containerHeight: number = 0
 
             ResizeGrip.Visible = not thisWidget.arguments.NoResize
             if thisWidget.arguments.NoScrollbar then
@@ -684,14 +702,9 @@ return function(Iris, widgets)
             end
             if thisWidget.arguments.NoTitleBar then
                 TitleBar.Visible = false
-                ChildContainer.Size = UDim2.new(1, 0, 1, 0)
-                ChildContainer.CanvasSize = UDim2.new(0, 0, 1, 0)
-                ChildContainer.Position = UDim2.fromOffset(0, 0)
             else
                 TitleBar.Visible = true
-                ChildContainer.Size = UDim2.new(1, 0, 1, -TitleBarWidth)
-                ChildContainer.CanvasSize = UDim2.new(0, 0, 1, -TitleBarWidth)
-                ChildContainer.Position = UDim2.fromOffset(0, TitleBarWidth)
+				containerHeight += TitleBarHeight
             end
             if thisWidget.arguments.NoBackground then
                 ChildContainer.BackgroundTransparency = 1
@@ -713,6 +726,16 @@ return function(Iris, widgets)
                 TitleBar.CloseIcon.Visible = true
                 TitleBar.Title.UIPadding.PaddingRight = UDim.new(0, TitleButtonPaddingSize)
             end
+			if thisWidget.lastMenuTick >= Iris._cycleTick - 1 and not thisWidget.arguments.NoMenu then
+				MenuBar.Visible = true
+				containerHeight += TitleBarHeight
+			else
+				MenuBar.Visible = false
+			end
+			
+			ChildContainer.Size = UDim2.new(1, 0, 1, -containerHeight)
+			ChildContainer.CanvasSize = UDim2.new(0, 0, 1, -containerHeight)
+			ChildContainer.Position = UDim2.fromOffset(0, containerHeight)
 
             Title.Text = thisWidget.arguments.Title or ""
         end,

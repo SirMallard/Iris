@@ -876,7 +876,7 @@ return function(Iris, widgets)
         Events = {
             ["textChanged"] = {
                 ["Init"] = function(thisWidget)
-    
+					thisWidget.lastTextchangeTick = 0    
                 end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.lastTextchangeTick == Iris._cycleTick
@@ -912,7 +912,7 @@ return function(Iris, widgets)
     
             InputField.FocusLost:Connect(function()
                 thisWidget.state.text:set(InputField.Text)
-                thisWidget.lastTextchangeTick = Iris._cycleTick
+                thisWidget.lastTextchangeTick = Iris._cycleTick + 1
             end)
     
             InputField.Parent = InputText
