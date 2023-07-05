@@ -46,9 +46,9 @@ local TemplateConfig = {
         ButtonActiveTransparency = 0,
 
         SliderGrabColor = Color3.fromRGB(66, 150, 250),
-        SliderGrabTransparency = 0, --0.22,
+        SliderGrabTransparency = 0,
         SliderGrabActiveColor = Color3.fromRGB(117, 138, 204),
-        SliderGrabActiveTransparency = 0, --0.4,
+        SliderGrabActiveTransparency = 0,
 
         HeaderColor = Color3.fromRGB(66, 150, 250),
         HeaderTransparency = 0.69,
@@ -178,7 +178,7 @@ local TemplateConfig = {
         DisplaySafeAreaPadding = Vector2.new(0, 0),
         IndentSpacing = 21,
 
-        TextFont = Font.fromEnum(Enum.Font.Code),
+        TextFont = Enum.Font.Code,
         TextSize = 13,
         FrameBorderSize = 0,
         FrameRounding = 0,
@@ -203,7 +203,7 @@ local TemplateConfig = {
         DisplaySafeAreaPadding = Vector2.new(8, 8),
         IndentSpacing = 25,
 
-        TextFont = Font.fromEnum(Enum.Font.Ubuntu),
+        TextFont = Enum.Font.Ubuntu,
         TextSize = 15,
         FrameBorderSize = 1,
         FrameRounding = 4,
@@ -224,7 +224,6 @@ local TemplateConfig = {
 
         MouseDoubleClickTime = 0.30, -- Time for a double-click, in seconds.
         MouseDoubleClickMaxDist = 6.0, -- Distance threshold to stay in to validate a double-click, in pixels.
-        MouseDragThreshold = 6.0 -- Distance threshold before considering we are dragging.
     }
 }
 
