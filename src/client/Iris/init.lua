@@ -1150,7 +1150,7 @@ end
 --- @within Widgets
 --- A field which allows for the input of a UDim2.
 ---
---- ```json 
+--- ```json
 --- hasChildren: false,
 --- hasState: true,
 --- Arguments: {
@@ -1169,6 +1169,30 @@ end
 --- ```
 Iris.InputUDim2 = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
     return Iris._Insert("InputUDim2", args, state)
+end
+
+--- @prop InputColor3 Widget
+--- @within Widgets
+--- A field which allows for the input of a Color3.
+---
+--- ```json
+--- hasChildren: false,
+--- hasState: true,
+--- Arguments: {
+---     Text: string,
+---     UseFloats: boolean,
+--- 	UseHSV: boolean,
+---     Format: string
+--- },
+--- Events: {
+---     numberChanged: boolean
+--- },
+--- States: {
+---     number: UDim
+--- }
+--- ```
+Iris.InputColor3 = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+    return Iris._Insert("InputColor3", args, state)
 end
 
 --- @prop InputText Widget
