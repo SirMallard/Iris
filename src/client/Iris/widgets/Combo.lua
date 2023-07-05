@@ -412,22 +412,23 @@ return function(Iris, widgets)
             local DropdownButton = PreviewContainer.DropdownButton
             local ChildContainer = thisWidget.ChildContainer
 
-            -- ImGui also does not do this, and the Arrow is always facing down
             if thisWidget.state.isOpened.value then
                 AnyOpenedCombo = true
                 OpenedCombo = thisWidget
                 ComboOpenedTick = Iris._cycleTick
                 thisWidget.lastOpenedTick = Iris._cycleTick + 1
 
+                -- ImGui also does not do this, and the Arrow is always facing down
                 DropdownButton.Text = widgets.ICONS.RIGHT_POINTING_TRIANGLE
                 ChildContainer.Visible = true
 
                 UpdateChildContainerTransform(thisWidget)
             else
-                AnyOpenedCombo = false
-                OpenedCombo = nil
-                thisWidget.lastClosedTick = Iris._cycleTick + 1
-
+                if AnyOpenedCombo then
+                    AnyOpenedCombo = false
+                    OpenedCombo = nil
+                    thisWidget.lastClosedTick = Iris._cycleTick + 1
+                end
                 DropdownButton.Text = widgets.ICONS.DOWN_POINTING_TRIANGLE
                 ChildContainer.Visible = false
             end

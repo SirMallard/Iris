@@ -12,7 +12,8 @@ return function(Iris: Types.Iris)
         DOWN_POINTING_TRIANGLE = "\u{25BC}",
         MULTIPLICATION_SIGN = "\u{00D7}", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
         BOTTOM_RIGHT_CORNER = "\u{25E2}", -- used in window resize icon in bottom right
-        CHECK_MARK = "\u{2713}" -- curved shape, closest we can get to ImGui Checkmarks
+        CHECK_MARK = "\u{2713}", -- curved shape, closest we can get to ImGui Checkmarks
+        ALPHA_BACKGROUND_TEXTURE = "rbxasset://textures/meshPartFallback.png" -- used for color4 alpha
     }
 
 	local x: number, y: number = widgets.GuiService:GetGuiInset()
@@ -99,7 +100,7 @@ return function(Iris: Types.Iris)
     -- below uses Iris
 
     function widgets.applyTextStyle(thisInstance: TextLabel | TextButton | TextBox)
-        thisInstance.FontFace = Iris._config.TextFont
+        thisInstance.FontFace = Font.fromEnum(Iris._config.TextFont)
         thisInstance.TextSize = Iris._config.TextSize
         thisInstance.TextColor3 = Iris._config.TextColor
         thisInstance.TextTransparency = Iris._config.TextTransparency

@@ -452,15 +452,36 @@ function Iris.State(initialValue: any): Types.State
 	local ID: Types.ID = Iris._getID(2)
 	if Iris._states[ID] then
 		return Iris._states[ID]
-	else
-		Iris._states[ID] = {
-			value = initialValue,
-			ConnectedWidgets = {},
-			ConnectedFunctions = {}
-		}
-		setmetatable(Iris._states[ID], StateClass)
-		return Iris._states[ID]
 	end
+	Iris._states[ID] = {
+		value = initialValue,
+		ConnectedWidgets = {},
+		ConnectedFunctions = {}
+	}
+	setmetatable(Iris._states[ID], StateClass)
+	return Iris._states[ID]
+end
+
+--- @function State
+--- @within Iris
+--- @param initialValue any -- The initial value for the state
+--- Constructs a new state object, subsequent ID calls will return the same object, except in the circumstance when all widgets connected to the state are discarded
+function Iris.WeakState(initialValue: any): Types.State
+	local ID: Types.ID = Iris._getID(2)
+	if Iris._states[ID] then
+		if #Iris._states[ID].ConnectedWidgets == 0 then
+			Iris._states[ID] = nil
+		else
+			return Iris._states[ID]
+		end
+	end
+	Iris._states[ID] = {
+		value = initialValue,
+		ConnectedWidgets = {},
+		ConnectedFunctions = {}
+	}
+	setmetatable(Iris._states[ID], StateClass)
+	return Iris._states[ID]
 end
 
 --- @function ComputedState
@@ -639,7 +660,8 @@ function Iris._Insert(widgetType: string, args: { [number]: any }, widgetState: 
 	local arguments: Types.Arguments = {}
 	if args ~= nil then
 		if type(args) ~= "table" then
-			error("Args must be a table.", 3)
+			--error("Args must be a table.", 3)
+			args = {args}
 		end
 		for index: number, argument: Types.Argument in args do
 			arguments[thisWidgetClass.ArgNames[index]] = argument
@@ -1159,7 +1181,7 @@ end
 --- @within Widgets
 --- A field which allows for the input of a UDim2.
 ---
---- ```json 
+--- ```json
 --- hasChildren: false,
 --- hasState: true,
 --- Arguments: {
@@ -1178,6 +1200,54 @@ end
 --- ```
 Iris.InputUDim2 = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
     return Iris._Insert("InputUDim2", args, state)
+end
+
+--- @prop InputColor3 Widget
+--- @within Widgets
+--- A field which allows for the input of a Color3.
+---
+--- ```json
+--- hasChildren: false,
+--- hasState: true,
+--- Arguments: {
+---     Text: string,
+---     UseFloats: boolean,
+--- 	UseHSV: boolean,
+---     Format: string
+--- },
+--- Events: {
+---     numberChanged: boolean
+--- },
+--- States: {
+---     number: UDim
+--- }
+--- ```
+Iris.InputColor3 = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+    return Iris._Insert("InputColor3", args, state)
+end
+
+--- @prop InputColor4 Widget
+--- @within Widgets
+--- A field which allows for the input of a Color3 and transparency.
+---
+--- ```json
+--- hasChildren: false,
+--- hasState: true,
+--- Arguments: {
+---     Text: string,
+---     UseFloats: boolean,
+--- 	UseHSV: boolean,
+---     Format: string
+--- },
+--- Events: {
+---     numberChanged: boolean
+--- },
+--- States: {
+---     number: UDim
+--- }
+--- ```
+Iris.InputColor4 = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+    return Iris._Insert("InputColor4", args, state)
 end
 
 --- @prop InputText Widget
