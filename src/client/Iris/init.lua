@@ -629,7 +629,8 @@ function Iris._Insert(widgetType: string, args: { [number]: any }, widgetState: 
 	local arguments: Types.Arguments = {}
 	if args ~= nil then
 		if type(args) ~= "table" then
-			error("Args must be a table.", 3)
+			--error("Args must be a table.", 3)
+			args = {args}
 		end
 		for index: number, argument: Types.Argument in args do
 			arguments[thisWidgetClass.ArgNames[index]] = argument
