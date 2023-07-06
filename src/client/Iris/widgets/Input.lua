@@ -559,7 +559,7 @@ return function(Iris, widgets)
         local ActiveSliderNum
 
         widgets.UserInputService.InputEnded:Connect(function(inputObject)
-            if inputObject.UserInputType == Enum.UserInputType.MouseButton1 and AnyActiveSliderNum then
+            if (inputObject.UserInputType == Enum.UserInputType.MouseButton1 or inputObject.UserInputType == Enum.UserInputType.Touch) and AnyActiveSliderNum then
                 AnyActiveSliderNum = false
                 ActiveSliderNum = nil
             end
@@ -682,8 +682,10 @@ return function(Iris, widgets)
                     InputField.SelectionStart = 1
                 end)
 
-                InputFieldContainer.MouseButton1Down:Connect(function()
-                    InputFieldContainerOnClick(thisWidget)
+                InputFieldContainer.InputBegan:Connect(function(inputObject)
+                    if inputObject.UserInputType == Enum.UserInputType.MouseButton1 or inputObject.UserInputType == Enum.UserInputType.Touch then
+                        InputFieldContainerOnClick(thisWidget)
+                    end
                 end)
 
                 local GrabBar = Instance.new("Frame")

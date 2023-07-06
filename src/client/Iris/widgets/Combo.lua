@@ -153,7 +153,7 @@ return function(Iris, widgets)
     end
 
     widgets.UserInputService.InputBegan:Connect(function(inputObject)
-        if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 and inputObject.UserInputType ~= Enum.UserInputType.MouseButton2 then
+        if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 and inputObject.UserInputType ~= Enum.UserInputType.MouseButton2 and inputObject.UserInputType ~= Enum.UserInputType.Touch then
             return
         end
         if AnyOpenedCombo == false then
@@ -292,7 +292,7 @@ return function(Iris, widgets)
                 if AnyOpenedCombo and OpenedCombo ~= thisWidget then
                     return
                 end
-                if inputObject.UserInputType == Enum.UserInputType.MouseButton1 then
+                if inputObject.UserInputType == Enum.UserInputType.MouseButton1 or inputObject.UserInputType == Enum.UserInputType.Touch then
                     thisWidget.state.isOpened:set(not thisWidget.state.isOpened.value)
                 end
             end)
