@@ -676,7 +676,11 @@ return function(Iris, widgets)
             local ResizeGrip = WindowButton.ResizeGrip
             local TitleBarWidth = Iris._config.TextSize + Iris._config.FramePadding.Y * 2
 
-            ResizeGrip.Visible = not thisWidget.arguments.NoResize
+            if thisWidget.arguments.NoResize then
+                ResizeGrip.Visible = true
+            else
+                ResizeGrip.Visible = false
+            end
             if thisWidget.arguments.NoScrollbar then
                 ChildContainer.ScrollBarThickness = 0
             else
@@ -773,7 +777,7 @@ return function(Iris, widgets)
             if stateIsUncollapsed then
                 TitleBar.CollapseArrow.Text = widgets.ICONS.DOWN_POINTING_TRIANGLE
                 ChildContainer.Visible = true
-                if thisWidget.arguments.NoResize == false then
+                if thisWidget.arguments.NoResize ~= true then
                     ResizeGrip.Visible = true
                 end
                 WindowButton.AutomaticSize = Enum.AutomaticSize.None
