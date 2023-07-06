@@ -18,7 +18,7 @@ return function(Iris, widgets)
         Frame.BorderSizePixel = 0
         Frame.ZIndex = thisWidget.ZIndex
         Frame.LayoutOrder = thisWidget.ZIndex
-        Frame.AutomaticSize = Enum.AutomaticSize.XY
+        Frame.AutomaticSize = Enum.AutomaticSize.Y
         widgets.UIListLayout(Frame, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
 
         return Frame
@@ -460,7 +460,7 @@ return function(Iris, widgets)
                 InputFieldContainer.TextXAlignment = Enum.TextXAlignment.Center
                 InputFieldContainer.ZIndex = thisWidget.ZIndex + 1
                 InputFieldContainer.LayoutOrder = thisWidget.ZIndex + 1
-                InputFieldContainer.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+                InputFieldContainer.Size = UDim2.new(1, 0, 0, 0)
                 InputFieldContainer.AutomaticSize = Enum.AutomaticSize.Y
                 InputFieldContainer.AutoButtonColor = false
                 InputFieldContainer.Text = ""
@@ -626,7 +626,7 @@ return function(Iris, widgets)
                 InputFieldContainer.TextXAlignment = Enum.TextXAlignment.Center
                 InputFieldContainer.ZIndex = thisWidget.ZIndex + 1
                 InputFieldContainer.LayoutOrder = thisWidget.ZIndex + 1
-                InputFieldContainer.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+                InputFieldContainer.Size = UDim2.new(1, 0, 0, 0)
                 InputFieldContainer.AutomaticSize = Enum.AutomaticSize.Y
                 InputFieldContainer.AutoButtonColor = false
                 InputFieldContainer.Text = ""
@@ -804,7 +804,7 @@ return function(Iris, widgets)
             InputField.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputField.ZIndex = thisWidget.ZIndex + 1
             InputField.LayoutOrder = thisWidget.ZIndex + 1
-			InputField.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+			InputField.Size = UDim2.new(1, 0, 0, 0)
             InputField.AutomaticSize = Enum.AutomaticSize.Y
             InputField.BackgroundColor3 = Iris._config.FrameBgColor
             InputField.BackgroundTransparency = Iris._config.FrameBgTransparency
@@ -883,9 +883,9 @@ return function(Iris, widgets)
     
             local inputButtonsTotalWidth = Iris._config.TextSize * 2 + Iris._config.ItemInnerSpacing.X * 2 + Iris._config.WindowPadding.X + 4
             if thisWidget.arguments.NoButtons then
-                InputField.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+                InputField.Size = UDim2.new(1, 0, 0, 0)
             else
-                InputField.Size = UDim2.new(Iris._config.ContentWidth + UDim.new(0, -inputButtonsTotalWidth), UDim.new(0, 0))
+                InputField.Size = UDim2.new(1, -inputButtonsTotalWidth, 0, 0)
             end
         end,
         Discard = function(thisWidget)
@@ -909,7 +909,7 @@ return function(Iris, widgets)
         Generate = function(thisWidget)
             local InputNum = GenerateRootFrame(thisWidget, "Iris_InputVector2")
 
-            local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 2, (Iris._config.ContentWidth.Offset - Iris._config.ItemInnerSpacing.X) / 2)
+            local InputWidth = UDim.new(1 / 2, (- Iris._config.ItemInnerSpacing.X) / 2)
         
             local InputFieldX = Instance.new("TextBox")
             InputFieldX.Name = "InputFieldX"
@@ -1000,7 +1000,7 @@ return function(Iris, widgets)
         Generate = function(thisWidget)
             local InputNum = GenerateRootFrame(thisWidget, "Iris_InputVector3")
 
-            local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 3, Iris._config.ContentWidth.Offset / 3 - math.round(Iris._config.ItemInnerSpacing.X * (2/3)))
+            local InputWidth = UDim.new(1 / 3, - math.round(Iris._config.ItemInnerSpacing.X * (2/3)))
         
             local InputFieldX = Instance.new("TextBox")
             InputFieldX.Name = "InputFieldX"
@@ -1130,7 +1130,7 @@ return function(Iris, widgets)
         Generate = function(thisWidget)
             local InputUDim = GenerateRootFrame(thisWidget, "Iris_InputUDim")
 
-            local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 2, (Iris._config.ContentWidth.Offset - Iris._config.ItemInnerSpacing.X) / 2)
+            local InputWidth = UDim.new(1 / 2, (- Iris._config.ItemInnerSpacing.X) / 2)
 
             local InputFieldScale = Instance.new("TextBox")
             InputFieldScale.Name = "InputFieldScale"
@@ -1221,7 +1221,7 @@ return function(Iris, widgets)
         Generate = function(thisWidget)
             local InputUDim2 = GenerateRootFrame(thisWidget, "Iris_InputUDim2")
 
-            local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 4, Iris._config.ContentWidth.Offset / 4 - math.round(Iris._config.ItemInnerSpacing.X * (3/4)))
+            local InputWidth = UDim.new(1 / 4, - math.round(Iris._config.ItemInnerSpacing.X * (3/4)))
 
             local InputFieldXScale = Instance.new("TextBox")
             InputFieldXScale.Name = "InputFieldXScale"
@@ -1394,7 +1394,7 @@ return function(Iris, widgets)
 
             local PreviewColorSize = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
             local totalOffset = Iris._config.ItemInnerSpacing.X * 3 + PreviewColorSize + 1
-            local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 3, (Iris._config.ContentWidth.Offset - totalOffset) / 3)
+            local InputWidth = UDim.new(1 / 3, (- totalOffset) / 3)
         
             local InputFieldR = Instance.new("TextBox")
             InputFieldR.Name = "InputFieldR"
@@ -1566,7 +1566,7 @@ return function(Iris, widgets)
 
             local PreviewColorSize = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
             local totalOffset = Iris._config.ItemInnerSpacing.X * 4 + PreviewColorSize
-            local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 4, (Iris._config.ContentWidth.Offset - totalOffset) / 4 - 1)
+            local InputWidth = UDim.new(1 / 4, (- totalOffset) / 4 - 1)
         
             local InputFieldR = Instance.new("TextBox")
             InputFieldR.Name = "InputFieldR"
@@ -1816,7 +1816,7 @@ return function(Iris, widgets)
             InputField.ZIndex = thisWidget.ZIndex + 1
             InputField.LayoutOrder = thisWidget.ZIndex + 1
             InputField.AutomaticSize = Enum.AutomaticSize.Y
-            InputField.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+            InputField.Size = UDim2.new(1, 0, 0, 0)
             InputField.BackgroundColor3 = Iris._config.FrameBgColor
             InputField.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputField.ClearTextOnFocus = false
