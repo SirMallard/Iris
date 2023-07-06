@@ -13,12 +13,12 @@ return function(Iris, widgets)
     local function GenerateRootFrame(thisWidget, name)
         local Frame = Instance.new("Frame")
         Frame.Name = name
-        Frame.Size = UDim2.fromScale(1, 0)
+        Frame.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
         Frame.BackgroundTransparency = 1
         Frame.BorderSizePixel = 0
         Frame.ZIndex = thisWidget.ZIndex
         Frame.LayoutOrder = thisWidget.ZIndex
-        Frame.AutomaticSize = Enum.AutomaticSize.Y
+        Frame.AutomaticSize = Enum.AutomaticSize.XY
         widgets.UIListLayout(Frame, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
 
         return Frame
