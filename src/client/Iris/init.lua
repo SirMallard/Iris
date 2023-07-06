@@ -1209,7 +1209,7 @@ end
 ---     numberChanged: boolean
 --- },
 --- States: {
----     number: UDim
+---     color: Color3
 --- }
 --- ```
 Iris.InputColor3 = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
@@ -1233,7 +1233,8 @@ end
 ---     numberChanged: boolean
 --- },
 --- States: {
----     number: UDim
+---     color: Color3,
+--- 	transparency: number
 --- }
 --- ```
 Iris.InputColor4 = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
