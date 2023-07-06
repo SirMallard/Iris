@@ -3,7 +3,7 @@ local Types = require(script.Types)
 
 --- @class Iris
 --- 
---- Iris is the base class which contains everything you need to use the library.
+--- Iris; contains the library.
 local Iris = {} :: Types.Iris
 
 Iris._started = false -- has Iris.connect been called yet
@@ -224,7 +224,7 @@ function Iris.ForceRefresh()
 	Iris._globalRefreshRequested = true
 end
 
-function Iris._NoOp() -- This is a value of Iris because i am scared of closures
+function Iris._NoOp()
 
 end
 --- @function WidgetConstructor
@@ -392,7 +392,7 @@ end
 
 --- @method set
 --- @within State
---- allows the caller to assign the state object a new value.
+--- allows the caller to assign the state object a new value, and returns the new value.
 function StateClass:set(newValue: any): any
 	self.value = newValue
 	for _, thisWidget: Types.Widget in self.ConnectedWidgets do
@@ -455,7 +455,7 @@ end
 --- @function State
 --- @within Iris
 --- @param initialValue any -- The initial value for the state
---- Constructs a new state object, subsequent ID calls will return the same object, except in the circumstance when all widgets connected to the state are discarded
+--- Constructs a new state object, subsequent ID calls will return the same object, except all widgets connected to the state are discarded, the state reverts to the passed initialValue
 function Iris.WeakState(initialValue: any): Types.State
 	local ID: Types.ID = Iris._getID(2)
 	if Iris._states[ID] then
@@ -753,8 +753,8 @@ Iris._globalRefreshRequested = false -- UpdatingGlobalConfig changes this to tru
 
 --- @within Iris
 --- @function ShowDemoWindow
---- ShowDemoWindow is a function which creates a Demonstration window. this window contains many useful utilities for coders, and serves as a refrence for using every aspect of the library.
---- Ideally, the DemoWindow should always be available through your UI.
+--- ShowDemoWindow is a function which creates a Demonstration window. this window contains many useful utilities for coders, and serves as a refrence for using each part of the library.
+--- Ideally, the DemoWindow should always be available in your UI.
 Iris.ShowDemoWindow = require(script.demoWindow)(Iris)
 
 require(script.widgets)(Iris)
