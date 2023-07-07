@@ -40,18 +40,17 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             Checkbox.AutoButtonColor = false
             Checkbox.LayoutOrder = thisWidget.ZIndex
 
-            local CheckboxBox: TextLabel = Instance.new("TextLabel")
+            local CheckboxBox: ImageLabel = Instance.new("ImageLabel")
             CheckboxBox.Name = "CheckboxBox"
             CheckboxBox.AutomaticSize = Enum.AutomaticSize.None
             local checkboxSize = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
             CheckboxBox.Size = UDim2.fromOffset(checkboxSize, checkboxSize)
-            CheckboxBox.TextSize = checkboxSize
-            CheckboxBox.LineHeight = 1.1
             CheckboxBox.ZIndex = thisWidget.ZIndex + 1
             CheckboxBox.LayoutOrder = thisWidget.ZIndex + 1
             CheckboxBox.Parent = Checkbox
-            CheckboxBox.TextColor3 = Iris._config.CheckMarkColor
-            CheckboxBox.TextTransparency = Iris._config.CheckMarkTransparency
+            CheckboxBox.ImageColor3 = Iris._config.CheckMarkColor
+            CheckboxBox.ImageTransparency = Iris._config.CheckMarkTransparency
+            CheckboxBox.ScaleType = Enum.ScaleType.Fit
             CheckboxBox.BackgroundColor3 = Iris._config.FrameBgColor
             CheckboxBox.BackgroundTransparency = Iris._config.FrameBgTransparency
             widgets.applyFrameStyle(CheckboxBox, true)
@@ -99,10 +98,10 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         UpdateState = function(thisWidget: Types.Widget)
             local Checkbox = thisWidget.Instance.CheckboxBox :: TextLabel
             if thisWidget.state.isChecked.value then
-                Checkbox.Text = widgets.ICONS.CHECK_MARK
+                Checkbox.Image = widgets.ICONS.CHECK_MARK
                 thisWidget.lastCheckedTick = Iris._cycleTick + 1
             else
-                Checkbox.Text = ""
+                Checkbox.Image = ""
                 thisWidget.lastUncheckedTick = Iris._cycleTick + 1
             end
         end

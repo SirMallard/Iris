@@ -12,7 +12,7 @@ return function(Iris: Types.Iris)
         DOWN_POINTING_TRIANGLE = "\u{25BC}",
         MULTIPLICATION_SIGN = "\u{00D7}", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
         BOTTOM_RIGHT_CORNER = "\u{25E2}", -- used in window resize icon in bottom right
-        CHECK_MARK = "\u{2713}", -- curved shape, closest we can get to ImGui Checkmarks
+        CHECK_MARK = "rbxasset://textures/AnimationEditor/icon_checkmark.png",
         ALPHA_BACKGROUND_TEXTURE = "rbxasset://textures/meshPartFallback.png" -- used for color4 alpha
     }
 
