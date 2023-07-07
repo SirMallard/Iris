@@ -788,7 +788,8 @@ end
 --- hasChildren: false,
 --- hasState: false,
 --- Arguments: {
----     Text: String
+---     Text: String,
+--- 	Color: Color3
 --- },
 --- Events: {
 ---     hovered: boolean
@@ -934,7 +935,7 @@ Iris.Checkbox = function(args: Types.WidgetArguments, state: Types.States?): Typ
 	return Iris._Insert("Checkbox", args, state)
 end
 
---- @prop Radio Button Widget
+--- @prop RadioButton Widget
 --- @within Widgets
 --- A single button used to represent a single state when used with multiple radio buttons.
 ---
@@ -983,7 +984,7 @@ Iris.Tree = function(args: Types.WidgetArguments, state: Types.States?): Types.W
 	return Iris._Insert("Tree", args, state)
 end
 
---- @prop Collapsing Header Widget
+--- @prop CollapsingHeader Widget
 --- @within Widgets
 --- A collapsable header designed for top level window widget management.
 ---
@@ -1266,6 +1267,15 @@ end
 
 --- @prop Tooltip Widget
 --- @within Widgets
+--- Displays a text label next to the cursor
+---
+--- ```json
+--- hasChildren: false,
+--- hasState: false,
+--- Arguments: {
+---     Text: string,
+--- }
+--- ```
 Iris.Tooltip = function(args: Types.WidgetArguments): Types.Widget
 	return Iris._Insert("Tooltip", args)
 end
@@ -1274,7 +1284,7 @@ end
 --- @within Widgets
 --- An object which can be selected.
 ---
---- ```json 
+--- ```json
 --- hasChildren: false,
 --- hasState: true,
 --- Arguments: {
@@ -1417,7 +1427,7 @@ Iris.NextRow = Iris.NextRow
 --- @prop Window Widget
 --- @within Widgets
 --- A Window. should be used to contain most other Widgets. Cannot be inside other Widgets.
---- 
+---
 --- ```json
 --- hasChildren: true,
 --- hasState: true,
