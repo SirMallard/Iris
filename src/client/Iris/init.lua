@@ -202,7 +202,7 @@ Iris.Args = {}
 function Iris._EventCall(thisWidget: Types.Widget, eventName: string): boolean
 	local Events: Types.Events = Iris._widgets[thisWidget.type].Events
 	local Event: Types.Event = Events[eventName]
-	assert(Event ~= nil, `widget {thisWidget.type} has no event of name {Event}`)
+	assert(Event ~= nil, `widget {thisWidget.type} has no event of name {eventName}`)
 	
 	if thisWidget.trackedEvents[eventName] == nil then
 		Event.Init(thisWidget)

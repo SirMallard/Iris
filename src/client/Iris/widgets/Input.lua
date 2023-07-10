@@ -415,8 +415,7 @@ return function(Iris, widgets)
         end
     
         local function InputFieldContainerOnClick(thisWidget, x, y)
-    
-            local currentTime = time()
+            local currentTime = widgets.getTime()
             local isTimeValid = currentTime - thisWidget.lastClickedTime < Iris._config.MouseDoubleClickTime
             local isCtrlHeld = widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
             if (isTimeValid and (Vector2.new(x, y) - thisWidget.lastClickedPosition).Magnitude < Iris._config.MouseDoubleClickMaxDist) or isCtrlHeld then

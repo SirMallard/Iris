@@ -89,7 +89,7 @@ return function(Iris, widgets)
                     column.LayoutOrder = ColumnZIndex
                     column.AutomaticSize = Enum.AutomaticSize.Y
                     column.Size = UDim2.new(1 / thisWidget.InitialNumColumns, 0, 0, 0)
-                    column.ClipsDescendants = true
+                    --column.ClipsDescendants = true
 
                     widgets.UIListLayout(column, Enum.FillDirection.Vertical, UDim.new(0, 0))
 

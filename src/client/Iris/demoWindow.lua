@@ -829,7 +829,7 @@ return function(Iris)
             [Iris.Args.Window.NoNav] = NoNav.value
         }, {size = Iris.State(Vector2.new(600, 550)), position = Iris.State(Vector2.new(100, 25)), isOpened = showMainWindow})
 
-            Iris.Text{"Iris says hello. (2.0.0)"}
+            Iris.Text{"Iris says hello. (2.0.4)"}
             Iris.Separator()
 
             Iris.Table({3, false, false, false})
