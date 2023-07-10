@@ -76,14 +76,14 @@ return function(Iris, widgets)
             
         end,
         Update = function(thisWidget)
-            if thisWidget.arguments.Increment and typeof(thisWidget.arguments.Increment) ~= "Vector2" then
-                error("Iris.InputVector2 'Increment' Argument must be a Vector2", 5)
+            if thisWidget.arguments.Increment and typeof(thisWidget.arguments.Increment) ~= "Vector3" then
+                error("Iris.InputVector2 'Increment' Argument must be a Vector3", 5)
             end
-            if thisWidget.arguments.Min and typeof(thisWidget.arguments.Min) ~= "Vector2" then
-                error("Iris.InputVector2 'Min' Argument must be a Vector2", 5)
+            if thisWidget.arguments.Min and typeof(thisWidget.arguments.Min) ~= "Vector3" then
+                error("Iris.InputVector2 'Min' Argument must be a Vector3", 5)
             end
-            if thisWidget.arguments.Max and typeof(thisWidget.arguments.Max) ~= "Vector2" then
-                error("Iris.InputVector2 'Max' Argument must be a Vector2", 5)
+            if thisWidget.arguments.Max and typeof(thisWidget.arguments.Max) ~= "Vector3" then
+                error("Iris.InputVector2 'Max' Argument must be a Vector3", 5)
             end
             local TextLabel = thisWidget.Instance.TextLabel
             TextLabel.Text = thisWidget.arguments.Text or "Input Vector3"
@@ -104,9 +104,9 @@ return function(Iris, widgets)
             local InputFieldY = thisWidget.Instance.InputFieldY
             local InputFieldZ = thisWidget.Instance.InputFieldZ
 
-            local newTextX = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.X)
-            local newTextY = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.Y)
-            local newTextZ = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.Z)
+            local newTextX = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment and thisWidget.arguments.Increment.X or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.X)
+            local newTextY = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment and thisWidget.arguments.Increment.Y or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.Y)
+            local newTextZ = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment and thisWidget.arguments.Increment.Z or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.Z)
 
             InputFieldX.Text = newTextX
             InputFieldY.Text = newTextY
@@ -160,8 +160,8 @@ return function(Iris, widgets)
         UpdateState = function(thisWidget)
             local InputFieldX = thisWidget.Instance.InputFieldX
             local InputFieldY = thisWidget.Instance.InputFieldY
-            local newTextX = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.X)
-            local newTextY = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.Y)
+            local newTextX = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment and thisWidget.arguments.Increment.X or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.X)
+            local newTextY = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment and thisWidget.arguments.Increment.Y or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.Y)
             InputFieldX.Text = newTextX
             InputFieldY.Text = newTextY
         end
@@ -192,7 +192,7 @@ return function(Iris, widgets)
             local InputFieldScale = thisWidget.Instance.InputFieldScale
             local InputFieldOffset = thisWidget.Instance.InputFieldOffset
             local formatTextScale = thisWidget.arguments.Format or "%.3f"
-            local formatTextOffset = thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f")
+            local formatTextOffset = thisWidget.arguments.Format or ((thisWidget.arguments.Increment and thisWidget.arguments.Increment.Offset or 1) >= 1 and "%d" or "%f")
             local newTextScale = string.format("Scale: " .. formatTextScale, thisWidget.state.number.value.Scale)
             local newTextOffset = string.format("Offset: " .. formatTextOffset, thisWidget.state.number.value.Offset)
             InputFieldScale.Text = newTextScale
@@ -232,7 +232,7 @@ return function(Iris, widgets)
             local InputFieldXScale = thisWidget.Instance.InputFieldXScale
             local InputFieldXOffset = thisWidget.Instance.InputFieldXOffset
             local formatTextScale = thisWidget.arguments.Format or "%.3f"
-            local formatTextOffset = thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f")
+            local formatTextOffset = thisWidget.arguments.Format or ((thisWidget.arguments.Increment and thisWidget.arguments.Increment.Offset or 1) >= 1 and "%d" or "%f")
 
             local newTextXScale = string.format("X Scale: " .. formatTextScale, thisWidget.state.number.value.X.Scale)
             local newTextXOffset = string.format("X Offset: " .. formatTextOffset, thisWidget.state.number.value.X.Offset)
