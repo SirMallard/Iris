@@ -121,6 +121,10 @@ Iris._lastVDOM = Iris._generateEmptyVDOM()
 Iris._VDOM = Iris._generateEmptyVDOM()
 
 function Iris._cycle()
+	if Iris.Disabled then
+		return
+	end
+	
 	Iris._rootWidget.lastCycleTick = Iris._cycleTick
 	if Iris._rootInstance == nil or Iris._rootInstance.Parent == nil then
 		Iris.ForceRefresh()
@@ -188,6 +192,11 @@ end
 function Iris._GetParentWidget(): Types.Widget
 	return Iris._VDOM[Iris._IDStack[Iris._stackIndex]]
 end
+
+--- @prop Disabled boolean
+--- @within Iris
+--- While Iris.Disabled is true, Execution of Iris and connected functions will be paused
+Iris.Disabled = false
 
 --- @prop Args table
 --- @within Iris
@@ -528,9 +537,6 @@ end
 --- @param eventConnection RBXScriptSignal | () -> {} | nil
 --- @return Iris
 --- Initializes Iris. May only be called once.
---- :::tip
---- Want to stop Iris from rendering and consuming performance, but keep all the Iris code? simply comment out the `Iris.Init()` line in your codebase.
---- :::
 function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSignal | () -> {})?): Types.Iris
 	if parentInstance == nil then
 		-- coalesce to playerGui
@@ -541,7 +547,7 @@ function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSi
 		eventConnection = game:GetService("RunService").Heartbeat
 	end
 	Iris.parentInstance = parentInstance
-	assert(not Iris._started, "Iris.Connect can only be called once.")
+	assert(Iris._started == false, "Iris.Init can only be called once.")
 	Iris._started = true
 
 	Iris._generateRootInstance()
@@ -567,6 +573,9 @@ end
 --- @method Connect
 --- @param callback function -- allows users to connect a function which will execute every Iris cycle, (cycle is determined by the callback or event passed to Iris.Init)
 function Iris:Connect(callback: () -> {}) -- this uses method syntax for no reason.
+	if Iris._started == false then
+		warn("Iris:Connect() was called before calling Iris.Init(), the connected function will never run")
+	end
 	table.insert(Iris._connectedFunctions, callback)
 end
 
