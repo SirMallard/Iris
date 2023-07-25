@@ -29,6 +29,7 @@ Iris._stackIndex = 1 -- Points to the index that IDStack is currently in, when c
 Iris._cycleTick = 0 -- increments for each call to Cycle, used to determine the relative age and freshness of generated widgets
 Iris._widgetCount = 0 -- only used to compute ZIndex, resets to 0 for every cycle
 Iris._lastWidget = Iris._rootWidget -- widget which was most recently rendered
+Iris._cycleCoroutine = nil -- coroutine which calls functions connected each cycle, used to check if any functions yield
 
 function Iris._generateSelectionImageObject()
 	if Iris.SelectionImageObject then
@@ -140,9 +141,11 @@ function Iris._cycle()
 	Iris._lastVDOM = Iris._VDOM
 	Iris._VDOM = Iris._generateEmptyVDOM()
 
-	for _, callback: () -> () in Iris._postCycleCallbacks do
-		callback()
-	end
+	task.spawn(function()
+		for _, callback: () -> () in Iris._postCycleCallbacks do
+			callback()
+		end
+	end)
 
 	if Iris._globalRefreshRequested then
 		-- rerender every widget
@@ -173,21 +176,40 @@ function Iris._cycle()
 		error("Iris Parent Instance cant contain GUI")
 	end
 	--debug.profilebegin("Iris Generate")
-	for _, callback: () -> () in Iris._connectedFunctions do
-		-- local status: boolean, _error: string = pcall(callback)
-		-- if not status then
-		--     Iris._stackIndex = 1
-		--     error(_error, 0)
-		-- end
-		callback() -- this is useful to see the full stack trace of any issues.
-		if Iris._stackIndex ~= 1 then
-			-- has to be larger than 1 because of the check that it isint below 1 in Iris.End
-			Iris._stackIndex = 1
-			error("Callback has too few calls to Iris.End()", 0)
+	local coroutineStatus = coroutine.status(Iris._cycleCoroutine)
+	if coroutineStatus == "suspended" then
+		local _, success, result = coroutine.resume(Iris._cycleCoroutine)
+		if success == false then
+			-- Connected function code errored
+			error(result, 0)
 		end
+	elseif coroutineStatus == "running" then
+		-- still running
+		error("Iris cycleCoroutine took to long to yield. Connected functions should not yield.")
+	else
+		-- should never reach this
+		error("unrecoverable state")
 	end
 	--debug.profileend()
 end
+
+Iris._cycleCoroutine = coroutine.create(function()
+	while true do
+		for _, callback: () -> () in Iris._connectedFunctions do
+			local status: boolean, _error: string = pcall(callback)
+			if not status then
+			    Iris._stackIndex = 1
+				coroutine.yield(false, _error)
+			end
+			if Iris._stackIndex ~= 1 then
+				-- has to be larger than 1 because of the check that it isint below 1 in Iris.End
+				Iris._stackIndex = 1
+				error("Callback has too few calls to Iris.End()", 0)
+			end
+		end
+		coroutine.yield(true)
+	end
+end)
 
 function Iris._GetParentWidget(): Types.Widget
 	return Iris._VDOM[Iris._IDStack[Iris._stackIndex]]
