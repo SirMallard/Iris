@@ -25,6 +25,7 @@ Iris._connectedFunctions = {} -- functions which run each Iris cycle, connected 
 -- these following variables aid in computing Iris._cycle, they are variable while the code to render widgets is being caleld
 Iris._IDStack = {"R"}
 Iris._usedIDs = {} -- hash of IDs which are already used in a cycle, value is the # of occurances so that getID can assign a unique ID for each occurance
+Iris._pushedId = nil
 Iris._stackIndex = 1 -- Points to the index that IDStack is currently in, when computing cycle
 Iris._cycleTick = 0 -- increments for each call to Cycle, used to determine the relative age and freshness of generated widgets
 Iris._widgetCount = 0 -- only used to compute ZIndex, resets to 0 for every cycle
@@ -99,13 +100,29 @@ function Iris._getID(levelsToIgnore: number): Types.ID
 		i += 1
 		levelInfo = debug.info(i, "l")
 	end
-	if Iris._usedIDs[ID] then
-		Iris._usedIDs[ID] += 1
+	local ForkedID = ID
+	
+	if Iris._PushedId then
+		ForkedID ..= `-{Iris._PushedId}`
+	end
+	
+	if Iris._usedIDs[ForkedID] then
+		Iris._usedIDs[ForkedID] += 1
 	else
-		Iris._usedIDs[ID] = 1
+		Iris._usedIDs[ForkedID] = 1
 	end
 
-	return ID .. ":" .. Iris._usedIDs[ID]
+	return ForkedID .. ":" .. Iris._usedIDs[ForkedID]
+end
+
+function Iris.PushId(Input: string | number)
+	assert(type(Input) == "string" or type(Input) == "number", "Expected Input to PushId to be a string or a number.")
+
+	Iris._pushedId = tostring(Input)
+end
+
+function Iris.PopId()
+	Iris._pushedId = nil
 end
 
 function Iris.SetNextWidgetID(ID: Types.ID)
