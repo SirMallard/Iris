@@ -102,8 +102,8 @@ function Iris._getID(levelsToIgnore: number): Types.ID
 	end
 	local ForkedID = ID
 	
-	if Iris._PushedId then
-		ForkedID ..= `-{Iris._PushedId}`
+	if Iris._pushedId then
+		ForkedID ..= `-{Iris._pushedId}`
 	end
 	
 	if Iris._usedIDs[ForkedID] then

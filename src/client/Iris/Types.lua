@@ -135,6 +135,8 @@ export type Iris = {
 	_generateRootInstance: () -> (),
 	_deepCompare: ( t1: {}, t2: {} ) -> boolean,
 	_getID: (levelsToIgnore: number) -> ID,
+	PushId: (Input: string | number) -> (),
+	PopId: () -> (),
 	SetNextWidgetID: (ID: ID) -> (),
 	_generateEmptyVDOM: () -> { [ID]: Widget },
 	_cycle: () -> (),
