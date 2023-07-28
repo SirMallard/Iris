@@ -443,7 +443,7 @@ return function(Iris, widgets)
             ChildContainer.AutomaticSize = Enum.AutomaticSize.None
             ChildContainer.Size = UDim2.fromScale(1, 1)
             ChildContainer.Selectable = false
-			ChildContainer.ClipsDescendants = true
+            ChildContainer.ClipsDescendants = true
 
             ChildContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
             ChildContainer.ScrollBarImageTransparency = Iris._config.ScrollbarGrabTransparency

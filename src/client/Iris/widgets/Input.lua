@@ -799,18 +799,18 @@ return function(Iris, widgets)
             InputField.Name = "InputField"
             widgets.applyFrameStyle(InputField)
             widgets.applyTextStyle(InputField)
-			widgets.UISizeConstraint(InputField, Vector2.new(1, 0))
+            widgets.UISizeConstraint(InputField, Vector2.new(1, 0))
             InputField.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputField.ZIndex = thisWidget.ZIndex + 1
             InputField.LayoutOrder = thisWidget.ZIndex + 1
-			InputField.Size = UDim2.new(1, 0, 0, 0)
+            InputField.Size = UDim2.new(1, 0, 0, 0)
             InputField.AutomaticSize = Enum.AutomaticSize.Y
             InputField.BackgroundColor3 = Iris._config.FrameBgColor
             InputField.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputField.ClearTextOnFocus = false
             InputField.TextTruncate = Enum.TextTruncate.AtEnd
             InputField.Parent = InputNum
-			InputField.ClipsDescendants = true
+            InputField.ClipsDescendants = true
     
             InputField.FocusLost:Connect(function()
                 local newValue = tonumber(InputField.Text:match("-?%d+%.?%d*"))
@@ -914,17 +914,17 @@ return function(Iris, widgets)
             InputFieldX.Name = "InputFieldX"
             widgets.applyFrameStyle(InputFieldX)
             widgets.applyTextStyle(InputFieldX)
-			widgets.UISizeConstraint(InputFieldX, Vector2.new(1, 0))
+            widgets.UISizeConstraint(InputFieldX, Vector2.new(1, 0))
             InputFieldX.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputFieldX.ZIndex = thisWidget.ZIndex + 1
             InputFieldX.LayoutOrder = thisWidget.ZIndex + 1
-			InputFieldX.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+            InputFieldX.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldX.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldX.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldX.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputFieldX.ClearTextOnFocus = false
             InputFieldX.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldX.ClipsDescendants = true
+            InputFieldX.ClipsDescendants = true
             InputFieldX.Parent = InputNum
     
             InputFieldX.FocusLost:Connect(function()
@@ -953,17 +953,17 @@ return function(Iris, widgets)
             InputFieldY.Name = "InputFieldY"
             widgets.applyFrameStyle(InputFieldY)
             widgets.applyTextStyle(InputFieldY)
-			widgets.UISizeConstraint(InputFieldY, Vector2.new(1, 0))
+            widgets.UISizeConstraint(InputFieldY, Vector2.new(1, 0))
             InputFieldY.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputFieldY.ZIndex = thisWidget.ZIndex + 2
             InputFieldY.LayoutOrder = thisWidget.ZIndex + 2
-			InputFieldY.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+            InputFieldY.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldY.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldY.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldY.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputFieldY.ClearTextOnFocus = false
             InputFieldY.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldY.ClipsDescendants = true
+            InputFieldY.ClipsDescendants = true
             InputFieldY.Parent = InputNum
     
             InputFieldY.FocusLost:Connect(function()
@@ -1005,17 +1005,17 @@ return function(Iris, widgets)
             InputFieldX.Name = "InputFieldX"
             widgets.applyFrameStyle(InputFieldX)
             widgets.applyTextStyle(InputFieldX)
-			widgets.UISizeConstraint(InputFieldX, Vector2.new(1, 0))
+            widgets.UISizeConstraint(InputFieldX, Vector2.new(1, 0))
             InputFieldX.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputFieldX.ZIndex = thisWidget.ZIndex + 1
             InputFieldX.LayoutOrder = thisWidget.ZIndex + 1
-			InputFieldX.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+            InputFieldX.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldX.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldX.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldX.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputFieldX.ClearTextOnFocus = false
             InputFieldX.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldX.ClipsDescendants = true
+            InputFieldX.ClipsDescendants = true
             InputFieldX.Parent = InputNum
     
             InputFieldX.FocusLost:Connect(function()
@@ -1044,17 +1044,17 @@ return function(Iris, widgets)
             InputFieldY.Name = "InputFieldY"
             widgets.applyFrameStyle(InputFieldY)
             widgets.applyTextStyle(InputFieldY)
-			widgets.UISizeConstraint(InputFieldY, Vector2.new(1, 0))
+            widgets.UISizeConstraint(InputFieldY, Vector2.new(1, 0))
             InputFieldY.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputFieldY.ZIndex = thisWidget.ZIndex + 2
             InputFieldY.LayoutOrder = thisWidget.ZIndex + 2
-			InputFieldY.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+            InputFieldY.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldY.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldY.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldY.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputFieldY.ClearTextOnFocus = false
             InputFieldY.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldY.ClipsDescendants = true
+            InputFieldY.ClipsDescendants = true
             InputFieldY.Parent = InputNum
     
             InputFieldY.FocusLost:Connect(function()
@@ -1083,17 +1083,17 @@ return function(Iris, widgets)
             InputFieldZ.Name = "InputFieldZ"
             widgets.applyFrameStyle(InputFieldZ)
             widgets.applyTextStyle(InputFieldZ)
-			widgets.UISizeConstraint(InputFieldZ, Vector2.new(1, 0))
+            widgets.UISizeConstraint(InputFieldZ, Vector2.new(1, 0))
             InputFieldZ.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputFieldZ.ZIndex = thisWidget.ZIndex + 3
             InputFieldZ.LayoutOrder = thisWidget.ZIndex + 3
-			InputFieldZ.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+            InputFieldZ.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldZ.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldZ.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldZ.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputFieldZ.ClearTextOnFocus = false
             InputFieldZ.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldZ.ClipsDescendants = true
+            InputFieldZ.ClipsDescendants = true
             InputFieldZ.Parent = InputNum
     
             InputFieldZ.FocusLost:Connect(function()
@@ -1135,17 +1135,17 @@ return function(Iris, widgets)
             InputFieldScale.Name = "InputFieldScale"
             widgets.applyFrameStyle(InputFieldScale)
             widgets.applyTextStyle(InputFieldScale)
-			widgets.UISizeConstraint(InputFieldScale, Vector2.new(1, 0))
+            widgets.UISizeConstraint(InputFieldScale, Vector2.new(1, 0))
             InputFieldScale.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputFieldScale.ZIndex = thisWidget.ZIndex + 1
             InputFieldScale.LayoutOrder = thisWidget.ZIndex + 1
-			InputFieldScale.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+            InputFieldScale.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldScale.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldScale.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldScale.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputFieldScale.ClearTextOnFocus = false
             InputFieldScale.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldScale.ClipsDescendants = true
+            InputFieldScale.ClipsDescendants = true
             InputFieldScale.Parent = InputUDim
     
             InputFieldScale.FocusLost:Connect(function()
@@ -1174,17 +1174,17 @@ return function(Iris, widgets)
             InputFieldOffset.Name = "InputFieldOffset"
             widgets.applyFrameStyle(InputFieldOffset)
             widgets.applyTextStyle(InputFieldOffset)
-			widgets.UISizeConstraint(InputFieldOffset, Vector2.new(1, 0))
+            widgets.UISizeConstraint(InputFieldOffset, Vector2.new(1, 0))
             InputFieldOffset.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputFieldOffset.ZIndex = thisWidget.ZIndex + 2
             InputFieldOffset.LayoutOrder = thisWidget.ZIndex + 2
-			InputFieldOffset.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+            InputFieldOffset.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldOffset.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldOffset.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldOffset.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputFieldOffset.ClearTextOnFocus = false
             InputFieldOffset.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldOffset.ClipsDescendants = true
+            InputFieldOffset.ClipsDescendants = true
             InputFieldOffset.Parent = InputUDim
     
             InputFieldOffset.FocusLost:Connect(function()
@@ -1226,17 +1226,17 @@ return function(Iris, widgets)
             InputFieldXScale.Name = "InputFieldXScale"
             widgets.applyFrameStyle(InputFieldXScale)
             widgets.applyTextStyle(InputFieldXScale)
-			widgets.UISizeConstraint(InputFieldXScale, Vector2.new(1, 0))
+            widgets.UISizeConstraint(InputFieldXScale, Vector2.new(1, 0))
             InputFieldXScale.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputFieldXScale.ZIndex = thisWidget.ZIndex + 1
             InputFieldXScale.LayoutOrder = thisWidget.ZIndex + 1
-			InputFieldXScale.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+            InputFieldXScale.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldXScale.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldXScale.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldXScale.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputFieldXScale.ClearTextOnFocus = false
             InputFieldXScale.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldXScale.ClipsDescendants = true
+            InputFieldXScale.ClipsDescendants = true
             InputFieldXScale.Parent = InputUDim2
     
             InputFieldXScale.FocusLost:Connect(function()
@@ -1265,17 +1265,17 @@ return function(Iris, widgets)
             InputFieldXOffset.Name = "InputFieldXOffset"
             widgets.applyFrameStyle(InputFieldXOffset)
             widgets.applyTextStyle(InputFieldXOffset)
-			widgets.UISizeConstraint(InputFieldXOffset, Vector2.new(1, 0))
+            widgets.UISizeConstraint(InputFieldXOffset, Vector2.new(1, 0))
             InputFieldXOffset.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputFieldXOffset.ZIndex = thisWidget.ZIndex + 2
             InputFieldXOffset.LayoutOrder = thisWidget.ZIndex + 2
-			InputFieldXOffset.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+            InputFieldXOffset.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldXOffset.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldXOffset.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldXOffset.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputFieldXOffset.ClearTextOnFocus = false
             InputFieldXOffset.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldXOffset.ClipsDescendants = true
+            InputFieldXOffset.ClipsDescendants = true
             InputFieldXOffset.Parent = InputUDim2
     
             InputFieldXOffset.FocusLost:Connect(function()
@@ -1304,17 +1304,17 @@ return function(Iris, widgets)
             InputFieldYScale.Name = "InputFieldYScale"
             widgets.applyFrameStyle(InputFieldYScale)
             widgets.applyTextStyle(InputFieldYScale)
-			widgets.UISizeConstraint(InputFieldYScale, Vector2.new(1, 0))
+            widgets.UISizeConstraint(InputFieldYScale, Vector2.new(1, 0))
             InputFieldYScale.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputFieldYScale.ZIndex = thisWidget.ZIndex + 3
             InputFieldYScale.LayoutOrder = thisWidget.ZIndex + 3
-			InputFieldYScale.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+            InputFieldYScale.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldYScale.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldYScale.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldYScale.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputFieldYScale.ClearTextOnFocus = false
             InputFieldYScale.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldYScale.ClipsDescendants = true
+            InputFieldYScale.ClipsDescendants = true
             InputFieldYScale.Parent = InputUDim2
     
             InputFieldYScale.FocusLost:Connect(function()
@@ -1343,17 +1343,17 @@ return function(Iris, widgets)
             InputFieldYOffset.Name = "InputFieldYOffset"
             widgets.applyFrameStyle(InputFieldYOffset)
             widgets.applyTextStyle(InputFieldYOffset)
-			widgets.UISizeConstraint(InputFieldYOffset, Vector2.new(1, 0))
+            widgets.UISizeConstraint(InputFieldYOffset, Vector2.new(1, 0))
             InputFieldYOffset.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputFieldYOffset.ZIndex = thisWidget.ZIndex + 4
             InputFieldYOffset.LayoutOrder = thisWidget.ZIndex + 4
-			InputFieldYOffset.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+            InputFieldYOffset.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldYOffset.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldYOffset.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldYOffset.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputFieldYOffset.ClearTextOnFocus = false
             InputFieldYOffset.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldYOffset.ClipsDescendants = true
+            InputFieldYOffset.ClipsDescendants = true
             InputFieldYOffset.Parent = InputUDim2
     
             InputFieldYOffset.FocusLost:Connect(function()
@@ -1399,17 +1399,17 @@ return function(Iris, widgets)
             InputFieldR.Name = "InputFieldR"
             widgets.applyFrameStyle(InputFieldR)
             widgets.applyTextStyle(InputFieldR)
-			widgets.UISizeConstraint(InputFieldR, Vector2.new(1, 0))
+            widgets.UISizeConstraint(InputFieldR, Vector2.new(1, 0))
             InputFieldR.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputFieldR.ZIndex = thisWidget.ZIndex + 1
             InputFieldR.LayoutOrder = thisWidget.ZIndex + 1
-			InputFieldR.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+            InputFieldR.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldR.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldR.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldR.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputFieldR.ClearTextOnFocus = false
             InputFieldR.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldR.ClipsDescendants = true
+            InputFieldR.ClipsDescendants = true
             InputFieldR.Parent = InputColor
     
             InputFieldR.FocusLost:Connect(function()
@@ -1445,17 +1445,17 @@ return function(Iris, widgets)
             InputFieldG.Name = "InputFieldG"
             widgets.applyFrameStyle(InputFieldG)
             widgets.applyTextStyle(InputFieldG)
-			widgets.UISizeConstraint(InputFieldG, Vector2.new(1, 0))
+            widgets.UISizeConstraint(InputFieldG, Vector2.new(1, 0))
             InputFieldG.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputFieldG.ZIndex = thisWidget.ZIndex + 2
             InputFieldG.LayoutOrder = thisWidget.ZIndex + 2
-			InputFieldG.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+            InputFieldG.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldG.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldG.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldG.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputFieldG.ClearTextOnFocus = false
             InputFieldG.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldG.ClipsDescendants = true
+            InputFieldG.ClipsDescendants = true
             InputFieldG.Parent = InputColor
     
             InputFieldG.FocusLost:Connect(function()
@@ -1491,17 +1491,17 @@ return function(Iris, widgets)
             InputFieldB.Name = "InputFieldB"
             widgets.applyFrameStyle(InputFieldB)
             widgets.applyTextStyle(InputFieldB)
-			widgets.UISizeConstraint(InputFieldB, Vector2.new(1, 0))
+            widgets.UISizeConstraint(InputFieldB, Vector2.new(1, 0))
             InputFieldB.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputFieldB.ZIndex = thisWidget.ZIndex + 3
             InputFieldB.LayoutOrder = thisWidget.ZIndex + 3
-			InputFieldB.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+            InputFieldB.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldB.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldB.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldB.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputFieldB.ClearTextOnFocus = false
             InputFieldB.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldB.ClipsDescendants = true
+            InputFieldB.ClipsDescendants = true
             InputFieldB.Parent = InputColor
     
             InputFieldB.FocusLost:Connect(function()
@@ -1571,17 +1571,17 @@ return function(Iris, widgets)
             InputFieldR.Name = "InputFieldR"
             widgets.applyFrameStyle(InputFieldR)
             widgets.applyTextStyle(InputFieldR)
-			widgets.UISizeConstraint(InputFieldR, Vector2.new(1, 0))
+            widgets.UISizeConstraint(InputFieldR, Vector2.new(1, 0))
             InputFieldR.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputFieldR.ZIndex = thisWidget.ZIndex + 1
             InputFieldR.LayoutOrder = thisWidget.ZIndex + 1
-			InputFieldR.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+            InputFieldR.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldR.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldR.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldR.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputFieldR.ClearTextOnFocus = false
             InputFieldR.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldR.ClipsDescendants = true
+            InputFieldR.ClipsDescendants = true
             InputFieldR.Parent = InputColor
     
             InputFieldR.FocusLost:Connect(function()
@@ -1617,17 +1617,17 @@ return function(Iris, widgets)
             InputFieldG.Name = "InputFieldG"
             widgets.applyFrameStyle(InputFieldG)
             widgets.applyTextStyle(InputFieldG)
-			widgets.UISizeConstraint(InputFieldG, Vector2.new(1, 0))
+            widgets.UISizeConstraint(InputFieldG, Vector2.new(1, 0))
             InputFieldG.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputFieldG.ZIndex = thisWidget.ZIndex + 2
             InputFieldG.LayoutOrder = thisWidget.ZIndex + 2
-			InputFieldG.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+            InputFieldG.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldG.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldG.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldG.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputFieldG.ClearTextOnFocus = false
             InputFieldG.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldG.ClipsDescendants = true
+            InputFieldG.ClipsDescendants = true
             InputFieldG.Parent = InputColor
     
             InputFieldG.FocusLost:Connect(function()
@@ -1663,17 +1663,17 @@ return function(Iris, widgets)
             InputFieldB.Name = "InputFieldB"
             widgets.applyFrameStyle(InputFieldB)
             widgets.applyTextStyle(InputFieldB)
-			widgets.UISizeConstraint(InputFieldB, Vector2.new(1, 0))
+            widgets.UISizeConstraint(InputFieldB, Vector2.new(1, 0))
             InputFieldB.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputFieldB.ZIndex = thisWidget.ZIndex + 3
             InputFieldB.LayoutOrder = thisWidget.ZIndex + 3
-			InputFieldB.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+            InputFieldB.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldB.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldB.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldB.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputFieldB.ClearTextOnFocus = false
             InputFieldB.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldB.ClipsDescendants = true
+            InputFieldB.ClipsDescendants = true
             InputFieldB.Parent = InputColor
     
             InputFieldB.FocusLost:Connect(function()
@@ -1709,17 +1709,17 @@ return function(Iris, widgets)
             InputFieldA.Name = "InputFieldA"
             widgets.applyFrameStyle(InputFieldA)
             widgets.applyTextStyle(InputFieldA)
-			widgets.UISizeConstraint(InputFieldA, Vector2.new(1, 0))
+            widgets.UISizeConstraint(InputFieldA, Vector2.new(1, 0))
             InputFieldA.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputFieldA.ZIndex = thisWidget.ZIndex + 3
             InputFieldA.LayoutOrder = thisWidget.ZIndex + 3
-			InputFieldA.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+            InputFieldA.Size = UDim2.new(InputWidth, UDim.new(0, 0))
             InputFieldA.AutomaticSize = Enum.AutomaticSize.Y
             InputFieldA.BackgroundColor3 = Iris._config.FrameBgColor
             InputFieldA.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputFieldA.ClearTextOnFocus = false
             InputFieldA.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldA.ClipsDescendants = true
+            InputFieldA.ClipsDescendants = true
             InputFieldA.Parent = InputColor
     
             InputFieldA.FocusLost:Connect(function()
@@ -1809,7 +1809,7 @@ return function(Iris, widgets)
             InputField.Name = "InputField"
             widgets.applyFrameStyle(InputField)
             widgets.applyTextStyle(InputField)
-			widgets.UISizeConstraint(InputField, Vector2.new(1, 0)) -- prevents sizes beaking when getting too small.
+            widgets.UISizeConstraint(InputField, Vector2.new(1, 0)) -- prevents sizes beaking when getting too small.
             InputField.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             InputField.UIPadding.PaddingRight = UDim.new(0, 0)
             InputField.ZIndex = thisWidget.ZIndex + 1
@@ -1822,7 +1822,7 @@ return function(Iris, widgets)
             InputField.Text = ""
             InputField.PlaceholderColor3 = Iris._config.TextDisabledColor
             InputField.TextTruncate = Enum.TextTruncate.AtEnd
-			InputField.ClipsDescendants = true
+            InputField.ClipsDescendants = true
     
             InputField.FocusLost:Connect(function()
                 thisWidget.state.text:set(InputField.Text)
