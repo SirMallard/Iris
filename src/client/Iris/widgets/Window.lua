@@ -275,7 +275,7 @@ return function(Iris, widgets)
             dragInstance.Position = UDim2.fromOffset(newPos.X, newPos.Y)
             dragWindow.state.position.value = newPos
         end
-        if isResizing then
+        if isResizing and resizeWindow.arguments.NoResize ~= true then
             local resizeInstance = resizeWindow.Instance.WindowButton
             local windowPosition = Vector2.new(resizeInstance.Position.X.Offset, resizeInstance.Position.Y.Offset)
             local windowSize = Vector2.new(resizeInstance.Size.X.Offset, resizeInstance.Size.Y.Offset)
@@ -676,7 +676,7 @@ return function(Iris, widgets)
             local ResizeGrip = WindowButton.ResizeGrip
             local TitleBarWidth = Iris._config.TextSize + Iris._config.FramePadding.Y * 2
 
-            if thisWidget.arguments.NoResize then
+            if thisWidget.arguments.NoResize ~= true then
                 ResizeGrip.Visible = true
             else
                 ResizeGrip.Visible = false
