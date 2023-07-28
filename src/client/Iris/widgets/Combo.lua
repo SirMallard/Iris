@@ -226,7 +226,7 @@ return function(Iris, widgets)
             PreviewContainer.BackgroundTransparency = 1
             PreviewContainer.ZIndex = thisWidget.ZIndex + 2
             PreviewContainer.LayoutOrder = thisWidget.ZIndex + 2
-			PreviewContainer.Text = ""
+            PreviewContainer.Text = ""
             PreviewContainer.AutoButtonColor = false
             widgets.UIListLayout(PreviewContainer, Enum.FillDirection.Horizontal, UDim.new(0, 0))
 
@@ -336,7 +336,7 @@ return function(Iris, widgets)
             -- appear over everything else
             ChildContainer.ZIndex = thisWidget.ZIndex + 6
             ChildContainer.LayoutOrder = thisWidget.ZIndex + 6
-			ChildContainer.ClipsDescendants = true
+            ChildContainer.ClipsDescendants = true
 
             local ChildContainerUIListLayout = widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
             ChildContainerUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
@@ -367,12 +367,12 @@ return function(Iris, widgets)
 
             if thisWidget.arguments.NoPreview then
                 PreviewLabel.Visible = false
-				PreviewContainer.Size = UDim2.new(0, 0, 0, 0)
-				PreviewContainer.AutomaticSize = Enum.AutomaticSize.X
+                PreviewContainer.Size = UDim2.new(0, 0, 0, 0)
+                PreviewContainer.AutomaticSize = Enum.AutomaticSize.X
             else
                 PreviewLabel.Visible = true
-				PreviewContainer.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
-				PreviewContainer.AutomaticSize = Enum.AutomaticSize.Y
+                PreviewContainer.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+                PreviewContainer.AutomaticSize = Enum.AutomaticSize.Y
             end
         end,
         ChildAdded = function(thisWidget, thisChild)

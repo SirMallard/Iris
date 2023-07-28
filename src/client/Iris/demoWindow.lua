@@ -25,22 +25,22 @@ return function(Iris)
                     Iris.Text({"Simple, common widgets"})
                     helpMarker("The Widgets shown are, in order, Iris.Button, Iris.SmallButton, Iris.Text, Iris.TextWrapped, Iris.TextColored, and Iris.RadioButton")
                 Iris.End()
-				local radioButtonState = Iris.State(1)
+                local radioButtonState = Iris.State(1)
                 Iris.Button({"Button"})
                 Iris.SmallButton({"SmallButton"})
                 Iris.Text({"Text"})
                 Iris.TextWrapped({string.rep("Text Wrapped ", 5)}) 
                 Iris.TextColored({"Colored Text", Color3.fromRGB(255, 128, 0)})
-				Iris.SameLine()
-					Iris.RadioButton({"Index '1'", 1}, {index = radioButtonState})
-					Iris.RadioButton({"Index 'two'", "two"}, {index = radioButtonState})
+                Iris.SameLine()
+                    Iris.RadioButton({"Index '1'", 1}, {index = radioButtonState})
+                    Iris.RadioButton({"Index 'two'", "two"}, {index = radioButtonState})
                     if Iris.RadioButton({"Index 'false'", false}, {index = radioButtonState}).active() == false then
                         if Iris.SmallButton({"Select last"}).clicked() then
                             radioButtonState:set(false)
                         end
                     end
-				Iris.End()
-				Iris.Text({"The Index is: " .. tostring(radioButtonState.value)})
+                Iris.End()
+                Iris.Text({"The Index is: " .. tostring(radioButtonState.value)})
             Iris.End()
         end,
 
@@ -63,20 +63,20 @@ return function(Iris)
             Iris.End()
         end,
 
-		CollapsingHeader = function()
-			Iris.Tree({"Collapsing Headers"})
-				Iris.CollapsingHeader({"A header"})
-					Iris.Text({"This is under the first header!"})
-				Iris.End()
+        CollapsingHeader = function()
+            Iris.Tree({"Collapsing Headers"})
+                Iris.CollapsingHeader({"A header"})
+                    Iris.Text({"This is under the first header!"})
+                Iris.End()
 
-				local secondHeader = Iris.State(true)
-				Iris.CollapsingHeader({"Another header"}, { isUncollapsed = secondHeader })
-					if Iris.Button({"Shhh... secret button!"}).clicked() then
-						secondHeader:set(true)
-					end
-				Iris.End()
-			Iris.End()
-		end,
+                local secondHeader = Iris.State(true)
+                Iris.CollapsingHeader({"Another header"}, { isUncollapsed = secondHeader })
+                    if Iris.Button({"Shhh... secret button!"}).clicked() then
+                        secondHeader:set(true)
+                    end
+                Iris.End()
+            Iris.End()
+        end,
 
         Group = function()
             Iris.Tree({"Groups"})
@@ -754,51 +754,51 @@ return function(Iris)
         end
     end
 
-	local function layoutDemo()
-		Iris.CollapsingHeader({"Widget Layout"})
-			Iris.Tree({"Content Width"})
-				local value = Iris.State(50)
-				local index = Iris.State(Enum.Axis.X)
+    local function layoutDemo()
+        Iris.CollapsingHeader({"Widget Layout"})
+            Iris.Tree({"Content Width"})
+                local value = Iris.State(50)
+                local index = Iris.State(Enum.Axis.X)
 
-				Iris.Text({"The Content Width is a size property which determines the width of input fields."})
-				Iris.SameLine()
-					Iris.Text({"By default the value is UDim.new(0.65, 0)"})
-					helpMarker("This is the default value from Dear ImGui.\nIt is 65% of the window width.")
-				Iris.End()
-				Iris.Text({"This works well, but sometimes we know how wide elements are going to be and want to maximise the space."})
-				Iris.Text({"Therefore, we can use Iris.PushConfig() to change the width"})
+                Iris.Text({"The Content Width is a size property which determines the width of input fields."})
+                Iris.SameLine()
+                    Iris.Text({"By default the value is UDim.new(0.65, 0)"})
+                    helpMarker("This is the default value from Dear ImGui.\nIt is 65% of the window width.")
+                Iris.End()
+                Iris.Text({"This works well, but sometimes we know how wide elements are going to be and want to maximise the space."})
+                Iris.Text({"Therefore, we can use Iris.PushConfig() to change the width"})
 
-				Iris.Separator()
+                Iris.Separator()
 
-				Iris.SameLine()
-					Iris.Text({"Content Width = 150 pixels"})
-					helpMarker("UDim.new(0, 150)")
-				Iris.End()
-				Iris.PushConfig({ContentWidth = UDim.new(0, 150)})
-					Iris.DragNum({"number", 1, 0, 100}, {number = value})
-					Iris.InputEnum({"axis"}, {index = index}, Enum.Axis)
-				Iris.PopConfig()
+                Iris.SameLine()
+                    Iris.Text({"Content Width = 150 pixels"})
+                    helpMarker("UDim.new(0, 150)")
+                Iris.End()
+                Iris.PushConfig({ContentWidth = UDim.new(0, 150)})
+                    Iris.DragNum({"number", 1, 0, 100}, {number = value})
+                    Iris.InputEnum({"axis"}, {index = index}, Enum.Axis)
+                Iris.PopConfig()
 
-				Iris.SameLine()
-					Iris.Text({"Content Width = 50% window width"})
-					helpMarker("UDim.new(0.5, 0)")
-				Iris.End()
-				Iris.PushConfig({ContentWidth = UDim.new(0.5, 0)})
-					Iris.DragNum({"number", 1, 0, 100}, {number = value})
-					Iris.InputEnum({"axis"}, {index = index}, Enum.Axis)
-				Iris.PopConfig()
+                Iris.SameLine()
+                    Iris.Text({"Content Width = 50% window width"})
+                    helpMarker("UDim.new(0.5, 0)")
+                Iris.End()
+                Iris.PushConfig({ContentWidth = UDim.new(0.5, 0)})
+                    Iris.DragNum({"number", 1, 0, 100}, {number = value})
+                    Iris.InputEnum({"axis"}, {index = index}, Enum.Axis)
+                Iris.PopConfig()
 
-				Iris.SameLine()
-					Iris.Text({"Content Width = -150 pixels from the right side"})
-					helpMarker("UDim.new(1, -150)")
-				Iris.End()
-				Iris.PushConfig({ContentWidth = UDim.new(1, -150)})
-					Iris.DragNum({"number", 1, 0, 100}, {number = value})
-					Iris.InputEnum({"axis"}, {index = index}, Enum.Axis)
-				Iris.PopConfig()
-			Iris.End()
-		Iris.End()
-	end	
+                Iris.SameLine()
+                    Iris.Text({"Content Width = -150 pixels from the right side"})
+                    helpMarker("UDim.new(1, -150)")
+                Iris.End()
+                Iris.PushConfig({ContentWidth = UDim.new(1, -150)})
+                    Iris.DragNum({"number", 1, 0, 100}, {number = value})
+                    Iris.InputEnum({"axis"}, {index = index}, Enum.Axis)
+                Iris.PopConfig()
+            Iris.End()
+        Iris.End()
+    end    
 
     -- showcases how widgets placed outside of a window are placed inside root
     local function windowlessDemo()
@@ -882,9 +882,9 @@ return function(Iris)
 
             widgetStateInteractivity()
 
-			Iris.CollapsingHeader({"Recursive Tree"})
-            	recursiveTree()
-			Iris.End()
+            Iris.CollapsingHeader({"Recursive Tree"})
+                recursiveTree()
+            Iris.End()
 
             dynamicStyle()
 
@@ -898,7 +898,7 @@ return function(Iris)
 
             tablesDemo()
 
-			layoutDemo()
+            layoutDemo()
         Iris.End()
 
         if showRecursiveWindow.value then
