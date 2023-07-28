@@ -100,23 +100,21 @@ function Iris._getID(levelsToIgnore: number): Types.ID
         i += 1
         levelInfo = debug.info(i, "l")
     end
-    local ForkedID = ID
     
-    if Iris._pushedId then
-        ForkedID ..= `-{Iris._pushedId}`
-    end
-    
-    if Iris._usedIDs[ForkedID] then
-        Iris._usedIDs[ForkedID] += 1
+    if Iris._usedIDs[ID] then
+        Iris._usedIDs[ID] += 1
     else
-        Iris._usedIDs[ForkedID] = 1
+        Iris._usedIDs[ID] = 1
     end
 
-    return ForkedID .. ":" .. Iris._usedIDs[ForkedID]
+	local discriminator = if Iris._pushedId then Iris._pushedId else Iris._usedIDs[ID]
+
+    return ID .. ":" .. discriminator
 end
 
 function Iris.PushId(Input: string | number)
-    assert(type(Input) == "string" or type(Input) == "number", "Expected Input to PushId to be a string or a number.")
+	local inputType = type(Input)
+    assert(inputType == "string" or inputType == "number", "Iris expected Input to PushId to be a string or number.")
 
     Iris._pushedId = tostring(Input)
 end
