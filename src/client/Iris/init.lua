@@ -879,6 +879,9 @@ end
 --- },
 --- Events: {
 ---     clicked: boolean,
+--- 	rightClicked: boolean,
+--- 	ctrlClicked: boolean,
+--- 	doubleClicked: boolean,
 ---     hovered: boolean
 --- }
 --- ```
@@ -898,6 +901,9 @@ end
 --- },
 --- Events: {
 ---     clicked: boolean,
+--- 	rightClicked: boolean,
+--- 	ctrlClicked: boolean,
+--- 	doubleClicked: boolean,
 ---     hovered: boolean
 --- }
 --- ```
@@ -909,7 +915,7 @@ end
 --- @within Widgets
 --- A vertical or horizonal line, depending on the context, which visually seperates widgets.
 ---
---- ```json 
+--- ```json
 --- hasChildren: false,
 --- hasState: false
 --- ```
@@ -921,7 +927,7 @@ end
 --- @within Widgets
 --- Indents its child widgets.
 ---
---- ```json 
+--- ```json
 --- hasChildren: true,
 --- hasState: false,
 --- Arguments: {
@@ -936,7 +942,7 @@ end
 --- @within Widgets
 --- Positions its children in a row, horizontally
 ---
---- ```json 
+--- ```json
 --- hasChildren: true,
 --- hasState: false,
 --- Arguments: {
@@ -952,7 +958,7 @@ end
 --- @within Widgets
 --- Layout Widget, contains its children as a single group
 ---
---- ```json 
+--- ```json
 --- hasChildren: true,
 --- hasState: false
 --- ```
@@ -964,7 +970,7 @@ end
 --- @within Widgets
 --- A checkbox which can be checked or unchecked.
 ---
---- ```json 
+--- ```json
 --- hasChildren: false,
 --- hasState: true,
 --- Arguments: {
@@ -1156,6 +1162,7 @@ end
 ---     Format: string
 --- },
 --- Events: {
+---		hovered: boolean,
 ---     numberChanged: boolean
 --- },
 --- States: {
@@ -1181,6 +1188,7 @@ end
 ---     Format: string
 --- },
 --- Events: {
+---		hovered: boolean,
 ---     numberChanged: boolean
 --- },
 --- States: {
@@ -1206,6 +1214,7 @@ end
 ---     Format: string
 --- },
 --- Events: {
+---		hovered: boolean,
 ---     numberChanged: boolean
 --- },
 --- States: {
@@ -1231,6 +1240,7 @@ end
 ---     Format: string
 --- },
 --- Events: {
+---		hovered: boolean,
 ---     numberChanged: boolean
 --- },
 --- States: {
@@ -1255,6 +1265,7 @@ end
 ---     Format: string
 --- },
 --- Events: {
+---		hovered: boolean,
 ---     numberChanged: boolean
 --- },
 --- States: {
@@ -1279,6 +1290,7 @@ end
 ---     Format: string
 --- },
 --- Events: {
+---		hovered: boolean,
 ---     numberChanged: boolean
 --- },
 --- States: {
@@ -1344,6 +1356,11 @@ end
 ---     selected: boolean,
 --- 	unselected: boolean,
 --- 	active: boolean
+---     clicked: boolean,
+--- 	rightClicked: boolean,
+--- 	ctrlClicked: boolean,
+--- 	doubleClicked: boolean,
+---     hovered: boolean
 --- },
 --- States: {
 ---     index: any
@@ -1357,7 +1374,7 @@ end
 --- @within Widgets
 --- A selection box to choose a value from a range of values.
 ---
---- ```json 
+--- ```json
 --- hasChildren: true,
 --- hasState: true,
 --- Arguments: {
@@ -1368,7 +1385,8 @@ end
 --- Events: {
 ---     opened: boolean,
 --- 	closed: boolean,
---- 	clicked: boolean
+--- 	clicked: boolean,
+--- 	hovered: boolean
 --- },
 --- States: {
 ---     index: any,
@@ -1383,7 +1401,7 @@ end
 --- @within Widgets
 --- A selection box to choose a value from an array.
 ---
---- ```json 
+--- ```json
 --- hasChildren: true,
 --- hasState: true,
 --- Arguments: {
@@ -1394,7 +1412,8 @@ end
 --- Events: {
 ---     opened: boolean,
 --- 	closed: boolean,
---- 	clicked: boolean
+--- 	clicked: boolean,
+--- 	hovered: boolean
 --- },
 --- States: {
 ---     index: any,
@@ -1421,14 +1440,15 @@ Iris.ComboArray = Iris.ComboArray
 --- Events: {
 ---     opened: boolean,
 --- 	closed: boolean,
---- 	clicked: boolean
+--- 	clicked: boolean,
+--- 	hovered: boolean
 --- },
 --- States: {
 ---     index: any,
 --- 	isOpened: boolean
 --- },
 --- Extra: {
---- 	enumType: Enum	
+--- 	enumType: Enum
 --- }
 --- ```
 Iris.InputEnum = Iris.InputEnum
