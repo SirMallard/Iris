@@ -1,4 +1,3 @@
-local UserInputService = game:GetService("UserInputService")
 return function(Iris, widgets)
 
     local numberChanged = {
@@ -380,6 +379,31 @@ return function(Iris, widgets)
             PreviewColor.Transparency = A
         end
     }
+
+	local abstractInput = {
+		hasState = true,
+		hasChildren = false,
+		Args = {
+			["Text"] = 1,
+		},
+		Events = {
+            ["numberChanged"] = numberChanged,
+            ["hovered"] = widgets.EVENTS.hover(function(thisWidget)
+                return thisWidget.Instance
+            end)
+		},
+		Generate = function(thisWidget, inputBoxes: number)
+			local Input = Instance.new("Frame")
+			Input.Name = ""
+			Input.Size = UDim2.fromScale(1, 0)
+			Input.BackgroundTransparency = 1
+			Input.BorderSizePixel = 0
+			Input.ZIndex = thisWidget.ZIndex
+			Input.LayoutOrder = thisWidget.ZIndex
+			Input.AutomaticSize = Enum.AutomaticSize.Y
+			widgets.UIListLayout(Input, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+		end
+	}
 
     do -- Iris.DragNum
         local AnyActiveDragNum = false
@@ -771,1013 +795,1013 @@ return function(Iris, widgets)
         })
     end
 
-    Iris.WidgetConstructor("InputNum", {
-        hasState = true,
-        hasChildren = false,
-        Args = {
-            ["Text"] = 1,
-            ["Increment"] = 2,
-            ["Min"] = 3,
-            ["Max"] = 4,
-            ["Format"] = 5,
-            ["NoButtons"] = 6,
-            ["NoField"] = 7
-        },
-        Events = {
-            ["numberChanged"] = numberChanged,
-            ["hovered"] = widgets.EVENTS.hover(function(thisWidget)
-                return thisWidget.Instance
-            end)
-        },
-        Generate = function(thisWidget)
-            local InputNum = GenerateRootFrame(thisWidget, "Iris_InputNum")
+    -- Iris.WidgetConstructor("InputNum", {
+    --     hasState = true,
+    --     hasChildren = false,
+    --     Args = {
+    --         ["Text"] = 1,
+    --         ["Increment"] = 2,
+    --         ["Min"] = 3,
+    --         ["Max"] = 4,
+    --         ["Format"] = 5,
+    --         ["NoButtons"] = 6,
+    --         ["NoField"] = 7
+    --     },
+    --     Events = {
+    --         ["numberChanged"] = numberChanged,
+    --         ["hovered"] = widgets.EVENTS.hover(function(thisWidget)
+    --             return thisWidget.Instance
+    --         end)
+    --     },
+    --     Generate = function(thisWidget)
+    --         local InputNum = GenerateRootFrame(thisWidget, "Iris_InputNum")
     
-            local inputButtonsWidth = Iris._config.TextSize
+    --         local inputButtonsWidth = Iris._config.TextSize
     
-            local InputField = Instance.new("TextBox")
-            InputField.Name = "InputField"
-            widgets.applyFrameStyle(InputField)
-            widgets.applyTextStyle(InputField)
-			widgets.UISizeConstraint(InputField, Vector2.new(1, 0))
-            InputField.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputField.ZIndex = thisWidget.ZIndex + 1
-            InputField.LayoutOrder = thisWidget.ZIndex + 1
-			InputField.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
-            InputField.AutomaticSize = Enum.AutomaticSize.Y
-            InputField.BackgroundColor3 = Iris._config.FrameBgColor
-            InputField.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputField.ClearTextOnFocus = false
-            InputField.TextTruncate = Enum.TextTruncate.AtEnd
-            InputField.Parent = InputNum
-			InputField.ClipsDescendants = true
+    --         local InputField = Instance.new("TextBox")
+    --         InputField.Name = "InputField"
+    --         widgets.applyFrameStyle(InputField)
+    --         widgets.applyTextStyle(InputField)
+	-- 		widgets.UISizeConstraint(InputField, Vector2.new(1, 0))
+    --         InputField.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+    --         InputField.ZIndex = thisWidget.ZIndex + 1
+    --         InputField.LayoutOrder = thisWidget.ZIndex + 1
+	-- 		InputField.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+    --         InputField.AutomaticSize = Enum.AutomaticSize.Y
+    --         InputField.BackgroundColor3 = Iris._config.FrameBgColor
+    --         InputField.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         InputField.ClearTextOnFocus = false
+    --         InputField.TextTruncate = Enum.TextTruncate.AtEnd
+    --         InputField.Parent = InputNum
+	-- 		InputField.ClipsDescendants = true
     
-            InputField.FocusLost:Connect(function()
-                local newValue = tonumber(InputField.Text:match("-?%d+%.?%d*"))
-                if newValue ~= nil then
-                    newValue = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
-                    if thisWidget.arguments.Increment then
-                        newValue = math.floor(newValue / thisWidget.arguments.Increment) * thisWidget.arguments.Increment
-                    end
-                    thisWidget.state.number:set(newValue)
-                    thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-                else
-                    InputField.Text = thisWidget.state.number.value
-                end
-            end)
+    --         InputField.FocusLost:Connect(function()
+    --             local newValue = tonumber(InputField.Text:match("-?%d+%.?%d*"))
+    --             if newValue ~= nil then
+    --                 newValue = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
+    --                 if thisWidget.arguments.Increment then
+    --                     newValue = math.floor(newValue / thisWidget.arguments.Increment) * thisWidget.arguments.Increment
+    --                 end
+    --                 thisWidget.state.number:set(newValue)
+    --                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --             else
+    --                 InputField.Text = thisWidget.state.number.value
+    --             end
+    --         end)
     
-            InputField.Focused:Connect(function()
-                InputField.SelectionStart = 1
-            end)
+    --         InputField.Focused:Connect(function()
+    --             InputField.SelectionStart = 1
+    --         end)
     
-            local SubButton = widgets.abstractButton.Generate(thisWidget)
-            SubButton.Name = "SubButton"
-            SubButton.ZIndex = thisWidget.ZIndex + 2
-            SubButton.LayoutOrder = thisWidget.ZIndex + 2
-            SubButton.TextXAlignment = Enum.TextXAlignment.Center
-            SubButton.Text = "-"
-            SubButton.Size = UDim2.fromOffset(inputButtonsWidth - 2, inputButtonsWidth)
-            SubButton.Parent = InputNum
+    --         local SubButton = widgets.abstractButton.Generate(thisWidget)
+    --         SubButton.Name = "SubButton"
+    --         SubButton.ZIndex = thisWidget.ZIndex + 2
+    --         SubButton.LayoutOrder = thisWidget.ZIndex + 2
+    --         SubButton.TextXAlignment = Enum.TextXAlignment.Center
+    --         SubButton.Text = "-"
+    --         SubButton.Size = UDim2.fromOffset(inputButtonsWidth - 2, inputButtonsWidth)
+    --         SubButton.Parent = InputNum
     
-            SubButton.MouseButton1Click:Connect(function()
-                local isCtrlHeld = UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
-                local changeValue = (thisWidget.arguments.Increment or 1) * (isCtrlHeld and 100 or 1)
-                local newValue = thisWidget.state.number.value - changeValue
-                newValue = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
-                thisWidget.state.number:set(newValue)
-                thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-            end)
+    --         SubButton.MouseButton1Click:Connect(function()
+    --             local isCtrlHeld = widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
+    --             local changeValue = (thisWidget.arguments.Increment or 1) * (isCtrlHeld and 100 or 1)
+    --             local newValue = thisWidget.state.number.value - changeValue
+    --             newValue = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
+    --             thisWidget.state.number:set(newValue)
+    --             thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --         end)
     
-            local AddButton = widgets.abstractButton.Generate(thisWidget)
-            AddButton.Name = "AddButton"
-            AddButton.ZIndex = thisWidget.ZIndex + 3
-            AddButton.LayoutOrder = thisWidget.ZIndex + 3
-            AddButton.TextXAlignment = Enum.TextXAlignment.Center
-            AddButton.Text = "+"
-            AddButton.Size = UDim2.fromOffset(inputButtonsWidth - 2, inputButtonsWidth)
-            AddButton.Parent = InputNum
+    --         local AddButton = widgets.abstractButton.Generate(thisWidget)
+    --         AddButton.Name = "AddButton"
+    --         AddButton.ZIndex = thisWidget.ZIndex + 3
+    --         AddButton.LayoutOrder = thisWidget.ZIndex + 3
+    --         AddButton.TextXAlignment = Enum.TextXAlignment.Center
+    --         AddButton.Text = "+"
+    --         AddButton.Size = UDim2.fromOffset(inputButtonsWidth - 2, inputButtonsWidth)
+    --         AddButton.Parent = InputNum
     
-            AddButton.MouseButton1Click:Connect(function()
-                local isCtrlHeld = UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
-                local changeValue = (thisWidget.arguments.Increment or 1) * (isCtrlHeld and 100 or 1)
-                local newValue = thisWidget.state.number.value + changeValue
-                newValue = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
-                thisWidget.state.number:set(newValue)
-                thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-            end)
+    --         AddButton.MouseButton1Click:Connect(function()
+    --             local isCtrlHeld = widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
+    --             local changeValue = (thisWidget.arguments.Increment or 1) * (isCtrlHeld and 100 or 1)
+    --             local newValue = thisWidget.state.number.value + changeValue
+    --             newValue = math.clamp(newValue, thisWidget.arguments.Min or -math.huge, thisWidget.arguments.Max or math.huge)
+    --             thisWidget.state.number:set(newValue)
+    --             thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --         end)
     
-            local TextLabel = GenerateTextLabel(thisWidget)
-            TextLabel.Parent = InputNum
+    --         local TextLabel = GenerateTextLabel(thisWidget)
+    --         TextLabel.Parent = InputNum
     
-            return InputNum
-        end,
-        Update = function(thisWidget)
-            local TextLabel = thisWidget.Instance.TextLabel
-            TextLabel.Text = thisWidget.arguments.Text or "Input Num"
+    --         return InputNum
+    --     end,
+    --     Update = function(thisWidget)
+    --         local TextLabel = thisWidget.Instance.TextLabel
+    --         TextLabel.Text = thisWidget.arguments.Text or "Input Num"
     
-            thisWidget.Instance.SubButton.Visible = not thisWidget.arguments.NoButtons
-            thisWidget.Instance.AddButton.Visible = not thisWidget.arguments.NoButtons
-            local InputField = thisWidget.Instance.InputField
-            InputField.Visible = not thisWidget.arguments.NoField
+    --         thisWidget.Instance.SubButton.Visible = not thisWidget.arguments.NoButtons
+    --         thisWidget.Instance.AddButton.Visible = not thisWidget.arguments.NoButtons
+    --         local InputField = thisWidget.Instance.InputField
+    --         InputField.Visible = not thisWidget.arguments.NoField
     
-            local inputButtonsTotalWidth = Iris._config.TextSize * 2 + Iris._config.ItemInnerSpacing.X * 2 + Iris._config.WindowPadding.X + 4
-            if thisWidget.arguments.NoButtons then
-                InputField.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
-            else
-                InputField.Size = UDim2.new(Iris._config.ContentWidth + UDim.new(0, -inputButtonsTotalWidth), UDim.new(0, 0))
-            end
-        end,
-        Discard = function(thisWidget)
-            thisWidget.Instance:Destroy()
-            widgets.discardState(thisWidget)
-        end,
-        GenerateState = function(thisWidget)
-            if thisWidget.state.number == nil then
-                local Min = thisWidget.arguments.Min or 0
-                local Max = thisWidget.arguments.Max or 100
-                thisWidget.state.number = Iris._widgetState(thisWidget, "number", math.clamp(0, Min, Max))
-            end
-        end,
-        UpdateState = function(thisWidget)
-            local InputField = thisWidget.Instance.InputField
-            InputField.Text = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value)
-        end
-    })
+    --         local inputButtonsTotalWidth = Iris._config.TextSize * 2 + Iris._config.ItemInnerSpacing.X * 2 + Iris._config.WindowPadding.X + 4
+    --         if thisWidget.arguments.NoButtons then
+    --             InputField.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+    --         else
+    --             InputField.Size = UDim2.new(Iris._config.ContentWidth + UDim.new(0, -inputButtonsTotalWidth), UDim.new(0, 0))
+    --         end
+    --     end,
+    --     Discard = function(thisWidget)
+    --         thisWidget.Instance:Destroy()
+    --         widgets.discardState(thisWidget)
+    --     end,
+    --     GenerateState = function(thisWidget)
+    --         if thisWidget.state.number == nil then
+    --             local Min = thisWidget.arguments.Min or 0
+    --             local Max = thisWidget.arguments.Max or 100
+    --             thisWidget.state.number = Iris._widgetState(thisWidget, "number", math.clamp(0, Min, Max))
+    --         end
+    --     end,
+    --     UpdateState = function(thisWidget)
+    --         local InputField = thisWidget.Instance.InputField
+    --         InputField.Text = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value)
+    --     end
+    -- })
 
-    Iris.WidgetConstructor("InputVector2", widgets.extend(abstractInputVector2, {
-        Generate = function(thisWidget)
-            local InputNum = GenerateRootFrame(thisWidget, "Iris_InputVector2")
+    -- Iris.WidgetConstructor("InputVector2", widgets.extend(abstractInputVector2, {
+    --     Generate = function(thisWidget)
+    --         local InputNum = GenerateRootFrame(thisWidget, "Iris_InputVector2")
 
-            local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 2, (Iris._config.ContentWidth.Offset - Iris._config.ItemInnerSpacing.X) / 2)
+    --         local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 2, (Iris._config.ContentWidth.Offset - Iris._config.ItemInnerSpacing.X) / 2)
         
-            local InputFieldX = Instance.new("TextBox")
-            InputFieldX.Name = "InputFieldX"
-            widgets.applyFrameStyle(InputFieldX)
-            widgets.applyTextStyle(InputFieldX)
-			widgets.UISizeConstraint(InputFieldX, Vector2.new(1, 0))
-            InputFieldX.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldX.ZIndex = thisWidget.ZIndex + 1
-            InputFieldX.LayoutOrder = thisWidget.ZIndex + 1
-			InputFieldX.Size = UDim2.new(InputWidth, UDim.new(0, 0))
-            InputFieldX.AutomaticSize = Enum.AutomaticSize.Y
-            InputFieldX.BackgroundColor3 = Iris._config.FrameBgColor
-            InputFieldX.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputFieldX.ClearTextOnFocus = false
-            InputFieldX.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldX.ClipsDescendants = true
-            InputFieldX.Parent = InputNum
+    --         local InputFieldX = Instance.new("TextBox")
+    --         InputFieldX.Name = "InputFieldX"
+    --         widgets.applyFrameStyle(InputFieldX)
+    --         widgets.applyTextStyle(InputFieldX)
+	-- 		widgets.UISizeConstraint(InputFieldX, Vector2.new(1, 0))
+    --         InputFieldX.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+    --         InputFieldX.ZIndex = thisWidget.ZIndex + 1
+    --         InputFieldX.LayoutOrder = thisWidget.ZIndex + 1
+	-- 		InputFieldX.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+    --         InputFieldX.AutomaticSize = Enum.AutomaticSize.Y
+    --         InputFieldX.BackgroundColor3 = Iris._config.FrameBgColor
+    --         InputFieldX.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         InputFieldX.ClearTextOnFocus = false
+    --         InputFieldX.TextTruncate = Enum.TextTruncate.AtEnd
+	-- 		InputFieldX.ClipsDescendants = true
+    --         InputFieldX.Parent = InputNum
     
-            InputFieldX.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldX.Text:match("-?%d+%.?%d*"))
-                if newValue ~= nil then
-                    newValue = math.clamp(
-                        newValue,
-                        thisWidget.arguments.Min and thisWidget.arguments.Min.X or -math.huge,
-                        thisWidget.arguments.Max and thisWidget.arguments.Max.X or math.huge
-                    )
-                    if thisWidget.arguments.Increment then
-                        newValue = math.floor(newValue / thisWidget.arguments.Increment.X) * thisWidget.arguments.Increment.X
-                    end
-                    thisWidget.state.number:set(Vector2.new(newValue, thisWidget.state.number.value.Y))
-                    thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-                else
-                    InputFieldX.Text = thisWidget.state.number.value.X
-                end
-            end)
+    --         InputFieldX.FocusLost:Connect(function()
+    --             local newValue = tonumber(InputFieldX.Text:match("-?%d+%.?%d*"))
+    --             if newValue ~= nil then
+    --                 newValue = math.clamp(
+    --                     newValue,
+    --                     thisWidget.arguments.Min and thisWidget.arguments.Min.X or -math.huge,
+    --                     thisWidget.arguments.Max and thisWidget.arguments.Max.X or math.huge
+    --                 )
+    --                 if thisWidget.arguments.Increment then
+    --                     newValue = math.floor(newValue / thisWidget.arguments.Increment.X) * thisWidget.arguments.Increment.X
+    --                 end
+    --                 thisWidget.state.number:set(Vector2.new(newValue, thisWidget.state.number.value.Y))
+    --                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --             else
+    --                 InputFieldX.Text = thisWidget.state.number.value.X
+    --             end
+    --         end)
     
-            InputFieldX.Focused:Connect(function()
-                InputFieldX.SelectionStart = 1
-            end)
+    --         InputFieldX.Focused:Connect(function()
+    --             InputFieldX.SelectionStart = 1
+    --         end)
 
-            local InputFieldY = Instance.new("TextBox")
-            InputFieldY.Name = "InputFieldY"
-            widgets.applyFrameStyle(InputFieldY)
-            widgets.applyTextStyle(InputFieldY)
-			widgets.UISizeConstraint(InputFieldY, Vector2.new(1, 0))
-            InputFieldY.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldY.ZIndex = thisWidget.ZIndex + 2
-            InputFieldY.LayoutOrder = thisWidget.ZIndex + 2
-			InputFieldY.Size = UDim2.new(InputWidth, UDim.new(0, 0))
-            InputFieldY.AutomaticSize = Enum.AutomaticSize.Y
-            InputFieldY.BackgroundColor3 = Iris._config.FrameBgColor
-            InputFieldY.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputFieldY.ClearTextOnFocus = false
-            InputFieldY.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldY.ClipsDescendants = true
-            InputFieldY.Parent = InputNum
+    --         local InputFieldY = Instance.new("TextBox")
+    --         InputFieldY.Name = "InputFieldY"
+    --         widgets.applyFrameStyle(InputFieldY)
+    --         widgets.applyTextStyle(InputFieldY)
+	-- 		widgets.UISizeConstraint(InputFieldY, Vector2.new(1, 0))
+    --         InputFieldY.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+    --         InputFieldY.ZIndex = thisWidget.ZIndex + 2
+    --         InputFieldY.LayoutOrder = thisWidget.ZIndex + 2
+	-- 		InputFieldY.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+    --         InputFieldY.AutomaticSize = Enum.AutomaticSize.Y
+    --         InputFieldY.BackgroundColor3 = Iris._config.FrameBgColor
+    --         InputFieldY.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         InputFieldY.ClearTextOnFocus = false
+    --         InputFieldY.TextTruncate = Enum.TextTruncate.AtEnd
+	-- 		InputFieldY.ClipsDescendants = true
+    --         InputFieldY.Parent = InputNum
     
-            InputFieldY.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldY.Text:match("-?%d+%.?%d*"))
-                if newValue ~= nil then
-                    newValue = math.clamp(
-                        newValue,
-                        thisWidget.arguments.Min and thisWidget.arguments.Min.Y or -math.huge,
-                        thisWidget.arguments.Max and thisWidget.arguments.Max.Y or math.huge
-                    )
-                    if thisWidget.arguments.Increment then
-                        newValue = math.floor(newValue / thisWidget.arguments.Increment.Y) * thisWidget.arguments.Increment.Y
-                    end
-                    thisWidget.state.number:set(Vector2.new(thisWidget.state.number.value.X, newValue))
-                    thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-                else
-                    InputFieldY.Text = thisWidget.state.number.value.Y
-                end
-            end)
+    --         InputFieldY.FocusLost:Connect(function()
+    --             local newValue = tonumber(InputFieldY.Text:match("-?%d+%.?%d*"))
+    --             if newValue ~= nil then
+    --                 newValue = math.clamp(
+    --                     newValue,
+    --                     thisWidget.arguments.Min and thisWidget.arguments.Min.Y or -math.huge,
+    --                     thisWidget.arguments.Max and thisWidget.arguments.Max.Y or math.huge
+    --                 )
+    --                 if thisWidget.arguments.Increment then
+    --                     newValue = math.floor(newValue / thisWidget.arguments.Increment.Y) * thisWidget.arguments.Increment.Y
+    --                 end
+    --                 thisWidget.state.number:set(Vector2.new(thisWidget.state.number.value.X, newValue))
+    --                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --             else
+    --                 InputFieldY.Text = thisWidget.state.number.value.Y
+    --             end
+    --         end)
     
-            InputFieldY.Focused:Connect(function()
-                InputFieldY.SelectionStart = 1
-            end)
+    --         InputFieldY.Focused:Connect(function()
+    --             InputFieldY.SelectionStart = 1
+    --         end)
     
-            local TextLabel = GenerateTextLabel(thisWidget)
-            TextLabel.Parent = InputNum
+    --         local TextLabel = GenerateTextLabel(thisWidget)
+    --         TextLabel.Parent = InputNum
     
-            return InputNum
-        end
-    }))
+    --         return InputNum
+    --     end
+    -- }))
     
-    Iris.WidgetConstructor("InputVector3", widgets.extend(abstractInputVector3, {
-        Generate = function(thisWidget)
-            local InputNum = GenerateRootFrame(thisWidget, "Iris_InputVector3")
+    -- Iris.WidgetConstructor("InputVector3", widgets.extend(abstractInputVector3, {
+    --     Generate = function(thisWidget)
+    --         local InputNum = GenerateRootFrame(thisWidget, "Iris_InputVector3")
 
-            local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 3, Iris._config.ContentWidth.Offset / 3 - math.round(Iris._config.ItemInnerSpacing.X * (2/3)))
+    --         local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 3, Iris._config.ContentWidth.Offset / 3 - math.round(Iris._config.ItemInnerSpacing.X * (2/3)))
         
-            local InputFieldX = Instance.new("TextBox")
-            InputFieldX.Name = "InputFieldX"
-            widgets.applyFrameStyle(InputFieldX)
-            widgets.applyTextStyle(InputFieldX)
-			widgets.UISizeConstraint(InputFieldX, Vector2.new(1, 0))
-            InputFieldX.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldX.ZIndex = thisWidget.ZIndex + 1
-            InputFieldX.LayoutOrder = thisWidget.ZIndex + 1
-			InputFieldX.Size = UDim2.new(InputWidth, UDim.new(0, 0))
-            InputFieldX.AutomaticSize = Enum.AutomaticSize.Y
-            InputFieldX.BackgroundColor3 = Iris._config.FrameBgColor
-            InputFieldX.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputFieldX.ClearTextOnFocus = false
-            InputFieldX.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldX.ClipsDescendants = true
-            InputFieldX.Parent = InputNum
+    --         local InputFieldX = Instance.new("TextBox")
+    --         InputFieldX.Name = "InputFieldX"
+    --         widgets.applyFrameStyle(InputFieldX)
+    --         widgets.applyTextStyle(InputFieldX)
+	-- 		widgets.UISizeConstraint(InputFieldX, Vector2.new(1, 0))
+    --         InputFieldX.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+    --         InputFieldX.ZIndex = thisWidget.ZIndex + 1
+    --         InputFieldX.LayoutOrder = thisWidget.ZIndex + 1
+	-- 		InputFieldX.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+    --         InputFieldX.AutomaticSize = Enum.AutomaticSize.Y
+    --         InputFieldX.BackgroundColor3 = Iris._config.FrameBgColor
+    --         InputFieldX.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         InputFieldX.ClearTextOnFocus = false
+    --         InputFieldX.TextTruncate = Enum.TextTruncate.AtEnd
+	-- 		InputFieldX.ClipsDescendants = true
+    --         InputFieldX.Parent = InputNum
     
-            InputFieldX.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldX.Text:match("-?%d+%.?%d*"))
-                if newValue ~= nil then
-                    newValue = math.clamp(
-                        newValue,
-                        thisWidget.arguments.Min and thisWidget.arguments.Min.X or -math.huge,
-                        thisWidget.arguments.Max and thisWidget.arguments.Max.X or math.huge
-                    )
-                    if thisWidget.arguments.Increment then
-                        newValue = math.floor(newValue / thisWidget.arguments.Increment.X) * thisWidget.arguments.Increment.X
-                    end
-                    thisWidget.state.number:set(Vector3.new(newValue, thisWidget.state.number.value.Y, thisWidget.state.number.value.Z))
-                    thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-                else
-                    InputFieldX.Text = thisWidget.state.number.value.X
-                end
-            end)
+    --         InputFieldX.FocusLost:Connect(function()
+    --             local newValue = tonumber(InputFieldX.Text:match("-?%d+%.?%d*"))
+    --             if newValue ~= nil then
+    --                 newValue = math.clamp(
+    --                     newValue,
+    --                     thisWidget.arguments.Min and thisWidget.arguments.Min.X or -math.huge,
+    --                     thisWidget.arguments.Max and thisWidget.arguments.Max.X or math.huge
+    --                 )
+    --                 if thisWidget.arguments.Increment then
+    --                     newValue = math.floor(newValue / thisWidget.arguments.Increment.X) * thisWidget.arguments.Increment.X
+    --                 end
+    --                 thisWidget.state.number:set(Vector3.new(newValue, thisWidget.state.number.value.Y, thisWidget.state.number.value.Z))
+    --                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --             else
+    --                 InputFieldX.Text = thisWidget.state.number.value.X
+    --             end
+    --         end)
     
-            InputFieldX.Focused:Connect(function()
-                InputFieldX.SelectionStart = 1
-            end)
+    --         InputFieldX.Focused:Connect(function()
+    --             InputFieldX.SelectionStart = 1
+    --         end)
 
-            local InputFieldY = Instance.new("TextBox")
-            InputFieldY.Name = "InputFieldY"
-            widgets.applyFrameStyle(InputFieldY)
-            widgets.applyTextStyle(InputFieldY)
-			widgets.UISizeConstraint(InputFieldY, Vector2.new(1, 0))
-            InputFieldY.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldY.ZIndex = thisWidget.ZIndex + 2
-            InputFieldY.LayoutOrder = thisWidget.ZIndex + 2
-			InputFieldY.Size = UDim2.new(InputWidth, UDim.new(0, 0))
-            InputFieldY.AutomaticSize = Enum.AutomaticSize.Y
-            InputFieldY.BackgroundColor3 = Iris._config.FrameBgColor
-            InputFieldY.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputFieldY.ClearTextOnFocus = false
-            InputFieldY.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldY.ClipsDescendants = true
-            InputFieldY.Parent = InputNum
+    --         local InputFieldY = Instance.new("TextBox")
+    --         InputFieldY.Name = "InputFieldY"
+    --         widgets.applyFrameStyle(InputFieldY)
+    --         widgets.applyTextStyle(InputFieldY)
+	-- 		widgets.UISizeConstraint(InputFieldY, Vector2.new(1, 0))
+    --         InputFieldY.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+    --         InputFieldY.ZIndex = thisWidget.ZIndex + 2
+    --         InputFieldY.LayoutOrder = thisWidget.ZIndex + 2
+	-- 		InputFieldY.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+    --         InputFieldY.AutomaticSize = Enum.AutomaticSize.Y
+    --         InputFieldY.BackgroundColor3 = Iris._config.FrameBgColor
+    --         InputFieldY.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         InputFieldY.ClearTextOnFocus = false
+    --         InputFieldY.TextTruncate = Enum.TextTruncate.AtEnd
+	-- 		InputFieldY.ClipsDescendants = true
+    --         InputFieldY.Parent = InputNum
     
-            InputFieldY.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldY.Text:match("-?%d+%.?%d*"))
-                if newValue ~= nil then
-                    newValue = math.clamp(
-                        newValue,
-                        thisWidget.arguments.Min and thisWidget.arguments.Min.Y or -math.huge,
-                        thisWidget.arguments.Max and thisWidget.arguments.Max.Y or math.huge
-                    )                    
-                    if thisWidget.arguments.Increment then
-                        newValue = math.floor(newValue / thisWidget.arguments.Increment.Y) * thisWidget.arguments.Increment.Y
-                    end
-                    thisWidget.state.number:set(Vector3.new(thisWidget.state.number.value.X, newValue, thisWidget.state.number.value.Z))
-                    thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-                else
-                    InputFieldY.Text = thisWidget.state.number.value.Y
-                end
-            end)
+    --         InputFieldY.FocusLost:Connect(function()
+    --             local newValue = tonumber(InputFieldY.Text:match("-?%d+%.?%d*"))
+    --             if newValue ~= nil then
+    --                 newValue = math.clamp(
+    --                     newValue,
+    --                     thisWidget.arguments.Min and thisWidget.arguments.Min.Y or -math.huge,
+    --                     thisWidget.arguments.Max and thisWidget.arguments.Max.Y or math.huge
+    --                 )                    
+    --                 if thisWidget.arguments.Increment then
+    --                     newValue = math.floor(newValue / thisWidget.arguments.Increment.Y) * thisWidget.arguments.Increment.Y
+    --                 end
+    --                 thisWidget.state.number:set(Vector3.new(thisWidget.state.number.value.X, newValue, thisWidget.state.number.value.Z))
+    --                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --             else
+    --                 InputFieldY.Text = thisWidget.state.number.value.Y
+    --             end
+    --         end)
     
-            InputFieldY.Focused:Connect(function()
-                InputFieldY.SelectionStart = 1
-            end)
+    --         InputFieldY.Focused:Connect(function()
+    --             InputFieldY.SelectionStart = 1
+    --         end)
 
-            local InputFieldZ = Instance.new("TextBox")
-            InputFieldZ.Name = "InputFieldZ"
-            widgets.applyFrameStyle(InputFieldZ)
-            widgets.applyTextStyle(InputFieldZ)
-			widgets.UISizeConstraint(InputFieldZ, Vector2.new(1, 0))
-            InputFieldZ.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldZ.ZIndex = thisWidget.ZIndex + 3
-            InputFieldZ.LayoutOrder = thisWidget.ZIndex + 3
-			InputFieldZ.Size = UDim2.new(InputWidth, UDim.new(0, 0))
-            InputFieldZ.AutomaticSize = Enum.AutomaticSize.Y
-            InputFieldZ.BackgroundColor3 = Iris._config.FrameBgColor
-            InputFieldZ.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputFieldZ.ClearTextOnFocus = false
-            InputFieldZ.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldZ.ClipsDescendants = true
-            InputFieldZ.Parent = InputNum
+    --         local InputFieldZ = Instance.new("TextBox")
+    --         InputFieldZ.Name = "InputFieldZ"
+    --         widgets.applyFrameStyle(InputFieldZ)
+    --         widgets.applyTextStyle(InputFieldZ)
+	-- 		widgets.UISizeConstraint(InputFieldZ, Vector2.new(1, 0))
+    --         InputFieldZ.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+    --         InputFieldZ.ZIndex = thisWidget.ZIndex + 3
+    --         InputFieldZ.LayoutOrder = thisWidget.ZIndex + 3
+	-- 		InputFieldZ.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+    --         InputFieldZ.AutomaticSize = Enum.AutomaticSize.Y
+    --         InputFieldZ.BackgroundColor3 = Iris._config.FrameBgColor
+    --         InputFieldZ.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         InputFieldZ.ClearTextOnFocus = false
+    --         InputFieldZ.TextTruncate = Enum.TextTruncate.AtEnd
+	-- 		InputFieldZ.ClipsDescendants = true
+    --         InputFieldZ.Parent = InputNum
     
-            InputFieldZ.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldZ.Text:match("-?%d+%.?%d*"))
-                if newValue ~= nil then
-                    newValue = math.clamp(
-                        newValue,
-                        thisWidget.arguments.Min and thisWidget.arguments.Min.Z or -math.huge,
-                        thisWidget.arguments.Max and thisWidget.arguments.Max.Z or math.huge
-                    )
-                    if thisWidget.arguments.Increment then
-                        newValue = math.floor(newValue / thisWidget.arguments.Increment.Z) * thisWidget.arguments.Increment.Z
-                    end
-                    thisWidget.state.number:set(Vector3.new(thisWidget.state.number.value.X, thisWidget.state.number.value.Y, newValue))
-                    thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-                else
-                    InputFieldZ.Text = thisWidget.state.number.value.Z
-                end
-            end)
+    --         InputFieldZ.FocusLost:Connect(function()
+    --             local newValue = tonumber(InputFieldZ.Text:match("-?%d+%.?%d*"))
+    --             if newValue ~= nil then
+    --                 newValue = math.clamp(
+    --                     newValue,
+    --                     thisWidget.arguments.Min and thisWidget.arguments.Min.Z or -math.huge,
+    --                     thisWidget.arguments.Max and thisWidget.arguments.Max.Z or math.huge
+    --                 )
+    --                 if thisWidget.arguments.Increment then
+    --                     newValue = math.floor(newValue / thisWidget.arguments.Increment.Z) * thisWidget.arguments.Increment.Z
+    --                 end
+    --                 thisWidget.state.number:set(Vector3.new(thisWidget.state.number.value.X, thisWidget.state.number.value.Y, newValue))
+    --                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --             else
+    --                 InputFieldZ.Text = thisWidget.state.number.value.Z
+    --             end
+    --         end)
     
-            InputFieldZ.Focused:Connect(function()
-                InputFieldZ.SelectionStart = 1
-            end)
+    --         InputFieldZ.Focused:Connect(function()
+    --             InputFieldZ.SelectionStart = 1
+    --         end)
     
-            local TextLabel = GenerateTextLabel(thisWidget)
-            TextLabel.Parent = InputNum
+    --         local TextLabel = GenerateTextLabel(thisWidget)
+    --         TextLabel.Parent = InputNum
     
-            return InputNum
-        end
-    }))
+    --         return InputNum
+    --     end
+    -- }))
 
-    Iris.WidgetConstructor("InputUDim", widgets.extend(abstractInputUDim, {
-        Generate = function(thisWidget)
-            local InputUDim = GenerateRootFrame(thisWidget, "Iris_InputUDim")
+    -- Iris.WidgetConstructor("InputUDim", widgets.extend(abstractInputUDim, {
+    --     Generate = function(thisWidget)
+    --         local InputUDim = GenerateRootFrame(thisWidget, "Iris_InputUDim")
 
-            local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 2, (Iris._config.ContentWidth.Offset - Iris._config.ItemInnerSpacing.X) / 2)
+    --         local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 2, (Iris._config.ContentWidth.Offset - Iris._config.ItemInnerSpacing.X) / 2)
 
-            local InputFieldScale = Instance.new("TextBox")
-            InputFieldScale.Name = "InputFieldScale"
-            widgets.applyFrameStyle(InputFieldScale)
-            widgets.applyTextStyle(InputFieldScale)
-			widgets.UISizeConstraint(InputFieldScale, Vector2.new(1, 0))
-            InputFieldScale.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldScale.ZIndex = thisWidget.ZIndex + 1
-            InputFieldScale.LayoutOrder = thisWidget.ZIndex + 1
-			InputFieldScale.Size = UDim2.new(InputWidth, UDim.new(0, 0))
-            InputFieldScale.AutomaticSize = Enum.AutomaticSize.Y
-            InputFieldScale.BackgroundColor3 = Iris._config.FrameBgColor
-            InputFieldScale.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputFieldScale.ClearTextOnFocus = false
-            InputFieldScale.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldScale.ClipsDescendants = true
-            InputFieldScale.Parent = InputUDim
+    --         local InputFieldScale = Instance.new("TextBox")
+    --         InputFieldScale.Name = "InputFieldScale"
+    --         widgets.applyFrameStyle(InputFieldScale)
+    --         widgets.applyTextStyle(InputFieldScale)
+	-- 		widgets.UISizeConstraint(InputFieldScale, Vector2.new(1, 0))
+    --         InputFieldScale.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+    --         InputFieldScale.ZIndex = thisWidget.ZIndex + 1
+    --         InputFieldScale.LayoutOrder = thisWidget.ZIndex + 1
+	-- 		InputFieldScale.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+    --         InputFieldScale.AutomaticSize = Enum.AutomaticSize.Y
+    --         InputFieldScale.BackgroundColor3 = Iris._config.FrameBgColor
+    --         InputFieldScale.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         InputFieldScale.ClearTextOnFocus = false
+    --         InputFieldScale.TextTruncate = Enum.TextTruncate.AtEnd
+	-- 		InputFieldScale.ClipsDescendants = true
+    --         InputFieldScale.Parent = InputUDim
     
-            InputFieldScale.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldScale.Text:match("-?%d+%.?%d*"))
-                if newValue ~= nil then
-                    newValue = math.clamp(
-                        newValue,
-                        thisWidget.arguments.Min and thisWidget.arguments.Min.Scale or -math.huge,
-                        thisWidget.arguments.Max and thisWidget.arguments.Max.Scale or math.huge
-                    )
-                    if thisWidget.arguments.Increment then
-                        newValue = math.floor(newValue / thisWidget.arguments.Increment.Scale) * thisWidget.arguments.Increment.Scale
-                    end
-                    thisWidget.state.number:set(UDim.new(newValue, thisWidget.state.number.value.Offset))
-                    thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-                else
-                    thisWidget.state.number:set(thisWidget.state.number.value)
-                end
-            end)
+    --         InputFieldScale.FocusLost:Connect(function()
+    --             local newValue = tonumber(InputFieldScale.Text:match("-?%d+%.?%d*"))
+    --             if newValue ~= nil then
+    --                 newValue = math.clamp(
+    --                     newValue,
+    --                     thisWidget.arguments.Min and thisWidget.arguments.Min.Scale or -math.huge,
+    --                     thisWidget.arguments.Max and thisWidget.arguments.Max.Scale or math.huge
+    --                 )
+    --                 if thisWidget.arguments.Increment then
+    --                     newValue = math.floor(newValue / thisWidget.arguments.Increment.Scale) * thisWidget.arguments.Increment.Scale
+    --                 end
+    --                 thisWidget.state.number:set(UDim.new(newValue, thisWidget.state.number.value.Offset))
+    --                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --             else
+    --                 thisWidget.state.number:set(thisWidget.state.number.value)
+    --             end
+    --         end)
     
-            InputFieldScale.Focused:Connect(function()
-                InputFieldScale.SelectionStart = 1
-            end)
+    --         InputFieldScale.Focused:Connect(function()
+    --             InputFieldScale.SelectionStart = 1
+    --         end)
 
-            local InputFieldOffset = Instance.new("TextBox")
-            InputFieldOffset.Name = "InputFieldOffset"
-            widgets.applyFrameStyle(InputFieldOffset)
-            widgets.applyTextStyle(InputFieldOffset)
-			widgets.UISizeConstraint(InputFieldOffset, Vector2.new(1, 0))
-            InputFieldOffset.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldOffset.ZIndex = thisWidget.ZIndex + 2
-            InputFieldOffset.LayoutOrder = thisWidget.ZIndex + 2
-			InputFieldOffset.Size = UDim2.new(InputWidth, UDim.new(0, 0))
-            InputFieldOffset.AutomaticSize = Enum.AutomaticSize.Y
-            InputFieldOffset.BackgroundColor3 = Iris._config.FrameBgColor
-            InputFieldOffset.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputFieldOffset.ClearTextOnFocus = false
-            InputFieldOffset.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldOffset.ClipsDescendants = true
-            InputFieldOffset.Parent = InputUDim
+    --         local InputFieldOffset = Instance.new("TextBox")
+    --         InputFieldOffset.Name = "InputFieldOffset"
+    --         widgets.applyFrameStyle(InputFieldOffset)
+    --         widgets.applyTextStyle(InputFieldOffset)
+	-- 		widgets.UISizeConstraint(InputFieldOffset, Vector2.new(1, 0))
+    --         InputFieldOffset.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+    --         InputFieldOffset.ZIndex = thisWidget.ZIndex + 2
+    --         InputFieldOffset.LayoutOrder = thisWidget.ZIndex + 2
+	-- 		InputFieldOffset.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+    --         InputFieldOffset.AutomaticSize = Enum.AutomaticSize.Y
+    --         InputFieldOffset.BackgroundColor3 = Iris._config.FrameBgColor
+    --         InputFieldOffset.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         InputFieldOffset.ClearTextOnFocus = false
+    --         InputFieldOffset.TextTruncate = Enum.TextTruncate.AtEnd
+	-- 		InputFieldOffset.ClipsDescendants = true
+    --         InputFieldOffset.Parent = InputUDim
     
-            InputFieldOffset.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldOffset.Text:match("-?%d+%.?%d*"))
-                if newValue ~= nil then
-                    newValue = math.clamp(
-                        newValue,
-                        thisWidget.arguments.Min and thisWidget.arguments.Min.Offset or -math.huge,
-                        thisWidget.arguments.Max and thisWidget.arguments.Max.Offset or math.huge
-                    )
-                    if thisWidget.arguments.Increment then
-                        newValue = math.floor(newValue / thisWidget.arguments.Increment.Offset) * thisWidget.arguments.Increment.Offset
-                    end
-                    thisWidget.state.number:set(UDim.new(thisWidget.state.number.value.Scale, newValue))
-                    thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-                else
-                    thisWidget.state.number:set(thisWidget.state.number.value)
-                end
-            end)
+    --         InputFieldOffset.FocusLost:Connect(function()
+    --             local newValue = tonumber(InputFieldOffset.Text:match("-?%d+%.?%d*"))
+    --             if newValue ~= nil then
+    --                 newValue = math.clamp(
+    --                     newValue,
+    --                     thisWidget.arguments.Min and thisWidget.arguments.Min.Offset or -math.huge,
+    --                     thisWidget.arguments.Max and thisWidget.arguments.Max.Offset or math.huge
+    --                 )
+    --                 if thisWidget.arguments.Increment then
+    --                     newValue = math.floor(newValue / thisWidget.arguments.Increment.Offset) * thisWidget.arguments.Increment.Offset
+    --                 end
+    --                 thisWidget.state.number:set(UDim.new(thisWidget.state.number.value.Scale, newValue))
+    --                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --             else
+    --                 thisWidget.state.number:set(thisWidget.state.number.value)
+    --             end
+    --         end)
     
-            InputFieldOffset.Focused:Connect(function()
-                InputFieldOffset.SelectionStart = 1
-            end)
+    --         InputFieldOffset.Focused:Connect(function()
+    --             InputFieldOffset.SelectionStart = 1
+    --         end)
     
-            local TextLabel = GenerateTextLabel(thisWidget)
-            TextLabel.Parent = InputUDim
+    --         local TextLabel = GenerateTextLabel(thisWidget)
+    --         TextLabel.Parent = InputUDim
     
-            return InputUDim
-        end
-    }))
+    --         return InputUDim
+    --     end
+    -- }))
 
-    Iris.WidgetConstructor("InputUDim2", widgets.extend(abstractInputUDim2, {
-        Generate = function(thisWidget)
-            local InputUDim2 = GenerateRootFrame(thisWidget, "Iris_InputUDim2")
+    -- Iris.WidgetConstructor("InputUDim2", widgets.extend(abstractInputUDim2, {
+    --     Generate = function(thisWidget)
+    --         local InputUDim2 = GenerateRootFrame(thisWidget, "Iris_InputUDim2")
 
-            local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 4, Iris._config.ContentWidth.Offset / 4 - math.round(Iris._config.ItemInnerSpacing.X * (3/4)))
+    --         local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 4, Iris._config.ContentWidth.Offset / 4 - math.round(Iris._config.ItemInnerSpacing.X * (3/4)))
 
-            local InputFieldXScale = Instance.new("TextBox")
-            InputFieldXScale.Name = "InputFieldXScale"
-            widgets.applyFrameStyle(InputFieldXScale)
-            widgets.applyTextStyle(InputFieldXScale)
-			widgets.UISizeConstraint(InputFieldXScale, Vector2.new(1, 0))
-            InputFieldXScale.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldXScale.ZIndex = thisWidget.ZIndex + 1
-            InputFieldXScale.LayoutOrder = thisWidget.ZIndex + 1
-			InputFieldXScale.Size = UDim2.new(InputWidth, UDim.new(0, 0))
-            InputFieldXScale.AutomaticSize = Enum.AutomaticSize.Y
-            InputFieldXScale.BackgroundColor3 = Iris._config.FrameBgColor
-            InputFieldXScale.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputFieldXScale.ClearTextOnFocus = false
-            InputFieldXScale.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldXScale.ClipsDescendants = true
-            InputFieldXScale.Parent = InputUDim2
+    --         local InputFieldXScale = Instance.new("TextBox")
+    --         InputFieldXScale.Name = "InputFieldXScale"
+    --         widgets.applyFrameStyle(InputFieldXScale)
+    --         widgets.applyTextStyle(InputFieldXScale)
+	-- 		widgets.UISizeConstraint(InputFieldXScale, Vector2.new(1, 0))
+    --         InputFieldXScale.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+    --         InputFieldXScale.ZIndex = thisWidget.ZIndex + 1
+    --         InputFieldXScale.LayoutOrder = thisWidget.ZIndex + 1
+	-- 		InputFieldXScale.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+    --         InputFieldXScale.AutomaticSize = Enum.AutomaticSize.Y
+    --         InputFieldXScale.BackgroundColor3 = Iris._config.FrameBgColor
+    --         InputFieldXScale.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         InputFieldXScale.ClearTextOnFocus = false
+    --         InputFieldXScale.TextTruncate = Enum.TextTruncate.AtEnd
+	-- 		InputFieldXScale.ClipsDescendants = true
+    --         InputFieldXScale.Parent = InputUDim2
     
-            InputFieldXScale.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldXScale.Text:match("-?%d+%.?%d*"))
-                if newValue ~= nil then
-                    newValue = math.clamp(
-                        newValue,
-                        thisWidget.arguments.Min and thisWidget.arguments.Min.X.Scale or -math.huge,
-                        thisWidget.arguments.Max and thisWidget.arguments.Max.X.Scale or math.huge
-                    )
-                    if thisWidget.arguments.Increment then
-                        newValue = math.floor(newValue / thisWidget.arguments.Increment.X.Scale) * thisWidget.arguments.Increment.X.Scale
-                    end
-                    thisWidget.state.number:set(UDim2.new(UDim.new(newValue, thisWidget.state.number.value.X.Offset), thisWidget.state.number.value.Y))
-                    thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-                else
-                    thisWidget.state.number:set(thisWidget.state.number.value)
-                end
-            end)
+    --         InputFieldXScale.FocusLost:Connect(function()
+    --             local newValue = tonumber(InputFieldXScale.Text:match("-?%d+%.?%d*"))
+    --             if newValue ~= nil then
+    --                 newValue = math.clamp(
+    --                     newValue,
+    --                     thisWidget.arguments.Min and thisWidget.arguments.Min.X.Scale or -math.huge,
+    --                     thisWidget.arguments.Max and thisWidget.arguments.Max.X.Scale or math.huge
+    --                 )
+    --                 if thisWidget.arguments.Increment then
+    --                     newValue = math.floor(newValue / thisWidget.arguments.Increment.X.Scale) * thisWidget.arguments.Increment.X.Scale
+    --                 end
+    --                 thisWidget.state.number:set(UDim2.new(UDim.new(newValue, thisWidget.state.number.value.X.Offset), thisWidget.state.number.value.Y))
+    --                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --             else
+    --                 thisWidget.state.number:set(thisWidget.state.number.value)
+    --             end
+    --         end)
     
-            InputFieldXScale.Focused:Connect(function()
-                InputFieldXScale.SelectionStart = 1
-            end)
+    --         InputFieldXScale.Focused:Connect(function()
+    --             InputFieldXScale.SelectionStart = 1
+    --         end)
 
-            local InputFieldXOffset = Instance.new("TextBox")
-            InputFieldXOffset.Name = "InputFieldXOffset"
-            widgets.applyFrameStyle(InputFieldXOffset)
-            widgets.applyTextStyle(InputFieldXOffset)
-			widgets.UISizeConstraint(InputFieldXOffset, Vector2.new(1, 0))
-            InputFieldXOffset.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldXOffset.ZIndex = thisWidget.ZIndex + 2
-            InputFieldXOffset.LayoutOrder = thisWidget.ZIndex + 2
-			InputFieldXOffset.Size = UDim2.new(InputWidth, UDim.new(0, 0))
-            InputFieldXOffset.AutomaticSize = Enum.AutomaticSize.Y
-            InputFieldXOffset.BackgroundColor3 = Iris._config.FrameBgColor
-            InputFieldXOffset.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputFieldXOffset.ClearTextOnFocus = false
-            InputFieldXOffset.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldXOffset.ClipsDescendants = true
-            InputFieldXOffset.Parent = InputUDim2
+    --         local InputFieldXOffset = Instance.new("TextBox")
+    --         InputFieldXOffset.Name = "InputFieldXOffset"
+    --         widgets.applyFrameStyle(InputFieldXOffset)
+    --         widgets.applyTextStyle(InputFieldXOffset)
+	-- 		widgets.UISizeConstraint(InputFieldXOffset, Vector2.new(1, 0))
+    --         InputFieldXOffset.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+    --         InputFieldXOffset.ZIndex = thisWidget.ZIndex + 2
+    --         InputFieldXOffset.LayoutOrder = thisWidget.ZIndex + 2
+	-- 		InputFieldXOffset.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+    --         InputFieldXOffset.AutomaticSize = Enum.AutomaticSize.Y
+    --         InputFieldXOffset.BackgroundColor3 = Iris._config.FrameBgColor
+    --         InputFieldXOffset.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         InputFieldXOffset.ClearTextOnFocus = false
+    --         InputFieldXOffset.TextTruncate = Enum.TextTruncate.AtEnd
+	-- 		InputFieldXOffset.ClipsDescendants = true
+    --         InputFieldXOffset.Parent = InputUDim2
     
-            InputFieldXOffset.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldXOffset.Text:match("-?%d+%.?%d*"))
-                if newValue ~= nil then
-                    newValue = math.clamp(
-                        newValue,
-                        thisWidget.arguments.Min and thisWidget.arguments.Min.X.Offset or -math.huge,
-                        thisWidget.arguments.Max and thisWidget.arguments.Max.X.Offset or math.huge
-                    )
-                    if thisWidget.arguments.Increment then
-                        newValue = math.floor(newValue / thisWidget.arguments.Increment.X.Offset) * thisWidget.arguments.Increment.X.Offset
-                    end
-                    thisWidget.state.number:set(UDim2.new(UDim.new(thisWidget.state.number.value.X.Scale, newValue), thisWidget.state.number.value.Y))
-                    thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-                else
-                    thisWidget.state.number:set(thisWidget.state.number.value)
-                end
-            end)
+    --         InputFieldXOffset.FocusLost:Connect(function()
+    --             local newValue = tonumber(InputFieldXOffset.Text:match("-?%d+%.?%d*"))
+    --             if newValue ~= nil then
+    --                 newValue = math.clamp(
+    --                     newValue,
+    --                     thisWidget.arguments.Min and thisWidget.arguments.Min.X.Offset or -math.huge,
+    --                     thisWidget.arguments.Max and thisWidget.arguments.Max.X.Offset or math.huge
+    --                 )
+    --                 if thisWidget.arguments.Increment then
+    --                     newValue = math.floor(newValue / thisWidget.arguments.Increment.X.Offset) * thisWidget.arguments.Increment.X.Offset
+    --                 end
+    --                 thisWidget.state.number:set(UDim2.new(UDim.new(thisWidget.state.number.value.X.Scale, newValue), thisWidget.state.number.value.Y))
+    --                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --             else
+    --                 thisWidget.state.number:set(thisWidget.state.number.value)
+    --             end
+    --         end)
     
-            InputFieldXOffset.Focused:Connect(function()
-                InputFieldXOffset.SelectionStart = 1
-            end)
+    --         InputFieldXOffset.Focused:Connect(function()
+    --             InputFieldXOffset.SelectionStart = 1
+    --         end)
 
-            local InputFieldYScale = Instance.new("TextBox")
-            InputFieldYScale.Name = "InputFieldYScale"
-            widgets.applyFrameStyle(InputFieldYScale)
-            widgets.applyTextStyle(InputFieldYScale)
-			widgets.UISizeConstraint(InputFieldYScale, Vector2.new(1, 0))
-            InputFieldYScale.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldYScale.ZIndex = thisWidget.ZIndex + 3
-            InputFieldYScale.LayoutOrder = thisWidget.ZIndex + 3
-			InputFieldYScale.Size = UDim2.new(InputWidth, UDim.new(0, 0))
-            InputFieldYScale.AutomaticSize = Enum.AutomaticSize.Y
-            InputFieldYScale.BackgroundColor3 = Iris._config.FrameBgColor
-            InputFieldYScale.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputFieldYScale.ClearTextOnFocus = false
-            InputFieldYScale.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldYScale.ClipsDescendants = true
-            InputFieldYScale.Parent = InputUDim2
+    --         local InputFieldYScale = Instance.new("TextBox")
+    --         InputFieldYScale.Name = "InputFieldYScale"
+    --         widgets.applyFrameStyle(InputFieldYScale)
+    --         widgets.applyTextStyle(InputFieldYScale)
+	-- 		widgets.UISizeConstraint(InputFieldYScale, Vector2.new(1, 0))
+    --         InputFieldYScale.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+    --         InputFieldYScale.ZIndex = thisWidget.ZIndex + 3
+    --         InputFieldYScale.LayoutOrder = thisWidget.ZIndex + 3
+	-- 		InputFieldYScale.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+    --         InputFieldYScale.AutomaticSize = Enum.AutomaticSize.Y
+    --         InputFieldYScale.BackgroundColor3 = Iris._config.FrameBgColor
+    --         InputFieldYScale.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         InputFieldYScale.ClearTextOnFocus = false
+    --         InputFieldYScale.TextTruncate = Enum.TextTruncate.AtEnd
+	-- 		InputFieldYScale.ClipsDescendants = true
+    --         InputFieldYScale.Parent = InputUDim2
     
-            InputFieldYScale.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldYScale.Text:match("-?%d+%.?%d*"))
-                if newValue ~= nil then
-                    newValue = math.clamp(
-                        newValue,
-                        thisWidget.arguments.Min and thisWidget.arguments.Min.Y.Scale or -math.huge,
-                        thisWidget.arguments.Max and thisWidget.arguments.Max.Y.Scale or math.huge
-                    )
-                    if thisWidget.arguments.Increment then
-                        newValue = math.floor(newValue / thisWidget.arguments.Increment.Y.Scale) * thisWidget.arguments.Increment.Y.Scale
-                    end
-                    thisWidget.state.number:set(UDim2.new(thisWidget.state.number.value.X, UDim.new(newValue, thisWidget.state.number.value.Y.Offset)))
-                    thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-                else
-                    thisWidget.state.number:set(thisWidget.state.number.value)
-                end
-            end)
+    --         InputFieldYScale.FocusLost:Connect(function()
+    --             local newValue = tonumber(InputFieldYScale.Text:match("-?%d+%.?%d*"))
+    --             if newValue ~= nil then
+    --                 newValue = math.clamp(
+    --                     newValue,
+    --                     thisWidget.arguments.Min and thisWidget.arguments.Min.Y.Scale or -math.huge,
+    --                     thisWidget.arguments.Max and thisWidget.arguments.Max.Y.Scale or math.huge
+    --                 )
+    --                 if thisWidget.arguments.Increment then
+    --                     newValue = math.floor(newValue / thisWidget.arguments.Increment.Y.Scale) * thisWidget.arguments.Increment.Y.Scale
+    --                 end
+    --                 thisWidget.state.number:set(UDim2.new(thisWidget.state.number.value.X, UDim.new(newValue, thisWidget.state.number.value.Y.Offset)))
+    --                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --             else
+    --                 thisWidget.state.number:set(thisWidget.state.number.value)
+    --             end
+    --         end)
     
-            InputFieldYScale.Focused:Connect(function()
-                InputFieldYScale.SelectionStart = 1
-            end)
+    --         InputFieldYScale.Focused:Connect(function()
+    --             InputFieldYScale.SelectionStart = 1
+    --         end)
 
-            local InputFieldYOffset = Instance.new("TextBox")
-            InputFieldYOffset.Name = "InputFieldYOffset"
-            widgets.applyFrameStyle(InputFieldYOffset)
-            widgets.applyTextStyle(InputFieldYOffset)
-			widgets.UISizeConstraint(InputFieldYOffset, Vector2.new(1, 0))
-            InputFieldYOffset.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldYOffset.ZIndex = thisWidget.ZIndex + 4
-            InputFieldYOffset.LayoutOrder = thisWidget.ZIndex + 4
-			InputFieldYOffset.Size = UDim2.new(InputWidth, UDim.new(0, 0))
-            InputFieldYOffset.AutomaticSize = Enum.AutomaticSize.Y
-            InputFieldYOffset.BackgroundColor3 = Iris._config.FrameBgColor
-            InputFieldYOffset.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputFieldYOffset.ClearTextOnFocus = false
-            InputFieldYOffset.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldYOffset.ClipsDescendants = true
-            InputFieldYOffset.Parent = InputUDim2
+    --         local InputFieldYOffset = Instance.new("TextBox")
+    --         InputFieldYOffset.Name = "InputFieldYOffset"
+    --         widgets.applyFrameStyle(InputFieldYOffset)
+    --         widgets.applyTextStyle(InputFieldYOffset)
+	-- 		widgets.UISizeConstraint(InputFieldYOffset, Vector2.new(1, 0))
+    --         InputFieldYOffset.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+    --         InputFieldYOffset.ZIndex = thisWidget.ZIndex + 4
+    --         InputFieldYOffset.LayoutOrder = thisWidget.ZIndex + 4
+	-- 		InputFieldYOffset.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+    --         InputFieldYOffset.AutomaticSize = Enum.AutomaticSize.Y
+    --         InputFieldYOffset.BackgroundColor3 = Iris._config.FrameBgColor
+    --         InputFieldYOffset.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         InputFieldYOffset.ClearTextOnFocus = false
+    --         InputFieldYOffset.TextTruncate = Enum.TextTruncate.AtEnd
+	-- 		InputFieldYOffset.ClipsDescendants = true
+    --         InputFieldYOffset.Parent = InputUDim2
     
-            InputFieldYOffset.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldYOffset.Text:match("-?%d+%.?%d*"))
-                if newValue ~= nil then
-                    newValue = math.clamp(
-                        newValue,
-                        thisWidget.arguments.Min and thisWidget.arguments.Min.Y.Offset or -math.huge,
-                        thisWidget.arguments.Max and thisWidget.arguments.Max.Y.Offset or math.huge
-                    )
-                    if thisWidget.arguments.Increment then
-                        newValue = math.floor(newValue / thisWidget.arguments.Increment.Y.Offset) * thisWidget.arguments.Increment.Y.Offset
-                    end
-                    thisWidget.state.number:set(UDim2.new(thisWidget.state.number.value.X, UDim.new(thisWidget.state.number.value.Y.Scale, newValue)))
-                    thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-                else
-                    thisWidget.state.number:set(thisWidget.state.number.value)
-                end
-            end)
+    --         InputFieldYOffset.FocusLost:Connect(function()
+    --             local newValue = tonumber(InputFieldYOffset.Text:match("-?%d+%.?%d*"))
+    --             if newValue ~= nil then
+    --                 newValue = math.clamp(
+    --                     newValue,
+    --                     thisWidget.arguments.Min and thisWidget.arguments.Min.Y.Offset or -math.huge,
+    --                     thisWidget.arguments.Max and thisWidget.arguments.Max.Y.Offset or math.huge
+    --                 )
+    --                 if thisWidget.arguments.Increment then
+    --                     newValue = math.floor(newValue / thisWidget.arguments.Increment.Y.Offset) * thisWidget.arguments.Increment.Y.Offset
+    --                 end
+    --                 thisWidget.state.number:set(UDim2.new(thisWidget.state.number.value.X, UDim.new(thisWidget.state.number.value.Y.Scale, newValue)))
+    --                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --             else
+    --                 thisWidget.state.number:set(thisWidget.state.number.value)
+    --             end
+    --         end)
     
-            InputFieldYOffset.Focused:Connect(function()
-                InputFieldYOffset.SelectionStart = 1
-            end)
+    --         InputFieldYOffset.Focused:Connect(function()
+    --             InputFieldYOffset.SelectionStart = 1
+    --         end)
     
-            local TextLabel = GenerateTextLabel(thisWidget)
-            TextLabel.ZIndex = thisWidget.ZIndex + 5
-            TextLabel.LayoutOrder = thisWidget.ZIndex + 5
-            TextLabel.Parent = InputUDim2
+    --         local TextLabel = GenerateTextLabel(thisWidget)
+    --         TextLabel.ZIndex = thisWidget.ZIndex + 5
+    --         TextLabel.LayoutOrder = thisWidget.ZIndex + 5
+    --         TextLabel.Parent = InputUDim2
     
-            return InputUDim2
-        end
-    }))
+    --         return InputUDim2
+    --     end
+    -- }))
 
-    Iris.WidgetConstructor("InputColor3", widgets.extend(abstractInputColor3, {
-        Generate = function(thisWidget)
-            local InputColor = GenerateRootFrame(thisWidget, "Iris_InputColor3")
+    -- Iris.WidgetConstructor("InputColor3", widgets.extend(abstractInputColor3, {
+    --     Generate = function(thisWidget)
+    --         local InputColor = GenerateRootFrame(thisWidget, "Iris_InputColor3")
 
-            local PreviewColorSize = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
-            local totalOffset = Iris._config.ItemInnerSpacing.X * 3 + PreviewColorSize + 1
-            local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 3, (Iris._config.ContentWidth.Offset - totalOffset) / 3)
+    --         local PreviewColorSize = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
+    --         local totalOffset = Iris._config.ItemInnerSpacing.X * 3 + PreviewColorSize + 1
+    --         local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 3, (Iris._config.ContentWidth.Offset - totalOffset) / 3)
         
-            local InputFieldR = Instance.new("TextBox")
-            InputFieldR.Name = "InputFieldR"
-            widgets.applyFrameStyle(InputFieldR)
-            widgets.applyTextStyle(InputFieldR)
-			widgets.UISizeConstraint(InputFieldR, Vector2.new(1, 0))
-            InputFieldR.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldR.ZIndex = thisWidget.ZIndex + 1
-            InputFieldR.LayoutOrder = thisWidget.ZIndex + 1
-			InputFieldR.Size = UDim2.new(InputWidth, UDim.new(0, 0))
-            InputFieldR.AutomaticSize = Enum.AutomaticSize.Y
-            InputFieldR.BackgroundColor3 = Iris._config.FrameBgColor
-            InputFieldR.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputFieldR.ClearTextOnFocus = false
-            InputFieldR.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldR.ClipsDescendants = true
-            InputFieldR.Parent = InputColor
+    --         local InputFieldR = Instance.new("TextBox")
+    --         InputFieldR.Name = "InputFieldR"
+    --         widgets.applyFrameStyle(InputFieldR)
+    --         widgets.applyTextStyle(InputFieldR)
+	-- 		widgets.UISizeConstraint(InputFieldR, Vector2.new(1, 0))
+    --         InputFieldR.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+    --         InputFieldR.ZIndex = thisWidget.ZIndex + 1
+    --         InputFieldR.LayoutOrder = thisWidget.ZIndex + 1
+	-- 		InputFieldR.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+    --         InputFieldR.AutomaticSize = Enum.AutomaticSize.Y
+    --         InputFieldR.BackgroundColor3 = Iris._config.FrameBgColor
+    --         InputFieldR.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         InputFieldR.ClearTextOnFocus = false
+    --         InputFieldR.TextTruncate = Enum.TextTruncate.AtEnd
+	-- 		InputFieldR.ClipsDescendants = true
+    --         InputFieldR.Parent = InputColor
     
-            InputFieldR.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldR.Text:match("-?%d+%.?%d*"))
-                if newValue ~= nil then
-                    newValue = math.clamp(
-                        newValue,
-                        0,
-                        thisWidget.arguments.UseFloats and 1 or 255
-                    )
-                    if thisWidget.arguments.UseFloats ~= true then
-                        newValue /= 255
-                    end
-                    local newValueColor
-                    if thisWidget.arguments.UseHSV then
-                        local H, S, V = thisWidget.state.color.value:ToHSV()
-                        newValueColor = Color3.fromHSV(newValue, S, V)
-                    else
-                        newValueColor = Color3.new(newValue, thisWidget.state.color.value.G, thisWidget.state.color.value.B)
-                    end
-                    thisWidget.state.color:set(newValueColor)
-                    thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-                else
-                    thisWidget.state.color:set(thisWidget.state.color.value)
-                end
-            end)
+    --         InputFieldR.FocusLost:Connect(function()
+    --             local newValue = tonumber(InputFieldR.Text:match("-?%d+%.?%d*"))
+    --             if newValue ~= nil then
+    --                 newValue = math.clamp(
+    --                     newValue,
+    --                     0,
+    --                     thisWidget.arguments.UseFloats and 1 or 255
+    --                 )
+    --                 if thisWidget.arguments.UseFloats ~= true then
+    --                     newValue /= 255
+    --                 end
+    --                 local newValueColor
+    --                 if thisWidget.arguments.UseHSV then
+    --                     local H, S, V = thisWidget.state.color.value:ToHSV()
+    --                     newValueColor = Color3.fromHSV(newValue, S, V)
+    --                 else
+    --                     newValueColor = Color3.new(newValue, thisWidget.state.color.value.G, thisWidget.state.color.value.B)
+    --                 end
+    --                 thisWidget.state.color:set(newValueColor)
+    --                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --             else
+    --                 thisWidget.state.color:set(thisWidget.state.color.value)
+    --             end
+    --         end)
     
-            InputFieldR.Focused:Connect(function()
-                InputFieldR.SelectionStart = 1
-            end)
+    --         InputFieldR.Focused:Connect(function()
+    --             InputFieldR.SelectionStart = 1
+    --         end)
 
-            local InputFieldG = Instance.new("TextBox")
-            InputFieldG.Name = "InputFieldG"
-            widgets.applyFrameStyle(InputFieldG)
-            widgets.applyTextStyle(InputFieldG)
-			widgets.UISizeConstraint(InputFieldG, Vector2.new(1, 0))
-            InputFieldG.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldG.ZIndex = thisWidget.ZIndex + 2
-            InputFieldG.LayoutOrder = thisWidget.ZIndex + 2
-			InputFieldG.Size = UDim2.new(InputWidth, UDim.new(0, 0))
-            InputFieldG.AutomaticSize = Enum.AutomaticSize.Y
-            InputFieldG.BackgroundColor3 = Iris._config.FrameBgColor
-            InputFieldG.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputFieldG.ClearTextOnFocus = false
-            InputFieldG.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldG.ClipsDescendants = true
-            InputFieldG.Parent = InputColor
+    --         local InputFieldG = Instance.new("TextBox")
+    --         InputFieldG.Name = "InputFieldG"
+    --         widgets.applyFrameStyle(InputFieldG)
+    --         widgets.applyTextStyle(InputFieldG)
+	-- 		widgets.UISizeConstraint(InputFieldG, Vector2.new(1, 0))
+    --         InputFieldG.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+    --         InputFieldG.ZIndex = thisWidget.ZIndex + 2
+    --         InputFieldG.LayoutOrder = thisWidget.ZIndex + 2
+	-- 		InputFieldG.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+    --         InputFieldG.AutomaticSize = Enum.AutomaticSize.Y
+    --         InputFieldG.BackgroundColor3 = Iris._config.FrameBgColor
+    --         InputFieldG.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         InputFieldG.ClearTextOnFocus = false
+    --         InputFieldG.TextTruncate = Enum.TextTruncate.AtEnd
+	-- 		InputFieldG.ClipsDescendants = true
+    --         InputFieldG.Parent = InputColor
     
-            InputFieldG.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldG.Text:match("-?%d+%.?%d*"))
-                if newValue ~= nil then
-                    newValue = math.clamp(
-                        newValue,
-                        0,
-                        thisWidget.arguments.UseFloats and 1 or 255
-                    )
-                    if thisWidget.arguments.UseFloats ~= true then
-                        newValue /= 255
-                    end
-                    local newValueColor
-                    if thisWidget.arguments.UseHSV then
-                        local H, S, V = thisWidget.state.color.value:ToHSV()
-                        newValueColor = Color3.fromHSV(H, newValue, V)
-                    else
-                        newValueColor = Color3.new(thisWidget.state.color.value.R, newValue, thisWidget.state.color.value.B)
-                    end
-                    thisWidget.state.color:set(newValueColor)
-                    thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-                else
-                    thisWidget.state.color:set(thisWidget.state.color.value)
-                end
-            end)
+    --         InputFieldG.FocusLost:Connect(function()
+    --             local newValue = tonumber(InputFieldG.Text:match("-?%d+%.?%d*"))
+    --             if newValue ~= nil then
+    --                 newValue = math.clamp(
+    --                     newValue,
+    --                     0,
+    --                     thisWidget.arguments.UseFloats and 1 or 255
+    --                 )
+    --                 if thisWidget.arguments.UseFloats ~= true then
+    --                     newValue /= 255
+    --                 end
+    --                 local newValueColor
+    --                 if thisWidget.arguments.UseHSV then
+    --                     local H, S, V = thisWidget.state.color.value:ToHSV()
+    --                     newValueColor = Color3.fromHSV(H, newValue, V)
+    --                 else
+    --                     newValueColor = Color3.new(thisWidget.state.color.value.R, newValue, thisWidget.state.color.value.B)
+    --                 end
+    --                 thisWidget.state.color:set(newValueColor)
+    --                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --             else
+    --                 thisWidget.state.color:set(thisWidget.state.color.value)
+    --             end
+    --         end)
     
-            InputFieldG.Focused:Connect(function()
-                InputFieldG.SelectionStart = 1
-            end)
+    --         InputFieldG.Focused:Connect(function()
+    --             InputFieldG.SelectionStart = 1
+    --         end)
 
-            local InputFieldB = Instance.new("TextBox")
-            InputFieldB.Name = "InputFieldB"
-            widgets.applyFrameStyle(InputFieldB)
-            widgets.applyTextStyle(InputFieldB)
-			widgets.UISizeConstraint(InputFieldB, Vector2.new(1, 0))
-            InputFieldB.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldB.ZIndex = thisWidget.ZIndex + 3
-            InputFieldB.LayoutOrder = thisWidget.ZIndex + 3
-			InputFieldB.Size = UDim2.new(InputWidth, UDim.new(0, 0))
-            InputFieldB.AutomaticSize = Enum.AutomaticSize.Y
-            InputFieldB.BackgroundColor3 = Iris._config.FrameBgColor
-            InputFieldB.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputFieldB.ClearTextOnFocus = false
-            InputFieldB.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldB.ClipsDescendants = true
-            InputFieldB.Parent = InputColor
+    --         local InputFieldB = Instance.new("TextBox")
+    --         InputFieldB.Name = "InputFieldB"
+    --         widgets.applyFrameStyle(InputFieldB)
+    --         widgets.applyTextStyle(InputFieldB)
+	-- 		widgets.UISizeConstraint(InputFieldB, Vector2.new(1, 0))
+    --         InputFieldB.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+    --         InputFieldB.ZIndex = thisWidget.ZIndex + 3
+    --         InputFieldB.LayoutOrder = thisWidget.ZIndex + 3
+	-- 		InputFieldB.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+    --         InputFieldB.AutomaticSize = Enum.AutomaticSize.Y
+    --         InputFieldB.BackgroundColor3 = Iris._config.FrameBgColor
+    --         InputFieldB.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         InputFieldB.ClearTextOnFocus = false
+    --         InputFieldB.TextTruncate = Enum.TextTruncate.AtEnd
+	-- 		InputFieldB.ClipsDescendants = true
+    --         InputFieldB.Parent = InputColor
     
-            InputFieldB.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldB.Text:match("-?%d+%.?%d*"))
-                if newValue ~= nil then
-                    newValue = math.clamp(
-                        newValue,
-                        0,
-                        thisWidget.arguments.UseFloats and 1 or 255
-                    )
-                    if thisWidget.arguments.UseFloats ~= true then
-                        newValue /= 255
-                    end
-                    local newValueColor
-                    if thisWidget.arguments.UseHSV then
-                        local H, S, V = thisWidget.state.color.value:ToHSV()
-                        newValueColor = Color3.fromHSV(H, S, newValue)
-                    else
-                        newValueColor = Color3.new(thisWidget.state.color.value.R, thisWidget.state.color.value.G, newValue)
-                    end
-                    thisWidget.state.color:set(newValueColor)
-                    thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-                else
-                    thisWidget.state.color:set(thisWidget.state.color.value)
-                end
-            end)
+    --         InputFieldB.FocusLost:Connect(function()
+    --             local newValue = tonumber(InputFieldB.Text:match("-?%d+%.?%d*"))
+    --             if newValue ~= nil then
+    --                 newValue = math.clamp(
+    --                     newValue,
+    --                     0,
+    --                     thisWidget.arguments.UseFloats and 1 or 255
+    --                 )
+    --                 if thisWidget.arguments.UseFloats ~= true then
+    --                     newValue /= 255
+    --                 end
+    --                 local newValueColor
+    --                 if thisWidget.arguments.UseHSV then
+    --                     local H, S, V = thisWidget.state.color.value:ToHSV()
+    --                     newValueColor = Color3.fromHSV(H, S, newValue)
+    --                 else
+    --                     newValueColor = Color3.new(thisWidget.state.color.value.R, thisWidget.state.color.value.G, newValue)
+    --                 end
+    --                 thisWidget.state.color:set(newValueColor)
+    --                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --             else
+    --                 thisWidget.state.color:set(thisWidget.state.color.value)
+    --             end
+    --         end)
     
-            InputFieldB.Focused:Connect(function()
-                InputFieldB.SelectionStart = 1
-            end)
+    --         InputFieldB.Focused:Connect(function()
+    --             InputFieldB.SelectionStart = 1
+    --         end)
 
-            local PreviewColorBox = Instance.new("Frame")
-            PreviewColorBox.Name = "PreviewColorBox"
-            PreviewColorBox.BackgroundColor3 = Iris._config.FrameBgColor
-            PreviewColorBox.BackgroundTransparency = Iris._config.FrameBgTransparency
-            PreviewColorBox.BorderSizePixel = 0
-            PreviewColorBox.ZIndex = thisWidget.ZIndex + 4
-            PreviewColorBox.LayoutOrder = thisWidget.ZIndex + 4
-            PreviewColorBox.Size = UDim2.fromOffset(PreviewColorSize, PreviewColorSize)
-            PreviewColorBox.Parent = InputColor
+    --         local PreviewColorBox = Instance.new("Frame")
+    --         PreviewColorBox.Name = "PreviewColorBox"
+    --         PreviewColorBox.BackgroundColor3 = Iris._config.FrameBgColor
+    --         PreviewColorBox.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         PreviewColorBox.BorderSizePixel = 0
+    --         PreviewColorBox.ZIndex = thisWidget.ZIndex + 4
+    --         PreviewColorBox.LayoutOrder = thisWidget.ZIndex + 4
+    --         PreviewColorBox.Size = UDim2.fromOffset(PreviewColorSize, PreviewColorSize)
+    --         PreviewColorBox.Parent = InputColor
 
-            local PreviewColor = Instance.new("Frame")
-            PreviewColor.Name = "PreviewColor"
-            PreviewColor.BorderSizePixel = 0
-            PreviewColor.ZIndex = thisWidget.ZIndex + 5
-            PreviewColor.LayoutOrder = thisWidget.ZIndex + 5
-            PreviewColor.Size = UDim2.new(1, -2, 1, -2)
-            PreviewColor.Position = UDim2.fromOffset(1, 1)
-            PreviewColor.Parent = PreviewColorBox
+    --         local PreviewColor = Instance.new("Frame")
+    --         PreviewColor.Name = "PreviewColor"
+    --         PreviewColor.BorderSizePixel = 0
+    --         PreviewColor.ZIndex = thisWidget.ZIndex + 5
+    --         PreviewColor.LayoutOrder = thisWidget.ZIndex + 5
+    --         PreviewColor.Size = UDim2.new(1, -2, 1, -2)
+    --         PreviewColor.Position = UDim2.fromOffset(1, 1)
+    --         PreviewColor.Parent = PreviewColorBox
 
-            local TextLabel = GenerateTextLabel(thisWidget)
-            TextLabel.Parent = InputColor
+    --         local TextLabel = GenerateTextLabel(thisWidget)
+    --         TextLabel.Parent = InputColor
     
-            return InputColor
-        end
-    }))
+    --         return InputColor
+    --     end
+    -- }))
 
-    Iris.WidgetConstructor("InputColor4", widgets.extend(abstractInputColor4, {
-        Generate = function(thisWidget)
-            local InputColor = GenerateRootFrame(thisWidget, "Iris_InputColor3")
+    -- Iris.WidgetConstructor("InputColor4", widgets.extend(abstractInputColor4, {
+    --     Generate = function(thisWidget)
+    --         local InputColor = GenerateRootFrame(thisWidget, "Iris_InputColor3")
 
-            local PreviewColorSize = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
-            local totalOffset = Iris._config.ItemInnerSpacing.X * 4 + PreviewColorSize
-            local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 4, (Iris._config.ContentWidth.Offset - totalOffset) / 4 - 1)
+    --         local PreviewColorSize = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
+    --         local totalOffset = Iris._config.ItemInnerSpacing.X * 4 + PreviewColorSize
+    --         local InputWidth = UDim.new(Iris._config.ContentWidth.Scale / 4, (Iris._config.ContentWidth.Offset - totalOffset) / 4 - 1)
         
-            local InputFieldR = Instance.new("TextBox")
-            InputFieldR.Name = "InputFieldR"
-            widgets.applyFrameStyle(InputFieldR)
-            widgets.applyTextStyle(InputFieldR)
-			widgets.UISizeConstraint(InputFieldR, Vector2.new(1, 0))
-            InputFieldR.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldR.ZIndex = thisWidget.ZIndex + 1
-            InputFieldR.LayoutOrder = thisWidget.ZIndex + 1
-			InputFieldR.Size = UDim2.new(InputWidth, UDim.new(0, 0))
-            InputFieldR.AutomaticSize = Enum.AutomaticSize.Y
-            InputFieldR.BackgroundColor3 = Iris._config.FrameBgColor
-            InputFieldR.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputFieldR.ClearTextOnFocus = false
-            InputFieldR.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldR.ClipsDescendants = true
-            InputFieldR.Parent = InputColor
+    --         local InputFieldR = Instance.new("TextBox")
+    --         InputFieldR.Name = "InputFieldR"
+    --         widgets.applyFrameStyle(InputFieldR)
+    --         widgets.applyTextStyle(InputFieldR)
+	-- 		widgets.UISizeConstraint(InputFieldR, Vector2.new(1, 0))
+    --         InputFieldR.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+    --         InputFieldR.ZIndex = thisWidget.ZIndex + 1
+    --         InputFieldR.LayoutOrder = thisWidget.ZIndex + 1
+	-- 		InputFieldR.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+    --         InputFieldR.AutomaticSize = Enum.AutomaticSize.Y
+    --         InputFieldR.BackgroundColor3 = Iris._config.FrameBgColor
+    --         InputFieldR.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         InputFieldR.ClearTextOnFocus = false
+    --         InputFieldR.TextTruncate = Enum.TextTruncate.AtEnd
+	-- 		InputFieldR.ClipsDescendants = true
+    --         InputFieldR.Parent = InputColor
     
-            InputFieldR.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldR.Text:match("-?%d+%.?%d*"))
-                if newValue ~= nil then
-                    newValue = math.clamp(
-                        newValue,
-                        0,
-                        thisWidget.arguments.UseFloats and 1 or 255
-                    )
-                    if thisWidget.arguments.UseFloats ~= true then
-                        newValue /= 255
-                    end
-                    local newValueColor
-                    if thisWidget.arguments.UseHSV then
-                        local H, S, V = thisWidget.state.color.value:ToHSV()
-                        newValueColor = Color3.fromHSV(newValue, S, V)
-                    else
-                        newValueColor = Color3.new(newValue, thisWidget.state.color.value.G, thisWidget.state.color.value.B)
-                    end
-                    thisWidget.state.color:set(newValueColor)
-                    thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-                else
-                    thisWidget.state.color:set(thisWidget.state.color.value)
-                end
-            end)
+    --         InputFieldR.FocusLost:Connect(function()
+    --             local newValue = tonumber(InputFieldR.Text:match("-?%d+%.?%d*"))
+    --             if newValue ~= nil then
+    --                 newValue = math.clamp(
+    --                     newValue,
+    --                     0,
+    --                     thisWidget.arguments.UseFloats and 1 or 255
+    --                 )
+    --                 if thisWidget.arguments.UseFloats ~= true then
+    --                     newValue /= 255
+    --                 end
+    --                 local newValueColor
+    --                 if thisWidget.arguments.UseHSV then
+    --                     local H, S, V = thisWidget.state.color.value:ToHSV()
+    --                     newValueColor = Color3.fromHSV(newValue, S, V)
+    --                 else
+    --                     newValueColor = Color3.new(newValue, thisWidget.state.color.value.G, thisWidget.state.color.value.B)
+    --                 end
+    --                 thisWidget.state.color:set(newValueColor)
+    --                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --             else
+    --                 thisWidget.state.color:set(thisWidget.state.color.value)
+    --             end
+    --         end)
     
-            InputFieldR.Focused:Connect(function()
-                InputFieldR.SelectionStart = 1
-            end)
+    --         InputFieldR.Focused:Connect(function()
+    --             InputFieldR.SelectionStart = 1
+    --         end)
 
-            local InputFieldG = Instance.new("TextBox")
-            InputFieldG.Name = "InputFieldG"
-            widgets.applyFrameStyle(InputFieldG)
-            widgets.applyTextStyle(InputFieldG)
-			widgets.UISizeConstraint(InputFieldG, Vector2.new(1, 0))
-            InputFieldG.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldG.ZIndex = thisWidget.ZIndex + 2
-            InputFieldG.LayoutOrder = thisWidget.ZIndex + 2
-			InputFieldG.Size = UDim2.new(InputWidth, UDim.new(0, 0))
-            InputFieldG.AutomaticSize = Enum.AutomaticSize.Y
-            InputFieldG.BackgroundColor3 = Iris._config.FrameBgColor
-            InputFieldG.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputFieldG.ClearTextOnFocus = false
-            InputFieldG.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldG.ClipsDescendants = true
-            InputFieldG.Parent = InputColor
+    --         local InputFieldG = Instance.new("TextBox")
+    --         InputFieldG.Name = "InputFieldG"
+    --         widgets.applyFrameStyle(InputFieldG)
+    --         widgets.applyTextStyle(InputFieldG)
+	-- 		widgets.UISizeConstraint(InputFieldG, Vector2.new(1, 0))
+    --         InputFieldG.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+    --         InputFieldG.ZIndex = thisWidget.ZIndex + 2
+    --         InputFieldG.LayoutOrder = thisWidget.ZIndex + 2
+	-- 		InputFieldG.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+    --         InputFieldG.AutomaticSize = Enum.AutomaticSize.Y
+    --         InputFieldG.BackgroundColor3 = Iris._config.FrameBgColor
+    --         InputFieldG.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         InputFieldG.ClearTextOnFocus = false
+    --         InputFieldG.TextTruncate = Enum.TextTruncate.AtEnd
+	-- 		InputFieldG.ClipsDescendants = true
+    --         InputFieldG.Parent = InputColor
     
-            InputFieldG.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldG.Text:match("-?%d+%.?%d*"))
-                if newValue ~= nil then
-                    newValue = math.clamp(
-                        newValue,
-                        0,
-                        thisWidget.arguments.UseFloats and 1 or 255
-                    )
-                    if thisWidget.arguments.UseFloats ~= true then
-                        newValue /= 255
-                    end
-                    local newValueColor
-                    if thisWidget.arguments.UseHSV then
-                        local H, S, V = thisWidget.state.color.value:ToHSV()
-                        newValueColor = Color3.fromHSV(H, newValue, V)
-                    else
-                        newValueColor = Color3.new(thisWidget.state.color.value.R, newValue, thisWidget.state.color.value.B)
-                    end
-                    thisWidget.state.color:set(newValueColor)
-                    thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-                else
-                    thisWidget.state.color:set(thisWidget.state.color.value)
-                end
-            end)
+    --         InputFieldG.FocusLost:Connect(function()
+    --             local newValue = tonumber(InputFieldG.Text:match("-?%d+%.?%d*"))
+    --             if newValue ~= nil then
+    --                 newValue = math.clamp(
+    --                     newValue,
+    --                     0,
+    --                     thisWidget.arguments.UseFloats and 1 or 255
+    --                 )
+    --                 if thisWidget.arguments.UseFloats ~= true then
+    --                     newValue /= 255
+    --                 end
+    --                 local newValueColor
+    --                 if thisWidget.arguments.UseHSV then
+    --                     local H, S, V = thisWidget.state.color.value:ToHSV()
+    --                     newValueColor = Color3.fromHSV(H, newValue, V)
+    --                 else
+    --                     newValueColor = Color3.new(thisWidget.state.color.value.R, newValue, thisWidget.state.color.value.B)
+    --                 end
+    --                 thisWidget.state.color:set(newValueColor)
+    --                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --             else
+    --                 thisWidget.state.color:set(thisWidget.state.color.value)
+    --             end
+    --         end)
     
-            InputFieldG.Focused:Connect(function()
-                InputFieldG.SelectionStart = 1
-            end)
+    --         InputFieldG.Focused:Connect(function()
+    --             InputFieldG.SelectionStart = 1
+    --         end)
 
-            local InputFieldB = Instance.new("TextBox")
-            InputFieldB.Name = "InputFieldB"
-            widgets.applyFrameStyle(InputFieldB)
-            widgets.applyTextStyle(InputFieldB)
-			widgets.UISizeConstraint(InputFieldB, Vector2.new(1, 0))
-            InputFieldB.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldB.ZIndex = thisWidget.ZIndex + 3
-            InputFieldB.LayoutOrder = thisWidget.ZIndex + 3
-			InputFieldB.Size = UDim2.new(InputWidth, UDim.new(0, 0))
-            InputFieldB.AutomaticSize = Enum.AutomaticSize.Y
-            InputFieldB.BackgroundColor3 = Iris._config.FrameBgColor
-            InputFieldB.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputFieldB.ClearTextOnFocus = false
-            InputFieldB.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldB.ClipsDescendants = true
-            InputFieldB.Parent = InputColor
+    --         local InputFieldB = Instance.new("TextBox")
+    --         InputFieldB.Name = "InputFieldB"
+    --         widgets.applyFrameStyle(InputFieldB)
+    --         widgets.applyTextStyle(InputFieldB)
+	-- 		widgets.UISizeConstraint(InputFieldB, Vector2.new(1, 0))
+    --         InputFieldB.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+    --         InputFieldB.ZIndex = thisWidget.ZIndex + 3
+    --         InputFieldB.LayoutOrder = thisWidget.ZIndex + 3
+	-- 		InputFieldB.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+    --         InputFieldB.AutomaticSize = Enum.AutomaticSize.Y
+    --         InputFieldB.BackgroundColor3 = Iris._config.FrameBgColor
+    --         InputFieldB.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         InputFieldB.ClearTextOnFocus = false
+    --         InputFieldB.TextTruncate = Enum.TextTruncate.AtEnd
+	-- 		InputFieldB.ClipsDescendants = true
+    --         InputFieldB.Parent = InputColor
     
-            InputFieldB.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldB.Text:match("-?%d+%.?%d*"))
-                if newValue ~= nil then
-                    newValue = math.clamp(
-                        newValue,
-                        0,
-                        thisWidget.arguments.UseFloats and 1 or 255
-                    )
-                    if thisWidget.arguments.UseFloats ~= true then
-                        newValue /= 255
-                    end
-                    local newValueColor
-                    if thisWidget.arguments.UseHSV then
-                        local H, S, V = thisWidget.state.color.value:ToHSV()
-                        newValueColor = Color3.fromHSV(H, S, newValue)
-                    else
-                        newValueColor = Color3.new(thisWidget.state.color.value.R, thisWidget.state.color.value.G, newValue)
-                    end
-                    thisWidget.state.color:set(newValueColor)
-                    thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-                else
-                    thisWidget.state.color:set(thisWidget.state.color.value)
-                end
-            end)
+    --         InputFieldB.FocusLost:Connect(function()
+    --             local newValue = tonumber(InputFieldB.Text:match("-?%d+%.?%d*"))
+    --             if newValue ~= nil then
+    --                 newValue = math.clamp(
+    --                     newValue,
+    --                     0,
+    --                     thisWidget.arguments.UseFloats and 1 or 255
+    --                 )
+    --                 if thisWidget.arguments.UseFloats ~= true then
+    --                     newValue /= 255
+    --                 end
+    --                 local newValueColor
+    --                 if thisWidget.arguments.UseHSV then
+    --                     local H, S, V = thisWidget.state.color.value:ToHSV()
+    --                     newValueColor = Color3.fromHSV(H, S, newValue)
+    --                 else
+    --                     newValueColor = Color3.new(thisWidget.state.color.value.R, thisWidget.state.color.value.G, newValue)
+    --                 end
+    --                 thisWidget.state.color:set(newValueColor)
+    --                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --             else
+    --                 thisWidget.state.color:set(thisWidget.state.color.value)
+    --             end
+    --         end)
     
-            InputFieldB.Focused:Connect(function()
-                InputFieldB.SelectionStart = 1
-            end)
+    --         InputFieldB.Focused:Connect(function()
+    --             InputFieldB.SelectionStart = 1
+    --         end)
 
-            local InputFieldA = Instance.new("TextBox")
-            InputFieldA.Name = "InputFieldA"
-            widgets.applyFrameStyle(InputFieldA)
-            widgets.applyTextStyle(InputFieldA)
-			widgets.UISizeConstraint(InputFieldA, Vector2.new(1, 0))
-            InputFieldA.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            InputFieldA.ZIndex = thisWidget.ZIndex + 3
-            InputFieldA.LayoutOrder = thisWidget.ZIndex + 3
-			InputFieldA.Size = UDim2.new(InputWidth, UDim.new(0, 0))
-            InputFieldA.AutomaticSize = Enum.AutomaticSize.Y
-            InputFieldA.BackgroundColor3 = Iris._config.FrameBgColor
-            InputFieldA.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputFieldA.ClearTextOnFocus = false
-            InputFieldA.TextTruncate = Enum.TextTruncate.AtEnd
-			InputFieldA.ClipsDescendants = true
-            InputFieldA.Parent = InputColor
+    --         local InputFieldA = Instance.new("TextBox")
+    --         InputFieldA.Name = "InputFieldA"
+    --         widgets.applyFrameStyle(InputFieldA)
+    --         widgets.applyTextStyle(InputFieldA)
+	-- 		widgets.UISizeConstraint(InputFieldA, Vector2.new(1, 0))
+    --         InputFieldA.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+    --         InputFieldA.ZIndex = thisWidget.ZIndex + 3
+    --         InputFieldA.LayoutOrder = thisWidget.ZIndex + 3
+	-- 		InputFieldA.Size = UDim2.new(InputWidth, UDim.new(0, 0))
+    --         InputFieldA.AutomaticSize = Enum.AutomaticSize.Y
+    --         InputFieldA.BackgroundColor3 = Iris._config.FrameBgColor
+    --         InputFieldA.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         InputFieldA.ClearTextOnFocus = false
+    --         InputFieldA.TextTruncate = Enum.TextTruncate.AtEnd
+	-- 		InputFieldA.ClipsDescendants = true
+    --         InputFieldA.Parent = InputColor
     
-            InputFieldA.FocusLost:Connect(function()
-                local newValue = tonumber(InputFieldA.Text:match("-?%d+%.?%d*"))
-                if newValue ~= nil then
-                    newValue = math.clamp(
-                        newValue,
-                        0,
-                        thisWidget.arguments.UseFloats and 1 or 255
-                    )
-                    if thisWidget.arguments.UseFloats ~= true then
-                        newValue /= 255
-                    end
-                    thisWidget.state.transparency:set(newValue)
-                    thisWidget.lastNumchangeTick = Iris._cycleTick + 1
-                else
-                    thisWidget.state.transparency:set(thisWidget.state.transparency.value)
-                end
-            end)
+    --         InputFieldA.FocusLost:Connect(function()
+    --             local newValue = tonumber(InputFieldA.Text:match("-?%d+%.?%d*"))
+    --             if newValue ~= nil then
+    --                 newValue = math.clamp(
+    --                     newValue,
+    --                     0,
+    --                     thisWidget.arguments.UseFloats and 1 or 255
+    --                 )
+    --                 if thisWidget.arguments.UseFloats ~= true then
+    --                     newValue /= 255
+    --                 end
+    --                 thisWidget.state.transparency:set(newValue)
+    --                 thisWidget.lastNumchangeTick = Iris._cycleTick + 1
+    --             else
+    --                 thisWidget.state.transparency:set(thisWidget.state.transparency.value)
+    --             end
+    --         end)
     
-            InputFieldA.Focused:Connect(function()
-                InputFieldA.SelectionStart = 1
-            end)
+    --         InputFieldA.Focused:Connect(function()
+    --             InputFieldA.SelectionStart = 1
+    --         end)
 
-            local PreviewColorBox = Instance.new("Frame")
-            PreviewColorBox.Name = "PreviewColorBox"
-            PreviewColorBox.BackgroundColor3 = Iris._config.FrameBgColor
-            PreviewColorBox.BackgroundTransparency = Iris._config.FrameBgTransparency
-            PreviewColorBox.BorderSizePixel = 0
-            PreviewColorBox.ZIndex = thisWidget.ZIndex + 4
-            PreviewColorBox.LayoutOrder = thisWidget.ZIndex + 4
-            PreviewColorBox.Size = UDim2.fromOffset(PreviewColorSize, PreviewColorSize)
-            PreviewColorBox.Parent = InputColor
+    --         local PreviewColorBox = Instance.new("Frame")
+    --         PreviewColorBox.Name = "PreviewColorBox"
+    --         PreviewColorBox.BackgroundColor3 = Iris._config.FrameBgColor
+    --         PreviewColorBox.BackgroundTransparency = Iris._config.FrameBgTransparency
+    --         PreviewColorBox.BorderSizePixel = 0
+    --         PreviewColorBox.ZIndex = thisWidget.ZIndex + 4
+    --         PreviewColorBox.LayoutOrder = thisWidget.ZIndex + 4
+    --         PreviewColorBox.Size = UDim2.fromOffset(PreviewColorSize, PreviewColorSize)
+    --         PreviewColorBox.Parent = InputColor
 
-            local PreviewColorBackground = Instance.new("ImageLabel")
-            PreviewColorBackground.Name = "PreviewColorBackground"
-            PreviewColorBackground.BorderSizePixel = 0
-            PreviewColorBackground.ZIndex = thisWidget.ZIndex + 5
-            PreviewColorBackground.LayoutOrder = thisWidget.ZIndex + 5
-            PreviewColorBackground.Size = UDim2.new(1, -2, 1, -2)
-            PreviewColorBackground.Position = UDim2.fromOffset(1, 1)
-            PreviewColorBackground.Image = widgets.ICONS.ALPHA_BACKGROUND_TEXTURE
-            PreviewColorBackground.Parent = PreviewColorBox
+    --         local PreviewColorBackground = Instance.new("ImageLabel")
+    --         PreviewColorBackground.Name = "PreviewColorBackground"
+    --         PreviewColorBackground.BorderSizePixel = 0
+    --         PreviewColorBackground.ZIndex = thisWidget.ZIndex + 5
+    --         PreviewColorBackground.LayoutOrder = thisWidget.ZIndex + 5
+    --         PreviewColorBackground.Size = UDim2.new(1, -2, 1, -2)
+    --         PreviewColorBackground.Position = UDim2.fromOffset(1, 1)
+    --         PreviewColorBackground.Image = widgets.ICONS.ALPHA_BACKGROUND_TEXTURE
+    --         PreviewColorBackground.Parent = PreviewColorBox
 
-            local PreviewColor = Instance.new("Frame")
-            PreviewColor.Name = "PreviewColor"
-            PreviewColor.BorderSizePixel = 0
-            PreviewColor.ZIndex = thisWidget.ZIndex +  6
-            PreviewColor.LayoutOrder = thisWidget.ZIndex + 6
-            PreviewColor.Size = UDim2.new(1, -2, 1, -2)
-            PreviewColor.Position = UDim2.fromOffset(1, 1)
-            PreviewColor.Parent = PreviewColorBox
+    --         local PreviewColor = Instance.new("Frame")
+    --         PreviewColor.Name = "PreviewColor"
+    --         PreviewColor.BorderSizePixel = 0
+    --         PreviewColor.ZIndex = thisWidget.ZIndex +  6
+    --         PreviewColor.LayoutOrder = thisWidget.ZIndex + 6
+    --         PreviewColor.Size = UDim2.new(1, -2, 1, -2)
+    --         PreviewColor.Position = UDim2.fromOffset(1, 1)
+    --         PreviewColor.Parent = PreviewColorBox
 
-            local TextLabel = GenerateTextLabel(thisWidget)
-            TextLabel.Parent = InputColor
+    --         local TextLabel = GenerateTextLabel(thisWidget)
+    --         TextLabel.Parent = InputColor
     
-            return InputColor
-        end
-    }))
+    --         return InputColor
+    --     end
+    -- }))
     
     Iris.WidgetConstructor("InputText", {
         hasState = true,

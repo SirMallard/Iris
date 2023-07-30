@@ -383,6 +383,8 @@ return function(Iris, widgets)
             thisWidget.usesScreenGUI = Iris._config.UseScreenGUIs
             windowWidgets[thisWidget.ID] = thisWidget
 
+			thisWidget.lastMenuTick = 0
+
             local Window
             if thisWidget.usesScreenGUI then
                 Window = Instance.new("ScreenGui")
