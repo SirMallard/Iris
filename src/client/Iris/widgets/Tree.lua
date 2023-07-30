@@ -8,7 +8,7 @@ return function(Iris, widgets)
     
                 end,
                 ["Get"] = function(thisWidget)
-                    return thisWidget._lastCollapsedTick == Iris._cycleTick
+                    return thisWidget.lastCollapsedTick == Iris._cycleTick
                 end
             },
             ["uncollapsed"] = {
@@ -16,7 +16,7 @@ return function(Iris, widgets)
     
                 end,
                 ["Get"] = function(thisWidget)
-                    return thisWidget._lastUncollapsedTick == Iris._cycleTick
+                    return thisWidget.lastUncollaspedTick == Iris._cycleTick
                 end
             },
             ["hovered"] = widgets.EVENTS.hover(function(thisWidget)
