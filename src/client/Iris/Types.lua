@@ -42,6 +42,9 @@ export type Widget = {
     lastCtrlClickedTick: number,
     lastCheckedTick: number,
     lastUncheckedTick: number,
+    lastNumberChangedTick: number,
+
+    clicked: () -> boolean,
 
     lastMenuTick: number,
     menuID: ID,
