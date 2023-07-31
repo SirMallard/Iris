@@ -3,7 +3,7 @@ local Types = require(script.Types)
 
 --- @class Iris
 ---
---- Iris is the base class which contains everything you need to use the library.
+--- Iris; contains the library.
 local Iris = {} :: Types.Iris
 
 Iris._started = false -- has Iris.connect been called yet
@@ -25,10 +25,12 @@ Iris._connectedFunctions = {} -- functions which run each Iris cycle, connected 
 -- these following variables aid in computing Iris._cycle, they are variable while the code to render widgets is being caleld
 Iris._IDStack = { "R" }
 Iris._usedIDs = {} -- hash of IDs which are already used in a cycle, value is the # of occurances so that getID can assign a unique ID for each occurance
+Iris._pushedId = nil
 Iris._stackIndex = 1 -- Points to the index that IDStack is currently in, when computing cycle
 Iris._cycleTick = 0 -- increments for each call to Cycle, used to determine the relative age and freshness of generated widgets
 Iris._widgetCount = 0 -- only used to compute ZIndex, resets to 0 for every cycle
 Iris._lastWidget = Iris._rootWidget -- widget which was most recently rendered
+Iris._cycleCoroutine = nil -- coroutine which calls functions connected each cycle, used to check if any functions yield
 
 function Iris._generateSelectionImageObject()
     if Iris.SelectionImageObject then
@@ -98,13 +100,16 @@ function Iris._getID(levelsToIgnore: number): Types.ID
         i += 1
         levelInfo = debug.info(i, "l")
     end
+
     if Iris._usedIDs[ID] then
         Iris._usedIDs[ID] += 1
     else
         Iris._usedIDs[ID] = 1
     end
 
-    return ID .. ":" .. Iris._usedIDs[ID]
+    local discriminator = if Iris._pushedId then Iris._pushedId else Iris._usedIDs[ID]
+
+    return ID .. ":" .. discriminator
 end
 
 function Iris:_getCurrentWindow(): Types.Widget?
@@ -115,6 +120,17 @@ function Iris:_getCurrentWindow(): Types.Widget?
         end
     end
     return nil
+end
+
+function Iris.PushId(Input: string | number)
+    local inputType = type(Input)
+    assert(inputType == "string" or inputType == "number", "Iris expected Input to PushId to be a string or number.")
+
+    Iris._pushedId = tostring(Input)
+end
+
+function Iris.PopId()
+    Iris._pushedId = nil
 end
 
 function Iris.SetNextWidgetID(ID: Types.ID)
@@ -131,6 +147,10 @@ Iris._lastVDOM = Iris._generateEmptyVDOM()
 Iris._VDOM = Iris._generateEmptyVDOM()
 
 function Iris._cycle()
+    if Iris.Disabled then
+        return
+    end
+
     Iris._rootWidget.lastCycleTick = Iris._cycleTick
     if Iris._rootInstance == nil or Iris._rootInstance.Parent == nil then
         Iris.ForceRefresh()
@@ -146,9 +166,11 @@ function Iris._cycle()
     Iris._lastVDOM = Iris._VDOM
     Iris._VDOM = Iris._generateEmptyVDOM()
 
-    for _, callback: () -> () in Iris._postCycleCallbacks do
-        callback()
-    end
+    task.spawn(function()
+        for _, callback: () -> () in Iris._postCycleCallbacks do
+            callback()
+        end
+    end)
 
     if Iris._globalRefreshRequested then
         -- rerender every widget
@@ -174,25 +196,49 @@ function Iris._cycle()
         error("Iris Parent Instance cant contain GUI")
     end
     --debug.profilebegin("Iris Generate")
-    for _, callback: () -> () in Iris._connectedFunctions do
-        -- local status: boolean, _error: string = pcall(callback)
-        -- if not status then
-        --     Iris._stackIndex = 1
-        --     error(_error, 0)
-        -- end
-        callback() -- this is useful to see the full stack trace of any issues.
-        if Iris._stackIndex ~= 1 then
-            -- has to be larger than 1 because of the check that it isint below 1 in Iris.End
-            Iris._stackIndex = 1
-            error("Callback has too few calls to Iris.End()", 0)
+    local coroutineStatus = coroutine.status(Iris._cycleCoroutine)
+    if coroutineStatus == "suspended" then
+        local _, success, result = coroutine.resume(Iris._cycleCoroutine)
+        if success == false then
+            -- Connected function code errored
+            error(result, 0)
         end
+    elseif coroutineStatus == "running" then
+        -- still running
+        error("Iris cycleCoroutine took to long to yield. Connected functions should not yield.")
+    else
+        -- should never reach this
+        error("unrecoverable state")
     end
     --debug.profileend()
 end
 
+Iris._cycleCoroutine = coroutine.create(function()
+    while true do
+        for _, callback: () -> () in Iris._connectedFunctions do
+            local status: boolean, _error: string = pcall(callback)
+            if not status then
+                Iris._stackIndex = 1
+                coroutine.yield(false, _error)
+            end
+            if Iris._stackIndex ~= 1 then
+                -- has to be larger than 1 because of the check that it isint below 1 in Iris.End
+                Iris._stackIndex = 1
+                error("Callback has too few calls to Iris.End()", 0)
+            end
+        end
+        coroutine.yield(true)
+    end
+end)
+
 function Iris._GetParentWidget(): Types.Widget
     return Iris._VDOM[Iris._IDStack[Iris._stackIndex]]
 end
+
+--- @prop Disabled boolean
+--- @within Iris
+--- While Iris.Disabled is true, Execution of Iris and connected functions will be paused
+Iris.Disabled = false
 
 --- @prop Args table
 --- @within Iris
@@ -207,7 +253,7 @@ Iris.Args = {}
 function Iris._EventCall(thisWidget: Types.Widget, eventName: string): boolean
     local Events: Types.Events = Iris._widgets[thisWidget.type].Events
     local Event: Types.Event = Events[eventName]
-    assert(Event ~= nil, `widget {thisWidget.type} has no event of name {Event}`)
+    assert(Event ~= nil, `widget {thisWidget.type} has no event of name {eventName}`)
 
     if thisWidget.trackedEvents[eventName] == nil then
         Event.Init(thisWidget)
@@ -229,8 +275,7 @@ function Iris.ForceRefresh()
     Iris._globalRefreshRequested = true
 end
 
-function Iris._NoOp() -- This is a value of Iris because i am scared of closures
-end
+function Iris._NoOp() end
 --- @function WidgetConstructor
 --- @within Iris
 --- @param type string -- Name used to denote the widget
@@ -392,7 +437,7 @@ end
 
 --- @method set
 --- @within State
---- allows the caller to assign the state object a new value.
+--- allows the caller to assign the state object a new value, and returns the new value.
 function StateClass:set(newValue: any): any
     self.value = newValue
     for _, thisWidget: Types.Widget in self.ConnectedWidgets do
@@ -455,7 +500,7 @@ end
 --- @function State
 --- @within Iris
 --- @param initialValue any -- The initial value for the state
---- Constructs a new state object, subsequent ID calls will return the same object, except in the circumstance when all widgets connected to the state are discarded
+--- Constructs a new state object, subsequent ID calls will return the same object, except all widgets connected to the state are discarded, the state reverts to the passed initialValue
 function Iris.WeakState(initialValue: any): Types.State
     local ID: Types.ID = Iris._getID(2)
     if Iris._states[ID] then
@@ -528,9 +573,6 @@ end
 --- @param eventConnection RBXScriptSignal | () -> {} | nil
 --- @return Iris
 --- Initializes Iris. May only be called once.
---- :::tip
---- Want to stop Iris from rendering and consuming performance, but keep all the Iris code? simply comment out the `Iris.Init()` line in your codebase.
---- :::
 function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSignal | () -> {})?): Types.Iris
     if parentInstance == nil then
         -- coalesce to playerGui
@@ -541,7 +583,7 @@ function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSi
         eventConnection = game:GetService("RunService").Heartbeat
     end
     Iris.parentInstance = parentInstance
-    assert(not Iris._started, "Iris.Connect can only be called once.")
+    assert(Iris._started == false, "Iris.Init can only be called once.")
     Iris._started = true
 
     Iris._generateRootInstance()
@@ -567,6 +609,9 @@ end
 --- @method Connect
 --- @param callback function -- allows users to connect a function which will execute every Iris cycle, (cycle is determined by the callback or event passed to Iris.Init)
 function Iris:Connect(callback: () -> {}) -- this uses method syntax for no reason.
+    if Iris._started == false then
+        warn("Iris:Connect() was called before calling Iris.Init(), the connected function will never run")
+    end
     table.insert(Iris._connectedFunctions, callback)
 end
 
@@ -753,8 +798,8 @@ Iris._globalRefreshRequested = false -- UpdatingGlobalConfig changes this to tru
 
 --- @within Iris
 --- @function ShowDemoWindow
---- ShowDemoWindow is a function which creates a Demonstration window. this window contains many useful utilities for coders, and serves as a refrence for using every aspect of the library.
---- Ideally, the DemoWindow should always be available through your UI.
+--- ShowDemoWindow is a function which creates a Demonstration window. this window contains many useful utilities for coders, and serves as a refrence for using each part of the library.
+--- Ideally, the DemoWindow should always be available in your UI.
 Iris.ShowDemoWindow = require(script.demoWindow)(Iris)
 
 require(script.widgets)(Iris)
@@ -788,7 +833,8 @@ end
 --- hasChildren: false,
 --- hasState: false,
 --- Arguments: {
----     Text: String
+---     Text: String,
+---     Color: Color3
 --- },
 --- Events: {
 ---     hovered: boolean
@@ -830,6 +876,9 @@ end
 --- },
 --- Events: {
 ---     clicked: boolean,
+---     rightClicked: boolean,
+---     ctrlClicked: boolean,
+---     doubleClicked: boolean,
 ---     hovered: boolean
 --- }
 --- ```
@@ -849,6 +898,9 @@ end
 --- },
 --- Events: {
 ---     clicked: boolean,
+---     rightClicked: boolean,
+---     ctrlClicked: boolean,
+---     doubleClicked: boolean,
 ---     hovered: boolean
 --- }
 --- ```
@@ -934,7 +986,7 @@ Iris.Checkbox = function(args: Types.WidgetArguments, state: Types.States?): Typ
     return Iris._Insert("Checkbox", args, state)
 end
 
---- @prop Radio Button Widget
+--- @prop RadioButton Widget
 --- @within Widgets
 --- A single button used to represent a single state when used with multiple radio buttons.
 ---
@@ -983,7 +1035,7 @@ Iris.Tree = function(args: Types.WidgetArguments, state: Types.States?): Types.W
     return Iris._Insert("Tree", args, state)
 end
 
---- @prop Collapsing Header Widget
+--- @prop CollapsingHeader Widget
 --- @within Widgets
 --- A collapsable header designed for top level window widget management.
 ---
@@ -1107,6 +1159,7 @@ end
 ---     Format: string
 --- },
 --- Events: {
+---        hovered: boolean,
 ---     numberChanged: boolean
 --- },
 --- States: {
@@ -1132,6 +1185,7 @@ end
 ---     Format: string
 --- },
 --- Events: {
+---        hovered: boolean,
 ---     numberChanged: boolean
 --- },
 --- States: {
@@ -1157,6 +1211,7 @@ end
 ---     Format: string
 --- },
 --- Events: {
+---        hovered: boolean,
 ---     numberChanged: boolean
 --- },
 --- States: {
@@ -1182,6 +1237,7 @@ end
 ---     Format: string
 --- },
 --- Events: {
+---        hovered: boolean,
 ---     numberChanged: boolean
 --- },
 --- States: {
@@ -1202,14 +1258,15 @@ end
 --- Arguments: {
 ---     Text: string,
 ---     UseFloats: boolean,
---- 	UseHSV: boolean,
+---     UseHSV: boolean,
 ---     Format: string
 --- },
 --- Events: {
+---        hovered: boolean,
 ---     numberChanged: boolean
 --- },
 --- States: {
----     number: UDim
+---     color: Color3
 --- }
 --- ```
 Iris.InputColor3 = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
@@ -1226,14 +1283,16 @@ end
 --- Arguments: {
 ---     Text: string,
 ---     UseFloats: boolean,
---- 	UseHSV: boolean,
+---     UseHSV: boolean,
 ---     Format: string
 --- },
 --- Events: {
+---        hovered: boolean,
 ---     numberChanged: boolean
 --- },
 --- States: {
----     number: UDim
+---     color: Color3,
+---     transparency: number
 --- }
 --- ```
 Iris.InputColor4 = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
@@ -1265,6 +1324,15 @@ end
 
 --- @prop Tooltip Widget
 --- @within Widgets
+--- Displays a text label next to the cursor
+---
+--- ```json
+--- hasChildren: false,
+--- hasState: false,
+--- Arguments: {
+---     Text: string,
+--- }
+--- ```
 Iris.Tooltip = function(args: Types.WidgetArguments): Types.Widget
     return Iris._Insert("Tooltip", args)
 end
@@ -1283,8 +1351,13 @@ end
 --- },
 --- Events: {
 ---     selected: boolean,
---- 	unselected: boolean,
---- 	active: boolean
+---     unselected: boolean,
+---     active: boolean
+---     clicked: boolean,
+---     rightClicked: boolean,
+---     ctrlClicked: boolean,
+---     doubleClicked: boolean,
+---     hovered: boolean
 --- },
 --- States: {
 ---     index: any
@@ -1303,17 +1376,18 @@ end
 --- hasState: true,
 --- Arguments: {
 ---     Text: string,
---- 	NoButton: boolean,
---- 	NoPreview: boolean
+---     NoButton: boolean,
+---     NoPreview: boolean
 --- },
 --- Events: {
 ---     opened: boolean,
---- 	closed: boolean,
---- 	clicked: boolean
+---     closed: boolean,
+---     clicked: boolean,
+---     hovered: boolean
 --- },
 --- States: {
 ---     index: any,
---- 	isOpened: boolean
+---     isOpened: boolean
 --- }
 --- ```
 Iris.Combo = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
@@ -1329,20 +1403,21 @@ end
 --- hasState: true,
 --- Arguments: {
 ---     Text: string,
---- 	NoButton: boolean,
---- 	NoPreview: boolean
+---     NoButton: boolean,
+---     NoPreview: boolean
 --- },
 --- Events: {
 ---     opened: boolean,
---- 	closed: boolean,
---- 	clicked: boolean
+---     closed: boolean,
+---     clicked: boolean,
+---     hovered: boolean
 --- },
 --- States: {
 ---     index: any,
---- 	isOpened: boolean
+---     isOpened: boolean
 --- },
 --- Extra: {
---- 	selectionArray: { any }
+---     selectionArray: { any }
 --- }
 --- ```
 Iris.ComboArray = Iris.ComboArray
@@ -1356,20 +1431,21 @@ Iris.ComboArray = Iris.ComboArray
 --- hasState: true,
 --- Arguments: {
 ---     Text: string,
---- 	NoButton: boolean,
---- 	NoPreview: boolean
+---     NoButton: boolean,
+---     NoPreview: boolean
 --- },
 --- Events: {
 ---     opened: boolean,
---- 	closed: boolean,
---- 	clicked: boolean
+---     closed: boolean,
+---     clicked: boolean,
+---     hovered: boolean
 --- },
 --- States: {
 ---     index: any,
---- 	isOpened: boolean
+---     isOpened: boolean
 --- },
 --- Extra: {
---- 	enumType: Enum
+---     enumType: Enum
 --- }
 --- ```
 Iris.InputEnum = Iris.InputEnum

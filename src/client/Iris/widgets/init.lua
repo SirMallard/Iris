@@ -4,6 +4,7 @@ local widgets = {} :: Types.WidgetUtility
 
 return function(Iris: Types.Iris)
     widgets.GuiService = game:GetService("GuiService")
+    widgets.RunService = game:GetService("RunService")
     widgets.UserInputService = game:GetService("UserInputService")
 
     widgets.ICONS = {
@@ -11,12 +12,19 @@ return function(Iris: Types.Iris)
         DOWN_POINTING_TRIANGLE = "\u{25BC}",
         MULTIPLICATION_SIGN = "\u{00D7}", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
         BOTTOM_RIGHT_CORNER = "\u{25E2}", -- used in window resize icon in bottom right
-        CHECK_MARK = "\u{2713}", -- curved shape, closest we can get to ImGui Checkmarks
+        CHECK_MARK = "rbxasset://textures/AnimationEditor/icon_checkmark.png",
         ALPHA_BACKGROUND_TEXTURE = "rbxasset://textures/meshPartFallback.png", -- used for color4 alpha
     }
 
-    local x: number, y: number = widgets.GuiService:GetGuiInset()
-    widgets.GuiInset = Vector2.new(x, y)
+    widgets.IS_STUDIO = widgets.RunService:IsStudio()
+    function widgets.getTime()
+        -- time() always returns 0 in the context of plugins
+        if widgets.IS_STUDIO then
+            return os.clock()
+        else
+            return time()
+        end
+    end
 
     function widgets.findBestWindowPosForPopup(refPos: Vector2, size: Vector2, outerMin: Vector2, outerMax: Vector2): Vector2
         local CURSOR_OFFSET_DIST: number = 20
@@ -342,7 +350,7 @@ return function(Iris: Types.Iris)
                     thisWidget.lastDoubleClickedTick = -1
 
                     clickedGuiObject.MouseButton1Down:Connect(function(x: number, y: number)
-                        local currentTime: number = time()
+                        local currentTime: number = widgets.getTime()
                         local isTimeValid: boolean = currentTime - thisWidget.lastClickedTime < Iris._config.MouseDoubleClickTime
                         if isTimeValid and (Vector2.new(x, y) - thisWidget.lastClickedPosition).Magnitude < Iris._config.MouseDoubleClickMaxDist then
                             thisWidget.lastDoubleClickedTick = Iris._cycleTick + 1

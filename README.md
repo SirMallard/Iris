@@ -1,12 +1,12 @@
 ### Try the demo: https://www.roblox.com/games/11145814918/Iris-Demonstration
 
 # Iris
-Iris is an Immediate mode GUI Library for Roblox, Based on [Dear ImGui](https://github.com/ocornut/imgui). It aims to solve the same problems as Dear ImGui. It is fast, portable, and self-contained (no external dependencies).
+Iris is an Immediate mode GUI Library for Roblox, Based on [Dear ImGui](https://github.com/ocornut/imgui). It solves the same problems as Dear ImGui. It is fast, portable, and self-contained (no external dependencies).
 
 what is Dear ImGui, and why is it important?
-<sub>Dear ImGui is best known for its widespread use for developing debug UI. Using the Dear ImGui paradigm (Immediate Mode), UI is remarkably easy. Because of this, Dear ImGui has seen adoption in almost every major game engine, including Unity and Unreal Engine (and now Roblox!).</sub>
+<sub>Dear ImGui is best known for its use for developing debug UI. Using the Dear ImGui paradigm (Immediate Mode), UI is remarkably easy. Because of this, Dear ImGui has seen adoption in almost every major game engine, including Unity and Unreal Engine (and now Roblox!).</sub>
 
-Iris favors simplicity and productivity; It is designed to simplify UI, streamlining the process for creating visualization, debug tools, and data input. To accomplish this, Iris offers a different approach to Roblox UI than existing libraries, lacking certain features commonly found in more intricate UI libraries. Iris opts to supercede the Roblox UI API, instead offering a streamlined Immediate-Mode library and a set of widgets to empower developers to create UI easily.
+Iris favors simplicity and productivity; It is designed to simplify UI, streamlining the process for creating visualization, debug tools, and data input. To accomplish this, Iris offers a different approach to Roblox UI than existing libraries, lacking certain features commonly found in more intricate UI libraries. Iris opts to supercede the Roblox UI API, instead having a streamlined Immediate-Mode library and a set of widgets whcih developers can use to create UI easily.
 
 ### Usage
 The Iris release comes as an rbxm or zip file. You can import the rbxm into any roblox project, and begin creating UI in any client side script. No external dependences are needed. Iris can be used in any kind of Roblox UI, including PlayerGui, CoreGui, BillboardGui, SurfaceGui, and PluginGui.
@@ -34,32 +34,33 @@ local StarterPlayerScripts = game.StarterPlayer.StarterPlayerScripts
 local Iris = require(StarterPlayerScripts.Client.Iris).Init()
 
 Iris:Connect(function()
-	-- use a unique window size, rather than default
-	local windowSize = Iris.State(Vector2.new(300, 400))
+    -- use a unique window size, rather than default
+    local windowSize = Iris.State(Vector2.new(300, 400))
 
-	Iris.Window({"My Second Window"}, {size = windowSize})
-		Iris.Text({"The current time is: " .. os.clock()})
+    Iris.Window({"My Second Window"}, {size = windowSize})
+        Iris.Text({"The current time is: " .. time()})
 
-		Iris.InputText({"Enter Text"})
+        Iris.InputText({"Enter Text"})
 
-		if Iris.Button({"Click me"}).clicked then
-			print("button was clicked")
-		end
+        if Iris.Button({"Click me"}).clicked() then
+            print("button was clicked")
+        end
 
-		Iris.Table({1})
-			for i = 0, 9 do
-				Iris.Button({"Button - " .. i})
-                Iris.NextColumn()
-			end
-		Iris.End()
-	Iris.End()
+        Iris.InputColor4()
+
+        Iris.Tree()
+            for i = 1,8 do
+                Iris.Text({"Text in a loop: " .. i})
+            end
+        Iris.End()
+    Iris.End()
 end)
 ```
 <div align="center">
     <img src="https://raw.githubusercontent.com/Michael-48/Iris/main/assets/complexDarkExample.png" alt="Sample Display Output"/>
 </div>
 
-The appearance of Iris is fully customizable; colors, fonts, transparencies, and layout are all customizable. By default, Iris comes with a dark theme and light theme, as well as 2 layout themes.
+The appearance of Iris is fully customizable, including colors, fonts, transparencies and layout. By default, Iris comes with a dark theme and light theme, as well as 2 layout themes.
 
 ```lua
 Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorLight)
@@ -71,7 +72,7 @@ Iris:Connect(Iris.ShowDemoWindow)
     <img src="https://raw.githubusercontent.com/Michael-48/Iris/main/assets/simpleLightExample.png" alt="Sample Display Output"/>
 </div>
 
-Finally, Iris comes with a demo window, `Iris.ShowDemoWindow`. This window demonstrates the functionality of every aspect of the library, and contains useful utilities, a style editor and a runtime information window. It is the most useful reference that you and other coders will want to refer to.
+Finally, Iris comes with a demo window, `Iris.ShowDemoWindow`. This window demonstrates the functionality of every part of the library, and contains useful utilities, like a style editor and a runtime information window. It is a useful reference for you and other coders can to refer to.
 <div align="center">
     <img src="https://raw.githubusercontent.com/Michael-48/Iris/main/assets/demoWindow.png" alt="Sample Display Output"/>
 </div>
@@ -86,4 +87,4 @@ But in an immediate mode model, call the button function and check if it's been 
 Check out the Dear ImGuis [About the IMGUI paradigm](https://github.com/ocornut/imgui/wiki/About-the-IMGUI-paradigm) section if you want to understand the core principles behind the IMGUI paradigm.
 
 ### Credits
-Developed By [Michael_48](https://github.com/Michael-48). Design, Inspriation, Docs and Feedback: [Omar Cornut](https://www.miracleworld.net/), [Evaera](https://github.com/evaera), and [JakeyWasTaken](https://github.com/JakeyWasTaken). Thanks!
+Developed By [Michael_48](https://github.com/Michael-48), [SirMallard](https://github.com/SirMallard) and [JakeyWasTaken](https://github.com/JakeyWasTaken). Inspriation and design: [Omar Cornut](https://www.miracleworld.net/), [Evaera](https://github.com/evaera), Thanks!

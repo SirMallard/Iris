@@ -132,7 +132,7 @@ return function(Iris, widgets)
         local ChildContainer = thisWidget.ChildContainer
 
         local ChildContainerBorderSize = Iris._config.PopupBorderSize
-        local ChildContainerHeight = thisWidget.LabelHeight * math.min(thisWidget.NumChildrenForSize, 8) - 2 * ChildContainerBorderSize
+        local ChildContainerHeight = (thisWidget.LabelHeight * math.min(thisWidget.NumChildrenForSize, 8) - 2 * ChildContainerBorderSize) + (3*Iris._config.FramePadding.Y)
         local ChildContainerWidth = UDim.new(0, PreviewContainer.AbsoluteSize.X - 2 * ChildContainerBorderSize)
         ChildContainer.Size = UDim2.new(ChildContainerWidth, UDim.new(0, ChildContainerHeight))
 
@@ -147,7 +147,7 @@ return function(Iris, widgets)
     end
 
     widgets.UserInputService.InputBegan:Connect(function(inputObject)
-        if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 and inputObject.UserInputType ~= Enum.UserInputType.MouseButton2 then
+        if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 and inputObject.UserInputType ~= Enum.UserInputType.MouseButton2 and inputObject.UserInputType ~= Enum.UserInputType.Touch then
             return
         end
         if AnyOpenedCombo == false then
@@ -284,7 +284,7 @@ return function(Iris, widgets)
                 if AnyOpenedCombo and OpenedCombo ~= thisWidget then
                     return
                 end
-                if inputObject.UserInputType == Enum.UserInputType.MouseButton1 then
+                if inputObject.UserInputType == Enum.UserInputType.MouseButton1 or inputObject.UserInputType == Enum.UserInputType.Touch then
                     thisWidget.state.isOpened:set(not thisWidget.state.isOpened.value)
                 end
             end)
@@ -324,7 +324,7 @@ return function(Iris, widgets)
             uiStroke.Thickness = Iris._config.WindowBorderSize
             uiStroke.Color = Iris._config.BorderColor
             uiStroke.Parent = ChildContainer
-            widgets.UIPadding(ChildContainer, Vector2.new(2, Iris._config.WindowPadding.Y - Iris._config.ItemSpacing.Y))
+            widgets.UIPadding(ChildContainer, Vector2.new(2, 2*Iris._config.FramePadding.Y))
             -- appear over everything else
             ChildContainer.ZIndex = thisWidget.ZIndex + 6
             ChildContainer.LayoutOrder = thisWidget.ZIndex + 6

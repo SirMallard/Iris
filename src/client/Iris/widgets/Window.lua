@@ -260,7 +260,7 @@ return function(Iris, widgets)
             dragInstance.Position = UDim2.fromOffset(newPos.X, newPos.Y)
             dragWindow.state.position.value = newPos
         end
-        if isResizing then
+        if isResizing and resizeWindow.arguments.NoResize ~= true then
             local resizeInstance = resizeWindow.Instance.WindowButton
             local windowPosition = Vector2.new(resizeInstance.Position.X.Offset, resizeInstance.Position.Y.Offset)
             local windowSize = Vector2.new(resizeInstance.Size.X.Offset, resizeInstance.Size.Y.Offset)
@@ -675,7 +675,11 @@ return function(Iris, widgets)
             local TitleBarHeight: number = Iris._config.TextSize + Iris._config.FramePadding.Y * 2
             local containerHeight: number = 0
 
-            ResizeGrip.Visible = not thisWidget.arguments.NoResize
+            if thisWidget.arguments.NoResize ~= true then
+                ResizeGrip.Visible = true
+            else
+                ResizeGrip.Visible = false
+            end
             if thisWidget.arguments.NoScrollbar then
                 ChildContainer.ScrollBarThickness = 0
             else
@@ -777,7 +781,7 @@ return function(Iris, widgets)
             if stateIsUncollapsed then
                 TitleBar.CollapseArrow.Text = widgets.ICONS.DOWN_POINTING_TRIANGLE
                 ChildContainer.Visible = true
-                if thisWidget.arguments.NoResize == false then
+                if thisWidget.arguments.NoResize ~= true then
                     ResizeGrip.Visible = true
                 end
                 WindowButton.AutomaticSize = Enum.AutomaticSize.None

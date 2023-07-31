@@ -9,7 +9,7 @@ return function(Iris, widgets)
     local function GenerateRootFrame(thisWidget, name)
         local Frame = Instance.new("Frame")
         Frame.Name = name
-        Frame.Size = UDim2.fromScale(1, 0)
+        Frame.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
         Frame.BackgroundTransparency = 1
         Frame.BorderSizePixel = 0
         Frame.ZIndex = thisWidget.ZIndex
@@ -70,14 +70,14 @@ return function(Iris, widgets)
         },
         Generate = function() end,
         Update = function(thisWidget)
-            if thisWidget.arguments.Increment and typeof(thisWidget.arguments.Increment) ~= "Vector2" then
-                error("Iris.InputVector2 'Increment' Argument must be a Vector2", 5)
+            if thisWidget.arguments.Increment and typeof(thisWidget.arguments.Increment) ~= "Vector3" then
+                error("Iris.InputVector2 'Increment' Argument must be a Vector3", 5)
             end
-            if thisWidget.arguments.Min and typeof(thisWidget.arguments.Min) ~= "Vector2" then
-                error("Iris.InputVector2 'Min' Argument must be a Vector2", 5)
+            if thisWidget.arguments.Min and typeof(thisWidget.arguments.Min) ~= "Vector3" then
+                error("Iris.InputVector2 'Min' Argument must be a Vector3", 5)
             end
-            if thisWidget.arguments.Max and typeof(thisWidget.arguments.Max) ~= "Vector2" then
-                error("Iris.InputVector2 'Max' Argument must be a Vector2", 5)
+            if thisWidget.arguments.Max and typeof(thisWidget.arguments.Max) ~= "Vector3" then
+                error("Iris.InputVector2 'Max' Argument must be a Vector3", 5)
             end
             local TextLabel = thisWidget.Instance.TextLabel
             TextLabel.Text = thisWidget.arguments.Text or "Input Vector3"
@@ -98,9 +98,9 @@ return function(Iris, widgets)
             local InputFieldY = thisWidget.Instance.InputFieldY
             local InputFieldZ = thisWidget.Instance.InputFieldZ
 
-            local newTextX = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.X)
-            local newTextY = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.Y)
-            local newTextZ = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.Z)
+            local newTextX = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment and thisWidget.arguments.Increment.X or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.X)
+            local newTextY = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment and thisWidget.arguments.Increment.Y or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.Y)
+            local newTextZ = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment and thisWidget.arguments.Increment.Z or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.Z)
 
             InputFieldX.Text = newTextX
             InputFieldY.Text = newTextY
@@ -152,8 +152,8 @@ return function(Iris, widgets)
         UpdateState = function(thisWidget)
             local InputFieldX = thisWidget.Instance.InputFieldX
             local InputFieldY = thisWidget.Instance.InputFieldY
-            local newTextX = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.X)
-            local newTextY = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.Y)
+            local newTextX = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment and thisWidget.arguments.Increment.X or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.X)
+            local newTextY = string.format(thisWidget.arguments.Format or ((thisWidget.arguments.Increment and thisWidget.arguments.Increment.Y or 1) >= 1 and "%d" or "%f"), thisWidget.state.number.value.Y)
             InputFieldX.Text = newTextX
             InputFieldY.Text = newTextY
         end,
@@ -184,7 +184,7 @@ return function(Iris, widgets)
             local InputFieldScale = thisWidget.Instance.InputFieldScale
             local InputFieldOffset = thisWidget.Instance.InputFieldOffset
             local formatTextScale = thisWidget.arguments.Format or "%.3f"
-            local formatTextOffset = thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f")
+            local formatTextOffset = thisWidget.arguments.Format or ((thisWidget.arguments.Increment and thisWidget.arguments.Increment.Offset or 1) >= 1 and "%d" or "%f")
             local newTextScale = string.format("Scale: " .. formatTextScale, thisWidget.state.number.value.Scale)
             local newTextOffset = string.format("Offset: " .. formatTextOffset, thisWidget.state.number.value.Offset)
             InputFieldScale.Text = newTextScale
@@ -221,7 +221,7 @@ return function(Iris, widgets)
             local InputFieldXScale = thisWidget.Instance.InputFieldXScale
             local InputFieldXOffset = thisWidget.Instance.InputFieldXOffset
             local formatTextScale = thisWidget.arguments.Format or "%.3f"
-            local formatTextOffset = thisWidget.arguments.Format or ((thisWidget.arguments.Increment or 1) >= 1 and "%d" or "%f")
+            local formatTextOffset = thisWidget.arguments.Format or ((thisWidget.arguments.Increment and thisWidget.arguments.Increment.Offset or 1) >= 1 and "%d" or "%f")
 
             local newTextXScale = string.format("X Scale: " .. formatTextScale, thisWidget.state.number.value.X.Scale)
             local newTextXOffset = string.format("X Offset: " .. formatTextOffset, thisWidget.state.number.value.X.Offset)
@@ -425,7 +425,7 @@ return function(Iris, widgets)
         end
 
         local function InputFieldContainerOnClick(thisWidget, x, y)
-            local currentTime = time()
+            local currentTime = widgets.getTime()
             local isTimeValid = currentTime - thisWidget.lastClickedTime < Iris._config.MouseDoubleClickTime
             local isCtrlHeld = widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
             if (isTimeValid and (Vector2.new(x, y) - thisWidget.lastClickedPosition).Magnitude < Iris._config.MouseDoubleClickMaxDist) or isCtrlHeld then
@@ -469,7 +469,7 @@ return function(Iris, widgets)
                 InputFieldContainer.TextXAlignment = Enum.TextXAlignment.Center
                 InputFieldContainer.ZIndex = thisWidget.ZIndex + 1
                 InputFieldContainer.LayoutOrder = thisWidget.ZIndex + 1
-                InputFieldContainer.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+                InputFieldContainer.Size = UDim2.new(1, 0, 0, 0)
                 InputFieldContainer.AutomaticSize = Enum.AutomaticSize.Y
                 InputFieldContainer.AutoButtonColor = false
                 InputFieldContainer.Text = ""
@@ -568,7 +568,7 @@ return function(Iris, widgets)
         local ActiveSliderNum
 
         widgets.UserInputService.InputEnded:Connect(function(inputObject)
-            if inputObject.UserInputType == Enum.UserInputType.MouseButton1 and AnyActiveSliderNum then
+            if (inputObject.UserInputType == Enum.UserInputType.MouseButton1 or inputObject.UserInputType == Enum.UserInputType.Touch) and AnyActiveSliderNum then
                 AnyActiveSliderNum = false
                 ActiveSliderNum = nil
             end
@@ -635,7 +635,7 @@ return function(Iris, widgets)
                 InputFieldContainer.TextXAlignment = Enum.TextXAlignment.Center
                 InputFieldContainer.ZIndex = thisWidget.ZIndex + 1
                 InputFieldContainer.LayoutOrder = thisWidget.ZIndex + 1
-                InputFieldContainer.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+                InputFieldContainer.Size = UDim2.new(1, 0, 0, 0)
                 InputFieldContainer.AutomaticSize = Enum.AutomaticSize.Y
                 InputFieldContainer.AutoButtonColor = false
                 InputFieldContainer.Text = ""
@@ -691,8 +691,10 @@ return function(Iris, widgets)
                     InputField.SelectionStart = 1
                 end)
 
-                InputFieldContainer.MouseButton1Down:Connect(function()
-                    InputFieldContainerOnClick(thisWidget)
+                InputFieldContainer.InputBegan:Connect(function(inputObject)
+                    if inputObject.UserInputType == Enum.UserInputType.MouseButton1 or inputObject.UserInputType == Enum.UserInputType.Touch then
+                        InputFieldContainerOnClick(thisWidget)
+                    end
                 end)
 
                 local GrabBar = Instance.new("Frame")
@@ -1823,7 +1825,7 @@ return function(Iris, widgets)
             InputField.ZIndex = thisWidget.ZIndex + 1
             InputField.LayoutOrder = thisWidget.ZIndex + 1
             InputField.AutomaticSize = Enum.AutomaticSize.Y
-            InputField.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+            InputField.Size = UDim2.new(1, 0, 0, 0)
             InputField.BackgroundColor3 = Iris._config.FrameBgColor
             InputField.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputField.ClearTextOnFocus = false
@@ -1831,7 +1833,11 @@ return function(Iris, widgets)
             InputField.PlaceholderColor3 = Iris._config.TextDisabledColor
             InputField.TextTruncate = Enum.TextTruncate.AtEnd
             InputField.ClipsDescendants = true
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 6efb5a981f565b7fd49c41c265667873d3e09da7
             InputField.FocusLost:Connect(function()
                 thisWidget.state.text:set(InputField.Text)
                 thisWidget.lastTextchangeTick = Iris._cycleTick + 1

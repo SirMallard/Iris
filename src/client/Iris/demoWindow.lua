@@ -294,8 +294,20 @@ return function(Iris)
         local lastVDOM = Iris._lastVDOM
         local states = Iris._states
 
+        local disabled = Iris.State(false)
+        local numSecondsDisabled = Iris.State(3)
         local rollingDT = Iris.State(0)
         local lastT = Iris.State(os.clock())
+
+        Iris.SameLine()
+        Iris.InputNum({ "", [Iris.Args.InputNum.Format] = "%d Seconds", [Iris.Args.InputNum.Max] = 10 }, { number = numSecondsDisabled })
+        if Iris.Button({ "Disable" }).clicked() then
+            Iris.Disabled = true
+            task.delay(numSecondsDisabled:get(), function()
+                Iris.Disabled = false
+            end)
+        end
+        Iris.End()
 
         local t = os.clock()
         local dt = t - lastT.value
@@ -827,7 +839,7 @@ return function(Iris)
             [Iris.Args.Window.NoNav] = NoNav.value,
         }, { size = Iris.State(Vector2.new(600, 550)), position = Iris.State(Vector2.new(100, 25)), isOpened = showMainWindow })
 
-        Iris.Text({ "Iris says hello. (2.0.0)" })
+        Iris.Text({ "Iris says hello. (2.0.4)" })
         Iris.Separator()
 
         Iris.Table({ 3, false, false, false })
