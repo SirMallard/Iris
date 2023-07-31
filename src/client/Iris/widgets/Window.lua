@@ -12,15 +12,13 @@ return function(Iris, widgets)
 
     widgets.UserInputService.InputChanged:Connect(relocateTooltips)
 
-    Iris.WidgetConstructor("Tooltip", { 
+    Iris.WidgetConstructor("Tooltip", {
         hasState = false,
         hasChildren = false,
         Args = {
-            ["Text"] = 1
+            ["Text"] = 1,
         },
-        Events = {
-
-        },
+        Events = {},
         Generate = function(thisWidget)
             thisWidget.parentWidget = Iris._rootWidget -- only allow root as parent
 
@@ -39,7 +37,7 @@ return function(Iris, widgets)
             TooltipText.ZIndex = thisWidget.ZIndex + 1
             TooltipText.LayoutOrder = thisWidget.ZIndex + 1
             TooltipText.AutomaticSize = Enum.AutomaticSize.XY
-    
+
             widgets.applyTextStyle(TooltipText)
             TooltipText.BackgroundColor3 = Iris._config.WindowBgColor
             TooltipText.BackgroundTransparency = Iris._config.WindowBgTransparency
@@ -58,7 +56,7 @@ return function(Iris, widgets)
             widgets.UIPadding(TooltipText, Iris._config.WindowPadding)
 
             TooltipText.Parent = Tooltip
-            
+
             return Tooltip
         end,
         Update = function(thisWidget)
@@ -71,7 +69,7 @@ return function(Iris, widgets)
         end,
         Discard = function(thisWidget)
             thisWidget.Instance:Destroy()
-        end
+        end,
     })
 
     local windowDisplayOrder = 0 -- incremental count which is used for determining focused windows ZIndex
@@ -123,7 +121,7 @@ return function(Iris, widgets)
         local lowestWidget
 
         for _, widget in windowWidgets do
-            if widget.state.isOpened.value and (not widget.arguments.NoNav) then
+            if widget.state.isOpened.value and not widget.arguments.NoNav then
                 local value = widget.Instance.DisplayOrder
                 if value < lowest then
                     lowest = value
@@ -144,15 +142,8 @@ return function(Iris, widgets)
         local usableSize = getAbsoluteSize(thisWidget)
         local safeAreaPadding = Vector2.new(Iris._config.WindowBorderSize + Iris._config.DisplaySafeAreaPadding.X, Iris._config.WindowBorderSize + Iris._config.DisplaySafeAreaPadding.Y)
 
-        local maxWindowSize = (
-            usableSize -
-            windowSize -
-            safeAreaPadding
-        )
-        return Vector2.new(
-            math.clamp(intentedSize.X, minWindowSize, math.max(maxWindowSize.X, minWindowSize)),
-            math.clamp(intentedSize.Y, minWindowSize, math.max(maxWindowSize.Y, minWindowSize))
-        )
+        local maxWindowSize = (usableSize - windowSize - safeAreaPadding)
+        return Vector2.new(math.clamp(intentedSize.X, minWindowSize, math.max(maxWindowSize.X, minWindowSize)), math.clamp(intentedSize.Y, minWindowSize, math.max(maxWindowSize.Y, minWindowSize)))
     end
 
     local function fitPositionToWindowBounds(thisWidget, intendedPosition)
@@ -161,21 +152,15 @@ return function(Iris, widgets)
         local safeAreaPadding = Vector2.new(Iris._config.WindowBorderSize + Iris._config.DisplaySafeAreaPadding.X, Iris._config.WindowBorderSize + Iris._config.DisplaySafeAreaPadding.Y)
 
         return Vector2.new(
-            math.clamp(
-                intendedPosition.X,
-                safeAreaPadding.X,
-                math.max(safeAreaPadding.X, usableSize.X - thisWidgetInstance.WindowButton.AbsoluteSize.X - safeAreaPadding.X)
-            ),
-            math.clamp(
-                intendedPosition.Y,
-                safeAreaPadding.Y, 
-                math.max(safeAreaPadding.Y, usableSize.Y - thisWidgetInstance.WindowButton.AbsoluteSize.Y - safeAreaPadding.Y)
-            )
+            math.clamp(intendedPosition.X, safeAreaPadding.X, math.max(safeAreaPadding.X, usableSize.X - thisWidgetInstance.WindowButton.AbsoluteSize.X - safeAreaPadding.X)),
+            math.clamp(intendedPosition.Y, safeAreaPadding.Y, math.max(safeAreaPadding.Y, usableSize.Y - thisWidgetInstance.WindowButton.AbsoluteSize.Y - safeAreaPadding.Y))
         )
     end
 
     Iris.SetFocusedWindow = function(thisWidget: { [any]: any } | nil)
-        if focusedWindow == thisWidget then return end
+        if focusedWindow == thisWidget then
+            return
+        end
 
         if anyFocusedWindow then
             if windowWidgets[focusedWindow.ID] ~= nil then
@@ -203,7 +188,7 @@ return function(Iris, widgets)
             TitleBar.BackgroundColor3 = Iris._config.TitleBgActiveColor
             TitleBar.BackgroundTransparency = Iris._config.TitleBgActiveTransparency
             focusedWindow.Instance.WindowButton.UIStroke.Color = Iris._config.BorderActiveColor
-            
+
             windowDisplayOrder += 1
             if thisWidget.usesScreenGUI then
                 focusedWindow.Instance.DisplayOrder = windowDisplayOrder + Iris._config.DisplayOrderOffset
@@ -287,15 +272,13 @@ return function(Iris, widgets)
                 mouseDelta = widgets.UserInputService:GetMouseLocation() - lastCursorPosition
             end
 
-            local intendedPosition = windowPosition + Vector2.new(
-                if resizeFromLeftRight == Enum.LeftRight.Left then mouseDelta.X else 0,
-                if resizeFromTopBottom == Enum.TopBottom.Top then mouseDelta.Y else 0
-            )
+            local intendedPosition = windowPosition + Vector2.new(if resizeFromLeftRight == Enum.LeftRight.Left then mouseDelta.X else 0, if resizeFromTopBottom == Enum.TopBottom.Top then mouseDelta.Y else 0)
 
-            local intendedSize = windowSize + Vector2.new(
-                if resizeFromLeftRight == Enum.LeftRight.Left then -mouseDelta.X elseif resizeFromLeftRight == Enum.LeftRight.Right then mouseDelta.X else 0,
-                if resizeFromTopBottom == Enum.TopBottom.Top then -mouseDelta.Y elseif resizeFromTopBottom == Enum.TopBottom.Bottom then mouseDelta.Y else 0
-            )
+            local intendedSize = windowSize
+                + Vector2.new(
+                    if resizeFromLeftRight == Enum.LeftRight.Left then -mouseDelta.X elseif resizeFromLeftRight == Enum.LeftRight.Right then mouseDelta.X else 0,
+                    if resizeFromTopBottom == Enum.TopBottom.Top then -mouseDelta.Y elseif resizeFromTopBottom == Enum.TopBottom.Bottom then mouseDelta.Y else 0
+                )
 
             local newSize = fitSizeToWindowBounds(resizeWindow, intendedSize)
             local newPosition = fitPositionToWindowBounds(resizeWindow, intendedPosition)
@@ -338,44 +321,36 @@ return function(Iris, widgets)
             ["NoScrollbar"] = 7,
             ["NoResize"] = 8,
             ["NoNav"] = 9,
-			["NoMenu"] = 10,
+            ["NoMenu"] = 10,
         },
         Events = {
             ["closed"] = {
-                ["Init"] = function(thisWidget)
-
-                end,
+                ["Init"] = function(thisWidget) end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.lastClosedTick == Iris._cycleTick
-                end
+                end,
             },
             ["opened"] = {
-                ["Init"] = function(thisWidget)
-
-                end,
+                ["Init"] = function(thisWidget) end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.lastOpenedTick == Iris._cycleTick
-                end
+                end,
             },
             ["collapsed"] = {
-                ["Init"] = function(thisWidget)
-
-                end,
+                ["Init"] = function(thisWidget) end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.lastCollapsedTick == Iris._cycleTick
-                end
+                end,
             },
             ["uncollapsed"] = {
-                ["Init"] = function(thisWidget)
-
-                end,
+                ["Init"] = function(thisWidget) end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.lastUncollapsedTick == Iris._cycleTick
-                end
+                end,
             },
             ["hovered"] = widgets.EVENTS.hover(function(thisWidget)
                 return thisWidget.Instance.WindowButton
-            end)
+            end),
         },
         Generate = function(thisWidget)
             thisWidget.parentWidget = Iris._rootWidget -- only allow root as parent
@@ -383,7 +358,7 @@ return function(Iris, widgets)
             thisWidget.usesScreenGUI = Iris._config.UseScreenGUIs
             windowWidgets[thisWidget.ID] = thisWidget
 
-			thisWidget.lastMenuTick = 0
+            thisWidget.lastMenuTick = 0
 
             local Window
             if thisWidget.usesScreenGUI then
@@ -416,9 +391,11 @@ return function(Iris, widgets)
             WindowButton.SelectionBehaviorDown = Enum.SelectionBehavior.Stop
             WindowButton.SelectionBehaviorLeft = Enum.SelectionBehavior.Stop
             WindowButton.SelectionBehaviorRight = Enum.SelectionBehavior.Stop
-            
+
             WindowButton.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Keyboard then return end
+                if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Keyboard then
+                    return
+                end
                 if thisWidget.state.isUncollapsed.value then
                     Iris.SetFocusedWindow(thisWidget)
                 end
@@ -446,14 +423,14 @@ return function(Iris, widgets)
             ChildContainer.AutomaticSize = Enum.AutomaticSize.None
             ChildContainer.Size = UDim2.fromScale(1, 1)
             ChildContainer.Selectable = false
-			ChildContainer.ClipsDescendants = true
+            ChildContainer.ClipsDescendants = true
 
             ChildContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
             ChildContainer.ScrollBarImageTransparency = Iris._config.ScrollbarGrabTransparency
             ChildContainer.ScrollBarImageColor3 = Iris._config.ScrollbarGrabColor
             ChildContainer.CanvasSize = UDim2.fromScale(0, 1)
             ChildContainer.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
-            
+
             ChildContainer.BackgroundColor3 = Iris._config.WindowBgColor
             ChildContainer.BackgroundTransparency = Iris._config.WindowBgTransparency
             ChildContainer.Parent = WindowButton
@@ -466,7 +443,9 @@ return function(Iris, widgets)
             end)
 
             ChildContainer.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Keyboard then return end
+                if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Keyboard then
+                    return
+                end
                 if thisWidget.state.isUncollapsed.value then
                     Iris.SetFocusedWindow(thisWidget)
                 end
@@ -508,7 +487,7 @@ return function(Iris, widgets)
 
             local CollapseArrow = Instance.new("TextButton")
             CollapseArrow.Name = "CollapseArrow"
-            CollapseArrow.Size = UDim2.fromOffset(TitleButtonSize,TitleButtonSize)
+            CollapseArrow.Size = UDim2.fromOffset(TitleButtonSize, TitleButtonSize)
             CollapseArrow.Position = UDim2.new(0, Iris._config.FramePadding.X + 1, 0.5, 0)
             CollapseArrow.AnchorPoint = Vector2.new(0, 0.5)
             CollapseArrow.AutoButtonColor = false
@@ -591,21 +570,21 @@ return function(Iris, widgets)
 
             widgets.UIPadding(Title, Iris._config.FramePadding)
 
-			-- for the menubar if specified
+            -- for the menubar if specified
 
-			thisWidget.hasMenu = false
-			local MenuBar: Frame = Instance.new("Frame")
-			MenuBar.Name = "MenuBar"
-			MenuBar.BorderSizePixel = 0
-			MenuBar.ZIndex = thisWidget.ZIndex + 2
-			MenuBar.LayoutOrder = thisWidget.ZIndex + 2
-			MenuBar.AutomaticSize = Enum.AutomaticSize.Y
-			MenuBar.Size = UDim2.fromScale(1, 0)
-			MenuBar.ClipsDescendants = true
-			MenuBar.Parent = WindowButton
+            thisWidget.hasMenu = false
+            local MenuBar: Frame = Instance.new("Frame")
+            MenuBar.Name = "MenuBar"
+            MenuBar.BorderSizePixel = 0
+            MenuBar.ZIndex = thisWidget.ZIndex + 2
+            MenuBar.LayoutOrder = thisWidget.ZIndex + 2
+            MenuBar.AutomaticSize = Enum.AutomaticSize.Y
+            MenuBar.Size = UDim2.fromScale(1, 0)
+            MenuBar.ClipsDescendants = true
+            MenuBar.Parent = WindowButton
 
-			widgets.UIPadding(MenuBar, Vector2.new(Iris._config.ItemSpacing.X, 1))
-			widgets.UIListLayout(MenuBar, Enum.FillDirection.Horizontal, UDim.new())
+            widgets.UIPadding(MenuBar, Vector2.new(Iris._config.ItemSpacing.X, 1))
+            widgets.UIListLayout(MenuBar, Enum.FillDirection.Horizontal, UDim.new())
 
             local ResizeButtonSize = Iris._config.TextSize + Iris._config.FramePadding.X
 
@@ -624,8 +603,8 @@ return function(Iris, widgets)
             ResizeGrip.TextTransparency = Iris._config.ButtonTransparency
             ResizeGrip.LineHeight = 1.10 -- fix mild rendering issue
             ResizeGrip.Selectable = false
-			ResizeGrip.Parent = WindowButton
-            
+            ResizeGrip.Parent = WindowButton
+
             widgets.applyTextInteractionHighlights(ResizeGrip, ResizeGrip, {
                 ButtonColor = Iris._config.ButtonColor,
                 ButtonTransparency = Iris._config.ButtonTransparency,
@@ -690,11 +669,11 @@ return function(Iris, widgets)
             local WindowButton = thisWidget.Instance.WindowButton :: TextButton
             local TitleBar = WindowButton.TitleBar :: Frame
             local Title = TitleBar.Title :: TextLabel
-			local MenuBar = WindowButton.MenuBar :: Frame
+            local MenuBar = WindowButton.MenuBar :: Frame
             local ChildContainer = WindowButton.ChildContainer
             local ResizeGrip = WindowButton.ResizeGrip
             local TitleBarHeight: number = Iris._config.TextSize + Iris._config.FramePadding.Y * 2
-			local containerHeight: number = 0
+            local containerHeight: number = 0
 
             ResizeGrip.Visible = not thisWidget.arguments.NoResize
             if thisWidget.arguments.NoScrollbar then
@@ -706,7 +685,7 @@ return function(Iris, widgets)
                 TitleBar.Visible = false
             else
                 TitleBar.Visible = true
-				containerHeight += TitleBarHeight
+                containerHeight += TitleBarHeight
             end
             if thisWidget.arguments.NoBackground then
                 ChildContainer.BackgroundTransparency = 1
@@ -728,16 +707,16 @@ return function(Iris, widgets)
                 TitleBar.CloseIcon.Visible = true
                 TitleBar.Title.UIPadding.PaddingRight = UDim.new(0, TitleButtonPaddingSize)
             end
-			if thisWidget.lastMenuTick >= Iris._cycleTick - 1 and not thisWidget.arguments.NoMenu then
-				MenuBar.Visible = true
-				containerHeight += TitleBarHeight
-			else
-				MenuBar.Visible = false
-			end
-			
-			ChildContainer.Size = UDim2.new(1, 0, 1, -containerHeight)
-			ChildContainer.CanvasSize = UDim2.new(0, 0, 1, -containerHeight)
-			ChildContainer.Position = UDim2.fromOffset(0, containerHeight)
+            if thisWidget.lastMenuTick >= Iris._cycleTick - 1 and not thisWidget.arguments.NoMenu then
+                MenuBar.Visible = true
+                containerHeight += TitleBarHeight
+            else
+                MenuBar.Visible = false
+            end
+
+            ChildContainer.Size = UDim2.new(1, 0, 1, -containerHeight)
+            ChildContainer.CanvasSize = UDim2.new(0, 0, 1, -containerHeight)
+            ChildContainer.Position = UDim2.fromOffset(0, containerHeight)
 
             Title.Text = thisWidget.arguments.Title or ""
         end,
@@ -840,11 +819,7 @@ return function(Iris, widgets)
                 thisWidget.state.size = Iris._widgetState(thisWidget, "size", Vector2.new(400, 300))
             end
             if thisWidget.state.position == nil then
-                thisWidget.state.position = Iris._widgetState(
-                    thisWidget,
-                    "position",
-                    if anyFocusedWindow then focusedWindow.state.position.value + Vector2.new(15, 45) else Vector2.new(150, 250)
-                )
+                thisWidget.state.position = Iris._widgetState(thisWidget, "position", if anyFocusedWindow then focusedWindow.state.position.value + Vector2.new(15, 45) else Vector2.new(150, 250))
             end
             thisWidget.state.position.value = fitPositionToWindowBounds(thisWidget, thisWidget.state.position.value)
             thisWidget.state.size.value = fitSizeToWindowBounds(thisWidget, thisWidget.state.size.value)
@@ -858,6 +833,6 @@ return function(Iris, widgets)
             if thisWidget.state.scrollDistance == nil then
                 thisWidget.state.scrollDistance = Iris._widgetState(thisWidget, "scrollDistance", 0)
             end
-        end
+        end,
     })
 end

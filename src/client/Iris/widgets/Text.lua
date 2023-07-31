@@ -3,12 +3,12 @@ return function(Iris, widgets)
         hasState = false,
         hasChildren = false,
         Args = {
-            ["Text"] = 1
+            ["Text"] = 1,
         },
         Events = {
             ["hovered"] = widgets.EVENTS.hover(function(thisWidget)
                 return thisWidget.Instance
-            end)
+            end),
         },
         Generate = function(thisWidget)
             local Text = Instance.new("TextLabel")
@@ -33,49 +33,58 @@ return function(Iris, widgets)
         end,
         Discard = function(thisWidget)
             thisWidget.Instance:Destroy()
-        end
+        end,
     }
 
-    Iris.WidgetConstructor("Text", widgets.extend(abstractText, {
-        Generate = function(thisWidget)
-            local Text = abstractText.Generate(thisWidget)
-            Text.Name = "Iris_Text"
+    Iris.WidgetConstructor(
+        "Text",
+        widgets.extend(abstractText, {
+            Generate = function(thisWidget)
+                local Text = abstractText.Generate(thisWidget)
+                Text.Name = "Iris_Text"
 
-            return Text
-        end
-    }))
+                return Text
+            end,
+        })
+    )
 
-    Iris.WidgetConstructor("TextColored", widgets.extend(abstractText, {
-        Args = {
-            ["Text"] = 1,
-            ["Color"] = 2
-        },
-        Generate = function(thisWidget)
-            local Text = abstractText.Generate(thisWidget)
-            Text.Name = "Iris_TextColored"
+    Iris.WidgetConstructor(
+        "TextColored",
+        widgets.extend(abstractText, {
+            Args = {
+                ["Text"] = 1,
+                ["Color"] = 2,
+            },
+            Generate = function(thisWidget)
+                local Text = abstractText.Generate(thisWidget)
+                Text.Name = "Iris_TextColored"
 
-            return Text
-        end,
-        Update = function(thisWidget)
-            local Text = thisWidget.Instance
-            if thisWidget.arguments.Text == nil then
-                error("Iris.Text Text Argument is required", 5)
-            end
-            Text.Text = thisWidget.arguments.Text
-            if thisWidget.arguments.Color == nil then
-                error("Iris.TextColored Color argument is required", 5)
-            end 
-            Text.TextColor3 = thisWidget.arguments.Color
-        end
-    }))
+                return Text
+            end,
+            Update = function(thisWidget)
+                local Text = thisWidget.Instance
+                if thisWidget.arguments.Text == nil then
+                    error("Iris.Text Text Argument is required", 5)
+                end
+                Text.Text = thisWidget.arguments.Text
+                if thisWidget.arguments.Color == nil then
+                    error("Iris.TextColored Color argument is required", 5)
+                end
+                Text.TextColor3 = thisWidget.arguments.Color
+            end,
+        })
+    )
 
-    Iris.WidgetConstructor("TextWrapped", widgets.extend(abstractText, {
-        Generate = function(thisWidget)
-            local TextWrapped = abstractText.Generate(thisWidget)
-            TextWrapped.Name = "Iris_TextWrapped"
-            TextWrapped.TextWrapped = true
+    Iris.WidgetConstructor(
+        "TextWrapped",
+        widgets.extend(abstractText, {
+            Generate = function(thisWidget)
+                local TextWrapped = abstractText.Generate(thisWidget)
+                TextWrapped.Name = "Iris_TextWrapped"
+                TextWrapped.TextWrapped = true
 
-            return TextWrapped
-        end
-    }))
+                return TextWrapped
+            end,
+        })
+    )
 end

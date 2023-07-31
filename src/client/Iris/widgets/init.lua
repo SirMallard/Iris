@@ -3,7 +3,6 @@ local Types = require(script.Parent.Types)
 local widgets = {} :: Types.WidgetUtility
 
 return function(Iris: Types.Iris)
-
     widgets.GuiService = game:GetService("GuiService")
     widgets.UserInputService = game:GetService("UserInputService")
 
@@ -13,19 +12,19 @@ return function(Iris: Types.Iris)
         MULTIPLICATION_SIGN = "\u{00D7}", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
         BOTTOM_RIGHT_CORNER = "\u{25E2}", -- used in window resize icon in bottom right
         CHECK_MARK = "\u{2713}", -- curved shape, closest we can get to ImGui Checkmarks
-        ALPHA_BACKGROUND_TEXTURE = "rbxasset://textures/meshPartFallback.png" -- used for color4 alpha
+        ALPHA_BACKGROUND_TEXTURE = "rbxasset://textures/meshPartFallback.png", -- used for color4 alpha
     }
 
-	local x: number, y: number = widgets.GuiService:GetGuiInset()
-	widgets.GuiInset = Vector2.new(x, y)
+    local x: number, y: number = widgets.GuiService:GetGuiInset()
+    widgets.GuiInset = Vector2.new(x, y)
 
     function widgets.findBestWindowPosForPopup(refPos: Vector2, size: Vector2, outerMin: Vector2, outerMax: Vector2): Vector2
         local CURSOR_OFFSET_DIST: number = 20
-        
+
         if refPos.X + size.X + CURSOR_OFFSET_DIST > outerMax.X then
             if refPos.Y + size.Y + CURSOR_OFFSET_DIST > outerMax.Y then
                 -- placed to the top
-                refPos += Vector2.new(0, - (CURSOR_OFFSET_DIST + size.Y))
+                refPos += Vector2.new(0, -(CURSOR_OFFSET_DIST + size.Y))
             else
                 -- placed to the bottom
                 refPos += Vector2.new(0, CURSOR_OFFSET_DIST)
@@ -35,10 +34,7 @@ return function(Iris: Types.Iris)
             refPos += Vector2.new(CURSOR_OFFSET_DIST, 0)
         end
 
-        local clampedPos: Vector2 = Vector2.new(
-            math.max(math.min(refPos.X + size.X, outerMax.X) - size.X, outerMin.X),
-            math.max(math.min(refPos.Y + size.Y, outerMax.Y) - size.Y, outerMin.Y)
-        )
+        local clampedPos: Vector2 = Vector2.new(math.max(math.min(refPos.X + size.X, outerMax.X) - size.X, outerMin.X), math.max(math.min(refPos.Y + size.Y, outerMax.Y) - size.Y, outerMin.Y))
         return clampedPos
     end
 
@@ -89,7 +85,7 @@ return function(Iris: Types.Iris)
         return UICornerInstance
     end
 
-    function widgets.UISizeConstraint(Parent: GuiObject, MinSize: Vector2, MaxSize: Vector2): UISizeConstraint
+    function widgets.UISizeConstraint(Parent: GuiObject, MinSize: Vector2?, MaxSize: Vector2?): UISizeConstraint
         local UISizeConstraintInstance: UISizeConstraint = Instance.new("UISizeConstraint")
         UISizeConstraintInstance.MinSize = MinSize or UISizeConstraintInstance.MinSize -- made these optional
         UISizeConstraintInstance.MaxSize = MaxSize or UISizeConstraintInstance.MaxSize
@@ -147,17 +143,17 @@ return function(Iris: Types.Iris)
                 Highlightee.BackgroundTransparency = Colors.ButtonTransparency
             end
         end)
-        
+
         Button.SelectionImageObject = Iris.SelectionImageObject
     end
 
-    function widgets.applyInteractionHighlightsWithMultiHighlightee(Button: GuiButton, Highlightees: { { GuiObject | { [string]: Color3 | number} } })
+    function widgets.applyInteractionHighlightsWithMultiHighlightee(Button: GuiButton, Highlightees: { { GuiObject | { [string]: Color3 | number } } })
         local exitedButton: boolean = false
         Button.MouseEnter:Connect(function()
             for _, Highlightee in Highlightees do
                 Highlightee[1].BackgroundColor3 = Highlightee[2].ButtonHoveredColor
                 Highlightee[1].BackgroundTransparency = Highlightee[2].ButtonHoveredTransparency
-    
+
                 exitedButton = false
             end
         end)
@@ -196,7 +192,7 @@ return function(Iris: Types.Iris)
                 end
             end
         end)
-        
+
         Button.SelectionImageObject = Iris.SelectionImageObject
     end
 
@@ -237,7 +233,7 @@ return function(Iris: Types.Iris)
                 Highlightee.TextTransparency = Colors.ButtonTransparency
             end
         end)
-        
+
         Button.SelectionImageObject = Iris.SelectionImageObject
     end
 
@@ -249,7 +245,7 @@ return function(Iris: Types.Iris)
         local FrameBorderColor: Color3 = Iris._config.BorderColor
         local FrameBorderTransparency: number = Iris._config.ButtonTransparency
         local FrameRounding: number = Iris._config.FrameRounding
-        
+
         if FrameBorderSize > 0 and FrameRounding > 0 then
             thisInstance.BorderSizePixel = 0
 
@@ -301,7 +297,7 @@ return function(Iris: Types.Iris)
                 end,
                 ["Get"] = function(thisWidget: Types.Widget): boolean
                     return thisWidget.isHoveredEvent
-                end
+                end,
             }
         end,
 
@@ -317,7 +313,7 @@ return function(Iris: Types.Iris)
                 end,
                 ["Get"] = function(thisWidget: Types.Widget): boolean
                     return thisWidget.lastClickedTick == Iris._cycleTick
-                end
+                end,
             }
         end,
 
@@ -333,7 +329,7 @@ return function(Iris: Types.Iris)
                 end,
                 ["Get"] = function(thisWidget: Types.Widget): boolean
                     return thisWidget.lastRightClickedTick == Iris._cycleTick
-                end
+                end,
             }
         end,
 
@@ -358,7 +354,7 @@ return function(Iris: Types.Iris)
                 end,
                 ["Get"] = function(thisWidget: Types.Widget): boolean
                     return thisWidget.lastDoubleClickedTick == Iris._cycleTick
-                end
+                end,
             }
         end,
 
@@ -376,9 +372,9 @@ return function(Iris: Types.Iris)
                 end,
                 ["Get"] = function(thisWidget: Types.Widget): boolean
                     return thisWidget.lastCtrlClickedTick == Iris._cycleTick
-                end
+                end,
             }
-        end
+        end,
     }
 
     function widgets.discardState(thisWidget: Types.Widget)
@@ -387,15 +383,16 @@ return function(Iris: Types.Iris)
         end
     end
 
-    require(script.Root)       (Iris, widgets)
-    require(script.Text)       (Iris, widgets)
-    require(script.Button)     (Iris, widgets)
-    require(script.Format)     (Iris, widgets)
-    require(script.Checkbox)   (Iris, widgets)
+    require(script.Root)(Iris, widgets)
+    require(script.Text)(Iris, widgets)
+    require(script.Button)(Iris, widgets)
+    require(script.Format)(Iris, widgets)
+    require(script.Checkbox)(Iris, widgets)
     require(script.RadioButton)(Iris, widgets)
-    require(script.Tree)       (Iris, widgets)
-    require(script.Input)      (Iris, widgets)
-    require(script.Combo)      (Iris, widgets)
-    require(script.Table)      (Iris, widgets)
-    require(script.Window)     (Iris, widgets)
+    require(script.Tree)(Iris, widgets)
+    require(script.Input)(Iris, widgets)
+    require(script.GenericInput)(Iris, widgets)
+    require(script.Combo)(Iris, widgets)
+    require(script.Table)(Iris, widgets)
+    require(script.Window)(Iris, widgets)
 end

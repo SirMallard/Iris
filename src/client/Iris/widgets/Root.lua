@@ -3,12 +3,8 @@ return function(Iris, widgets)
     Iris.WidgetConstructor("Root", {
         hasState = false,
         hasChildren = true,
-        Args = {
-
-        },
-        Events = {
-        
-        },
+        Args = {},
+        Events = {},
         Generate = function(thisWidget)
             local Root = Instance.new("Folder")
             Root.Name = "Iris_Root"
@@ -45,7 +41,7 @@ return function(Iris, widgets)
             end
             PopupScreenGui.Name = "PopupScreenGui"
             PopupScreenGui.Parent = Root
-            
+
             local PseudoWindow = Instance.new("Frame")
             PseudoWindow.Name = "PseudoWindow"
             PseudoWindow.Size = UDim2.new(0, 0, 0, 0)
@@ -69,7 +65,7 @@ return function(Iris, widgets)
             widgets.UIListLayout(PseudoWindow, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
 
             PseudoWindow.Parent = PseudoWindowScreenGui
-            
+
             return Root
         end,
         Update = function(thisWidget)
@@ -100,6 +96,6 @@ return function(Iris, widgets)
                     thisWidget.Instance.PseudoWindowScreenGui.PseudoWindow.Visible = false
                 end
             end
-        end
+        end,
     })
 end

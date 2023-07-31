@@ -5,12 +5,12 @@ local TemplateConfig = {
         TextDisabledColor = Color3.fromRGB(128, 128, 128),
         TextDisabledTransparency = 0,
 
-        BorderColor = Color3.fromRGB(110, 110, 125), 
+        BorderColor = Color3.fromRGB(110, 110, 125),
         -- Dear ImGui uses 110, 110, 125
         -- The Roblox window selection highlight is 67, 191, 254
         BorderActiveColor = Color3.fromRGB(160, 160, 175), -- does not exist in Dear ImGui
 
-        BorderTransparency = 0, 
+        BorderTransparency = 0,
         BorderActiveTransparency = 0,
         -- BorderTransparency will be problematic for non UIStroke border implimentations
         -- is not implimented because of this
@@ -28,8 +28,8 @@ local TemplateConfig = {
         TitleBgCollapsedColor = Color3.fromRGB(0, 0, 0),
         TitleBgCollapsedTransparency = 0.5,
 
-		MenubarBgColor = Color3.fromRGB(36, 36, 36),
-		MenubarBgTransparency = 0,
+        MenubarBgColor = Color3.fromRGB(36, 36, 36),
+        MenubarBgTransparency = 0,
 
         FrameBgColor = Color3.fromRGB(41, 74, 122),
         FrameBgTransparency = 0.46,
@@ -80,7 +80,7 @@ local TemplateConfig = {
         SeparatorTransparency = 0.5,
 
         CheckMarkColor = Color3.fromRGB(66, 150, 250),
-        CheckMarkTransparency = 0
+        CheckMarkTransparency = 0,
     },
     colorLight = { -- Dear, ImGui default light
         TextColor = Color3.fromRGB(0, 0, 0),
@@ -107,8 +107,8 @@ local TemplateConfig = {
         TitleBgCollapsedColor = Color3.fromRGB(255, 255, 255),
         TitleBgCollapsedTransparency = 0.5,
 
-		MenubarBgColor = Color3.fromRGB(219, 219, 219),
-		MenubarBgTransparency = 0,
+        MenubarBgColor = Color3.fromRGB(219, 219, 219),
+        MenubarBgTransparency = 0,
 
         ScrollbarGrabColor = Color3.fromRGB(96, 96, 96),
         ScrollbarGrabTransparency = 0,
@@ -160,9 +160,9 @@ local TemplateConfig = {
 
         SeparatorColor = Color3.fromRGB(99, 99, 99),
         SeparatorTransparency = 0.38,
-        
+
         CheckMarkColor = Color3.fromRGB(66, 150, 250),
-        CheckMarkTransparency = 0
+        CheckMarkTransparency = 0,
     },
 
     sizeDefault = { -- Dear, ImGui default
@@ -183,7 +183,7 @@ local TemplateConfig = {
         FrameBorderSize = 0,
         FrameRounding = 0,
         GrabRounding = 0,
-		WindowRounding = 0, -- these don't actually work but it's nice to have them.
+        WindowRounding = 0, -- these don't actually work but it's nice to have them.
         WindowBorderSize = 1,
         WindowTitleAlign = Enum.LeftRight.Left,
         PopupBorderSize = 1,
@@ -209,7 +209,7 @@ local TemplateConfig = {
         FrameBorderSize = 1,
         FrameRounding = 4,
         GrabRounding = 4,
-		WindowRounding = 4,
+        WindowRounding = 4,
         WindowBorderSize = 1,
         WindowTitleAlign = Enum.LeftRight.Center,
         PopupBorderSize = 1,
@@ -226,7 +226,7 @@ local TemplateConfig = {
 
         MouseDoubleClickTime = 0.30, -- Time for a double-click, in seconds.
         MouseDoubleClickMaxDist = 6.0, -- Distance threshold to stay in to validate a double-click, in pixels.
-    }
+    },
 }
 
 return TemplateConfig

@@ -30,12 +30,12 @@ return function(Iris, widgets)
             ["NumColumns"] = 1,
             ["RowBg"] = 2,
             ["BordersOuter"] = 3,
-            ["BordersInner"] = 4
+            ["BordersInner"] = 4,
         },
         Events = {
             ["hovered"] = widgets.EVENTS.hover(function(thisWidget)
                 return thisWidget.Instance
-            end)
+            end),
         },
         Generate = function(thisWidget)
             tableWidgets[thisWidget.ID] = thisWidget
@@ -59,7 +59,6 @@ return function(Iris, widgets)
             widgets.UIListLayout(Table, Enum.FillDirection.Horizontal, UDim.new(0, 0))
 
             widgets.UIStroke(Table, 1, Iris._config.TableBorderStrongColor, Iris._config.TableBorderStrongTransparency)
-
 
             return Table
         end,
@@ -96,7 +95,6 @@ return function(Iris, widgets)
                     ColumnInstances[i] = column
                     column.Parent = thisWidgetInstance
                 end
-
             elseif thisWidget.arguments.NumColumns ~= thisWidget.InitialNumColumns then
                 -- its possible to make it so that the NumColumns can increase,
                 -- but decreasing it would interfere with child widget instances
@@ -104,22 +102,22 @@ return function(Iris, widgets)
             end
 
             if thisWidget.arguments.RowBg == false then
-                for _,v in thisWidget.CellInstances do
+                for _, v in thisWidget.CellInstances do
                     v.BackgroundTransparency = 1
                 end
             else
                 for rowColumnIndex, v in thisWidget.CellInstances do
-                    local currentRow = math.ceil((rowColumnIndex) / thisWidget.InitialNumColumns)
+                    local currentRow = math.ceil(rowColumnIndex / thisWidget.InitialNumColumns)
                     v.BackgroundTransparency = if currentRow % 2 == 0 then Iris._config.TableRowBgAltTransparency else Iris._config.TableRowBgTransparency
                 end
             end
 
             if thisWidget.arguments.BordersInner == false then
-                for _,v in thisWidget.CellInstances do
+                for _, v in thisWidget.CellInstances do
                     v.UIStroke.Thickness = 0
                 end
             else
-                for _,v in thisWidget.CellInstances do
+                for _, v in thisWidget.CellInstances do
                     v.UIStroke.Thickness = 0.5
                 end
             end
@@ -159,7 +157,7 @@ return function(Iris, widgets)
             end
 
             if thisWidget.arguments.RowBg ~= false then
-                local currentRow = math.ceil((thisWidget.RowColumnIndex) / thisWidget.InitialNumColumns)
+                local currentRow = math.ceil(thisWidget.RowColumnIndex / thisWidget.InitialNumColumns)
                 local color = if currentRow % 2 == 0 then Iris._config.TableRowBgAltColor else Iris._config.TableRowBgColor
                 local transparency = if currentRow % 2 == 0 then Iris._config.TableRowBgAltTransparency else Iris._config.TableRowBgTransparency
 
@@ -170,6 +168,6 @@ return function(Iris, widgets)
             thisWidget.CellInstances[thisWidget.RowColumnIndex] = cell
             cell.Parent = selectedParent
             return cell
-        end
+        end,
     })
 end

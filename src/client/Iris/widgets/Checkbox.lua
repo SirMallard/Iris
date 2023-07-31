@@ -5,28 +5,24 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         hasState = true,
         hasChildren = false,
         Args = {
-            ["Text"] = 1
+            ["Text"] = 1,
         },
         Events = {
             ["checked"] = {
-                ["Init"] = function(thisWidget: Types.Widget)
-
-                end,
+                ["Init"] = function(thisWidget: Types.Widget) end,
                 ["Get"] = function(thisWidget: Types.Widget): boolean
                     return thisWidget.lastCheckedTick == Iris._cycleTick
-                end
+                end,
             },
             ["unchecked"] = {
-                ["Init"] = function(thisWidget: Types.Widget)
-
-                end,
+                ["Init"] = function(thisWidget: Types.Widget) end,
                 ["Get"] = function(thisWidget: Types.Widget): boolean
                     return thisWidget.lastUncheckedTick == Iris._cycleTick
-                end
+                end,
             },
             ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget): GuiObject
                 return thisWidget.Instance
-            end)
+            end),
         },
         Generate = function(thisWidget: Types.Widget)
             local Checkbox: TextButton = Instance.new("TextButton")
@@ -73,7 +69,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             local TextLabel: TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
             widgets.applyTextStyle(TextLabel)
-            TextLabel.Position = UDim2.new(0,checkboxSize + Iris._config.ItemInnerSpacing.X, 0.5, 0)
+            TextLabel.Position = UDim2.new(0, checkboxSize + Iris._config.ItemInnerSpacing.X, 0.5, 0)
             TextLabel.ZIndex = thisWidget.ZIndex + 1
             TextLabel.LayoutOrder = thisWidget.ZIndex + 1
             TextLabel.AutomaticSize = Enum.AutomaticSize.XY
@@ -105,6 +101,6 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 Checkbox.Text = ""
                 thisWidget.lastUncheckedTick = Iris._cycleTick + 1
             end
-        end
+        end,
     } :: Types.WidgetClass)
 end

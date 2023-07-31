@@ -2,12 +2,8 @@ return function(Iris, widgets)
     Iris.WidgetConstructor("Separator", {
         hasState = false,
         hasChildren = false,
-        Args = {
-    
-        },
-        Events = {
-            
-        },
+        Args = {},
+        Events = {},
         Generate = function(thisWidget)
             local Separator = Instance.new("Frame")
             Separator.Name = "Iris_Separator"
@@ -19,32 +15,28 @@ return function(Iris, widgets)
             end
             Separator.ZIndex = thisWidget.ZIndex
             Separator.LayoutOrder = thisWidget.ZIndex
-    
+
             Separator.BackgroundColor3 = Iris._config.SeparatorColor
             Separator.BackgroundTransparency = Iris._config.SeparatorTransparency
-    
-            widgets.UIListLayout(Separator, Enum.FillDirection.Vertical, UDim.new(0,0))
+
+            widgets.UIListLayout(Separator, Enum.FillDirection.Vertical, UDim.new(0, 0))
             -- this is to prevent a bug of AutomaticLayout edge case when its parent has automaticLayout enabled
-    
+
             return Separator
         end,
-        Update = function(thisWidget)
-    
-        end,
+        Update = function(thisWidget) end,
         Discard = function(thisWidget)
             thisWidget.Instance:Destroy()
-        end
+        end,
     })
-    
+
     Iris.WidgetConstructor("Indent", {
         hasState = false,
         hasChildren = true,
         Args = {
             ["Width"] = 1,
         },
-        Events = {
-            
-        },
+        Events = {},
         Generate = function(thisWidget)
             local Indent = Instance.new("Frame")
             Indent.Name = "Iris_Indent"
@@ -54,10 +46,10 @@ return function(Iris, widgets)
             Indent.LayoutOrder = thisWidget.ZIndex
             Indent.Size = UDim2.fromScale(1, 0)
             Indent.AutomaticSize = Enum.AutomaticSize.Y
-    
+
             widgets.UIListLayout(Indent, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
             widgets.UIPadding(Indent, Vector2.new(0, 0))
-    
+
             return Indent
         end,
         Update = function(thisWidget)
@@ -74,19 +66,17 @@ return function(Iris, widgets)
         end,
         ChildAdded = function(thisWidget)
             return thisWidget.Instance
-        end
+        end,
     })
-    
+
     Iris.WidgetConstructor("SameLine", {
         hasState = false,
         hasChildren = true,
         Args = {
             ["Width"] = 1,
-            ["VerticalAlignment"] = 2
+            ["VerticalAlignment"] = 2,
         },
-        Events = {
-            
-        },
+        Events = {},
         Generate = function(thisWidget)
             local SameLine = Instance.new("Frame")
             SameLine.Name = "Iris_SameLine"
@@ -96,9 +86,9 @@ return function(Iris, widgets)
             SameLine.LayoutOrder = thisWidget.ZIndex
             SameLine.Size = UDim2.fromScale(1, 0)
             SameLine.AutomaticSize = Enum.AutomaticSize.Y
-    
+
             widgets.UIListLayout(SameLine, Enum.FillDirection.Horizontal, UDim.new(0, 0))
-    
+
             return SameLine
         end,
         Update = function(thisWidget)
@@ -121,18 +111,14 @@ return function(Iris, widgets)
         end,
         ChildAdded = function(thisWidget)
             return thisWidget.Instance
-        end
+        end,
     })
-    
+
     Iris.WidgetConstructor("Group", {
         hasState = false,
         hasChildren = true,
-        Args = {
-    
-        },
-        Events = {
-            
-        },
+        Args = {},
+        Events = {},
         Generate = function(thisWidget)
             local Group = Instance.new("Frame")
             Group.Name = "Iris_Group"
@@ -143,19 +129,17 @@ return function(Iris, widgets)
             Group.LayoutOrder = thisWidget.ZIndex
             Group.AutomaticSize = Enum.AutomaticSize.XY
             Group.ClipsDescendants = true
-    
+
             local uiListLayout = widgets.UIListLayout(Group, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.X))
-    
+
             return Group
         end,
-        Update = function(thisWidget)
-    
-        end,
+        Update = function(thisWidget) end,
         Discard = function(thisWidget)
             thisWidget.Instance:Destroy()
         end,
         ChildAdded = function(thisWidget)
             return thisWidget.Instance
-        end
+        end,
     })
 end
