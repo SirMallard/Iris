@@ -442,7 +442,7 @@ return function(Iris, widgets)
 
         widgets.UserInputService.InputChanged:Connect(updateActiveDrag)
 
-        Iris.WidgetConstructor("DragNum", {
+        Iris.WidgetConstructor("_DragNum", {
             hasState = true,
             hasChildren = false,
             Args = {
@@ -1833,11 +1833,7 @@ return function(Iris, widgets)
             InputField.PlaceholderColor3 = Iris._config.TextDisabledColor
             InputField.TextTruncate = Enum.TextTruncate.AtEnd
             InputField.ClipsDescendants = true
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> 6efb5a981f565b7fd49c41c265667873d3e09da7
             InputField.FocusLost:Connect(function()
                 thisWidget.state.text:set(InputField.Text)
                 thisWidget.lastTextchangeTick = Iris._cycleTick + 1

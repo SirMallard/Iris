@@ -9,7 +9,20 @@ export type State = {
     set: (self: State, newValue: any) -> (),
     onChange: (self: State, funcToConnect: (any) -> ()) -> (),
 }
-export type States = { [string]: State }
+export type States = {
+    [string]: State,
+    number: State,
+    editingText: State,
+    index: State,
+
+    size: State,
+    position: State,
+    scrollDistance: State,
+
+    isChecked: State,
+    isOpened: State,
+    isUncollapsed: State,
+}
 
 export type Event = {
     Init: (Widget) -> (),
@@ -54,7 +67,42 @@ export type InputDataType = number | Vector2 | Vector3 | UDim | UDim2 | Color3
 export type InputDataTypes = "Num" | "Vector2" | "Vector3" | "UDim" | "UDim2" | "Color3" | "Color4"
 
 export type Argument = any
-export type Arguments = { [string]: Argument }
+export type Arguments = {
+    [string]: Argument,
+    Text: string,
+    TextHint: string,
+
+    Increment: InputDataType,
+    Min: InputDataType,
+    Max: InputDataType,
+    Format: string,
+
+    Color: Color3,
+    Width: number,
+    VerticalAlignment: Enum.VerticalAlignment,
+    Index: any,
+
+    SpanAvailWidth: boolean,
+    NoIdent: boolean,
+    NoClick: boolean,
+    NoButtons: boolean,
+    NoButton: boolean,
+    NoPreview: boolean,
+
+    NumColumns: number,
+    RowBg: boolean,
+    BordersOuter: boolean,
+    BordersInner: boolean,
+
+    Title: string,
+    NoTitleBar: boolean,
+    NoBackground: boolean,
+    NoCollapse: boolean,
+    NoClose: boolean,
+    NoMove: boolean,
+    NoScrollbar: boolean,
+    NoResize: boolean,
+}
 export type WidgetArguments = { [number]: Argument }
 
 export type WidgetClass = {
@@ -77,7 +125,10 @@ export type WidgetClass = {
 
 export type WidgetUtility = {
     GuiService: GuiService,
+    RunService: RunService,
     UserInputService: UserInputService,
+
+    getTime: () -> number,
 
     ICONS: {
         RIGHT_POINTING_TRIANGLE: string,
@@ -143,6 +194,8 @@ export type Iris = {
     _VDOM: { [ID]: Widget },
 
     Args: {},
+
+    Disabled: boolean,
 
     _generateSelectionImageObject: () -> (),
     _generateRootInstance: () -> (),

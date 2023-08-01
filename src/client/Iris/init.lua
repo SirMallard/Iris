@@ -195,22 +195,29 @@ function Iris._cycle()
     if compatibleParent == false then
         error("Iris Parent Instance cant contain GUI")
     end
-    --debug.profilebegin("Iris Generate")
-    local coroutineStatus = coroutine.status(Iris._cycleCoroutine)
-    if coroutineStatus == "suspended" then
-        local _, success, result = coroutine.resume(Iris._cycleCoroutine)
-        if success == false then
-            -- Connected function code errored
-            error(result, 0)
+
+    if game:GetService("RunService"):IsStudio() then
+        for _, callback: () -> () in Iris._connectedFunctions do
+            callback()
         end
-    elseif coroutineStatus == "running" then
-        -- still running
-        error("Iris cycleCoroutine took to long to yield. Connected functions should not yield.")
     else
-        -- should never reach this
-        error("unrecoverable state")
+        --debug.profilebegin("Iris Generate")
+        local coroutineStatus = coroutine.status(Iris._cycleCoroutine)
+        if coroutineStatus == "suspended" then
+            local _, success, result = coroutine.resume(Iris._cycleCoroutine)
+            if success == false then
+                -- Connected function code errored
+                error(result, 0)
+            end
+        elseif coroutineStatus == "running" then
+            -- still running
+            error("Iris cycleCoroutine took to long to yield. Connected functions should not yield.")
+        else
+            -- should never reach this
+            error("unrecoverable state")
+        end
+        --debug.profileend()
     end
-    --debug.profileend()
 end
 
 Iris._cycleCoroutine = coroutine.create(function()
@@ -1085,6 +1092,22 @@ end
 --- ```
 Iris.DragNum = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
     return Iris._Insert("DragNum", args, state)
+end
+
+Iris.DragVector2 = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+    return Iris._Insert("DragVector2", args, state)
+end
+
+Iris.DragVector3 = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+    return Iris._Insert("DragVector3", args, state)
+end
+
+Iris.DragUDim = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+    return Iris._Insert("DragUDim", args, state)
+end
+
+Iris.DragUDim2 = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+    return Iris._Insert("DragUDim2", args, state)
 end
 
 --- @prop SliderNum Widget
