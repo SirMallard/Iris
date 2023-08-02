@@ -147,6 +147,7 @@ Iris._lastVDOM = Iris._generateEmptyVDOM()
 Iris._VDOM = Iris._generateEmptyVDOM()
 
 function Iris._cycle()
+    debug.profilebegin("Iris/Cycle")
     if Iris.Disabled then
         return
     end
@@ -218,12 +219,15 @@ function Iris._cycle()
         end
         --debug.profileend()
     end
+    debug.profileend()
 end
 
 Iris._cycleCoroutine = coroutine.create(function()
     while true do
         for _, callback: () -> () in Iris._connectedFunctions do
+            debug.profilebegin("Iris/Connection")
             local status: boolean, _error: string = pcall(callback)
+            debug.profileend()
             if not status then
                 Iris._stackIndex = 1
                 coroutine.yield(false, _error)
@@ -1136,6 +1140,22 @@ end
 --- ```
 Iris.SliderNum = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
     return Iris._Insert("SliderNum", args, state)
+end
+
+Iris.SliderVector2 = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+    return Iris._Insert("SliderVector2", args, state)
+end
+
+Iris.SliderVector3 = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+    return Iris._Insert("SliderVector3", args, state)
+end
+
+Iris.SliderUDim = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+    return Iris._Insert("SliderUDim", args, state)
+end
+
+Iris.SliderUDim2 = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+    return Iris._Insert("SliderUDim2", args, state)
 end
 
 --- @prop InputNum Widget

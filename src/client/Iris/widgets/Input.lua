@@ -608,7 +608,7 @@ return function(Iris, widgets)
             end
         end
 
-        Iris.WidgetConstructor("SliderNum", {
+        Iris.WidgetConstructor("_SliderNum", {
             hasState = true,
             hasChildren = false,
             Args = {

@@ -5,6 +5,7 @@ return function(Iris)
     local showStyleEditor = Iris.State(false)
     local showWindowlessDemo = Iris.State(false)
 
+    -- stylua: ignore start
     local function helpMarker(helpText)
         Iris.PushConfig({ TextColor = Iris._config.TextDisabledColor })
         Iris.Text({ "(?)" })
@@ -21,251 +22,255 @@ return function(Iris)
     local widgetDemos = {
         Basic = function()
             Iris.Tree({ "Basic" })
-            Iris.SameLine()
-            Iris.Text({ "Simple, common widgets" })
-            helpMarker("The Widgets shown are, in order, Iris.Button, Iris.SmallButton, Iris.Text, Iris.TextWrapped, Iris.TextColored, and Iris.RadioButton")
-            Iris.End()
-            local radioButtonState = Iris.State(1)
-            Iris.Button({ "Button" })
-            Iris.SmallButton({ "SmallButton" })
-            Iris.Text({ "Text" })
-            Iris.TextWrapped({ string.rep("Text Wrapped ", 5) })
-            Iris.TextColored({ "Colored Text", Color3.fromRGB(255, 128, 0) })
-            Iris.SameLine()
-            Iris.RadioButton({ "Index '1'", 1 }, { index = radioButtonState })
-            Iris.RadioButton({ "Index 'two'", "two" }, { index = radioButtonState })
-            if Iris.RadioButton({ "Index 'false'", false }, { index = radioButtonState }).active() == false then
-                if Iris.SmallButton({ "Select last" }).clicked() then
-                    radioButtonState:set(false)
-                end
-            end
-            Iris.End()
-            Iris.Text({ "The Index is: " .. tostring(radioButtonState.value) })
+                Iris.SameLine()
+                    Iris.Text({ "Simple, common widgets" })
+                    helpMarker("The Widgets shown are, in order, Iris.Button, Iris.SmallButton, Iris.Text, Iris.TextWrapped, Iris.TextColored, and Iris.RadioButton")
+                Iris.End()
+
+                local radioButtonState = Iris.State(1)
+                Iris.Button({ "Button" })
+                Iris.SmallButton({ "SmallButton" })
+                Iris.Text({ "Text" })
+                Iris.TextWrapped({ string.rep("Text Wrapped ", 5) })
+                Iris.TextColored({ "Colored Text", Color3.fromRGB(255, 128, 0) })
+                Iris.SameLine()
+                    Iris.RadioButton({ "Index '1'", 1 }, { index = radioButtonState })
+                    Iris.RadioButton({ "Index 'two'", "two" }, { index = radioButtonState })
+                    if Iris.RadioButton({ "Index 'false'", false }, { index = radioButtonState }).active() == false then
+                        if Iris.SmallButton({ "Select last" }).clicked() then
+                            radioButtonState:set(false)
+                        end
+                    end
+                Iris.End()
+                Iris.Text({ "The Index is: " .. tostring(radioButtonState.value) })
             Iris.End()
         end,
 
         Tree = function()
             Iris.Tree({ "Trees" })
-            Iris.Tree({ "Tree using SpanAvailWidth", [Iris.Args.Tree.SpanAvailWidth] = true })
-            helpMarker("SpanAvailWidth determines if the Tree is selectable from its entire with, or only the text area")
-            Iris.End()
+                Iris.Tree({ "Tree using SpanAvailWidth", [Iris.Args.Tree.SpanAvailWidth] = true })
+                    helpMarker("SpanAvailWidth determines if the Tree is selectable from its entire with, or only the text area")
+                Iris.End()
 
-            local tree1 = Iris.Tree({ "Tree with Children" })
-            Iris.Text({ "Im inside the first tree!" })
-            Iris.Button({ "Im a button inside the first tree!" })
-            Iris.Tree({ "Im a tree inside the first tree!" })
-            Iris.Text({ "I am the innermost text!" })
-            Iris.End()
-            Iris.End()
+                local tree1 = Iris.Tree({ "Tree with Children" })
+                    Iris.Text({ "Im inside the first tree!" })
+                    Iris.Button({ "Im a button inside the first tree!" })
+                    Iris.Tree({ "Im a tree inside the first tree!" })
+                        Iris.Text({ "I am the innermost text!" })
+                    Iris.End()
+                Iris.End()
 
-            Iris.Checkbox({ "Toggle above tree" }, { isChecked = tree1.state.isUncollapsed })
+                Iris.Checkbox({ "Toggle above tree" }, { isChecked = tree1.state.isUncollapsed })
 
             Iris.End()
         end,
 
         CollapsingHeader = function()
             Iris.Tree({ "Collapsing Headers" })
-            Iris.CollapsingHeader({ "A header" })
-            Iris.Text({ "This is under the first header!" })
-            Iris.End()
+                Iris.CollapsingHeader({ "A header" })
+                    Iris.Text({ "This is under the first header!" })
+                Iris.End()
 
-            local secondHeader = Iris.State(true)
-            Iris.CollapsingHeader({ "Another header" }, { isUncollapsed = secondHeader })
-            if Iris.Button({ "Shhh... secret button!" }).clicked() then
-                secondHeader:set(true)
-            end
-            Iris.End()
+                local secondHeader = Iris.State(true)
+                Iris.CollapsingHeader({ "Another header" }, { isUncollapsed = secondHeader })
+                    if Iris.Button({ "Shhh... secret button!" }).clicked() then
+                        secondHeader:set(true)
+                    end
+                Iris.End()
             Iris.End()
         end,
 
         Group = function()
             Iris.Tree({ "Groups" })
-            Iris.SameLine()
-            Iris.Group()
-            Iris.Text({ "I am in group A" })
-            Iris.Button({ "Im also in A" })
-            Iris.End()
-            Iris.Separator()
-            Iris.Group()
-            Iris.Text({ "I am in group B" })
-            Iris.Button({ "Im also in B" })
-            Iris.Button({ "Also group B" })
-            Iris.End()
-            Iris.End()
+                Iris.SameLine()
+                    Iris.Group()
+                        Iris.Text({ "I am in group A" })
+                        Iris.Button({ "Im also in A" })
+                    Iris.End()
+                    
+                    Iris.Separator()
+                    
+                    Iris.Group()
+                        Iris.Text({ "I am in group B" })
+                        Iris.Button({ "Im also in B" })
+                        Iris.Button({ "Also group B" })
+                    Iris.End()
+                Iris.End()
             Iris.End()
         end,
 
         Indent = function()
             Iris.Tree({ "Indents" })
-            Iris.Text({ "Not Indented" })
-            Iris.Indent()
-            Iris.Text({ "Indented" })
-            Iris.Indent({ 7 })
-            Iris.Text({ "Indented by 7 more pixels" })
-            Iris.End()
-            Iris.Indent({ -7 })
-            Iris.Text({ "Indented by 7 less pixels" })
-            Iris.End()
-            Iris.End()
+                Iris.Text({ "Not Indented" })
+                Iris.Indent()
+                    Iris.Text({ "Indented" })
+                    Iris.Indent({ 7 })
+                        Iris.Text({ "Indented by 7 more pixels" })
+                    Iris.End()
+
+                    Iris.Indent({ -7 })
+                        Iris.Text({ "Indented by 7 less pixels" })
+                    Iris.End()
+                Iris.End()
             Iris.End()
         end,
 
         Input = function()
             Iris.Tree({ "Input" })
-            local NoField, NoButtons, Min, Max, Increment, Format = Iris.State(false), Iris.State(false), Iris.State(0), Iris.State(100), Iris.State(1), Iris.State("%d")
+                local NoField, NoButtons, Min, Max, Increment, Format = Iris.State(false), Iris.State(false), Iris.State(0), Iris.State(100), Iris.State(1), Iris.State("%d")
 
-            Iris.PushConfig({ ContentWidth = UDim.new(1, -120) })
-            local InputNum = Iris.InputNum({
-                "Input Number",
-                -- [Iris.Args.InputNum.NoField] = NoField.value,
-                -- [Iris.Args.InputNum.NoButtons] = NoButtons.value,
-                [Iris.Args.InputNum.Min] = Min.value,
-                [Iris.Args.InputNum.Max] = Max.value,
-                [Iris.Args.InputNum.Increment] = Increment.value,
-                [Iris.Args.InputNum.Format] = Format.value,
-            })
-            Iris.PopConfig()
-            Iris.Text({ "The Value is: " .. InputNum.number.value })
-            if Iris.Button({ "Randomize Number" }).clicked() then
-                InputNum.number:set(math.random(1, 99))
-            end
-            local NoFieldCheckbox = Iris.Checkbox({ "NoField" }, { isChecked = NoField })
-            local NoButtonsCheckbox = Iris.Checkbox({ "NoButtons" }, { isChecked = NoButtons })
-            if NoFieldCheckbox.checked() and NoButtonsCheckbox.isChecked.value == true then
-                NoButtonsCheckbox.isChecked:set(false)
-            end
-            if NoButtonsCheckbox.checked() and NoFieldCheckbox.isChecked.value == true then
-                NoFieldCheckbox.isChecked:set(false)
-            end
+                Iris.PushConfig({ ContentWidth = UDim.new(1, -120) })
+                local InputNum = Iris.InputNum({
+                    "Input Number",
+                    -- [Iris.Args.InputNum.NoField] = NoField.value,
+                    [Iris.Args.InputNum.NoButtons] = NoButtons.value,
+                    [Iris.Args.InputNum.Min] = Min.value,
+                    [Iris.Args.InputNum.Max] = Max.value,
+                    [Iris.Args.InputNum.Increment] = Increment.value,
+                    [Iris.Args.InputNum.Format] = Format.value,
+                })
+                Iris.PopConfig()
+                Iris.Text({ "The Value is: " .. InputNum.number.value })
+                if Iris.Button({ "Randomize Number" }).clicked() then
+                    InputNum.number:set(math.random(1, 99))
+                end
+                local NoFieldCheckbox = Iris.Checkbox({ "NoField" }, { isChecked = NoField })
+                local NoButtonsCheckbox = Iris.Checkbox({ "NoButtons" }, { isChecked = NoButtons })
+                if NoFieldCheckbox.checked() and NoButtonsCheckbox.isChecked.value == true then
+                    NoButtonsCheckbox.isChecked:set(false)
+                end
+                if NoButtonsCheckbox.checked() and NoFieldCheckbox.isChecked.value == true then
+                    NoFieldCheckbox.isChecked:set(false)
+                end
 
-            Iris.PushConfig({ ContentWidth = UDim.new(1, -120) })
-            Iris.InputVector2({ "InputVector2" })
-            Iris.InputVector3({ "InputVector3" })
-            Iris.InputUDim({ "InputUDim" })
-            Iris.InputUDim2({ "InputUDim2" })
-            local UseFloats = Iris.State(false)
-            local UseHSV = Iris.State(false)
-            local sharedColor = Iris.State(Color3.new())
-            -- local myColor3 = Iris.InputColor3({ "InputColor3", UseFloats:get(), UseHSV:get() }, { color = sharedColor })
-            -- local myColor4 = Iris.InputColor4({ "InputColor4", UseFloats:get(), UseHSV:get() }, { color = sharedColor })
-            Iris.SameLine()
-            Iris.Text({ sharedColor:get():ToHex() })
-            Iris.Checkbox({ "Use Floats" }, { isChecked = UseFloats })
-            Iris.Checkbox({ "Use HSV" }, { isChecked = UseHSV })
-            Iris.End()
+                Iris.PushConfig({ ContentWidth = UDim.new(1, -120) })
+                Iris.InputVector2({ "InputVector2" })
+                Iris.InputVector3({ "InputVector3" })
+                Iris.InputUDim({ "InputUDim" })
+                Iris.InputUDim2({ "InputUDim2" })
+                local UseFloats = Iris.State(false)
+                local UseHSV = Iris.State(false)
+                local sharedColor = Iris.State(Color3.new())
+                -- local myColor3 = Iris.InputColor3({ "InputColor3", UseFloats:get(), UseHSV:get() }, { color = sharedColor })
+                -- local myColor4 = Iris.InputColor4({ "InputColor4", UseFloats:get(), UseHSV:get() }, { color = sharedColor })
+                Iris.SameLine()
+                    Iris.Text({ sharedColor:get():ToHex() })
+                    Iris.Checkbox({ "Use Floats" }, { isChecked = UseFloats })
+                    Iris.Checkbox({ "Use HSV" }, { isChecked = UseHSV })
+                Iris.End()
 
-            Iris.PopConfig()
+                Iris.PopConfig()
 
-            Iris.Separator()
+                Iris.Separator()
 
-            Iris.SameLine()
-            Iris.Text({ "Slider Numbers" })
-            helpMarker("ctrl + click slider number widgets to input a number")
-            Iris.End()
-            Iris.PushConfig({ ContentWidth = UDim.new(1, -120) })
-            Iris.SliderNum({ "Slide Int", 1, 1, 8 })
-            Iris.SliderNum({ "Slide Float", 0.01, 0, 100 })
-            Iris.SliderNum({ "Small Numbers", 0.001, -2, 1, "%f radians" })
-            Iris.SliderNum({ "Odd Ranges", 0.001, -math.pi, math.pi, "%f radians" })
-            Iris.SliderNum({ "Big Numbers", 1e4, 1e5, 1e7 })
-            Iris.SliderNum({ "Few Numbers", 1, 0, 3 })
-            Iris.PopConfig()
+                Iris.SameLine()
+                    Iris.Text({ "Slider Numbers" })
+                    helpMarker("ctrl + click slider number widgets to input a number")
+                Iris.End()
+                Iris.PushConfig({ ContentWidth = UDim.new(1, -120) })
+                Iris.SliderNum({ "Slide Int", 1, 1, 8 })
+                Iris.SliderNum({ "Slide Float", 0.01, 0, 100 })
+                Iris.SliderNum({ "Small Numbers", 0.001, -2, 1, "%f radians" })
+                Iris.SliderNum({ "Odd Ranges", 0.001, -math.pi, math.pi, "%f radians" })
+                Iris.SliderNum({ "Big Numbers", 1e4, 1e5, 1e7 })
+                Iris.SliderNum({ "Few Numbers", 1, 0, 3 })
+                Iris.PopConfig()
 
-            Iris.Separator()
+                Iris.Separator()
 
-            Iris.SameLine()
-            Iris.Text({ "Drag Numbers" })
-            helpMarker("ctrl + click or double click drag number widgets to input a number, hold shift/alt while dragging to increase/decrease speed")
-            Iris.End()
-            Iris.PushConfig({ ContentWidth = UDim.new(1, -120) })
-            Iris.DragNum({ "Drag Int" })
-            Iris.DragNum({ "Slide Float", 0.001, -10, 10 })
-            Iris.DragNum({ "Percentage", 1, 0, 100, "%d %%" })
-            Iris.PopConfig()
+                Iris.SameLine()
+                    Iris.Text({ "Drag Numbers" })
+                    helpMarker("ctrl + click or double click drag number widgets to input a number, hold shift/alt while dragging to increase/decrease speed")
+                Iris.End()
+                Iris.PushConfig({ ContentWidth = UDim.new(1, -120) })
+                Iris.DragNum({ "Drag Int" })
+                Iris.DragNum({ "Slide Float", 0.001, -10, 10 })
+                Iris.DragNum({ "Percentage", 1, 0, 100, "%d %%" })
+                Iris.PopConfig()
             Iris.End()
         end,
 
         InputText = function()
             Iris.Tree({ "Input Text" })
-            Iris.PushConfig({ ContentWidth = UDim.new(0, 250) })
-            local InputText = Iris.InputText({ "Input Text Test", [Iris.Args.InputText.TextHint] = "Input Text here" })
-            Iris.PopConfig()
-            Iris.Text({ "The text is: " .. InputText.text.value })
+                Iris.PushConfig({ ContentWidth = UDim.new(0, 250) })
+                local InputText = Iris.InputText({ "Input Text Test", [Iris.Args.InputText.TextHint] = "Input Text here" })
+                Iris.PopConfig()
+                Iris.Text({ "The text is: " .. InputText.text.value })
             Iris.End()
         end,
 
         Tooltip = function()
             Iris.PushConfig({ ContentWidth = UDim.new(0, 250) })
             Iris.Tree({ "Tooltip" })
-            if Iris.Text({ "Hover over me to reveal a tooltip" }).hovered() then
-                Iris.Tooltip({ "I am some helpful tooltip text" })
-            end
-            local dynamicText = Iris.State("Hello ")
-            local numRepeat = Iris.State(1)
-            if Iris.InputNum({ "# of repeat", 1, 1, 50 }, { number = numRepeat }).numberChanged() then
-                dynamicText:set(string.rep("Hello ", numRepeat:get()))
-            end
-            if Iris.Checkbox({ "Show dynamic text tooltip" }).isChecked.value then
-                Iris.Tooltip({ dynamicText:get() })
-            end
+                if Iris.Text({ "Hover over me to reveal a tooltip" }).hovered() then
+                    Iris.Tooltip({ "I am some helpful tooltip text" })
+                end
+                local dynamicText = Iris.State("Hello ")
+                local numRepeat = Iris.State(1)
+                if Iris.InputNum({ "# of repeat", 1, 1, 50 }, { number = numRepeat }).numberChanged() then
+                    dynamicText:set(string.rep("Hello ", numRepeat:get()))
+                end
+                if Iris.Checkbox({ "Show dynamic text tooltip" }).isChecked.value then
+                    Iris.Tooltip({ dynamicText:get() })
+                end
             Iris.End()
             Iris.PopConfig()
         end,
 
         Selectable = function()
             Iris.Tree({ "Selectable" })
-            local sharedIndex = Iris.State(2)
-            Iris.Selectable({ "Selectable #1", 1 }, { index = sharedIndex })
-            Iris.Selectable({ "Selectable #2", 2 }, { index = sharedIndex })
-            if Iris.Selectable({ "Double click Selectable", 3, true }, { index = sharedIndex }).doubleClicked() then
-                sharedIndex:set(3)
-            end
-            Iris.Selectable({ "Impossible to select", 4, true }, { index = sharedIndex })
-            if Iris.Button({ "Select last" }).clicked() then
-                sharedIndex:set(4)
-            end
-            Iris.Selectable({ "Independent Selectable" })
+                local sharedIndex = Iris.State(2)
+                Iris.Selectable({ "Selectable #1", 1 }, { index = sharedIndex })
+                Iris.Selectable({ "Selectable #2", 2 }, { index = sharedIndex })
+                if Iris.Selectable({ "Double click Selectable", 3, true }, { index = sharedIndex }).doubleClicked() then
+                    sharedIndex:set(3)
+                end
+                Iris.Selectable({ "Impossible to select", 4, true }, { index = sharedIndex })
+                if Iris.Button({ "Select last" }).clicked() then
+                    sharedIndex:set(4)
+                end
+                Iris.Selectable({ "Independent Selectable" })
             Iris.End()
         end,
 
         Combo = function()
             Iris.Tree({ "Combo" })
-            Iris.PushConfig({ ContentWidth = UDim.new(1, -120) })
-            local sharedComboIndex = Iris.State("No Selection")
-            Iris.SameLine()
-            local NoPreview = Iris.Checkbox({ "No Preview" })
-            local NoButton = Iris.Checkbox({ "No Button" })
-            if NoPreview.checked() and NoButton.isChecked.value == true then
-                NoButton.isChecked:set(false)
-            end
-            if NoButton.checked() and NoPreview.isChecked.value == true then
-                NoPreview.isChecked:set(false)
-            end
-            Iris.End()
-            Iris.Combo({ "Basic Usage", NoButton.isChecked:get(), NoPreview.isChecked:get() }, { index = sharedComboIndex })
-            Iris.Selectable({ "Select 1", "One" }, { index = sharedComboIndex })
-            Iris.Selectable({ "Select 2", "Two" }, { index = sharedComboIndex })
-            Iris.Selectable({ "Select 3", "Three" }, { index = sharedComboIndex })
-            Iris.End()
+                Iris.PushConfig({ ContentWidth = UDim.new(1, -120) })
+                local sharedComboIndex = Iris.State("No Selection")
+                Iris.SameLine()
+                    local NoPreview = Iris.Checkbox({ "No Preview" })
+                    local NoButton = Iris.Checkbox({ "No Button" })
+                    if NoPreview.checked() and NoButton.isChecked.value == true then
+                        NoButton.isChecked:set(false)
+                    end
+                    if NoButton.checked() and NoPreview.isChecked.value == true then
+                        NoPreview.isChecked:set(false)
+                    end
+                Iris.End()
+                Iris.Combo({ "Basic Usage", NoButton.isChecked:get(), NoPreview.isChecked:get() }, { index = sharedComboIndex })
+                    Iris.Selectable({ "Select 1", "One" }, { index = sharedComboIndex })
+                    Iris.Selectable({ "Select 2", "Two" }, { index = sharedComboIndex })
+                    Iris.Selectable({ "Select 3", "Three" }, { index = sharedComboIndex })
+                Iris.End()
 
-            Iris.ComboArray({ "Using ComboArray" }, { index = "No Selection" }, { "Red", "Green", "Blue" })
+                Iris.ComboArray({ "Using ComboArray" }, { index = "No Selection" }, { "Red", "Green", "Blue" })
 
-            local sharedComboIndex2 = Iris.State("7 AM")
-            Iris.Combo({ "Combo with Inner widgets" }, { index = sharedComboIndex2 })
-            Iris.Tree({ "Morning Shifts" })
-            Iris.Selectable({ "Shift at 7 AM", "7 AM" }, { index = sharedComboIndex2 })
-            Iris.Selectable({ "Shift at 11 AM", "11 AM" }, { index = sharedComboIndex2 })
-            Iris.Selectable({ "Shist at 3 PM", "3 PM" }, { index = sharedComboIndex2 })
-            Iris.End()
-            Iris.Tree({ "Night Shifts" })
-            Iris.Selectable({ "Shift at 6 PM", "6 PM" }, { index = sharedComboIndex2 })
-            Iris.Selectable({ "Shift at 9 PM", "9 PM" }, { index = sharedComboIndex2 })
-            Iris.End()
-            Iris.End()
+                local sharedComboIndex2 = Iris.State("7 AM")
+                Iris.Combo({ "Combo with Inner widgets" }, { index = sharedComboIndex2 })
+                    Iris.Tree({ "Morning Shifts" })
+                        Iris.Selectable({ "Shift at 7 AM", "7 AM" }, { index = sharedComboIndex2 })
+                        Iris.Selectable({ "Shift at 11 AM", "11 AM" }, { index = sharedComboIndex2 })
+                        Iris.Selectable({ "Shist at 3 PM", "3 PM" }, { index = sharedComboIndex2 })
+                    Iris.End()
+                    Iris.Tree({ "Night Shifts" })
+                        Iris.Selectable({ "Shift at 6 PM", "6 PM" }, { index = sharedComboIndex2 })
+                        Iris.Selectable({ "Shift at 9 PM", "9 PM" }, { index = sharedComboIndex2 })
+                    Iris.End()
+                Iris.End()
 
-            local InputEnum = Iris.InputEnum({ "Using InputEnum" }, { index = Enum.UserInputState.Begin }, Enum.UserInputState)
-            Iris.Text({ "Selected: " .. InputEnum.index:get().Name })
-            Iris.PopConfig()
+                local InputEnum = Iris.InputEnum({ "Using InputEnum" }, { index = Enum.UserInputState.Begin }, Enum.UserInputState)
+                Iris.Text({ "Selected: " .. InputEnum.index:get().Name })
+                Iris.PopConfig()
             Iris.End()
         end,
     }
@@ -281,7 +286,7 @@ return function(Iris)
 
     local function recursiveWindow(parentCheckboxState)
         Iris.Window({ "Recursive Window" }, { size = Iris.State(Vector2.new(150, 100)), isOpened = parentCheckboxState })
-        local theCheckbox = Iris.Checkbox({ "Recurse Again" })
+            local theCheckbox = Iris.Checkbox({ "Recurse Again" })
         Iris.End()
         if theCheckbox.isChecked.value then
             recursiveWindow(theCheckbox.isChecked)
@@ -291,117 +296,116 @@ return function(Iris)
     -- shows list of runtime widgets and states, including IDs. shows other info about runtime and can show widgets/state info in depth.
     local function runtimeInfo()
         local runtimeInfoWindow = Iris.Window({ "Runtime Info" }, { isOpened = showRuntimeInfo })
-        local lastVDOM = Iris._lastVDOM
-        local states = Iris._states
+            local lastVDOM = Iris._lastVDOM
+            local states = Iris._states
 
-        local disabled = Iris.State(false)
-        local numSecondsDisabled = Iris.State(3)
-        local rollingDT = Iris.State(0)
-        local lastT = Iris.State(os.clock())
+            local numSecondsDisabled = Iris.State(3)
+            local rollingDT = Iris.State(0)
+            local lastT = Iris.State(os.clock())
 
-        Iris.SameLine()
-        Iris.InputNum({ "", [Iris.Args.InputNum.Format] = "%d Seconds", [Iris.Args.InputNum.Max] = 10 }, { number = numSecondsDisabled })
-        if Iris.Button({ "Disable" }).clicked() then
-            Iris.Disabled = true
-            task.delay(numSecondsDisabled:get(), function()
-                Iris.Disabled = false
-            end)
-        end
-        Iris.End()
-
-        local t = os.clock()
-        local dt = t - lastT.value
-        rollingDT.value += (dt - rollingDT.value) * 0.2
-        lastT.value = t
-        Iris.Text({ string.format("Average %.3f ms/frame (%.1f FPS)", rollingDT.value * 1000, 1 / rollingDT.value) })
-
-        Iris.Text({
-            string.format("Window Position: (%d, %d), Window Size: (%d, %d)", runtimeInfoWindow.position.value.X, runtimeInfoWindow.position.value.Y, runtimeInfoWindow.size.value.X, runtimeInfoWindow.size.value.Y),
-        })
-
-        Iris.SameLine()
-        Iris.Text({ "Enter an ID to learn more about it." })
-        helpMarker("every widget and state has an ID which Iris tracks to remember which widget is which. below lists all widgets and states, with their respective IDs")
-        Iris.End()
-
-        Iris.PushConfig({ ItemWidth = UDim.new(1, -150) })
-        local enteredText = Iris.InputText({ "ID field" }, { text = Iris.State(runtimeInfoWindow.ID) }).text.value
-        Iris.PopConfig()
-
-        Iris.Indent()
-        local enteredWidget = lastVDOM[enteredText]
-        local enteredState = states[enteredText]
-        if enteredWidget then
-            Iris.Table({ 1, [Iris.Args.Table.RowBg] = false })
-            Iris.Text({ string.format('The ID, "%s", is a widget', enteredText) })
-            Iris.NextRow()
-
-            Iris.Text({ string.format("Widget is type: %s", enteredWidget.type) })
-            Iris.NextRow()
-
-            Iris.Tree({ "Widget has Args:" }, { isUncollapsed = Iris.State(true) })
-            for i, v in enteredWidget.arguments do
-                Iris.Text({ i .. " - " .. tostring(v) })
-            end
-            Iris.End()
-            Iris.NextRow()
-
-            if enteredWidget.state then
-                Iris.Tree({ "Widget has State:" }, { isUncollapsed = Iris.State(true) })
-                for i, v in enteredWidget.state do
-                    Iris.Text({ i .. " - " .. tostring(v.value) })
+            Iris.SameLine()
+                Iris.InputNum({ "", [Iris.Args.InputNum.Format] = "%d Seconds", [Iris.Args.InputNum.Max] = 10 }, { number = numSecondsDisabled })
+                if Iris.Button({ "Disable" }).clicked() then
+                    Iris.Disabled = true
+                    task.delay(numSecondsDisabled:get(), function()
+                        Iris.Disabled = false
+                    end)
                 end
-                Iris.End()
+            Iris.End()
+
+            local t = os.clock()
+            local dt = t - lastT.value
+            rollingDT.value += (dt - rollingDT.value) * 0.2
+            lastT.value = t
+            Iris.Text({ string.format("Average %.3f ms/frame (%.1f FPS)", rollingDT.value * 1000, 1 / rollingDT.value) })
+
+            Iris.Text({
+                string.format("Window Position: (%d, %d), Window Size: (%d, %d)", runtimeInfoWindow.position.value.X, runtimeInfoWindow.position.value.Y, runtimeInfoWindow.size.value.X, runtimeInfoWindow.size.value.Y),
+            })
+
+            Iris.SameLine()
+                Iris.Text({ "Enter an ID to learn more about it." })
+                helpMarker("every widget and state has an ID which Iris tracks to remember which widget is which. below lists all widgets and states, with their respective IDs")
+            Iris.End()
+
+            Iris.PushConfig({ ItemWidth = UDim.new(1, -150) })
+            local enteredText = Iris.InputText({ "ID field" }, { text = Iris.State(runtimeInfoWindow.ID) }).text.value
+            Iris.PopConfig()
+
+            Iris.Indent()
+                local enteredWidget = lastVDOM[enteredText]
+                local enteredState = states[enteredText]
+                if enteredWidget then
+                    Iris.Table({ 1, [Iris.Args.Table.RowBg] = false })
+                        Iris.Text({ string.format('The ID, "%s", is a widget', enteredText) })
+                        Iris.NextRow()
+
+                        Iris.Text({ string.format("Widget is type: %s", enteredWidget.type) })
+                        Iris.NextRow()
+
+                        Iris.Tree({ "Widget has Args:" }, { isUncollapsed = Iris.State(true) })
+                            for i, v in enteredWidget.arguments do
+                                Iris.Text({ i .. " - " .. tostring(v) })
+                            end
+                        Iris.End()
+                        Iris.NextRow()
+
+                        if enteredWidget.state then
+                            Iris.Tree({ "Widget has State:" }, { isUncollapsed = Iris.State(true) })
+                                for i, v in enteredWidget.state do
+                                    Iris.Text({ i .. " - " .. tostring(v.value) })
+                                end
+                            Iris.End()
+                        end
+                    Iris.End()
+                elseif enteredState then
+                    Iris.Table({ 1, [Iris.Args.Table.RowBg] = false })
+                        Iris.Text({ string.format('The ID, "%s", is a state', enteredText) })
+                        Iris.NextRow()
+
+                        Iris.Text({ string.format("Value is type: %s, Value = %s", typeof(enteredState.value), tostring(enteredState.value)) })
+                        Iris.NextRow()
+
+                        Iris.Tree({ "state has connected widgets:" }, { isUncollapsed = Iris.State(true) })
+                            for i, v in enteredState.ConnectedWidgets do
+                                Iris.Text({ i .. " - " .. v.type })
+                            end
+                        Iris.End()
+                        Iris.NextRow()
+
+                        Iris.Text({ string.format("state has: %d connected functions", #enteredState.ConnectedFunctions) })
+                    Iris.End()
+                else
+                    Iris.Text({ string.format('The ID, "%s", is not a state or widget', enteredText) })
+                end
+            Iris.End()
+
+            if Iris.Tree({ "Widgets" }).isUncollapsed.value then
+                local widgetCount = 0
+                local widgetStr = ""
+                for _, v in lastVDOM do
+                    widgetCount += 1
+                    widgetStr ..= "\n" .. v.ID .. " - " .. v.type
+                end
+
+                Iris.Text({ "Number of Widgets: " .. widgetCount })
+
+                Iris.Text({ widgetStr })
             end
             Iris.End()
-        elseif enteredState then
-            Iris.Table({ 1, [Iris.Args.Table.RowBg] = false })
-            Iris.Text({ string.format('The ID, "%s", is a state', enteredText) })
-            Iris.NextRow()
+            if Iris.Tree({ "States" }).isUncollapsed.value then
+                local stateCount = 0
+                local stateStr = ""
+                for i, v in states do
+                    stateCount += 1
+                    stateStr ..= "\n" .. i .. " - " .. tostring(v.value)
+                end
 
-            Iris.Text({ string.format("Value is type: %s, Value = %s", typeof(enteredState.value), tostring(enteredState.value)) })
-            Iris.NextRow()
+                Iris.Text({ "Number of States: " .. stateCount })
 
-            Iris.Tree({ "state has connected widgets:" }, { isUncollapsed = Iris.State(true) })
-            for i, v in enteredState.ConnectedWidgets do
-                Iris.Text({ i .. " - " .. v.type })
+                Iris.Text({ stateStr })
             end
             Iris.End()
-            Iris.NextRow()
-
-            Iris.Text({ string.format("state has: %d connected functions", #enteredState.ConnectedFunctions) })
-            Iris.End()
-        else
-            Iris.Text({ string.format('The ID, "%s", is not a state or widget', enteredText) })
-        end
-        Iris.End()
-
-        if Iris.Tree({ "Widgets" }).isUncollapsed.value then
-            local widgetCount = 0
-            local widgetStr = ""
-            for _, v in lastVDOM do
-                widgetCount += 1
-                widgetStr ..= "\n" .. v.ID .. " - " .. v.type
-            end
-
-            Iris.Text({ "Number of Widgets: " .. widgetCount })
-
-            Iris.Text({ widgetStr })
-        end
-        Iris.End()
-        if Iris.Tree({ "States" }).isUncollapsed.value then
-            local stateCount = 0
-            local stateStr = ""
-            for i, v in states do
-                stateCount += 1
-                stateStr ..= "\n" .. i .. " - " .. tostring(v.value)
-            end
-
-            Iris.Text({ "Number of States: " .. stateCount })
-
-            Iris.Text({ stateStr })
-        end
-        Iris.End()
         Iris.End()
     end
 
@@ -415,49 +419,65 @@ return function(Iris)
                 {
                     "Sizing",
                     function()
-                        local UDims = { "ItemWidth", "ContentWidth" }
+                        local UpdatedConfig = Iris.State({})
+
+                        if Iris.Button({ "Update Config" }).clicked() then
+                            Iris.UpdateGlobalConfig(UpdatedConfig:get())
+                            UpdatedConfig:set({})
+                        end
+
+                        local UDims = {
+                            { "ItemWidth", nil,  UDim.new(), UDim.new(1, 200) },
+                            { "ContentWidth", nil, UDim.new(), UDim.new(1, 200) }
+                        }
                         for _, vUDim in UDims do
-                            local Input = Iris.InputUDim({ vUDim }, { number = Iris.WeakState(Iris._config[vUDim]) })
+                            local Input = Iris.SliderUDim({ table.unpack(vUDim) }, { number = Iris.WeakState(Iris._config[vUDim[1]]) })
                             if Input.numberChanged() then
-                                Iris.UpdateGlobalConfig({ [vUDim] = Input.number:get() })
+                                -- Iris.UpdateGlobalConfig({ [vUDim[1]] = Input.number:get() })
+                                UpdatedConfig:get()[vUDim[1]] = Input.number:get()
                             end
                         end
 
                         local Vector2s = {
-                            "WindowPadding",
-                            "WindowResizePadding",
-                            "FramePadding",
-                            "ItemSpacing",
-                            "ItemInnerSpacing",
-                            "CellPadding",
-                            "DisplaySafeAreaPadding",
+                            { "WindowPadding", nil, Vector2.zero, Vector2.one * 20 },
+                            { "WindowResizePadding", nil, Vector2.zero, Vector2.one * 20 },
+                            { "FramePadding", nil, Vector2.zero, Vector2.one * 20 },
+                            { "ItemSpacing", nil, Vector2.zero, Vector2.one * 20 },
+                            { "ItemInnerSpacing", nil, Vector2.zero, Vector2.one * 20 },
+                            { "CellPadding", nil, Vector2.zero, Vector2.one * 20 },
+                            { "DisplaySafeAreaPadding", nil, Vector2.zero, Vector2.one * 20 },
                         }
                         for _, vVector2 in Vector2s do
-                            local Input = Iris.InputVector2({ vVector2 }, { number = Iris.WeakState(Iris._config[vVector2]) })
+                            local Input = Iris.SliderVector2({ table.unpack(vVector2) }, { number = Iris.WeakState(Iris._config[vVector2[1]]) })
                             if Input.numberChanged() then
-                                Iris.UpdateGlobalConfig({ [vVector2] = Input.number:get() })
+                                -- Iris.UpdateGlobalConfig({ [vVector2[1]] = Input.number:get() })
+                                UpdatedConfig:get()[vVector2[1]] = Input.number:get()
                             end
                         end
 
                         local Numbers = {
-                            "TextSize",
-                            "FrameBorderSize",
-                            "FrameRounding",
-                            "GrabRounding",
-                            "WindowBorderSize",
-                            "PopupBorderSize",
-                            "PopupRounding",
-                            "ScrollbarSize",
-                            "GrabMinSize",
+                            { "TextSize", 1, 4, 20 },
+                            { "FrameBorderSize", 0.1, 0, 1 },
+                            { "FrameRounding", 1, 0, 12 },
+                            { "GrabRounding", 1, 0, 12 },
+                            { "WindowBorderSize", 0.1, 0, 1 },
+                            { "PopupBorderSize", 0.1, 0, 1 },
+                            { "PopupRounding", 1, 0, 12 },
+                            { "ScrollbarSize", 1, 0, 20 },
+                            { "GrabMinSize", 1, 0, 20 },
                         }
                         for _, vNumber in Numbers do
-                            local Input = Iris.InputNum({ vNumber }, { number = Iris.WeakState(Iris._config[vNumber]) })
+                            local Input = Iris.SliderNum({ table.unpack(vNumber) }, { number = Iris.WeakState(Iris._config[vNumber[1]]) })
                             if Input.numberChanged() then
-                                Iris.UpdateGlobalConfig({ [vNumber] = Input.number:get() })
+                                -- Iris.UpdateGlobalConfig({ [vNumber[1]] = Input.number:get() })
+                                UpdatedConfig:get()[vNumber[1]] = Input.number:get()
                             end
                         end
 
-                        local Enums = { "WindowTitleAlign", "TextFont" }
+                        local Enums = {
+                            "WindowTitleAlign",
+                            "TextFont"
+                        }
                         for _, vEnum in Enums do
                             local Input = Iris.InputEnum({ vEnum }, { index = Iris.WeakState(Iris._config[vEnum]) }, Iris._config[vEnum].EnumType)
                             if Input.closed() then
@@ -527,34 +547,38 @@ return function(Iris)
             }
 
             Iris.Window({ "Style Editor" }, { isOpened = showStyleEditor })
-            Iris.Text({ "Customize the look of Iris in realtime." })
-            Iris.SameLine()
-            if Iris.SmallButton({ "Light Theme" }).clicked() then
-                Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorLight)
-            end
-            if Iris.SmallButton({ "Dark Theme" }).clicked() then
-                Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark)
-            end
-            Iris.End()
-            Iris.SameLine()
-            if Iris.SmallButton({ "Classic Size" }).clicked() then
-                Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
-            end
-            if Iris.SmallButton({ "Larger Size" }).clicked() then
-                Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeClear)
-            end
-            Iris.End()
-            if Iris.SmallButton({ "Reset Everything" }).clicked() then
-                Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark)
-                Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
-            end
-            Iris.Separator()
-            Iris.SameLine()
-            for i, v in ipairs(styleList) do
-                Iris.RadioButton({ v[1], i }, { index = selectedPanel })
-            end
-            Iris.End()
-            styleList[selectedPanel:get()][2]()
+                Iris.Text({ "Customize the look of Iris in realtime." })
+                Iris.SameLine()
+                    if Iris.SmallButton({ "Light Theme" }).clicked() then
+                        Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorLight)
+                    end
+                    if Iris.SmallButton({ "Dark Theme" }).clicked() then
+                        Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark)
+                    end
+                Iris.End()
+
+                Iris.SameLine()
+                    if Iris.SmallButton({ "Classic Size" }).clicked() then
+                        Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
+                    end
+                    if Iris.SmallButton({ "Larger Size" }).clicked() then
+                        Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeClear)
+                    end
+                Iris.End()
+
+                if Iris.SmallButton({ "Reset Everything" }).clicked() then
+                    Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark)
+                    Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
+                end
+                Iris.Separator()
+
+                Iris.SameLine()
+                    for i, v in ipairs(styleList) do
+                        Iris.RadioButton({ v[1], i }, { index = selectedPanel })
+                    end
+                Iris.End()
+
+                styleList[selectedPanel:get()][2]()
             Iris.End()
         end
     end
@@ -875,6 +899,8 @@ return function(Iris)
         Iris.Checkbox({ "NoNav" }, { isChecked = NoNav })
         Iris.End()
         Iris.End()
+
+        -- stylua: ignore end
 
         widgetEventInteractivity()
 

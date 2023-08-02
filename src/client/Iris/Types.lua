@@ -168,6 +168,8 @@ export type WidgetUtility = {
     abstractButton: WidgetClass,
 }
 
+export type WidgetCall = (args: WidgetArguments, state: States?) -> Widget
+
 export type Iris = {
     _started: boolean,
     _globalRefreshRequested: boolean,
@@ -236,32 +238,48 @@ export type Iris = {
 
     Button: (args: WidgetArguments) -> Widget,
     SmallButton: (args: WidgetArguments) -> Widget,
-    Checkbox: (args: WidgetArguments, state: States?) -> Widget,
-    RadioButton: (args: WidgetArguments, state: States?) -> Widget,
+    Checkbox: WidgetCall,
+    RadioButton: WidgetCall,
 
     Separator: (args: WidgetArguments) -> Widget,
     Indent: (args: WidgetArguments) -> Widget,
     SameLine: (args: WidgetArguments) -> Widget,
     Group: (args: WidgetArguments) -> Widget,
-    Selectable: (args: WidgetArguments, state: States?) -> Widget,
+    Selectable: WidgetCall,
 
-    Tree: (args: WidgetArguments, state: States?) -> Widget,
-    CollapsingHeader: (args: WidgetArguments, state: States?) -> Widget,
+    Tree: WidgetCall,
+    CollapsingHeader: WidgetCall,
 
-    DragNum: (args: WidgetArguments, state: States?) -> Widget,
-    SliderNum: (args: WidgetArguments, state: States?) -> Widget,
-    InputNum: (args: WidgetArguments, state: States?) -> Widget,
-    InputText: (args: WidgetArguments, state: States?) -> Widget,
+    InputNum: WidgetCall,
+    InputVector2: WidgetCall,
+    InputVector3: WidgetCall,
+    InputUDim: WidgetCall,
+    InputUDim2: WidgetCall,
+
+    DragNum: WidgetCall,
+    DragVector2: WidgetCall,
+    DragVector3: WidgetCall,
+    DragUDim: WidgetCall,
+    DragUDim2: WidgetCall,
+
+    SliderNum: WidgetCall,
+    SliderVector2: WidgetCall,
+    SliderVector3: WidgetCall,
+    SliderUDim: WidgetCall,
+    SliderUDim2: WidgetCall,
+    SliderEnum: WidgetCall,
+
+    InputText: WidgetCall,
     InputEnum: (args: WidgetArguments, state: States?, enumType: Enum) -> Widget,
-    Combo: (args: WidgetArguments, state: States?) -> Widget,
+    Combo: WidgetCall,
     ComboArray: (args: WidgetArguments, state: States?, selectionArray: { any }) -> Widget,
 
-    Table: (args: WidgetArguments, state: States?) -> Widget,
+    Table: WidgetCall,
     NextColumn: () -> (),
     SetColumnIndex: (columnIndex: number) -> (),
     NextRow: () -> (),
 
-    Window: (args: WidgetArguments, state: States?) -> Widget,
+    Window: WidgetCall,
     Tooltip: (args: WidgetArguments) -> Widget,
     SetFocusedWindow: (thisWidget: Widget?) -> (),
 }
