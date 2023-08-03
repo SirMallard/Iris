@@ -157,6 +157,8 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
     local function getValueByIndex(value: Types.InputDataType, index: number): number
         if typeof(value) == "number" then
             return value
+        elseif typeof(value) == "Enum" then
+            return value
         elseif typeof(value) == "Vector2" then
             if index == 1 then
                 return value.X
@@ -203,6 +205,8 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
     local function updateValueByIndex(value: Types.InputDataType, index: number, newValue: number): Types.InputDataType
         if typeof(value) == "number" then
             return newValue
+        elseif typeof(value) == "Enum" then
+            return value
         elseif typeof(value) == "Vector2" then
             if index == 1 then
                 return Vector2.new(newValue, value.Y)
@@ -246,35 +250,32 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         error("")
     end
 
-    local function getDefaultIncrementByIndex(value: Types.InputDataType, index: number): number
-        if typeof(value) == "number" then
-            return 1
-        elseif typeof(value) == "Vector2" then
-            return 1
-        elseif typeof(value) == "Vector3" then
-            return 1
-        elseif typeof(value) == "UDim" then
-            if index == 1 then
-                return 0.1
-            elseif index == 2 then
-                return 1
-            end
-        elseif typeof(value) == "UDim2" then
-            if index == 1 then
-                return 0.1
-            elseif index == 2 then
-                return 1
-            elseif index == 3 then
-                return 0.1
-            elseif index == 4 then
-                return 1
-            end
-        elseif typeof(value) == "Color3" then
-            return 1
-        end
+    local defaultIncrements: { [string]: { number } } = {
+        number = { 1 },
+        Vector2 = { 1, 1 },
+        Vector3 = { 1, 1, 1 },
+        UDim = { 0.1, 1 },
+        UDim2 = { 0.1, 1, 0.1, 1 },
+        Color3 = { 1, 1, 1 },
+    }
 
-        error("")
-    end
+    local defaultMin: { [string]: { number } } = {
+        number = { 0 },
+        Vector2 = { 0, 0 },
+        Vector3 = { 0, 0, 0 },
+        UDim = { 0, 0 },
+        UDim2 = { 0, 0, 0, 0 },
+        Color3 = { 0, 0, 0 },
+    }
+
+    local defaultMax: { [string]: { number } } = {
+        number = { 100 },
+        Vector2 = { 100, 100 },
+        Vector3 = { 100, 100, 100 },
+        UDim = { 1, 960 },
+        UDim2 = { 1, 960, 1, 960 },
+        Color3 = { 255, 255, 255 },
+    }
 
     --[[
         Input
@@ -515,7 +516,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 return
             end
 
-            local increment: number = ActiveDrag.arguments.Increment and getValueByIndex(ActiveDrag.arguments.Increment, ActiveIndex) or getDefaultIncrementByIndex(ActiveDrag.state.number.value, ActiveIndex)
+            local increment: number = ActiveDrag.arguments.Increment and getValueByIndex(ActiveDrag.arguments.Increment, ActiveIndex) or defaultIncrements[typeof(ActiveDrag.state.number.value)][ActiveIndex]
             increment *= (widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightShift)) and 10 or 1
             increment *= (widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftAlt) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightAlt)) and 0.1 or 1
 
@@ -780,9 +781,9 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             local Slider = ActiveSlider.Instance :: Frame
             local SliderField: TextButton = Slider:FindFirstChild("SliderField" .. tostring(ActiveIndex))
 
-            local increment: number = ActiveSlider.arguments.Increment and getValueByIndex(ActiveSlider.arguments.Increment, ActiveIndex) or getDefaultIncrementByIndex(ActiveSlider.state.number.value, ActiveIndex)
-            local min: number = ActiveSlider.arguments.Min and getValueByIndex(ActiveSlider.arguments.Min, ActiveIndex) or 0
-            local max: number = ActiveSlider.arguments.Max and getValueByIndex(ActiveSlider.arguments.Max, ActiveIndex) or 100
+            local increment: number = ActiveSlider.arguments.Increment and getValueByIndex(ActiveSlider.arguments.Increment, ActiveIndex) or defaultIncrements[typeof(ActiveSlider.state.number.value)][ActiveIndex]
+            local min: number = ActiveSlider.arguments.Min and getValueByIndex(ActiveSlider.arguments.Min, ActiveIndex) or defaultMin[typeof(ActiveSlider.state.number.value)][ActiveIndex]
+            local max: number = ActiveSlider.arguments.Max and getValueByIndex(ActiveSlider.arguments.Max, ActiveIndex) or defaultMax[typeof(ActiveSlider.state.number.value)][ActiveIndex]
 
             local GrabPadding: number = Iris._config.FramePadding.X
             local decimalFix: number = increment < 1 and 0 or 1 -- ??? ?? ??? ?
@@ -1087,4 +1088,5 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
     Iris.WidgetConstructor("SliderVector3", generateSliderScalar("Vector3", 3, Vector3.zero))
     Iris.WidgetConstructor("SliderUDim", generateSliderScalar("UDim", 2, UDim.new()))
     Iris.WidgetConstructor("SliderUDim2", generateSliderScalar("UDim2", 4, UDim2.new()))
+    Iris.WidgetConstructor("SliderEnum", generateSliderScalar("Enum", 4, 0))
 end

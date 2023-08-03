@@ -64,7 +64,7 @@ export type Widget = {
 }
 
 export type InputDataType = number | Vector2 | Vector3 | UDim | UDim2 | Color3
-export type InputDataTypes = "Num" | "Vector2" | "Vector3" | "UDim" | "UDim2" | "Color3" | "Color4"
+export type InputDataTypes = "Num" | "Vector2" | "Vector3" | "UDim" | "UDim2" | "Color3" | "Color4" | "Enum"
 
 export type Argument = any
 export type Arguments = {

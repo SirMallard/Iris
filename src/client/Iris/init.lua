@@ -1158,6 +1158,10 @@ Iris.SliderUDim2 = function(args: Types.WidgetArguments, state: Types.States?): 
     return Iris._Insert("SliderUDim2", args, state)
 end
 
+Iris.SliderEnum = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+    return Iris._Inset("SliderNum", args, state)
+end
+
 --- @prop InputNum Widget
 --- @within Widgets
 --- A field which allows the user to enter a number.
