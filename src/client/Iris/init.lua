@@ -703,7 +703,7 @@ function Iris._Insert(widgetType: string, args: { [number]: any }, widgetState: 
         return Iris._ContinueWidget(ID, widgetType)
     end
 
-    local arguments: Types.Arguments = {}
+    local arguments: Types.Arguments = {} :: Types.Arguments
     if args ~= nil then
         if type(args) ~= "table" then
             --error("Args must be a table.", 3)
@@ -713,7 +713,7 @@ function Iris._Insert(widgetType: string, args: { [number]: any }, widgetState: 
             arguments[thisWidgetClass.ArgNames[index]] = argument
         end
     end
-    table.freeze(arguments)
+    -- table.freeze(arguments) -- I'm not sure whether this is vital?
 
     if Iris._lastVDOM[ID] and widgetType == Iris._lastVDOM[ID].type then
         -- found a matching widget from last frame
@@ -873,6 +873,10 @@ end
 --- ```
 Iris.TextWrapped = function(args: Types.WidgetArguments): Types.Widget
     return Iris._Insert("TextWrapped", args)
+end
+
+Iris.SeparatorText = function(args: Types.WidgetArguments): Types.Widget
+    return Iris._Insert("SeparatorText", args)
 end
 
 --- @prop Button Widget

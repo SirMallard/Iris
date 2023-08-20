@@ -127,7 +127,7 @@ return function(Iris)
                     [Iris.Args.InputNum.Min] = Min.value,
                     [Iris.Args.InputNum.Max] = Max.value,
                     [Iris.Args.InputNum.Increment] = Increment.value,
-                    [Iris.Args.InputNum.Format] = Format.value,
+                    [Iris.Args.InputNum.Format] = { Format.value },
                 })
                 Iris.PopConfig()
                 Iris.Text({ "The Value is: " .. InputNum.number.value })
@@ -151,8 +151,10 @@ return function(Iris)
                 local UseFloats = Iris.State(false)
                 local UseHSV = Iris.State(false)
                 local sharedColor = Iris.State(Color3.new())
-                -- local myColor3 = Iris.InputColor3({ "InputColor3", UseFloats:get(), UseHSV:get() }, { color = sharedColor })
-                -- local myColor4 = Iris.InputColor4({ "InputColor4", UseFloats:get(), UseHSV:get() }, { color = sharedColor })
+                local transparency = Iris.State(0)
+                Iris.SliderNum({ "Transparency", 0.01, 0, 1 }, { number = transparency })
+                Iris.InputColor3({ "InputColor3", UseFloats:get(), UseHSV:get() }, { color = sharedColor })
+                Iris.InputColor4({ "InputColor4", UseFloats:get(), UseHSV:get() }, { color = sharedColor, transparency = transparency })
                 Iris.SameLine()
                     Iris.Text({ sharedColor:get():ToHex() })
                     Iris.Checkbox({ "Use Floats" }, { isChecked = UseFloats })
@@ -433,7 +435,6 @@ return function(Iris)
                         for _, vUDim in UDims do
                             local Input = Iris.SliderUDim({ table.unpack(vUDim) }, { number = Iris.WeakState(Iris._config[vUDim[1]]) })
                             if Input.numberChanged() then
-                                -- Iris.UpdateGlobalConfig({ [vUDim[1]] = Input.number:get() })
                                 UpdatedConfig:get()[vUDim[1]] = Input.number:get()
                             end
                         end
@@ -450,7 +451,6 @@ return function(Iris)
                         for _, vVector2 in Vector2s do
                             local Input = Iris.SliderVector2({ table.unpack(vVector2) }, { number = Iris.WeakState(Iris._config[vVector2[1]]) })
                             if Input.numberChanged() then
-                                -- Iris.UpdateGlobalConfig({ [vVector2[1]] = Input.number:get() })
                                 UpdatedConfig:get()[vVector2[1]] = Input.number:get()
                             end
                         end
@@ -469,7 +469,6 @@ return function(Iris)
                         for _, vNumber in Numbers do
                             local Input = Iris.SliderNum({ table.unpack(vNumber) }, { number = Iris.WeakState(Iris._config[vNumber[1]]) })
                             if Input.numberChanged() then
-                                -- Iris.UpdateGlobalConfig({ [vNumber[1]] = Input.number:get() })
                                 UpdatedConfig:get()[vNumber[1]] = Input.number:get()
                             end
                         end
@@ -489,10 +488,17 @@ return function(Iris)
                 {
                     "Colors",
                     function()
+                        local UpdatedConfig = Iris.State({})
+
+                        if Iris.Button({ "Update Config" }).clicked() then
+                            Iris.UpdateGlobalConfig(UpdatedConfig:get())
+                            UpdatedConfig:set({})
+                        end
+                        
                         local color3s = { "BorderColor", "BorderActiveColor" }
 
                         for _, vColor in color3s do
-                            -- local Input = Iris.InputColor3({ vColor }, { color = Iris.WeakState(Iris._config[vColor]) })
+                            local Input = Iris.InputColor3({ vColor }, { color = Iris.WeakState(Iris._config[vColor]) })
                             if Input.numberChanged() then
                                 Iris.UpdateGlobalConfig({ [vColor] = Input.color:get() })
                             end
@@ -531,16 +537,14 @@ return function(Iris)
                         }
 
                         for _, vColor in color4s do
-                            -- local Input = Iris.InputColor4({ vColor }, {
-                            --     color = Iris.WeakState(Iris._config[vColor .. "Color"]),
-                            --     transparency = Iris.WeakState(Iris._config[vColor .. "Transparency"]),
-                            -- })
-                            -- if Input.numberChanged() then
-                            --     Iris.UpdateGlobalConfig({
-                            --         [vColor .. "Color"] = Input.color:get(),
-                            --         [vColor .. "Transparency"] = Input.transparency:get(),
-                            --     })
-                            -- end
+                            local Input = Iris.InputColor4({ vColor }, {
+                                color = Iris.WeakState(Iris._config[vColor .. "Color"]),
+                                transparency = Iris.WeakState(Iris._config[vColor .. "Transparency"]),
+                            })
+                            if Input.numberChanged() then
+                                UpdatedConfig:get()[vColor .. "Color"] = Input.color:get()
+                                UpdatedConfig:get()[vColor .. "Transparency"] = Input.transparency:get()
+                            end
                         end
                     end,
                 },

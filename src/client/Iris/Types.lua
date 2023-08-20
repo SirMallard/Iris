@@ -12,6 +12,8 @@ export type State = {
 export type States = {
     [string]: State,
     number: State,
+    color: State,
+    transparency: State,
     editingText: State,
     index: State,
 
@@ -58,12 +60,17 @@ export type Widget = {
     lastNumberChangedTick: number,
 
     clicked: () -> boolean,
+    closed: () -> boolean,
+    opened: () -> boolean,
+    collapsed: () -> boolean,
+    uncollapsed: () -> boolean,
+    hovered: () -> boolean,
 
     lastMenuTick: number,
     menuID: ID,
 }
 
-export type InputDataType = number | Vector2 | Vector3 | UDim | UDim2 | Color3
+export type InputDataType = number | Vector2 | Vector3 | UDim | UDim2 | Color3 | { number }
 export type InputDataTypes = "Num" | "Vector2" | "Vector3" | "UDim" | "UDim2" | "Color3" | "Color4" | "Enum"
 
 export type Argument = any
@@ -75,7 +82,10 @@ export type Arguments = {
     Increment: InputDataType,
     Min: InputDataType,
     Max: InputDataType,
-    Format: string,
+    Format: { string },
+    UseFloats: boolean,
+    UseHSV: boolean,
+    UseHex: boolean,
 
     Color: Color3,
     Width: number,
@@ -142,7 +152,7 @@ export type WidgetUtility = {
 
     findBestWindowPosForPopup: (refPos: Vector2, size: Vector2, outerMin: Vector2, outerMax: Vector2) -> Vector2,
     isPosInsideRect: (pos: Vector2, rectMin: Vector2, rectMax: Vector2) -> boolean,
-    extend: (superClass: WidgetClass, subClass: WidgetClass) -> WidgetClass,
+    extend: (superClass: WidgetClass, { [any]: any }) -> WidgetClass,
     discardState: (thisWidget: Widget) -> (),
 
     UIPadding: (Parent: GuiObject, PxPadding: Vector2) -> UIPadding,
@@ -232,19 +242,20 @@ export type Iris = {
     Append: (userInstance: GuiObject) -> (),
 
     End: () -> (),
-    Text: (args: WidgetArguments) -> Widget,
-    TextColored: (args: WidgetArguments) -> Widget,
-    TextWrapped: (args: WidgetArguments) -> Widget,
+    Text: WidgetCall,
+    TextColored: WidgetCall,
+    TextWrapped: WidgetCall,
+    SeparatorText: WidgetCall,
 
-    Button: (args: WidgetArguments) -> Widget,
-    SmallButton: (args: WidgetArguments) -> Widget,
+    Button: WidgetCall,
+    SmallButton: WidgetCall,
     Checkbox: WidgetCall,
     RadioButton: WidgetCall,
 
-    Separator: (args: WidgetArguments) -> Widget,
-    Indent: (args: WidgetArguments) -> Widget,
-    SameLine: (args: WidgetArguments) -> Widget,
-    Group: (args: WidgetArguments) -> Widget,
+    Separator: WidgetCall,
+    Indent: WidgetCall,
+    SameLine: WidgetCall,
+    Group: WidgetCall,
     Selectable: WidgetCall,
 
     Tree: WidgetCall,
@@ -280,7 +291,7 @@ export type Iris = {
     NextRow: () -> (),
 
     Window: WidgetCall,
-    Tooltip: (args: WidgetArguments) -> Widget,
+    Tooltip: WidgetCall,
     SetFocusedWindow: (thisWidget: Widget?) -> (),
 }
 
@@ -372,6 +383,7 @@ export type Config = {
     CellPadding: Vector2,
     DisplaySafeAreaPadding: Vector2,
     IndentSpacing: number,
+    SeparatorTextPadding: Vector2,
 
     TextFont: Font,
     TextSize: number,
@@ -384,6 +396,7 @@ export type Config = {
     PopupRounding: number,
     ScrollbarSize: number,
     GrabMinSize: number,
+    SeparatorTextBorderSize: number,
 
     UseScreenGUIs: boolean,
     Parent: BasePlayerGui,

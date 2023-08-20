@@ -176,6 +176,7 @@ local TemplateConfig = {
         ItemInnerSpacing = Vector2.new(4, 4),
         CellPadding = Vector2.new(4, 2),
         DisplaySafeAreaPadding = Vector2.new(0, 0),
+        SeparatorTextPadding = Vector2.new(20, 3),
         IndentSpacing = 21,
 
         TextFont = Enum.Font.Code,
@@ -190,6 +191,7 @@ local TemplateConfig = {
         PopupRounding = 0,
         ScrollbarSize = 7,
         GrabMinSize = 10,
+        SeparatorTextBorderSize = 3,
     },
     sizeClear = { -- easier to read and manuveure
         ItemWidth = UDim.new(1, 0),
@@ -202,6 +204,7 @@ local TemplateConfig = {
         ItemInnerSpacing = Vector2.new(8, 8),
         CellPadding = Vector2.new(4, 4),
         DisplaySafeAreaPadding = Vector2.new(8, 8),
+        SeparatorTextPadding = Vector2.new(24, 6),
         IndentSpacing = 25,
 
         TextFont = Enum.Font.Ubuntu,
@@ -216,6 +219,7 @@ local TemplateConfig = {
         PopupRounding = 4,
         ScrollbarSize = 9,
         GrabMinSize = 14,
+        SeparatorTextBorderSize = 4,
     },
 
     utilityDefault = {

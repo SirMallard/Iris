@@ -154,8 +154,11 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         - InputScalar
     ]]
 
-    local function getValueByIndex(value: Types.InputDataType, index: number): number
+    local function getValueByIndex(value: Types.InputDataType, index: number, arguments: Types.Arguments): number
         if typeof(value) == "number" then
+            if index == 4 then
+                return arguments.UseFloats and value or value * 255
+            end
             return value
         elseif typeof(value) == "Enum" then
             return value
@@ -190,20 +193,29 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 return value.Y.Offset
             end
         elseif typeof(value) == "Color3" then
+            local color: { number } = arguments.UseHSV and { value:ToHSV() } or { value.R, value.G, value.B }
+            local multiplier: number = arguments.UseFloats and 1 or 255
             if index == 1 then
-                return value.R
+                return color[1] * multiplier
             elseif index == 2 then
-                return value.G
+                return color[2] * multiplier
             elseif index == 3 then
-                return value.B
+                return color[3] * multiplier
             end
+        elseif typeof(value) == "table" then
+            -- we know it's a color
+            return arguments.UseFloats and value[index] or value[index] * 255
         end
 
         error(`Incorrect datatype or value: {value} {typeof(value)} {index}`)
     end
 
-    local function updateValueByIndex(value: Types.InputDataType, index: number, newValue: number): Types.InputDataType
+    local function updateValueByIndex(value: Types.InputDataType, index: number, newValue: number, arguments: Types.Arguments): Types.InputDataType
         if typeof(value) == "number" then
+            if index == 4 then
+                -- we know it's for a color4 transparency
+                return arguments and arguments.UseFloats and newValue or newValue / 255
+            end
             return newValue
         elseif typeof(value) == "Enum" then
             return value
@@ -238,50 +250,125 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 return UDim2.new(value.X, UDim.new(value.Y.Scale, newValue))
             end
         elseif typeof(value) == "Color3" then
+            local multiplier: number = arguments.UseFloats and 1 or 1 / 255
+            if arguments.UseHSV then
+                if index == 1 then
+                    return Color3.fromRGB(newValue * multiplier, value.G, value.B)
+                elseif index == 2 then
+                    return Color3.fromRGB(value.R, newValue * multiplier, value.B)
+                elseif index == 3 then
+                    return Color3.fromRGB(value.R, value.G, newValue * multiplier)
+                end
+            end
             if index == 1 then
-                return Color3.new(newValue, value.G, value.B)
+                return Color3.new(newValue * multiplier, value.G, value.B)
             elseif index == 2 then
-                return Color3.new(value.R, newValue, value.B)
+                return Color3.new(value.R, newValue * multiplier, value.B)
             elseif index == 3 then
-                return Color3.new(value.R, value.G, newValue)
+                return Color3.new(value.R, value.G, newValue * multiplier)
             end
         end
 
         error("")
     end
 
-    local defaultIncrements: { [string]: { number } } = {
-        number = { 1 },
+    local defaultIncrements: { [Types.InputDataTypes | ""]: { number } } = {
+        Num = { 1 },
         Vector2 = { 1, 1 },
         Vector3 = { 1, 1, 1 },
-        UDim = { 0.1, 1 },
-        UDim2 = { 0.1, 1, 0.1, 1 },
+        UDim = { 0.01, 1 },
+        UDim2 = { 0.01, 1, 0.01, 1 },
         Color3 = { 1, 1, 1 },
+        Color4 = { 1, 1, 1, 1 },
     }
 
-    local defaultMin: { [string]: { number } } = {
-        number = { 0 },
+    local defaultMin: { [Types.InputDataTypes | ""]: { number } } = {
+        Num = { 0 },
         Vector2 = { 0, 0 },
         Vector3 = { 0, 0, 0 },
         UDim = { 0, 0 },
         UDim2 = { 0, 0, 0, 0 },
         Color3 = { 0, 0, 0 },
+        Color4 = { 0, 0, 0, 0 },
     }
 
-    local defaultMax: { [string]: { number } } = {
-        number = { 100 },
+    local defaultMax: { [Types.InputDataTypes | ""]: { number } } = {
+        Num = { 100 },
         Vector2 = { 100, 100 },
         Vector3 = { 100, 100, 100 },
         UDim = { 1, 960 },
         UDim2 = { 1, 960, 1, 960 },
         Color3 = { 255, 255, 255 },
+        Color4 = { 255, 255, 255, 255 },
+    }
+
+    local defaultAppend: { [Types.InputDataTypes | ""]: { string } } = {
+        Num = { "" },
+        Vector2 = { "X: ", "Y: " },
+        Vector3 = { "X: ", "Y: ", "Z: " },
+        UDim = { "", "" },
+        UDim2 = { "", "", "", "" },
+        Color3 = { "R: ", "G: ", "B: " },
+        Color4 = { "R: ", "G: ", "B: ", "T: " },
     }
 
     --[[
         Input
     ]]
-    local generateInputScalar: (dataType: Types.InputDataTypes, components: number, defaultValue: any) -> any
+    local generateInputScalar: (dataType: Types.InputDataTypes, components: number, defaultValue: any) -> Types.WidgetClass
     do
+        local function generateButtons(thisWidget: Types.Widget, parent: GuiObject, rightPadding: number, textHeight: number)
+            rightPadding += 2 * Iris._config.ItemInnerSpacing.X + 2 * textHeight
+
+            local SubButton = widgets.abstractButton.Generate(thisWidget) :: TextButton
+            SubButton.Name = "SubButton"
+            SubButton.ZIndex = thisWidget.ZIndex + 5
+            SubButton.LayoutOrder = thisWidget.ZIndex + 5
+            SubButton.TextXAlignment = Enum.TextXAlignment.Center
+            SubButton.Text = "-"
+            SubButton.Size = UDim2.fromOffset(Iris._config.TextSize - 2 * (Iris._config.FramePadding.X - Iris._config.FramePadding.Y), Iris._config.TextSize)
+            SubButton.Parent = parent
+
+            SubButton.MouseButton1Click:Connect(function()
+                local isCtrlHeld: boolean = widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
+                local changeValue: number = (thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, 1, thisWidget.arguments) or 1) * (isCtrlHeld and 100 or 1)
+                local newValue: number = thisWidget.state.number.value - changeValue
+                if thisWidget.arguments.Min ~= nil then
+                    newValue = math.max(newValue, getValueByIndex(thisWidget.arguments.Min, 1, thisWidget.arguments))
+                end
+                if thisWidget.arguments.Max ~= nil then
+                    newValue = math.min(newValue, getValueByIndex(thisWidget.arguments.Max, 1, thisWidget.arguments))
+                end
+                thisWidget.state.number:set(newValue)
+                thisWidget.lastNumberChangedTick = Iris._cycleTick + 1
+            end)
+
+            local AddButton = widgets.abstractButton.Generate(thisWidget) :: TextButton
+            AddButton.Name = "AddButton"
+            AddButton.ZIndex = thisWidget.ZIndex + 6
+            AddButton.LayoutOrder = thisWidget.ZIndex + 6
+            AddButton.TextXAlignment = Enum.TextXAlignment.Center
+            AddButton.Text = "+"
+            AddButton.Size = UDim2.fromOffset(Iris._config.TextSize - 2 * (Iris._config.FramePadding.X - Iris._config.FramePadding.Y), Iris._config.TextSize)
+            AddButton.Parent = parent
+
+            AddButton.MouseButton1Click:Connect(function()
+                local isCtrlHeld: boolean = widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
+                local changeValue: number = (thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, 1, thisWidget.arguments) or 1) * (isCtrlHeld and 100 or 1)
+                local newValue: number = thisWidget.state.number.value + changeValue
+                if thisWidget.arguments.Min ~= nil then
+                    newValue = math.max(newValue, getValueByIndex(thisWidget.arguments.Min, 1, thisWidget.arguments))
+                end
+                if thisWidget.arguments.Max ~= nil then
+                    newValue = math.min(newValue, getValueByIndex(thisWidget.arguments.Max, 1, thisWidget.arguments))
+                end
+                thisWidget.state.number:set(newValue)
+                thisWidget.lastNumberChangedTick = Iris._cycleTick + 1
+            end)
+
+            return rightPadding
+        end
+
         function generateInputScalar(dataType: Types.InputDataTypes, components: number, defaultValue: any)
             return {
                 hasState = true,
@@ -292,7 +379,6 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                     ["Min"] = 3,
                     ["Max"] = 4,
                     ["Format"] = 5,
-                    ["NoButtons"] = 6,
                 },
                 Events = {
                     ["numberChanged"] = numberChanged,
@@ -314,54 +400,9 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                     -- we add plus and minus buttons if there is only one box. This can be disabled through the argument.
                     local rightPadding: number = 0
                     local textHeight: number = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
+
                     if components == 1 then
-                        rightPadding += 2 * Iris._config.ItemInnerSpacing.X + 2 * textHeight
-
-                        local SubButton = widgets.abstractButton.Generate(thisWidget) :: TextButton
-                        SubButton.Name = "SubButton"
-                        SubButton.ZIndex = thisWidget.ZIndex + 5
-                        SubButton.LayoutOrder = thisWidget.ZIndex + 5
-                        SubButton.TextXAlignment = Enum.TextXAlignment.Center
-                        SubButton.Text = "-"
-                        SubButton.Size = UDim2.fromOffset(Iris._config.TextSize - 2 * (Iris._config.FramePadding.X - Iris._config.FramePadding.Y), Iris._config.TextSize)
-                        SubButton.Parent = Input
-
-                        SubButton.MouseButton1Click:Connect(function()
-                            local isCtrlHeld: boolean = widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
-                            local changeValue: number = (getValueByIndex(thisWidget.arguments.Increment, 1) or 1) * (isCtrlHeld and 100 or 1)
-                            local newValue: number = thisWidget.state.number.value - changeValue
-                            if thisWidget.arguments.Min ~= nil then
-                                newValue = math.max(newValue, getValueByIndex(thisWidget.arguments.Min, 1))
-                            end
-                            if thisWidget.arguments.Max ~= nil then
-                                newValue = math.min(newValue, getValueByIndex(thisWidget.arguments.Max, 1))
-                            end
-                            thisWidget.state.number:set(newValue)
-                            thisWidget.lastNumberChangedTick = Iris._cycleTick + 1
-                        end)
-
-                        local AddButton = widgets.abstractButton.Generate(thisWidget) :: TextButton
-                        AddButton.Name = "AddButton"
-                        AddButton.ZIndex = thisWidget.ZIndex + 6
-                        AddButton.LayoutOrder = thisWidget.ZIndex + 6
-                        AddButton.TextXAlignment = Enum.TextXAlignment.Center
-                        AddButton.Text = "+"
-                        AddButton.Size = UDim2.fromOffset(Iris._config.TextSize - 2 * (Iris._config.FramePadding.X - Iris._config.FramePadding.Y), Iris._config.TextSize)
-                        AddButton.Parent = Input
-
-                        AddButton.MouseButton1Click:Connect(function()
-                            local isCtrlHeld: boolean = widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
-                            local changeValue: number = (getValueByIndex(thisWidget.arguments.Increment, 1) or 1) * (isCtrlHeld and 100 or 1)
-                            local newValue: number = thisWidget.state.number.value + changeValue
-                            if thisWidget.arguments.Min ~= nil then
-                                newValue = math.max(newValue, getValueByIndex(thisWidget.arguments.Min, 1))
-                            end
-                            if thisWidget.arguments.Max ~= nil then
-                                newValue = math.min(newValue, getValueByIndex(thisWidget.arguments.Max, 1))
-                            end
-                            thisWidget.state.number:set(newValue)
-                            thisWidget.lastNumberChangedTick = Iris._cycleTick + 1
-                        end)
+                        generateButtons(thisWidget, Input, rightPadding, textHeight)
                     end
 
                     -- we divide the total area evenly between each field. This includes accounting for any additional boxes and the offset.
@@ -399,32 +440,32 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                             local newValue: number? = tonumber(InputField.Text:match("-?%d*%.?%d*"))
                             if newValue ~= nil then
                                 if thisWidget.arguments.Min ~= nil then
-                                    newValue = math.max(newValue, getValueByIndex(thisWidget.arguments.Min, index))
+                                    newValue = math.max(newValue, getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments))
                                 end
                                 if thisWidget.arguments.Max ~= nil then
-                                    newValue = math.min(newValue, getValueByIndex(thisWidget.arguments.Max, index))
+                                    newValue = math.min(newValue, getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments))
                                 end
 
                                 if thisWidget.arguments.Increment then
-                                    newValue = math.floor(newValue / getValueByIndex(thisWidget.arguments.Increment, index)) * getValueByIndex(thisWidget.arguments.Increment, index)
+                                    newValue = math.floor(newValue / getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)) * getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)
                                 end
 
-                                thisWidget.state.number:set(updateValueByIndex(thisWidget.state.number.value, index, newValue))
+                                thisWidget.state.number:set(updateValueByIndex(thisWidget.state.number.value, index, newValue, thisWidget.arguments))
                                 thisWidget.lastNumberChangedTick = Iris._cycleTick + 1
 
                                 if thisWidget.arguments.Format then
-                                    InputField.Text = string.format(thisWidget.arguments.Format, getValueByIndex(thisWidget.state.number.value, index))
+                                    InputField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments))
                                 else
                                     -- this prevents float values to UDim offsets
-                                    local value: number = getValueByIndex(thisWidget.state.number.value, index)
-                                    InputField.Text = string.format(if math.floor(value) == value then "%d" else "%.3f", value)
+                                    local value: number = getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments)
+                                    InputField.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == value then "%d" else "%.3f", value)
                                 end
                             else
                                 if thisWidget.arguments.Format then
-                                    InputField.Text = string.format(thisWidget.arguments.Format, getValueByIndex(thisWidget.state.number.value, index))
+                                    InputField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments))
                                 else
-                                    local value: number = getValueByIndex(thisWidget.state.number.value, index)
-                                    InputField.Text = string.format(if math.floor(value) == value then "%d" else "%.3f", value)
+                                    local value: number = getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments)
+                                    InputField.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == value then "%d" else "%.3f", value)
                                 end
                             end
 
@@ -458,13 +499,16 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 Update = function(thisWidget: Types.Widget)
                     local Input = thisWidget.Instance :: GuiObject
                     local TextLabel: TextLabel = Input.TextLabel
+                    TextLabel.Text = thisWidget.arguments.Text or "Input " .. dataType
 
                     if components == 1 then
                         Input.SubButton.Visible = not thisWidget.arguments.NoButtons
                         Input.AddButton.Visible = not thisWidget.arguments.NoButtons
                     end
 
-                    TextLabel.Text = thisWidget.arguments.Text or "Input " .. dataType
+                    if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then
+                        thisWidget.arguments.Format = { thisWidget.arguments.Format }
+                    end
                 end,
                 Discard = function(thisWidget: Types.Widget)
                     thisWidget.Instance:Destroy()
@@ -472,7 +516,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 end,
                 GenerateState = function(thisWidget: Types.Widget)
                     if thisWidget.state.number == nil then
-                        thisWidget.state.number = Iris._widgetState(thisWidget, "value", defaultValue)
+                        thisWidget.state.number = Iris._widgetState(thisWidget, "number", defaultValue)
                     end
                     if thisWidget.state.editingText == nil then
                         thisWidget.state.editingText = Iris._widgetState(thisWidget, "editingText", 0)
@@ -484,10 +528,10 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                     for index = 1, components do
                         local InputField: TextBox = Input:FindFirstChild("InputField" .. tostring(index))
                         if thisWidget.arguments.Format then
-                            InputField.Text = string.format(thisWidget.arguments.Format, getValueByIndex(thisWidget.state.number.value, index))
+                            InputField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments))
                         else
-                            local value: number = getValueByIndex(thisWidget.state.number.value, index)
-                            InputField.Text = string.format(if math.floor(value) == value then "%d" else "%.3f", value)
+                            local value: number = getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments)
+                            InputField.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == value then "%d" else "%.3f", value)
                         end
                     end
                 end,
@@ -498,12 +542,14 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
     --[[
         Drag
     ]]
-    local generateDragScalar: (dataType: Types.InputDataTypes, components: number, defaultValue: any) -> any
+    local generateDragScalar: (dataType: Types.InputDataTypes, components: number, defaultValue: any) -> Types.WidgetClass
+    local generateColorDragScalar: (dataType: Types.InputDataTypes, ...any) -> Types.WidgetClass
     do
         local PreviouseMouseXPosition: number = 0
         local AnyActiveDrag: boolean = false
         local ActiveDrag: Types.Widget? = nil
         local ActiveIndex: number = 0
+        local ActiveDataType: Types.InputDataTypes | "" = ""
 
         local function updateActiveDrag()
             local currentMouseX: number = widgets.UserInputService:GetMouseLocation().X
@@ -516,25 +562,33 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 return
             end
 
-            local increment: number = ActiveDrag.arguments.Increment and getValueByIndex(ActiveDrag.arguments.Increment, ActiveIndex) or defaultIncrements[typeof(ActiveDrag.state.number.value)][ActiveIndex]
+            local state: Types.State = ActiveDrag.state.number
+            if ActiveDataType == "Color3" or ActiveDataType == "Color4" then
+                state = ActiveDrag.state.color
+                if ActiveIndex == 4 then
+                    state = ActiveDrag.state.transparency
+                end
+            end
+
+            local increment: number = ActiveDrag.arguments.Increment and getValueByIndex(ActiveDrag.arguments.Increment, ActiveIndex, ActiveDrag.arguments) or defaultIncrements[ActiveDataType][ActiveIndex]
             increment *= (widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightShift)) and 10 or 1
             increment *= (widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftAlt) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightAlt)) and 0.1 or 1
 
-            local value: number = getValueByIndex(ActiveDrag.state.number.value, ActiveIndex)
+            local value: number = getValueByIndex(state.value, ActiveIndex, ActiveDrag.arguments)
             local newValue: number = value + (mouseXDelta * increment)
 
             if ActiveDrag.arguments.Min ~= nil then
-                newValue = math.max(newValue, getValueByIndex(ActiveDrag.arguments.Min, ActiveIndex))
+                newValue = math.max(newValue, getValueByIndex(ActiveDrag.arguments.Min, ActiveIndex, ActiveDrag.arguments))
             end
             if ActiveDrag.arguments.Max ~= nil then
-                newValue = math.min(newValue, getValueByIndex(ActiveDrag.arguments.Max, ActiveIndex))
+                newValue = math.min(newValue, getValueByIndex(ActiveDrag.arguments.Max, ActiveIndex, ActiveDrag.arguments))
             end
 
-            ActiveDrag.state.number:set(updateValueByIndex(ActiveDrag.state.number.value, ActiveIndex, newValue))
+            state:set(updateValueByIndex(state.value, ActiveIndex, newValue, ActiveDrag.arguments))
             ActiveDrag.lastNumberChangedTick = Iris._cycleTick + 1
         end
 
-        local function DragMouseDown(thisWidget: Types.Widget, index: number, x: number, y: number)
+        local function DragMouseDown(thisWidget: Types.Widget, dataTypes: Types.InputDataTypes, index: number, x: number, y: number)
             local currentTime: number = widgets.getTime()
             local isTimeValid: boolean = currentTime - thisWidget.lastClickedTime < Iris._config.MouseDoubleClickTime
             local isCtrlHeld: boolean = widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
@@ -547,6 +601,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 AnyActiveDrag = true
                 ActiveDrag = thisWidget
                 ActiveIndex = index
+                ActiveDataType = dataTypes
                 updateActiveDrag()
             end
         end
@@ -592,13 +647,30 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                     Drag.AutomaticSize = Enum.AutomaticSize.Y
                     widgets.UIListLayout(Drag, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
 
+                    -- we add a color box if it is Color3 or Color4.
+                    local rightPadding: number = 0
                     local textHeight: number = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
+
+                    if dataType == "Color3" or dataType == "Color4" then
+                        rightPadding += Iris._config.ItemInnerSpacing.X + textHeight
+
+                        local ColorBox: Frame = Instance.new("Frame")
+                        ColorBox.Name = "ColorBox"
+                        ColorBox.BorderSizePixel = 0
+                        ColorBox.Size = UDim2.fromOffset(textHeight, textHeight)
+                        ColorBox.ZIndex = thisWidget.ZIndex + 5
+                        ColorBox.LayoutOrder = thisWidget.ZIndex + 5
+
+                        widgets.applyFrameStyle(ColorBox, true, true)
+
+                        ColorBox.Parent = Drag
+                    end
 
                     -- we divide the total area evenly between each field. This includes accounting for any additional boxes and the offset.
                     -- for the final field, we make sure it's flush by calculating the space avaiable for it. This only makes the Vector2 box
                     -- 4 pixels shorter, all for the sake of flush.
-                    local componentWidth: UDim = UDim.new(Iris._config.ContentWidth.Scale / components, (Iris._config.ContentWidth.Offset - (Iris._config.ItemInnerSpacing.X * (components - 1))) / components)
-                    local totalWidth: UDim = UDim.new(componentWidth.Scale * (components - 1), (componentWidth.Offset * (components - 1)) + (Iris._config.ItemInnerSpacing.X * (components - 1)))
+                    local componentWidth: UDim = UDim.new(Iris._config.ContentWidth.Scale / components, (Iris._config.ContentWidth.Offset - (Iris._config.ItemInnerSpacing.X * (components - 1))) / components - rightPadding)
+                    local totalWidth: UDim = UDim.new(componentWidth.Scale * (components - 1), (componentWidth.Offset * (components - 1)) + (Iris._config.ItemInnerSpacing.X * (components - 1)) + rightPadding)
                     local lastComponentWidth: UDim = Iris._config.ContentWidth - totalWidth
 
                     for index = 1, components do
@@ -637,7 +709,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
 
                         local InputField: TextBox = Instance.new("TextBox")
                         InputField.Name = "InputField"
-                        InputField.ZIndex = thisWidget.ZIndex + 2
+                        InputField.ZIndex = thisWidget.ZIndex + 5
                         InputField.LayoutOrder = thisWidget.ZIndex + 2
                         InputField.Size = UDim2.new(1, 0, 1, 0)
                         InputField.BackgroundTransparency = 1
@@ -653,34 +725,40 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
 
                         InputField.FocusLost:Connect(function()
                             local newValue: number? = tonumber(InputField.Text:match("-?%d*%.?%d*"))
+                            local state: Types.State = thisWidget.state.number
+                            if dataType == "Color4" and index == 4 then
+                                state = thisWidget.state.transparency
+                            elseif dataType == "Color3" or dataType == "Color4" then
+                                state = thisWidget.state.color
+                            end
                             if newValue ~= nil then
                                 if thisWidget.arguments.Min ~= nil then
-                                    newValue = math.max(newValue, getValueByIndex(thisWidget.arguments.Min, index))
+                                    newValue = math.max(newValue, getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments))
                                 end
                                 if thisWidget.arguments.Max ~= nil then
-                                    newValue = math.min(newValue, getValueByIndex(thisWidget.arguments.Max, index))
+                                    newValue = math.min(newValue, getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments))
                                 end
 
                                 if thisWidget.arguments.Increment then
-                                    newValue = math.floor(newValue / getValueByIndex(thisWidget.arguments.Increment, index)) * getValueByIndex(thisWidget.arguments.Increment, index)
+                                    newValue = math.floor(newValue / getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)) * getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)
                                 end
 
-                                thisWidget.state.number:set(updateValueByIndex(thisWidget.state.number.value, index, newValue))
+                                state:set(updateValueByIndex(state.value, index, newValue, thisWidget.arguments))
                                 thisWidget.lastNumberChangedTick = Iris._cycleTick + 1
 
                                 if thisWidget.arguments.Format then
-                                    InputField.Text = string.format(thisWidget.arguments.Format, getValueByIndex(thisWidget.state.number.value, index))
+                                    InputField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], getValueByIndex(state.value, index, thisWidget.arguments))
                                 else
                                     -- this prevents float values to UDim offsets
-                                    local value: number = getValueByIndex(thisWidget.state.number.value, index)
-                                    InputField.Text = string.format(if math.floor(value) == value then "%d" else "%.3f", value)
+                                    local value: number = getValueByIndex(state.value, index, thisWidget.arguments)
+                                    InputField.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == value then "%d" else "%.3f", value)
                                 end
                             else
                                 if thisWidget.arguments.Format then
-                                    InputField.Text = string.format(thisWidget.arguments.Format, getValueByIndex(thisWidget.state.number.value, index))
+                                    InputField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], getValueByIndex(state.value, index, thisWidget.arguments))
                                 else
-                                    local value: number = getValueByIndex(thisWidget.state.number.value, index)
-                                    InputField.Text = string.format(if math.floor(value) == value then "%d" else "%.3f", value)
+                                    local value: number = getValueByIndex(state.value, index, thisWidget.arguments)
+                                    InputField.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == value then "%d" else "%.3f", value)
                                 end
                             end
 
@@ -697,7 +775,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                         end)
 
                         DragField.MouseButton1Down:Connect(function(x: number, y: number)
-                            DragMouseDown(thisWidget, index, x, y)
+                            DragMouseDown(thisWidget, dataType, index, x, y)
                         end)
                     end
 
@@ -720,55 +798,128 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                     local Input = thisWidget.Instance :: GuiObject
                     local TextLabel: TextLabel = Input.TextLabel
                     TextLabel.Text = thisWidget.arguments.Text or "Input Slider"
+
+                    if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then
+                        thisWidget.arguments.Format = { thisWidget.arguments.Format }
+                    end
                 end,
-                Discard = function(thisWidget)
+                Discard = function(thisWidget: Types.Widget)
                     thisWidget.Instance:Destroy()
                     widgets.discardState(thisWidget)
                 end,
-                GenerateState = function(thisWidget)
+                GenerateState = function(thisWidget: Types.Widget)
                     if thisWidget.state.number == nil then
-                        thisWidget.state.number = Iris._widgetState(thisWidget, "value", defaultValue)
+                        thisWidget.state.number = Iris._widgetState(thisWidget, "number", defaultValue)
                     end
                     if thisWidget.state.editingText == nil then
                         thisWidget.state.editingText = Iris._widgetState(thisWidget, "editingText", false)
                     end
                 end,
-                UpdateState = function(thisWidget)
+                UpdateState = function(thisWidget: Types.Widget)
                     local Drag = thisWidget.Instance :: Frame
 
                     for index = 1, components do
-                        local DraField = Drag:FindFirstChild("DragField" .. tostring(index)) :: TextButton
-                        local InputField: TextBox = DraField.InputField
-                        local value: number = getValueByIndex(thisWidget.state.number.value, index)
+                        local state: Types.State = thisWidget.state.number
+                        if dataType == "Color3" or dataType == "Color4" then
+                            state = thisWidget.state.color
+                            if index == 4 then
+                                state = thisWidget.state.transparency
+                            end
+                        end
+                        local DragField = Drag:FindFirstChild("DragField" .. tostring(index)) :: TextButton
+                        local InputField: TextBox = DragField.InputField
+                        local value: number = getValueByIndex(state.value, index, thisWidget.arguments)
                         if thisWidget.arguments.Format then
-                            DraField.Text = string.format(thisWidget.arguments.Format, value)
+                            DragField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], value)
                         else
-                            DraField.Text = string.format(if math.floor(value) == value then "%d" else "%.3f", value)
+                            DragField.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == math.floor(value * 10 ^ 5) / 10 ^ 5 then "%d" else "%.3f", value)
                             InputField.Text = tostring(value)
                         end
 
                         if thisWidget.state.editingText.value == index then
                             InputField.Visible = true
                             InputField:CaptureFocus()
-                            DraField.TextTransparency = 1
+                            DragField.TextTransparency = 1
                         else
                             InputField.Visible = false
-                            DraField.TextTransparency = 0
+                            DragField.TextTransparency = 0
+                        end
+                    end
+
+                    if dataType == "Color3" or dataType == "Color4" then
+                        local ColorBox: Frame = Drag.ColorBox
+
+                        ColorBox.BackgroundColor3 = thisWidget.state.color.value
+
+                        if dataType == "Color4" then
+                            ColorBox.BackgroundTransparency = thisWidget.state.transparency.value
                         end
                     end
                 end,
             }
+        end
+
+        function generateColorDragScalar(dataType: Types.InputDataTypes, ...: any)
+            local defaultValues: { any } = { ... }
+            local input: Types.WidgetClass = generateDragScalar(dataType, dataType == "Color4" and 4 or 3, defaultValues[1])
+
+            return widgets.extend(input, {
+                Args = {
+                    ["Text"] = 1,
+                    ["UseFloats"] = 2,
+                    ["UseHSV"] = 3,
+                    ["Format"] = 4,
+                },
+                GenerateState = function(thisWidget)
+                    if thisWidget.state.color == nil then
+                        thisWidget.state.color = Iris._widgetState(thisWidget, "color", defaultValues[1])
+                    end
+                    if dataType == "Color4" then
+                        if thisWidget.state.transparency == nil then
+                            thisWidget.state.transparency = Iris._widgetState(thisWidget, "transparency", defaultValues[2])
+                        end
+                    end
+                    if thisWidget.state.editingText == nil then
+                        thisWidget.state.editingText = Iris._widgetState(thisWidget, "editingText", false)
+                    end
+                end,
+                Update = function(thisWidget: Types.Widget)
+                    local Input = thisWidget.Instance :: GuiObject
+                    local TextLabel: TextLabel = Input.TextLabel
+                    TextLabel.Text = thisWidget.arguments.Text or "Input Slider"
+
+                    if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then
+                        thisWidget.arguments.Format = { thisWidget.arguments.Format }
+                    end
+
+                    -- this is very finicky working with either floats or integers.
+                    -- the code saves everything as floats, so we assume most floats.
+                    -- when dragging, it grabs the floats and multiplies them by 255 if
+                    -- using integers. This is fine, except that the increments are not
+                    -- integerse so results in unpleasing visual values. Therefore, we
+                    -- skip the multiplying and grab the direct values from default.
+                    -- Please ask me before discovering my pain. @SirMallard
+                    thisWidget.arguments.Min = { 0, 0, 0, 0 }
+                    thisWidget.arguments.Max = { 1, 1, 1, 1 }
+                    if thisWidget.arguments.UseFloats then
+                        thisWidget.arguments.Increment = { 0.01, 0.01, 0.01, 0.01 }
+                    else
+                        thisWidget.arguments.Increment = nil :: any
+                    end
+                end,
+            })
         end
     end
 
     --[[
         Slider
     ]]
-    local generateSliderScalar: (dataType: Types.InputDataTypes, components: number, defaultValue: any) -> any
+    local generateSliderScalar: (dataType: Types.InputDataTypes, components: number, defaultValue: any) -> Types.WidgetClass
     do
         local AnyActiveSlider: boolean = false
         local ActiveSlider: Types.Widget? = nil
         local ActiveIndex: number = 0
+        local ActiveDataType: Types.InputDataTypes | "" = ""
 
         local function updateActiveSlider()
             if AnyActiveSlider == false then
@@ -781,9 +932,9 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             local Slider = ActiveSlider.Instance :: Frame
             local SliderField: TextButton = Slider:FindFirstChild("SliderField" .. tostring(ActiveIndex))
 
-            local increment: number = ActiveSlider.arguments.Increment and getValueByIndex(ActiveSlider.arguments.Increment, ActiveIndex) or defaultIncrements[typeof(ActiveSlider.state.number.value)][ActiveIndex]
-            local min: number = ActiveSlider.arguments.Min and getValueByIndex(ActiveSlider.arguments.Min, ActiveIndex) or defaultMin[typeof(ActiveSlider.state.number.value)][ActiveIndex]
-            local max: number = ActiveSlider.arguments.Max and getValueByIndex(ActiveSlider.arguments.Max, ActiveIndex) or defaultMax[typeof(ActiveSlider.state.number.value)][ActiveIndex]
+            local increment: number = ActiveSlider.arguments.Increment and getValueByIndex(ActiveSlider.arguments.Increment, ActiveIndex, ActiveSlider.arguments) or defaultIncrements[ActiveDataType][ActiveIndex]
+            local min: number = ActiveSlider.arguments.Min and getValueByIndex(ActiveSlider.arguments.Min, ActiveIndex, ActiveSlider.arguments) or defaultMin[ActiveDataType][ActiveIndex]
+            local max: number = ActiveSlider.arguments.Max and getValueByIndex(ActiveSlider.arguments.Max, ActiveIndex, ActiveSlider.arguments) or defaultMax[ActiveDataType][ActiveIndex]
 
             local GrabPadding: number = Iris._config.FramePadding.X
             local decimalFix: number = increment < 1 and 0 or 1 -- ??? ?? ??? ?
@@ -791,11 +942,11 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             local PositionRatio: number = (widgets.UserInputService:GetMouseLocation().X - (SliderField.AbsolutePosition.X + GrabPadding)) / (SliderField.AbsoluteSize.X - 2 * GrabPadding)
             local newValue: number = math.clamp(math.floor(PositionRatio * GrabNumPossiblePositions) * increment + min, min, max)
 
-            ActiveSlider.state.number:set(updateValueByIndex(ActiveSlider.state.number.value, ActiveIndex, newValue))
+            ActiveSlider.state.number:set(updateValueByIndex(ActiveSlider.state.number.value, ActiveIndex, newValue, ActiveSlider.arguments))
             ActiveSlider.lastNumberChangedTick = Iris._cycleTick + 1
         end
 
-        local function SliderMouseDown(thisWidget: Types.Widget, index: number)
+        local function SliderMouseDown(thisWidget: Types.Widget, dataType: Types.InputDataTypes, index: number)
             local isCtrlHeld: boolean = widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
             if isCtrlHeld then
                 thisWidget.state.editingText:set(index)
@@ -803,6 +954,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 AnyActiveSlider = true
                 ActiveSlider = thisWidget
                 ActiveIndex = index
+                ActiveDataType = dataType
                 updateActiveSlider()
             end
         end
@@ -814,6 +966,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 AnyActiveSlider = false
                 ActiveSlider = nil
                 ActiveIndex = 0
+                ActiveDataType = ""
             end
         end)
 
@@ -902,7 +1055,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
 
                         local InputField: TextBox = Instance.new("TextBox")
                         InputField.Name = "InputField"
-                        InputField.ZIndex = thisWidget.ZIndex + 2
+                        InputField.ZIndex = thisWidget.ZIndex + 5
                         InputField.LayoutOrder = thisWidget.ZIndex + 2
                         InputField.Size = UDim2.new(1, 0, 1, 0)
                         InputField.BackgroundTransparency = 1
@@ -920,32 +1073,32 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                             local newValue: number? = tonumber(InputField.Text:match("-?%d*%.?%d*"))
                             if newValue ~= nil then
                                 if thisWidget.arguments.Min ~= nil then
-                                    newValue = math.max(newValue, getValueByIndex(thisWidget.arguments.Min, index))
+                                    newValue = math.max(newValue, getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments))
                                 end
                                 if thisWidget.arguments.Max ~= nil then
-                                    newValue = math.min(newValue, getValueByIndex(thisWidget.arguments.Max, index))
+                                    newValue = math.min(newValue, getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments))
                                 end
 
                                 if thisWidget.arguments.Increment then
-                                    newValue = math.floor(newValue / getValueByIndex(thisWidget.arguments.Increment, index)) * getValueByIndex(thisWidget.arguments.Increment, index)
+                                    newValue = math.floor(newValue / getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)) * getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)
                                 end
 
-                                thisWidget.state.number:set(updateValueByIndex(thisWidget.state.number.value, index, newValue))
+                                thisWidget.state.number:set(updateValueByIndex(thisWidget.state.number.value, index, newValue, thisWidget.arguments))
                                 thisWidget.lastNumberChangedTick = Iris._cycleTick + 1
 
                                 if thisWidget.arguments.Format then
-                                    InputField.Text = string.format(thisWidget.arguments.Format, getValueByIndex(thisWidget.state.number.value, index))
+                                    InputField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments))
                                 else
                                     -- this prevents float values to UDim offsets
-                                    local value: number = getValueByIndex(thisWidget.state.number.value, index)
-                                    InputField.Text = string.format(if math.floor(value) == value then "%d" else "%.3f", value)
+                                    local value: number = getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments)
+                                    InputField.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == value then "%d" else "%.3f", value)
                                 end
                             else
                                 if thisWidget.arguments.Format then
-                                    InputField.Text = string.format(thisWidget.arguments.Format, getValueByIndex(thisWidget.state.number.value, index))
+                                    InputField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments))
                                 else
-                                    local value: number = getValueByIndex(thisWidget.state.number.value, index)
-                                    InputField.Text = string.format(if math.floor(value) == value then "%d" else "%.3f", value)
+                                    local value: number = getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments)
+                                    InputField.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == value then "%d" else "%.3f", value)
                                 end
                             end
 
@@ -962,7 +1115,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                         end)
 
                         SliderField.MouseButton1Down:Connect(function()
-                            SliderMouseDown(thisWidget, index)
+                            SliderMouseDown(thisWidget, dataType, index)
                         end)
 
                         local GrabBar: Frame = Instance.new("Frame")
@@ -1001,32 +1154,36 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                     local TextLabel: TextLabel = Input.TextLabel
                     TextLabel.Text = thisWidget.arguments.Text or "Input Slider"
 
+                    if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then
+                        thisWidget.arguments.Format = { thisWidget.arguments.Format }
+                    end
+
                     for index = 1, components do
                         local SliderField = Input:FindFirstChild("SliderField" .. tostring(index)) :: TextButton
                         local GrabBar: Frame = SliderField.GrabBar
 
-                        local increment: number = thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, index) or 1
-                        local min: number = thisWidget.arguments.Min and getValueByIndex(thisWidget.arguments.Min, index) or 0
-                        local max: number = thisWidget.arguments.Max and getValueByIndex(thisWidget.arguments.Max, index) or 100
+                        local increment: number = thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments) or defaultIncrements[dataType][index]
+                        local min: number = thisWidget.arguments.Min and getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments) or defaultMin[dataType][index]
+                        local max: number = thisWidget.arguments.Max and getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments) or defaultMax[dataType][index]
 
                         local grabScaleSize = math.max(1 / math.floor((1 + max - min) / increment), Iris._config.GrabMinSize / SliderField.AbsoluteSize.X)
 
                         GrabBar.Size = UDim2.new(grabScaleSize, 0, 1, 0)
                     end
                 end,
-                Discard = function(thisWidget)
+                Discard = function(thisWidget: Types.Widget)
                     thisWidget.Instance:Destroy()
                     widgets.discardState(thisWidget)
                 end,
-                GenerateState = function(thisWidget)
+                GenerateState = function(thisWidget: Types.Widget)
                     if thisWidget.state.number == nil then
-                        thisWidget.state.number = Iris._widgetState(thisWidget, "value", defaultValue)
+                        thisWidget.state.number = Iris._widgetState(thisWidget, "number", defaultValue)
                     end
                     if thisWidget.state.editingText == nil then
                         thisWidget.state.editingText = Iris._widgetState(thisWidget, "editingText", false)
                     end
                 end,
-                UpdateState = function(thisWidget)
+                UpdateState = function(thisWidget: Types.Widget)
                     local Slider = thisWidget.Instance :: Frame
 
                     for index = 1, components do
@@ -1035,17 +1192,17 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                         local OverlayText: TextLabel = SliderField.OverlayText
                         local GrabBar: Frame = SliderField.GrabBar
 
-                        local value: number = getValueByIndex(thisWidget.state.number.value, index)
+                        local value: number = getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments)
                         if thisWidget.arguments.Format then
-                            OverlayText.Text = string.format(thisWidget.arguments.Format, value)
+                            OverlayText.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], value)
                         else
-                            OverlayText.Text = string.format(if math.floor(value) == value then "%d" else "%.3f", value)
-                            OverlayText.Text = tostring(value)
+                            OverlayText.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == value then "%d" else "%.3f", value)
+                            InputField.Text = tostring(value)
                         end
 
-                        local increment: number = thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, index) or 1
-                        local min: number = thisWidget.arguments.Min and getValueByIndex(thisWidget.arguments.Min, index) or 0
-                        local max: number = thisWidget.arguments.Max and getValueByIndex(thisWidget.arguments.Max, index) or 100
+                        local increment: number = thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments) or defaultIncrements[dataType][index]
+                        local min: number = thisWidget.arguments.Min and getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments) or defaultMin[dataType][index]
+                        local max: number = thisWidget.arguments.Max and getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments) or defaultMax[dataType][index]
 
                         local GrabPadding: number = Iris._config.FramePadding.X
                         local decimalFix: number = increment < 1 and 0 or 1 -- ??? ?? ??? ?
@@ -1071,7 +1228,11 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         end
     end
 
-    Iris.WidgetConstructor("InputNum", generateInputScalar("Num", 1, 0))
+    do
+        local inputNum: Types.WidgetClass = generateInputScalar("Num", 1, 0)
+        inputNum.Args["NoButtons"] = 6
+        Iris.WidgetConstructor("InputNum", inputNum)
+    end
     Iris.WidgetConstructor("InputVector2", generateInputScalar("Vector2", 2, Vector2.zero))
     Iris.WidgetConstructor("InputVector3", generateInputScalar("Vector3", 3, Vector3.zero))
     Iris.WidgetConstructor("InputUDim", generateInputScalar("UDim", 2, UDim.new()))
@@ -1082,6 +1243,9 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
     Iris.WidgetConstructor("DragVector3", generateDragScalar("Vector3", 3, Vector3.zero))
     Iris.WidgetConstructor("DragUDim", generateDragScalar("UDim", 2, UDim.new()))
     Iris.WidgetConstructor("DragUDim2", generateDragScalar("UDim2", 4, UDim2.new()))
+
+    Iris.WidgetConstructor("InputColor3", generateColorDragScalar("Color3", Color3.fromRGB(0, 0, 0)))
+    Iris.WidgetConstructor("InputColor4", generateColorDragScalar("Color4", Color3.fromRGB(0, 0, 0), 0))
 
     Iris.WidgetConstructor("SliderNum", generateSliderScalar("Num", 1, 0))
     Iris.WidgetConstructor("SliderVector2", generateSliderScalar("Vector2", 2, Vector2.zero))
