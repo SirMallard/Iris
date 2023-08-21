@@ -266,6 +266,8 @@ export type Iris = {
     InputVector3: WidgetCall,
     InputUDim: WidgetCall,
     InputUDim2: WidgetCall,
+    InputColor3: WidgetCall,
+    InputColo4: WidgetCall,
 
     DragNum: WidgetCall,
     DragVector2: WidgetCall,

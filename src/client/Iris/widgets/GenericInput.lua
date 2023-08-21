@@ -156,9 +156,6 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
 
     local function getValueByIndex(value: Types.InputDataType, index: number, arguments: Types.Arguments): number
         if typeof(value) == "number" then
-            if index == 4 then
-                return arguments.UseFloats and value or value * 255
-            end
             return value
         elseif typeof(value) == "Enum" then
             return value
@@ -194,17 +191,15 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             end
         elseif typeof(value) == "Color3" then
             local color: { number } = arguments.UseHSV and { value:ToHSV() } or { value.R, value.G, value.B }
-            local multiplier: number = arguments.UseFloats and 1 or 255
             if index == 1 then
-                return color[1] * multiplier
+                return color[1]
             elseif index == 2 then
-                return color[2] * multiplier
+                return color[2]
             elseif index == 3 then
-                return color[3] * multiplier
+                return color[3]
             end
         elseif typeof(value) == "table" then
-            -- we know it's a color
-            return arguments.UseFloats and value[index] or value[index] * 255
+            return value[index]
         end
 
         error(`Incorrect datatype or value: {value} {typeof(value)} {index}`)
@@ -212,10 +207,6 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
 
     local function updateValueByIndex(value: Types.InputDataType, index: number, newValue: number, arguments: Types.Arguments): Types.InputDataType
         if typeof(value) == "number" then
-            if index == 4 then
-                -- we know it's for a color4 transparency
-                return arguments and arguments.UseFloats and newValue or newValue / 255
-            end
             return newValue
         elseif typeof(value) == "Enum" then
             return value
@@ -250,26 +241,26 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 return UDim2.new(value.X, UDim.new(value.Y.Scale, newValue))
             end
         elseif typeof(value) == "Color3" then
-            local multiplier: number = arguments.UseFloats and 1 or 1 / 255
             if arguments.UseHSV then
+                local h: number, s: number, v: number = value:ToHSV()
                 if index == 1 then
-                    return Color3.fromRGB(newValue * multiplier, value.G, value.B)
+                    return Color3.fromHSV(newValue, s, v)
                 elseif index == 2 then
-                    return Color3.fromRGB(value.R, newValue * multiplier, value.B)
+                    return Color3.fromHSV(h, newValue, v)
                 elseif index == 3 then
-                    return Color3.fromRGB(value.R, value.G, newValue * multiplier)
+                    return Color3.fromHSV(h, s, newValue)
                 end
             end
             if index == 1 then
-                return Color3.new(newValue * multiplier, value.G, value.B)
+                return Color3.new(newValue, value.G, value.B)
             elseif index == 2 then
-                return Color3.new(value.R, newValue * multiplier, value.B)
+                return Color3.new(value.R, newValue, value.B)
             elseif index == 3 then
-                return Color3.new(value.R, value.G, newValue * multiplier)
+                return Color3.new(value.R, value.G, newValue)
             end
         end
 
-        error("")
+        error(`Incorrect datatype or value {value} {typeof(value)} {index}`)
     end
 
     local defaultIncrements: { [Types.InputDataTypes | ""]: { number } } = {
@@ -288,8 +279,6 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         Vector3 = { 0, 0, 0 },
         UDim = { 0, 0 },
         UDim2 = { 0, 0, 0, 0 },
-        Color3 = { 0, 0, 0 },
-        Color4 = { 0, 0, 0, 0 },
     }
 
     local defaultMax: { [Types.InputDataTypes | ""]: { number } } = {
@@ -298,8 +287,6 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         Vector3 = { 100, 100, 100 },
         UDim = { 1, 960 },
         UDim2 = { 1, 960, 1, 960 },
-        Color3 = { 255, 255, 255 },
-        Color4 = { 255, 255, 255, 255 },
     }
 
     local defaultAppend: { [Types.InputDataTypes | ""]: { string } } = {
@@ -402,13 +389,13 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                     local textHeight: number = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
 
                     if components == 1 then
-                        generateButtons(thisWidget, Input, rightPadding, textHeight)
+                        rightPadding = generateButtons(thisWidget, Input, rightPadding, textHeight)
                     end
 
                     -- we divide the total area evenly between each field. This includes accounting for any additional boxes and the offset.
                     -- for the final field, we make sure it's flush by calculating the space avaiable for it. This only makes the Vector2 box
                     -- 4 pixels shorter, all for the sake of flush.
-                    local componentWidth: UDim = UDim.new(Iris._config.ContentWidth.Scale / components, (Iris._config.ContentWidth.Offset - (Iris._config.ItemInnerSpacing.X * (components - 1))) / components - rightPadding)
+                    local componentWidth: UDim = UDim.new(Iris._config.ContentWidth.Scale / components, (Iris._config.ContentWidth.Offset - (Iris._config.ItemInnerSpacing.X * (components - 1)) - rightPadding) / components)
                     local totalWidth: UDim = UDim.new(componentWidth.Scale * (components - 1), (componentWidth.Offset * (components - 1)) + (Iris._config.ItemInnerSpacing.X * (components - 1)) + rightPadding)
                     local lastComponentWidth: UDim = Iris._config.ContentWidth - totalWidth
 
@@ -447,7 +434,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                                 end
 
                                 if thisWidget.arguments.Increment then
-                                    newValue = math.floor(newValue / getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)) * getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)
+                                    newValue = math.round(newValue / getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)) * getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)
                                 end
 
                                 thisWidget.state.number:set(updateValueByIndex(thisWidget.state.number.value, index, newValue, thisWidget.arguments))
@@ -669,7 +656,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                     -- we divide the total area evenly between each field. This includes accounting for any additional boxes and the offset.
                     -- for the final field, we make sure it's flush by calculating the space avaiable for it. This only makes the Vector2 box
                     -- 4 pixels shorter, all for the sake of flush.
-                    local componentWidth: UDim = UDim.new(Iris._config.ContentWidth.Scale / components, (Iris._config.ContentWidth.Offset - (Iris._config.ItemInnerSpacing.X * (components - 1))) / components - rightPadding)
+                    local componentWidth: UDim = UDim.new(Iris._config.ContentWidth.Scale / components, (Iris._config.ContentWidth.Offset - (Iris._config.ItemInnerSpacing.X * (components - 1)) - rightPadding) / components)
                     local totalWidth: UDim = UDim.new(componentWidth.Scale * (components - 1), (componentWidth.Offset * (components - 1)) + (Iris._config.ItemInnerSpacing.X * (components - 1)) + rightPadding)
                     local lastComponentWidth: UDim = Iris._config.ContentWidth - totalWidth
 
@@ -732,6 +719,9 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                                 state = thisWidget.state.color
                             end
                             if newValue ~= nil then
+                                if dataType == "Color3" or dataType == "Color4" and not thisWidget.arguments.UseFloats then
+                                    newValue = newValue / 255
+                                end
                                 if thisWidget.arguments.Min ~= nil then
                                     newValue = math.max(newValue, getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments))
                                 end
@@ -740,24 +730,30 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                                 end
 
                                 if thisWidget.arguments.Increment then
-                                    newValue = math.floor(newValue / getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)) * getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)
+                                    newValue = math.round(newValue / getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)) * getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)
                                 end
 
                                 state:set(updateValueByIndex(state.value, index, newValue, thisWidget.arguments))
                                 thisWidget.lastNumberChangedTick = Iris._cycleTick + 1
 
+                                local value: number = getValueByIndex(state.value, index, thisWidget.arguments)
+                                if dataType == "Color3" or dataType == "Color4" and not thisWidget.arguments.UseFloats then
+                                    value = math.round(value * 255)
+                                end
                                 if thisWidget.arguments.Format then
-                                    InputField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], getValueByIndex(state.value, index, thisWidget.arguments))
+                                    InputField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], value)
                                 else
                                     -- this prevents float values to UDim offsets
-                                    local value: number = getValueByIndex(state.value, index, thisWidget.arguments)
                                     InputField.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == value then "%d" else "%.3f", value)
                                 end
                             else
+                                local value: number = getValueByIndex(state.value, index, thisWidget.arguments)
+                                if dataType == "Color3" or dataType == "Color4" and not thisWidget.arguments.UseFloats then
+                                    value = math.round(value * 255)
+                                end
                                 if thisWidget.arguments.Format then
-                                    InputField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], getValueByIndex(state.value, index, thisWidget.arguments))
+                                    InputField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], value)
                                 else
-                                    local value: number = getValueByIndex(state.value, index, thisWidget.arguments)
                                     InputField.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == value then "%d" else "%.3f", value)
                                 end
                             end
@@ -829,10 +825,13 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                         local DragField = Drag:FindFirstChild("DragField" .. tostring(index)) :: TextButton
                         local InputField: TextBox = DragField.InputField
                         local value: number = getValueByIndex(state.value, index, thisWidget.arguments)
+                        if dataType == "Color3" or dataType == "Color4" and not thisWidget.arguments.UseFloats then
+                            value = math.round(value * 255)
+                        end
                         if thisWidget.arguments.Format then
                             DragField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], value)
                         else
-                            DragField.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == math.floor(value * 10 ^ 5) / 10 ^ 5 then "%d" else "%.3f", value)
+                            DragField.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == value then "%d" else "%.3f", value)
                             InputField.Text = tostring(value)
                         end
 
@@ -842,7 +841,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                             DragField.TextTransparency = 1
                         else
                             InputField.Visible = false
-                            DragField.TextTransparency = 0
+                            DragField.TextTransparency = Iris._config.TextTransparency
                         end
                     end
 
@@ -892,20 +891,9 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                         thisWidget.arguments.Format = { thisWidget.arguments.Format }
                     end
 
-                    -- this is very finicky working with either floats or integers.
-                    -- the code saves everything as floats, so we assume most floats.
-                    -- when dragging, it grabs the floats and multiplies them by 255 if
-                    -- using integers. This is fine, except that the increments are not
-                    -- integerse so results in unpleasing visual values. Therefore, we
-                    -- skip the multiplying and grab the direct values from default.
-                    -- Please ask me before discovering my pain. @SirMallard
                     thisWidget.arguments.Min = { 0, 0, 0, 0 }
                     thisWidget.arguments.Max = { 1, 1, 1, 1 }
-                    if thisWidget.arguments.UseFloats then
-                        thisWidget.arguments.Increment = { 0.01, 0.01, 0.01, 0.01 }
-                    else
-                        thisWidget.arguments.Increment = nil :: any
-                    end
+                    thisWidget.arguments.Increment = { 0.005, 0.005, 0.005, 0.005 }
                 end,
             })
         end
@@ -1080,7 +1068,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                                 end
 
                                 if thisWidget.arguments.Increment then
-                                    newValue = math.floor(newValue / getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)) * getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)
+                                    newValue = math.round(newValue / getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)) * getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)
                                 end
 
                                 thisWidget.state.number:set(updateValueByIndex(thisWidget.state.number.value, index, newValue, thisWidget.arguments))
@@ -1120,8 +1108,8 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
 
                         local GrabBar: Frame = Instance.new("Frame")
                         GrabBar.Name = "GrabBar"
-                        GrabBar.ZIndex = thisWidget.ZIndex + 3
-                        GrabBar.LayoutOrder = thisWidget.ZIndex + 3
+                        GrabBar.ZIndex = thisWidget.ZIndex + 5
+                        GrabBar.LayoutOrder = thisWidget.ZIndex + 5
                         GrabBar.AnchorPoint = Vector2.new(0, 0.5)
                         GrabBar.Position = UDim2.new(0, 0, 0.5, 0)
                         GrabBar.BorderSizePixel = 0
