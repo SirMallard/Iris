@@ -53,6 +53,7 @@ export type Widget = {
     lastRightClickedTick: number,
     lastClickedTime: number,
     lastClickedPosition: Vector2,
+    lastShortcutTick: number,
     lastDoubleClickedTick: number,
     lastCtrlClickedTick: number,
     lastCheckedTick: number,
@@ -65,9 +66,6 @@ export type Widget = {
     collapsed: () -> boolean,
     uncollapsed: () -> boolean,
     hovered: () -> boolean,
-
-    lastMenuTick: number,
-    menuID: ID,
 }
 
 export type InputDataType = number | Vector2 | Vector3 | UDim | UDim2 | Color3 | { number }
@@ -112,13 +110,14 @@ export type Arguments = {
     NoMove: boolean,
     NoScrollbar: boolean,
     NoResize: boolean,
+    NoMenu: boolean,
 }
 export type WidgetArguments = { [number]: Argument }
 
 export type WidgetClass = {
     Generate: (thisWidget: Widget) -> GuiObject,
     Discard: (thisWidget: Widget) -> (),
-    Update: (thisWidget: Widget) -> (),
+    Update: (thisWidget: Widget, ...any) -> (),
 
     Args: { [string]: number },
     Events: Events,
@@ -137,8 +136,10 @@ export type WidgetUtility = {
     GuiService: GuiService,
     RunService: RunService,
     UserInputService: UserInputService,
+    ContextActionService: ContextActionService,
 
     getTime: () -> number,
+    getMouseLocation: () -> Vector2,
 
     ICONS: {
         RIGHT_POINTING_TRIANGLE: string,
@@ -178,7 +179,7 @@ export type WidgetUtility = {
     abstractButton: WidgetClass,
 }
 
-export type WidgetCall = (args: WidgetArguments, state: States?) -> Widget
+export type WidgetAPI = (args: WidgetArguments?, state: States?) -> Widget
 
 export type Iris = {
     _started: boolean,
@@ -237,63 +238,66 @@ export type Iris = {
 
     _DiscardWidget: (widgetToDiscard: Widget) -> (),
     _GenNewWidget: (widgetType: string, arguments: Arguments, widgetState: States?, ID: ID) -> Widget,
-    _Inset: (widgetType: string, args: { [number]: any }, widgetState: States?) -> Widget,
+    _Insert: (widgetType: string, args: { [number]: any }, widgetState: States?) -> Widget,
     _ContinueWidget: (ID: ID, widgetType: string) -> Widget,
     Append: (userInstance: GuiObject) -> (),
 
+    MenuBar: WidgetAPI,
+    Menu: WidgetAPI,
+
     End: () -> (),
-    Text: WidgetCall,
-    TextColored: WidgetCall,
-    TextWrapped: WidgetCall,
-    SeparatorText: WidgetCall,
+    Text: WidgetAPI,
+    TextColored: WidgetAPI,
+    TextWrapped: WidgetAPI,
+    SeparatorText: WidgetAPI,
 
-    Button: WidgetCall,
-    SmallButton: WidgetCall,
-    Checkbox: WidgetCall,
-    RadioButton: WidgetCall,
+    Button: WidgetAPI,
+    SmallButton: WidgetAPI,
+    Checkbox: WidgetAPI,
+    RadioButton: WidgetAPI,
 
-    Separator: WidgetCall,
-    Indent: WidgetCall,
-    SameLine: WidgetCall,
-    Group: WidgetCall,
-    Selectable: WidgetCall,
+    Separator: WidgetAPI,
+    Indent: WidgetAPI,
+    SameLine: WidgetAPI,
+    Group: WidgetAPI,
+    Selectable: WidgetAPI,
 
-    Tree: WidgetCall,
-    CollapsingHeader: WidgetCall,
+    Tree: WidgetAPI,
+    CollapsingHeader: WidgetAPI,
 
-    InputNum: WidgetCall,
-    InputVector2: WidgetCall,
-    InputVector3: WidgetCall,
-    InputUDim: WidgetCall,
-    InputUDim2: WidgetCall,
-    InputColor3: WidgetCall,
-    InputColo4: WidgetCall,
+    InputNum: WidgetAPI,
+    InputVector2: WidgetAPI,
+    InputVector3: WidgetAPI,
+    InputUDim: WidgetAPI,
+    InputUDim2: WidgetAPI,
+    InputColor3: WidgetAPI,
+    InputColo4: WidgetAPI,
 
-    DragNum: WidgetCall,
-    DragVector2: WidgetCall,
-    DragVector3: WidgetCall,
-    DragUDim: WidgetCall,
-    DragUDim2: WidgetCall,
+    DragNum: WidgetAPI,
+    DragVector2: WidgetAPI,
+    DragVector3: WidgetAPI,
+    DragUDim: WidgetAPI,
+    DragUDim2: WidgetAPI,
 
-    SliderNum: WidgetCall,
-    SliderVector2: WidgetCall,
-    SliderVector3: WidgetCall,
-    SliderUDim: WidgetCall,
-    SliderUDim2: WidgetCall,
-    SliderEnum: WidgetCall,
+    SliderNum: WidgetAPI,
+    SliderVector2: WidgetAPI,
+    SliderVector3: WidgetAPI,
+    SliderUDim: WidgetAPI,
+    SliderUDim2: WidgetAPI,
+    SliderEnum: WidgetAPI,
 
-    InputText: WidgetCall,
+    InputText: WidgetAPI,
     InputEnum: (args: WidgetArguments, state: States?, enumType: Enum) -> Widget,
-    Combo: WidgetCall,
+    Combo: WidgetAPI,
     ComboArray: (args: WidgetArguments, state: States?, selectionArray: { any }) -> Widget,
 
-    Table: WidgetCall,
+    Table: WidgetAPI,
     NextColumn: () -> (),
     SetColumnIndex: (columnIndex: number) -> (),
     NextRow: () -> (),
 
-    Window: WidgetCall,
-    Tooltip: WidgetCall,
+    Window: WidgetAPI,
+    Tooltip: WidgetAPI,
     SetFocusedWindow: (thisWidget: Widget?) -> (),
 }
 
@@ -401,6 +405,7 @@ export type Config = {
     SeparatorTextBorderSize: number,
 
     UseScreenGUIs: boolean,
+    IgnoreGuiInset: boolean,
     Parent: BasePlayerGui,
     DisplayOrderOffset: number,
     ZIndexOffset: number,

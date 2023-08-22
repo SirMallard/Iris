@@ -1,5 +1,7 @@
-return function(Iris, widgets)
-    local NumNonWindowChildren = 0
+local Types = require(script.Parent.Parent.Types)
+
+return function(Iris: Types.Iris, widgets: Types.Widget)
+    local NumNonWindowChildren: number = 0
     Iris.WidgetConstructor("Root", {
         hasState = false,
         hasChildren = true,
@@ -14,6 +16,7 @@ return function(Iris, widgets)
                 PseudoWindowScreenGui = Instance.new("ScreenGui")
                 PseudoWindowScreenGui.ResetOnSpawn = false
                 PseudoWindowScreenGui.DisplayOrder = Iris._config.DisplayOrderOffset
+                PseudoWindowScreenGui.IgnoreGuiInset = Iris._config.IgnoreGuiInset
             else
                 PseudoWindowScreenGui = Instance.new("Folder")
             end
@@ -25,6 +28,7 @@ return function(Iris, widgets)
                 PopupScreenGui = Instance.new("ScreenGui")
                 PopupScreenGui.ResetOnSpawn = false
                 PopupScreenGui.DisplayOrder = Iris._config.DisplayOrderOffset + 1024 -- room for 1024 regular windows before overlap
+                PopupScreenGui.IgnoreGuiInset = Iris._config.IgnoreGuiInset
 
                 local TooltipContainer = Instance.new("Frame")
                 TooltipContainer.Name = "TooltipContainer"
@@ -97,5 +101,5 @@ return function(Iris, widgets)
                 end
             end
         end,
-    })
+    } :: Types.WidgetClass)
 end

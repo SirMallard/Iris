@@ -6,6 +6,7 @@ return function(Iris: Types.Iris)
     widgets.GuiService = game:GetService("GuiService")
     widgets.RunService = game:GetService("RunService")
     widgets.UserInputService = game:GetService("UserInputService")
+    widgets.ContextActionService = game:GetService("ContextActionService")
 
     widgets.ICONS = {
         RIGHT_POINTING_TRIANGLE = "\u{25BA}",
@@ -16,6 +17,8 @@ return function(Iris: Types.Iris)
         ALPHA_BACKGROUND_TEXTURE = "rbxasset://textures/meshPartFallback.png", -- used for color4 alpha
     }
 
+    widgets.GuiInset = widgets.GuiService:GetGuiInset()
+
     widgets.IS_STUDIO = widgets.RunService:IsStudio()
     function widgets.getTime()
         -- time() always returns 0 in the context of plugins
@@ -24,6 +27,10 @@ return function(Iris: Types.Iris)
         else
             return time()
         end
+    end
+
+    function widgets.getMouseLocation(): Vector2
+        return widgets.UserInputService:GetMouseLocation() - widgets.GuiInset
     end
 
     function widgets.findBestWindowPosForPopup(refPos: Vector2, size: Vector2, outerMin: Vector2, outerMax: Vector2): Vector2
@@ -383,6 +390,25 @@ return function(Iris: Types.Iris)
                 end,
             }
         end,
+
+        shortcut = function(keycode: Enum.KeyCode, modifier: Enum.KeyCode)
+            return {
+                ["Init"] = function(thisWidget: Types.Widget)
+                    thisWidget.lastShortcutTick = -1
+
+                    widgets.ContextActionService:BindAction(thisWidget.ID, function(actionName: string, inputState: Enum.UserInputState, inputObject: InputObject)
+                        if inputState == Enum.UserInputState.Begin then
+                            if widgets.UserInputService:IsKeyDown(modifier) then
+                                thisWidget.lastShortcutTick = Iris._cycleTick + 1
+                            end
+                        end
+                    end)
+                end,
+                ["Get"] = function(thisWidget: Types.Widget): boolean
+                    return thisWidget.lastShortcutTick == Iris._cycleTick
+                end,
+            }
+        end,
     }
 
     function widgets.discardState(thisWidget: Types.Widget)
@@ -392,15 +418,22 @@ return function(Iris: Types.Iris)
     end
 
     require(script.Root)(Iris, widgets)
+    require(script.Window)(Iris, widgets)
+
+    require(script.Menu)(Iris, widgets)
+
+    require(script.Format)(Iris, widgets)
+
     require(script.Text)(Iris, widgets)
     require(script.Button)(Iris, widgets)
-    require(script.Format)(Iris, widgets)
     require(script.Checkbox)(Iris, widgets)
     require(script.RadioButton)(Iris, widgets)
+
     require(script.Tree)(Iris, widgets)
+
     require(script.Input)(Iris, widgets)
     require(script.GenericInput)(Iris, widgets)
     require(script.Combo)(Iris, widgets)
+
     require(script.Table)(Iris, widgets)
-    require(script.Window)(Iris, widgets)
 end

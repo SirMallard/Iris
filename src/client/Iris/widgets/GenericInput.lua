@@ -539,7 +539,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         local ActiveDataType: Types.InputDataTypes | "" = ""
 
         local function updateActiveDrag()
-            local currentMouseX: number = widgets.UserInputService:GetMouseLocation().X
+            local currentMouseX: number = widgets.getMouseLocation().X
             local mouseXDelta: number = currentMouseX - PreviouseMouseXPosition
             PreviouseMouseXPosition = currentMouseX
             if AnyActiveDrag == false then
@@ -927,7 +927,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             local GrabPadding: number = Iris._config.FramePadding.X
             local decimalFix: number = increment < 1 and 0 or 1 -- ??? ?? ??? ?
             local GrabNumPossiblePositions: number = math.floor((decimalFix + max - min) / increment)
-            local PositionRatio: number = (widgets.UserInputService:GetMouseLocation().X - (SliderField.AbsolutePosition.X + GrabPadding)) / (SliderField.AbsoluteSize.X - 2 * GrabPadding)
+            local PositionRatio: number = (widgets.getMouseLocation().X - (SliderField.AbsolutePosition.X + GrabPadding)) / (SliderField.AbsoluteSize.X - 2 * GrabPadding)
             local newValue: number = math.clamp(math.floor(PositionRatio * GrabNumPossiblePositions) * increment + min, min, max)
 
             ActiveSlider.state.number:set(updateValueByIndex(ActiveSlider.state.number.value, ActiveIndex, newValue, ActiveSlider.arguments))

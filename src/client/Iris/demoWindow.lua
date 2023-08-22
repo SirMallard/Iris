@@ -849,6 +849,7 @@ return function(Iris)
         local NoScrollbar = Iris.State(false)
         local NoResize = Iris.State(false)
         local NoNav = Iris.State(false)
+        local NoMenu = Iris.State(false)
 
         if showMainWindow.value == false then
             Iris.Checkbox({ "Open main window" }, { isChecked = showMainWindow })
@@ -865,6 +866,7 @@ return function(Iris)
             [Iris.Args.Window.NoScrollbar] = NoScrollbar.value,
             [Iris.Args.Window.NoResize] = NoResize.value,
             [Iris.Args.Window.NoNav] = NoNav.value,
+            [Iris.Args.Window.NoMenu] = NoMenu.value,
         }, { size = Iris.State(Vector2.new(600, 550)), position = Iris.State(Vector2.new(100, 25)), isOpened = showMainWindow })
 
         Iris.Text({ "Iris says hello. (2.0.4)" })

@@ -450,6 +450,9 @@ end
 --- @within State
 --- allows the caller to assign the state object a new value, and returns the new value.
 function StateClass:set(newValue: any): any
+    if newValue == self.value then
+        return self.value
+    end
     self.value = newValue
     for _, thisWidget: Types.Widget in self.ConnectedWidgets do
         Iris._widgets[thisWidget.type].UpdateState(thisWidget)
@@ -658,7 +661,7 @@ function Iris._GenNewWidget(widgetType: string, arguments: Types.Arguments, widg
     if thisWidgetClass.hasState then
         if widgetState then
             for index: string, state: Types.State in widgetState do
-                if not (type(state) == "table" and getmetatable(state) == StateClass) then
+                if not (type(state) == "table" and getmetatable(state :: any) == StateClass) then
                     widgetState[index] = Iris._widgetState(thisWidget, index, state)
                 end
             end
@@ -1163,7 +1166,7 @@ Iris.SliderUDim2 = function(args: Types.WidgetArguments, state: Types.States?): 
 end
 
 Iris.SliderEnum = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
-    return Iris._Inset("SliderNum", args, state)
+    return Iris._Insert("SliderNum", args, state)
 end
 
 --- @prop InputNum Widget
@@ -1547,21 +1550,11 @@ Iris.NextRow = Iris.NextRow
 ---'''json
 ---```
 Iris.MenuBar = function()
-    local window: Types.Widget? = Iris:_getCurrentWindow()
-    if window == nil then
-        error("There is currently no window.")
-    end
+    return Iris._Insert("MenuBar", {})
+end
 
-    local ID: Types.ID = window.menuID
-    if window.lastMenuTick ~= Iris._cycleTick then
-        ID = Iris:_getID(2)
-        window.menuID = ID
-    end
-
-    window.lastMenuTick = Iris._cycleTick
-
-    Iris._stackIndex += 1
-    Iris._IDStack[Iris._stackIndex] = ID
+Iris.Menu = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+    return Iris._Insert("Menu", args, state)
 end
 
 --- @prop Window Widget

@@ -1,4 +1,6 @@
-return function(Iris, widgets)
+local Types = require(script.Parent.Parent.Types)
+
+return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
     local function onSelectionChange(thisWidget)
         if type(thisWidget.state.index.value) == "boolean" then
             thisWidget.state.index:set(not thisWidget.state.index.value)
@@ -119,7 +121,7 @@ return function(Iris, widgets)
                 thisWidget.lastUnselectedTick = Iris._cycleTick + 1
             end
         end,
-    })
+    } :: Types.WidgetClass)
 
     local AnyOpenedCombo = false
     local ComboOpenedTick = -1
@@ -132,7 +134,7 @@ return function(Iris, widgets)
         local ChildContainer = thisWidget.ChildContainer
 
         local ChildContainerBorderSize = Iris._config.PopupBorderSize
-        local ChildContainerHeight = (thisWidget.LabelHeight * math.min(thisWidget.NumChildrenForSize, 8) - 2 * ChildContainerBorderSize) + (3*Iris._config.FramePadding.Y)
+        local ChildContainerHeight = (thisWidget.LabelHeight * math.min(thisWidget.NumChildrenForSize, 8) - 2 * ChildContainerBorderSize) + (3 * Iris._config.FramePadding.Y)
         local ChildContainerWidth = UDim.new(0, PreviewContainer.AbsoluteSize.X - 2 * ChildContainerBorderSize)
         ChildContainer.Size = UDim2.new(ChildContainerWidth, UDim.new(0, ChildContainerHeight))
 
@@ -156,7 +158,7 @@ return function(Iris, widgets)
         if ComboOpenedTick == Iris._cycleTick then
             return
         end
-        local MouseLocation = widgets.UserInputService:GetMouseLocation() - Vector2.new(0, 36)
+        local MouseLocation = widgets.getMouseLocation()
         local ChildContainer = OpenedCombo.ChildContainer
         local rectMin = ChildContainer.AbsolutePosition - Vector2.new(0, OpenedCombo.LabelHeight)
         local rectMax = ChildContainer.AbsolutePosition + ChildContainer.AbsoluteSize
@@ -324,7 +326,7 @@ return function(Iris, widgets)
             uiStroke.Thickness = Iris._config.WindowBorderSize
             uiStroke.Color = Iris._config.BorderColor
             uiStroke.Parent = ChildContainer
-            widgets.UIPadding(ChildContainer, Vector2.new(2, 2*Iris._config.FramePadding.Y))
+            widgets.UIPadding(ChildContainer, Vector2.new(2, 2 * Iris._config.FramePadding.Y))
             -- appear over everything else
             ChildContainer.ZIndex = thisWidget.ZIndex + 6
             ChildContainer.LayoutOrder = thisWidget.ZIndex + 6
@@ -432,7 +434,7 @@ return function(Iris, widgets)
             thisWidget.Instance:Destroy()
             widgets.discardState(thisWidget)
         end,
-    })
+    } :: Types.WidgetClass)
 
     Iris.ComboArray = function(args, state, SelectionArray)
         local defaultState
@@ -442,9 +444,9 @@ return function(Iris, widgets)
             defaultState = state
         end
         local thisWidget = Iris._Insert("Combo", args, defaultState)
-        local sharedIndex = thisWidget.state.index
+        local sharedIndex: Types.State = thisWidget.state.index
         for _, Selection in SelectionArray do
-            Iris._Insert("Selectable", { Selection, Selection }, { index = sharedIndex })
+            Iris._Insert("Selectable", { Selection, Selection }, { index = sharedIndex } :: Types.States)
         end
         Iris.End()
 
@@ -461,7 +463,7 @@ return function(Iris, widgets)
         local thisWidget = Iris._Insert("Combo", args, defaultState)
         local sharedIndex = thisWidget.state.index
         for _, Selection in enumType:GetEnumItems() do
-            Iris._Insert("Selectable", { Selection.Name, Selection }, { index = sharedIndex })
+            Iris._Insert("Selectable", { Selection.Name, Selection }, { index = sharedIndex } :: Types.States)
         end
         Iris.End()
 
