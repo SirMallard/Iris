@@ -81,13 +81,14 @@ return function(Iris, widgets)
                 for i = 1, thisWidget.InitialNumColumns do
                     local column = Instance.new("Frame")
                     column.Name = `Column_{i}`
+                    column.Size = UDim2.new(1 / thisWidget.InitialNumColumns, 0, 0, 0)
                     column.BackgroundTransparency = 1
                     column.BorderSizePixel = 0
                     local ColumnZIndex = thisWidget.ZIndex + 1 + i
                     column.ZIndex = ColumnZIndex
                     column.LayoutOrder = ColumnZIndex
                     column.AutomaticSize = Enum.AutomaticSize.Y
-                    column.Size = UDim2.new(1 / thisWidget.InitialNumColumns, 0, 0, 0)
+                    column.ClipsDescendants = true
                     --column.ClipsDescendants = true
 
                     widgets.UIListLayout(column, Enum.FillDirection.Vertical, UDim.new(0, 0))
@@ -144,6 +145,7 @@ return function(Iris, widgets)
             local newZIndex = selectedParent.ZIndex + thisWidget.RowColumnIndex
             cell.ZIndex = newZIndex
             cell.LayoutOrder = newZIndex
+            cell.ClipsDescendants = true
             cell.Name = `Cell_{thisWidget.RowColumnIndex}`
 
             widgets.UIListLayout(cell, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))

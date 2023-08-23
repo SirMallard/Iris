@@ -772,7 +772,6 @@ return function(Iris)
                 [Iris.Args.InputNum.Min] = 0,
                 [Iris.Args.InputNum.Max] = 100,
                 [Iris.Args.InputNum.Format] = "%d",
-                [Iris.Args.InputNum.NoField] = true,
             }, { number = TableNumRows })
 
             Iris.End()

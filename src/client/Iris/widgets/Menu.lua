@@ -180,7 +180,12 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
 
             local ChildContainer = Instance.new("ScrollingFrame")
             ChildContainer.Name = "ChildContainer"
-            ChildContainer.Size = UDim2.fromOffset(80, 150)
+            ChildContainer.BackgroundColor3 = Iris._config.WindowBgColor
+            ChildContainer.BackgroundTransparency = Iris._config.WindowBgTransparency
+            ChildContainer.BorderSizePixel = 0
+            ChildContainer.Size = UDim2.fromOffset(0, 0)
+            ChildContainer.AutomaticSize = Enum.AutomaticSize.XY
+
             ChildContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
             ChildContainer.ScrollBarImageTransparency = Iris._config.ScrollbarGrabTransparency
             ChildContainer.ScrollBarImageColor3 = Iris._config.ScrollbarGrabColor
@@ -188,32 +193,31 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             ChildContainer.CanvasSize = UDim2.fromScale(0, 0)
             ChildContainer.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 
-            ChildContainer.BackgroundColor3 = Iris._config.WindowBgColor
-            ChildContainer.BackgroundTransparency = Iris._config.WindowBgTransparency
-            ChildContainer.BorderSizePixel = 0
+            ChildContainer.ZIndex = thisWidget.ZIndex + 6
+            ChildContainer.LayoutOrder = thisWidget.ZIndex + 6
+            ChildContainer.ClipsDescendants = true
+
             -- Unfortunatley, ScrollingFrame does not work with UICorner
             -- if Iris._config.PopupRounding > 0 then
             --     widgets.UICorner(ChildContainer, Iris._config.PopupRounding)
             -- end
+
+            local ChildContainerUIListLayout = widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new())
+            ChildContainerUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+
+            local RootPopupScreenGui = Iris._rootInstance.PopupScreenGui
+            ChildContainer.Parent = RootPopupScreenGui
+            thisWidget.ChildContainer = ChildContainer
 
             local uiStroke = Instance.new("UIStroke")
             uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
             uiStroke.LineJoinMode = Enum.LineJoinMode.Round
             uiStroke.Thickness = Iris._config.WindowBorderSize
             uiStroke.Color = Iris._config.BorderColor
-            uiStroke.Parent = ChildContainer
+
             widgets.UIPadding(ChildContainer, Vector2.new(2, Iris._config.WindowPadding.Y - Iris._config.ItemSpacing.Y))
-            -- appear over everything else
-            ChildContainer.ZIndex = thisWidget.ZIndex + 6
-            ChildContainer.LayoutOrder = thisWidget.ZIndex + 6
-            ChildContainer.ClipsDescendants = true
 
-            local ChildContainerUIListLayout = widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
-            ChildContainerUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-
-            local RootPopupScreenGui = Iris._rootInstance.PopupScreenGui
-            ChildContainer.Parent = RootPopupScreenGui
-            thisWidget.ChildContainer = ChildContainer
+            uiStroke.Parent = ChildContainer
 
             return Menu
         end,
@@ -221,7 +225,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             local Menu = thisWidget.Instance :: TextButton
             Menu.Text = thisWidget.arguments.Text or "Menu"
         end,
-        ChildAdded = function(thisWidget: Types.Widget)
+        ChildAdded = function(thisWidget: Types.Widget, thisChild: Types.Widget)
             return thisWidget.ChildContainer
         end,
         GenerateState = function(thisWidget: Types.Widget)
@@ -275,8 +279,9 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         hasChildren = false,
         Args = {
             Text = 1,
-            Shortcut = 2,
-            Disabled = 3,
+            KeyCode = 2,
+            ModifierKey = 3,
+            Disabled = 4,
         },
         Events = {
             ["clicked"] = widgets.EVENTS.click(function(thisWidget: Types.Widget)
@@ -285,6 +290,81 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
                 return thisWidget.Instance
             end),
+            ["shortcut"] = widgets.EVENTS.shortcut(function(thisWidget: Types.Widget)
+                return thisWidget.arguments.KeyCode, thisWidget.arguments.ModifierKey
+            end),
         },
+        Generate = function(thisWidget: Types.Widget)
+            local MenuItem: TextButton = Instance.new("TextButton")
+            MenuItem.Name = "MenuItem"
+            MenuItem.BackgroundTransparency = 1
+            MenuItem.BorderSizePixel = 0
+            MenuItem.Size = UDim2.fromOffset(0, 0)
+            MenuItem.Text = ""
+            MenuItem.AutomaticSize = Enum.AutomaticSize.XY
+            MenuItem.ZIndex = thisWidget.ZIndex
+            MenuItem.LayoutOrder = thisWidget.ZIndex
+            MenuItem.AutoButtonColor = false
+
+            widgets.UIPadding(MenuItem, Iris._config.FramePadding)
+            widgets.UIListLayout(MenuItem, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+
+            widgets.applyInteractionHighlights(MenuItem, MenuItem, {
+                ButtonColor = Iris._config.HeaderColor,
+                ButtonTransparency = 1,
+                ButtonHoveredColor = Iris._config.HeaderHoveredColor,
+                ButtonHoveredTransparency = Iris._config.HeaderHoveredTransparency,
+                ButtonActiveColor = Iris._config.HeaderHoveredColor,
+                ButtonActiveTransparency = Iris._config.HeaderHoveredTransparency,
+            })
+
+            MenuItem.MouseButton1Click:Connect(function()
+                EmptyMenuStack()
+            end)
+
+            local TextLabel: TextLabel = Instance.new("TextLabel")
+            TextLabel.Name = "TextLabel"
+            TextLabel.AnchorPoint = Vector2.new(0, 0)
+            TextLabel.BackgroundTransparency = 1
+            TextLabel.BorderSizePixel = 0
+            TextLabel.ZIndex = thisWidget.ZIndex + 1
+            TextLabel.LayoutOrder = thisWidget.ZIndex + 1
+            TextLabel.AutomaticSize = Enum.AutomaticSize.XY
+
+            widgets.applyTextStyle(TextLabel)
+
+            TextLabel.Parent = MenuItem
+
+            local Shortcut: TextLabel = Instance.new("TextLabel")
+            Shortcut.Name = "Shortcut"
+            Shortcut.AnchorPoint = Vector2.new(0, 0)
+            Shortcut.BackgroundTransparency = 1
+            Shortcut.BorderSizePixel = 0
+            Shortcut.ZIndex = thisWidget.ZIndex + 2
+            Shortcut.LayoutOrder = thisWidget.ZIndex + 2
+            Shortcut.AutomaticSize = Enum.AutomaticSize.XY
+
+            widgets.applyTextStyle(Shortcut)
+
+            Shortcut.TextColor3 = Iris._config.TextDisabledColor
+            Shortcut.TextTransparency = Iris._config.TextDisabledTransparency
+
+            Shortcut.Parent = MenuItem
+
+            return MenuItem
+        end,
+        Update = function(thisWidget: Types.Widget)
+            local MenuItem = thisWidget.Instance :: TextButton
+            local TextLabel: TextLabel = MenuItem.TextLabel
+            local Shortcut: TextLabel = MenuItem.Shortcut
+
+            TextLabel.Text = thisWidget.arguments.Text
+            if thisWidget.arguments.KeyCode then
+                Shortcut.Text = thisWidget.arguments.ModifierKey.Name .. " + " .. thisWidget.arguments.KeyCode.Name
+            end
+        end,
+        Discard = function(thisWidget: Types.Widget)
+            thisWidget.Instance:Destroy()
+        end,
     } :: Types.WidgetClass)
 end

@@ -111,6 +111,10 @@ export type Arguments = {
     NoScrollbar: boolean,
     NoResize: boolean,
     NoMenu: boolean,
+
+    KeyCode: Enum.KeyCode,
+    ModifierKey: Enum.ModifierKey,
+    Disabled: boolean,
 }
 export type WidgetArguments = { [number]: Argument }
 
@@ -128,7 +132,7 @@ export type WidgetClass = {
     GenerateState: (thisWidget: Widget) -> (),
     UpdateState: (thisWidget: Widget) -> (),
 
-    ChildAdded: (thisWidget: Widget) -> GuiObject,
+    ChildAdded: (thisWidget: Widget, thisChild: Widget) -> GuiObject,
     ChildDiscarded: (thisWidget: Widget, thisChild: Widget) -> (),
 }
 
@@ -161,6 +165,7 @@ export type WidgetUtility = {
     UIStroke: (Parent: GuiObject, Thickness: number, Color: Color3, Transparency: number) -> UIStroke,
     UICorner: (Parent: GuiObject, PxRounding: number) -> UICorner,
     UISizeConstraint: (Parent: GuiObject, MinSize: Vector2?, MaxSize: Vector2?) -> UISizeConstraint,
+    UIReference: (Parent: GuiObject, Child: GuiObject, Name: string) -> ObjectValue,
 
     applyTextStyle: (thisInstance: TextLabel | TextButton | TextBox) -> (),
     applyInteractionHighlights: (Button: GuiButton, Highlightee: GuiObject, Colors: { [string]: any }) -> (),
@@ -174,6 +179,7 @@ export type WidgetUtility = {
         rightClick: (pathToClicked: (thisWidget: Widget) -> GuiButton) -> Event,
         doubleClick: (pathToClicked: (thisWidget: Widget) -> GuiButton) -> Event,
         ctrlClick: (pathToClicked: (thisWidget: Widget) -> GuiButton) -> Event,
+        shortcut: (pathToKeys: (thisWidget: Widget) -> (Enum.KeyCode, Enum.ModifierKey)) -> Event,
     },
 
     abstractButton: WidgetClass,
@@ -244,6 +250,7 @@ export type Iris = {
 
     MenuBar: WidgetAPI,
     Menu: WidgetAPI,
+    MenuItem: WidgetAPI,
 
     End: () -> (),
     Text: WidgetAPI,

@@ -80,7 +80,8 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             return Checkbox
         end,
         Update = function(thisWidget: Types.Widget)
-            thisWidget.Instance.TextLabel.Text = thisWidget.arguments.Text or "Checkbox"
+            local Checkbox = thisWidget.Instance :: TextButton
+            Checkbox.TextLabel.Text = thisWidget.arguments.Text or "Checkbox"
         end,
         Discard = function(thisWidget: Types.Widget)
             thisWidget.Instance:Destroy()
@@ -92,12 +93,13 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             end
         end,
         UpdateState = function(thisWidget: Types.Widget)
-            local Checkbox = thisWidget.Instance.CheckboxBox :: TextLabel
+            local Checkbox = thisWidget.Instance :: TextButton
+            local CheckboxBox: ImageLabel = Checkbox.CheckboxBox
             if thisWidget.state.isChecked.value then
-                Checkbox.Image = widgets.ICONS.CHECK_MARK
+                CheckboxBox.Image = widgets.ICONS.CHECK_MARK
                 thisWidget.lastCheckedTick = Iris._cycleTick + 1
             else
-                Checkbox.Image = ""
+                CheckboxBox.Image = ""
                 thisWidget.lastUncheckedTick = Iris._cycleTick + 1
             end
         end,

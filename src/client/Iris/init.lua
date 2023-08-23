@@ -1557,6 +1557,10 @@ Iris.Menu = function(args: Types.WidgetArguments, state: Types.States?): Types.W
     return Iris._Insert("Menu", args, state)
 end
 
+Iris.MenuItem = function(args: Types.WidgetArguments)
+    return Iris._Insert("MenuItem", args)
+end
+
 --- @prop Window Widget
 --- @within Widgets
 --- A Window. should be used to contain most other Widgets. Cannot be inside other Widgets.

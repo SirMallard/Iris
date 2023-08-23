@@ -64,7 +64,7 @@ return function(Iris, widgets)
         Discard = function(thisWidget)
             thisWidget.Instance:Destroy()
         end,
-        ChildAdded = function(thisWidget)
+        ChildAdded = function(thisWidget, thisChild)
             return thisWidget.Instance
         end,
     })
@@ -109,7 +109,7 @@ return function(Iris, widgets)
         Discard = function(thisWidget)
             thisWidget.Instance:Destroy()
         end,
-        ChildAdded = function(thisWidget)
+        ChildAdded = function(thisWidget, thisChild)
             return thisWidget.Instance
         end,
     })
@@ -138,7 +138,7 @@ return function(Iris, widgets)
         Discard = function(thisWidget)
             thisWidget.Instance:Destroy()
         end,
-        ChildAdded = function(thisWidget)
+        ChildAdded = function(thisWidget, thisChild)
             return thisWidget.Instance
         end,
     })

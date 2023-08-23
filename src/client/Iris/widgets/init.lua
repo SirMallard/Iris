@@ -108,6 +108,14 @@ return function(Iris: Types.Iris)
         return UISizeConstraintInstance
     end
 
+    function widgets.UIReference(Parent: GuiObject, Child: GuiObject, Name: string): ObjectValue
+        local ObjectValue: ObjectValue = Instance.new("ObjectValue")
+        ObjectValue.Name = Name
+        ObjectValue.Value = Child
+        ObjectValue.Parent = Parent
+
+        return ObjectValue
+    end
     -- below uses Iris
 
     function widgets.applyTextStyle(thisInstance: TextLabel | TextButton | TextBox)
@@ -391,18 +399,19 @@ return function(Iris: Types.Iris)
             }
         end,
 
-        shortcut = function(keycode: Enum.KeyCode, modifier: Enum.KeyCode)
+        shortcut = function(pathToKeys: (thisWidget: Types.Widget) -> (Enum.KeyCode, Enum.ModifierKey))
             return {
                 ["Init"] = function(thisWidget: Types.Widget)
+                    local keycode: Enum.KeyCode, modifier: Enum.ModifierKey = pathToKeys(thisWidget)
                     thisWidget.lastShortcutTick = -1
 
-                    widgets.ContextActionService:BindAction(thisWidget.ID, function(actionName: string, inputState: Enum.UserInputState, inputObject: InputObject)
+                    widgets.ContextActionService:BindAction(thisWidget.ID, function(_, inputState: Enum.UserInputState, inputObject: InputObject)
                         if inputState == Enum.UserInputState.Begin then
-                            if widgets.UserInputService:IsKeyDown(modifier) then
+                            if inputObject:IsModifierKeyDown(modifier) then
                                 thisWidget.lastShortcutTick = Iris._cycleTick + 1
                             end
                         end
-                    end)
+                    end, false, keycode)
                 end,
                 ["Get"] = function(thisWidget: Types.Widget): boolean
                     return thisWidget.lastShortcutTick == Iris._cycleTick
