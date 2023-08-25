@@ -2,13 +2,14 @@ export type ID = string
 
 export type State = {
     value: any,
-    ConnectedWidgets: { [ID]: Widget },
+    ConnectedWidgets: { [ID]: string },
     ConnectedFunctions: { (any) -> () },
 
     get: (self: State) -> any,
     set: (self: State, newValue: any) -> (),
     onChange: (self: State, funcToConnect: (any) -> ()) -> (),
 }
+
 export type States = {
     [string]: State,
     number: State,
@@ -32,53 +33,8 @@ export type Event = {
 }
 export type Events = { [string]: Event }
 
-export type Widget = {
-    ID: ID,
-    type: string,
-    state: States,
-
-    parentWidget: Widget,
-    Instance: GuiObject,
-    ChildContainer: GuiObject,
-    arguments: Arguments,
-    providedArguments: Arguments,
-
-    ZIndex: number,
-
-    trackedEvents: {},
-    lastCycleTick: number,
-    LabelHeight: number,
-
-    isHoveredEvent: boolean,
-
-    lastClickedTick: number,
-    lastClickedTime: number,
-    lastClickedPosition: Vector2,
-
-    lastRightClickedTick: number,
-    lastDoubleClickedTick: number,
-    lastCtrlClickedTick: number,
-
-    lastNumberChangedTick: number,
-
-    lastCheckedTick: number,
-    lastUncheckedTick: number,
-
-    lastOpenedTick: number,
-    lastClosedTick: number,
-
-    lastShortcutTick: number,
-
-    clicked: () -> boolean,
-    closed: () -> boolean,
-    opened: () -> boolean,
-    collapsed: () -> boolean,
-    uncollapsed: () -> boolean,
-    hovered: () -> boolean,
-}
-
 export type InputDataType = number | Vector2 | Vector3 | UDim | UDim2 | Color3 | { number }
-export type InputDataTypes = "Num" | "Vector2" | "Vector3" | "UDim" | "UDim2" | "Color3" | "Color4" | "Enum"
+export type InputDataTypes = "Num" | "Vector2" | "Vector3" | "UDim" | "UDim2" | "Color3" | "Color4" | "Enum" | "" | string
 
 export type Argument = any
 export type Arguments = {
@@ -128,6 +84,54 @@ export type Arguments = {
 }
 export type WidgetArguments = { [number]: Argument }
 
+export type Widget = {
+    ID: ID,
+    type: string,
+    state: States,
+
+    parentWidget: Widget,
+    Instance: GuiObject,
+    ChildContainer: GuiObject,
+    arguments: Arguments,
+    providedArguments: Arguments,
+
+    ZIndex: number,
+
+    trackedEvents: {},
+    lastCycleTick: number,
+    LabelHeight: number,
+
+    isHoveredEvent: boolean,
+
+    lastClickedTick: number,
+    lastClickedTime: number,
+    lastClickedPosition: Vector2,
+
+    lastRightClickedTick: number,
+    lastDoubleClickedTick: number,
+    lastCtrlClickedTick: number,
+
+    lastNumberChangedTick: number,
+
+    lastCheckedTick: number,
+    lastUncheckedTick: number,
+
+    lastOpenedTick: number,
+    lastClosedTick: number,
+
+    lastShortcutTick: number,
+
+    clicked: () -> boolean,
+    closed: () -> boolean,
+    opened: () -> boolean,
+    collapsed: () -> boolean,
+    uncollapsed: () -> boolean,
+    hovered: () -> boolean,
+    active: () -> boolean,
+    selected: () -> boolean,
+    unselected: () -> boolean,
+}
+
 export type WidgetClass = {
     Generate: (thisWidget: Widget) -> GuiObject,
     Discard: (thisWidget: Widget) -> (),
@@ -174,7 +178,7 @@ export type WidgetUtility = {
     UIPadding: (Parent: GuiObject, PxPadding: Vector2) -> UIPadding,
     UIListLayout: (Parent: GuiObject, FillDirection: Enum.FillDirection, Padding: UDim) -> UIListLayout,
     UIStroke: (Parent: GuiObject, Thickness: number, Color: Color3, Transparency: number) -> UIStroke,
-    UICorner: (Parent: GuiObject, PxRounding: number) -> UICorner,
+    UICorner: (Parent: GuiObject, PxRounding: number?) -> UICorner,
     UISizeConstraint: (Parent: GuiObject, MinSize: Vector2?, MaxSize: Vector2?) -> UISizeConstraint,
     UIReference: (Parent: GuiObject, Child: GuiObject, Name: string) -> ObjectValue,
 
@@ -247,7 +251,8 @@ export type Iris = {
     PushConfig: (deltaStyle: { [any]: any }) -> (),
     PopConfig: () -> (),
 
-    State: (initialValue: any) -> (),
+    State: (initialValue: any) -> State,
+    WeakState: (initialValue: any) -> State,
     ComputedState: (firstState: State, onChangeCallback: (firstState: any) -> any) -> State,
     _widgetState: (thisWidget: Widget, stateName: string, initialValue: any) -> State,
 
@@ -263,6 +268,7 @@ export type Iris = {
     MenuBar: WidgetAPI,
     Menu: WidgetAPI,
     MenuItem: WidgetAPI,
+    MenuToggle: WidgetAPI,
 
     End: () -> (),
     Text: WidgetAPI,
@@ -397,6 +403,7 @@ export type Config = {
     CheckMarkColor: Color3,
     CheckMarkTransparency: number,
 
+    -- Sizes
     ItemWidth: UDim,
     ContentWidth: UDim,
 

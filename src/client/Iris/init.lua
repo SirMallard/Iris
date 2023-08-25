@@ -1566,7 +1566,7 @@ Iris.NextRow = Iris.NextRow
 ---
 ---'''json
 ---```
-Iris.MenuBar = function()
+Iris.MenuBar = function(): Types.Widget
     return Iris._Insert("MenuBar", {})
 end
 
@@ -1574,8 +1574,12 @@ Iris.Menu = function(args: Types.WidgetArguments, state: Types.States?): Types.W
     return Iris._Insert("Menu", args, state)
 end
 
-Iris.MenuItem = function(args: Types.WidgetArguments)
+Iris.MenuItem = function(args: Types.WidgetArguments): Types.Widget
     return Iris._Insert("MenuItem", args)
+end
+
+Iris.MenuToggle = function(args: Types.WidgetArguments, state: Types.States?): Types.Widget
+    return Iris._Insert("MenuToggle", args, state)
 end
 
 --- @prop Window Widget

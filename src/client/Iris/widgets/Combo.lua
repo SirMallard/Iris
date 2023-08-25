@@ -239,16 +239,16 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             PreviewLabel.Parent = PreviewContainer
 
             local DropdownButtonSize = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
-            local DropdownButton = Instance.new("TextLabel")
+            local DropdownButton = Instance.new("ImageLabel")
             DropdownButton.Name = "DropdownButton"
             DropdownButton.Size = UDim2.new(0, DropdownButtonSize, 0, DropdownButtonSize)
+            DropdownButton.BorderSizePixel = 0
             DropdownButton.BackgroundColor3 = Iris._config.ButtonColor
             DropdownButton.BackgroundTransparency = Iris._config.ButtonTransparency
-            DropdownButton.BorderSizePixel = 0
+            DropdownButton.ImageColor3 = Iris._config.TextColor
+            DropdownButton.ImageTransparency = Iris._config.TextTransparency
             DropdownButton.ZIndex = thisWidget.ZIndex + 4
             DropdownButton.LayoutOrder = thisWidget.ZIndex + 4
-            widgets.applyTextStyle(DropdownButton)
-            DropdownButton.TextXAlignment = Enum.TextXAlignment.Center
 
             DropdownButton.Parent = PreviewContainer
 
@@ -413,7 +413,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 thisWidget.lastOpenedTick = Iris._cycleTick + 1
 
                 -- ImGui also does not do this, and the Arrow is always facing down
-                DropdownButton.Text = widgets.ICONS.RIGHT_POINTING_TRIANGLE
+                DropdownButton.Image = widgets.ICONS.RIGHT_POINTING_TRIANGLE
                 ChildContainer.Visible = true
 
                 UpdateChildContainerTransform(thisWidget)
@@ -423,7 +423,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                     OpenedCombo = nil
                     thisWidget.lastClosedTick = Iris._cycleTick + 1
                 end
-                DropdownButton.Text = widgets.ICONS.DOWN_POINTING_TRIANGLE
+                DropdownButton.Image = widgets.ICONS.DOWN_POINTING_TRIANGLE
                 ChildContainer.Visible = false
             end
 

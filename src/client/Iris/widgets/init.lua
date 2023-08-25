@@ -9,9 +9,9 @@ return function(Iris: Types.Iris)
     widgets.ContextActionService = game:GetService("ContextActionService")
 
     widgets.ICONS = {
-        RIGHT_POINTING_TRIANGLE = "\u{25BA}",
-        DOWN_POINTING_TRIANGLE = "\u{25BC}",
-        MULTIPLICATION_SIGN = "\u{00D7}", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
+        RIGHT_POINTING_TRIANGLE = "rbxasset://textures/DeveloperFramework/button_arrow_right.png",
+        DOWN_POINTING_TRIANGLE = "rbxasset://textures/DeveloperFramework/button_arrow_down.png",
+        MULTIPLICATION_SIGN = "rbxasset://textures/AnimationEditor/icon_close.png", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
         BOTTOM_RIGHT_CORNER = "\u{25E2}", -- used in window resize icon in bottom right
         CHECK_MARK = "rbxasset://textures/AnimationEditor/icon_checkmark.png",
         ALPHA_BACKGROUND_TEXTURE = "rbxasset://textures/meshPartFallback.png", -- used for color4 alpha
@@ -93,7 +93,7 @@ return function(Iris: Types.Iris)
         return UIStrokeInstance
     end
 
-    function widgets.UICorner(Parent: GuiObject, PxRounding: number): UICorner
+    function widgets.UICorner(Parent: GuiObject, PxRounding: number?): UICorner
         local UICornerInstance: UICorner = Instance.new("UICorner")
         UICornerInstance.CornerRadius = UDim.new(PxRounding ~= nil and 0 or 1, PxRounding or 0)
         UICornerInstance.Parent = Parent

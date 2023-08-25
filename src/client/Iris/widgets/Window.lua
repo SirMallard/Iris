@@ -486,28 +486,26 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
 
             local TitleButtonSize = Iris._config.TextSize + ((Iris._config.FramePadding.Y - 1) * 2)
 
-            local CollapseArrow = Instance.new("TextButton")
-            CollapseArrow.Name = "CollapseArrow"
-            CollapseArrow.Size = UDim2.fromOffset(TitleButtonSize, TitleButtonSize)
-            CollapseArrow.Position = UDim2.new(0, Iris._config.FramePadding.X + 1, 0.5, 0)
-            CollapseArrow.AnchorPoint = Vector2.new(0, 0.5)
-            CollapseArrow.AutoButtonColor = false
-            CollapseArrow.BackgroundTransparency = 1
-            CollapseArrow.BorderSizePixel = 0
-            CollapseArrow.ZIndex = thisWidget.ZIndex + 4
-            CollapseArrow.AutomaticSize = Enum.AutomaticSize.None
-            widgets.applyTextStyle(CollapseArrow)
-            CollapseArrow.TextXAlignment = Enum.TextXAlignment.Center
-            CollapseArrow.TextSize = Iris._config.TextSize
-            CollapseArrow.Parent = TitleBar
+            local CollapseButton: TextButton = Instance.new("TextButton")
+            CollapseButton.Name = "CollapseButton"
+            CollapseButton.AnchorPoint = Vector2.new(0, 0.5)
+            CollapseButton.Size = UDim2.fromOffset(TitleButtonSize, TitleButtonSize)
+            CollapseButton.Position = UDim2.new(0, Iris._config.FramePadding.X + 1, 0.5, 0)
+            CollapseButton.BackgroundTransparency = 1
+            CollapseButton.BorderSizePixel = 0
+            CollapseButton.AutomaticSize = Enum.AutomaticSize.None
+            CollapseButton.ZIndex = thisWidget.ZIndex + 4
+            CollapseButton.AutoButtonColor = false
+            CollapseButton.Text = ""
+            CollapseButton.Parent = TitleBar
 
-            CollapseArrow.MouseButton1Click:Connect(function()
+            CollapseButton.MouseButton1Click:Connect(function()
                 thisWidget.state.isUncollapsed:set(not thisWidget.state.isUncollapsed.value)
             end)
 
-            widgets.UICorner(CollapseArrow, 1e9)
+            widgets.UICorner(CollapseButton)
 
-            widgets.applyInteractionHighlights(CollapseArrow, CollapseArrow, {
+            widgets.applyInteractionHighlights(CollapseButton, CollapseButton, {
                 ButtonColor = Iris._config.ButtonColor,
                 ButtonTransparency = 1,
                 ButtonHoveredColor = Iris._config.ButtonHoveredColor,
@@ -516,30 +514,39 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 ButtonActiveTransparency = Iris._config.ButtonActiveTransparency,
             })
 
-            local CloseIcon = Instance.new("TextButton")
-            CloseIcon.Name = "CloseIcon"
-            CloseIcon.Size = UDim2.fromOffset(TitleButtonSize, TitleButtonSize)
-            CloseIcon.Position = UDim2.new(1, -(Iris._config.FramePadding.X + 1), 0.5, 0)
-            CloseIcon.AnchorPoint = Vector2.new(1, 0.5)
-            CloseIcon.AutoButtonColor = false
-            CloseIcon.BackgroundTransparency = 1
-            CloseIcon.BorderSizePixel = 0
-            CloseIcon.ZIndex = thisWidget.ZIndex + 4
-            CloseIcon.AutomaticSize = Enum.AutomaticSize.None
-            widgets.applyTextStyle(CloseIcon)
-            CloseIcon.TextXAlignment = Enum.TextXAlignment.Center
-            CloseIcon.Font = Enum.Font.Code
-            CloseIcon.TextSize = Iris._config.TextSize * 2
-            CloseIcon.Text = widgets.ICONS.MULTIPLICATION_SIGN
-            CloseIcon.Parent = TitleBar
+            local CollapseArrow: ImageLabel = Instance.new("ImageLabel")
+            CollapseArrow.Name = "Arrow"
+            CollapseArrow.AnchorPoint = Vector2.new(0.5, 0.5)
+            CollapseArrow.Size = UDim2.fromOffset(math.floor(0.7 * TitleButtonSize), math.floor(0.7 * TitleButtonSize))
+            CollapseArrow.Position = UDim2.fromScale(0.5, 0.5)
+            CollapseArrow.BackgroundTransparency = 1
+            CollapseArrow.BorderSizePixel = 0
+            CollapseArrow.Image = widgets.ICONS.MULTIPLICATION_SIGN
+            CollapseArrow.ImageColor3 = Iris._config.TextColor
+            CollapseArrow.ImageTransparency = Iris._config.TextTransparency
+            CollapseArrow.ZIndex = thisWidget.ZIndex + 5
+            CollapseArrow.Parent = CollapseButton
 
-            widgets.UICorner(CloseIcon, 1e9)
+            local CloseButton: TextButton = Instance.new("TextButton")
+            CloseButton.Name = "CloseButton"
+            CloseButton.AnchorPoint = Vector2.new(1, 0.5)
+            CloseButton.Size = UDim2.fromOffset(TitleButtonSize, TitleButtonSize)
+            CloseButton.Position = UDim2.new(1, -(Iris._config.FramePadding.X + 1), 0.5, 0)
+            CloseButton.AutomaticSize = Enum.AutomaticSize.None
+            CloseButton.BackgroundTransparency = 1
+            CloseButton.BorderSizePixel = 0
+            CloseButton.Text = ""
 
-            CloseIcon.MouseButton1Click:Connect(function()
+            CloseButton.ZIndex = thisWidget.ZIndex + 4
+            CloseButton.AutoButtonColor = false
+
+            widgets.UICorner(CloseButton)
+
+            CloseButton.MouseButton1Click:Connect(function()
                 thisWidget.state.isOpened:set(false)
             end)
 
-            widgets.applyInteractionHighlights(CloseIcon, CloseIcon, {
+            widgets.applyInteractionHighlights(CloseButton, CloseButton, {
                 ButtonColor = Iris._config.ButtonColor,
                 ButtonTransparency = 1,
                 ButtonHoveredColor = Iris._config.ButtonHoveredColor,
@@ -547,6 +554,21 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 ButtonActiveColor = Iris._config.ButtonActiveColor,
                 ButtonActiveTransparency = Iris._config.ButtonActiveTransparency,
             })
+
+            CloseButton.Parent = TitleBar
+
+            local CloseIcon: ImageLabel = Instance.new("ImageLabel")
+            CloseIcon.Name = "Icon"
+            CloseIcon.AnchorPoint = Vector2.new(0.5, 0.5)
+            CloseIcon.Size = UDim2.fromOffset(math.floor(0.7 * TitleButtonSize), math.floor(0.7 * TitleButtonSize))
+            CloseIcon.Position = UDim2.fromScale(0.5, 0.5)
+            CloseIcon.BackgroundTransparency = 1
+            CloseIcon.BorderSizePixel = 0
+            CloseIcon.Image = widgets.ICONS.MULTIPLICATION_SIGN
+            CloseIcon.ImageColor3 = Iris._config.TextColor
+            CloseIcon.ImageTransparency = Iris._config.TextTransparency
+            CloseIcon.ZIndex = thisWidget.ZIndex + 5
+            CloseIcon.Parent = CloseButton
 
             -- allowing fractional titlebar title location dosent seem useful, as opposed to Enum.LeftRight.
 
@@ -694,17 +716,17 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             -- TitleBar buttons
             local TitleButtonPaddingSize = Iris._config.FramePadding.X + Iris._config.TextSize + Iris._config.FramePadding.X * 2
             if thisWidget.arguments.NoCollapse then
-                TitleBar.CollapseArrow.Visible = false
+                TitleBar.CollapseButton.Visible = false
                 TitleBar.Title.UIPadding.PaddingLeft = UDim.new(0, Iris._config.FramePadding.X)
             else
-                TitleBar.CollapseArrow.Visible = true
+                TitleBar.CollapseButton.Visible = true
                 TitleBar.Title.UIPadding.PaddingLeft = UDim.new(0, TitleButtonPaddingSize)
             end
             if thisWidget.arguments.NoClose then
-                TitleBar.CloseIcon.Visible = false
+                TitleBar.CloseButton.Visible = false
                 TitleBar.Title.UIPadding.PaddingRight = UDim.new(0, Iris._config.FramePadding.X)
             else
-                TitleBar.CloseIcon.Visible = true
+                TitleBar.CloseButton.Visible = true
                 TitleBar.Title.UIPadding.PaddingRight = UDim.new(0, TitleButtonPaddingSize)
             end
 
@@ -769,7 +791,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             end
 
             if stateIsUncollapsed then
-                TitleBar.CollapseArrow.Text = widgets.ICONS.DOWN_POINTING_TRIANGLE
+                TitleBar.CollapseButton.Arrow.Image = widgets.ICONS.DOWN_POINTING_TRIANGLE
                 ChildContainer.Visible = true
                 if thisWidget.arguments.NoResize ~= true then
                     ResizeGrip.Visible = true
@@ -778,7 +800,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 thisWidget.lastUncollapsedTick = Iris._cycleTick + 1
             else
                 local collapsedHeight = Iris._config.TextSize + Iris._config.FramePadding.Y * 2
-                TitleBar.CollapseArrow.Text = widgets.ICONS.RIGHT_POINTING_TRIANGLE
+                TitleBar.CollapseButton.Arrow.Image = widgets.ICONS.RIGHT_POINTING_TRIANGLE
 
                 ChildContainer.Visible = false
                 ResizeGrip.Visible = false

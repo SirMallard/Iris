@@ -330,8 +330,8 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             TextLabel.AnchorPoint = Vector2.new(0, 0)
             TextLabel.BackgroundTransparency = 1
             TextLabel.BorderSizePixel = 0
-            TextLabel.ZIndex = thisWidget.ZIndex + 1
-            TextLabel.LayoutOrder = thisWidget.ZIndex + 1
+            TextLabel.ZIndex = thisWidget.ZIndex + 2
+            TextLabel.LayoutOrder = thisWidget.ZIndex + 2
             TextLabel.AutomaticSize = Enum.AutomaticSize.XY
 
             widgets.applyTextStyle(TextLabel)
@@ -343,16 +343,21 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             Shortcut.AnchorPoint = Vector2.new(0, 0)
             Shortcut.BackgroundTransparency = 1
             Shortcut.BorderSizePixel = 0
-            Shortcut.ZIndex = thisWidget.ZIndex + 2
-            Shortcut.LayoutOrder = thisWidget.ZIndex + 2
+            Shortcut.ZIndex = thisWidget.ZIndex + 3
+            Shortcut.LayoutOrder = thisWidget.ZIndex + 3
             Shortcut.AutomaticSize = Enum.AutomaticSize.XY
 
             widgets.applyTextStyle(Shortcut)
 
+            Shortcut.Text = ""
             Shortcut.TextColor3 = Iris._config.TextDisabledColor
             Shortcut.TextTransparency = Iris._config.TextDisabledTransparency
 
             Shortcut.Parent = MenuItem
+
+            local LeftIcon: ImageLabel = Instance.new("ImageLabel")
+            LeftIcon.Name = "Icon"
+            LeftIcon.BackgroundTransparency = 1
 
             return MenuItem
         end,
@@ -368,6 +373,137 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         end,
         Discard = function(thisWidget: Types.Widget)
             thisWidget.Instance:Destroy()
+        end,
+    } :: Types.WidgetClass)
+
+    Iris.WidgetConstructor("MenuToggle", {
+        hasState = true,
+        hasChildren = false,
+        Args = {
+            Text = 1,
+            KeyCode = 2,
+            ModifierKey = 3,
+            Disabled = 4,
+        },
+        Events = {
+            ["checked"] = {
+                ["Init"] = function(_thisWidget: Types.Widget) end,
+                ["Get"] = function(thisWidget: Types.Widget): boolean
+                    return thisWidget.lastCheckedTick == Iris._cycleTick
+                end,
+            },
+            ["unchecked"] = {
+                ["Init"] = function(_thisWidget: Types.Widget) end,
+                ["Get"] = function(thisWidget: Types.Widget): boolean
+                    return thisWidget.lastUncheckedTick == Iris._cycleTick
+                end,
+            },
+        },
+        Generate = function(thisWidget: Types.Widget)
+            local MenuItem: TextButton = Instance.new("TextButton")
+            MenuItem.Name = "MenuItem"
+            MenuItem.BackgroundTransparency = 1
+            MenuItem.BorderSizePixel = 0
+            MenuItem.Size = UDim2.fromOffset(0, 0)
+            MenuItem.Text = ""
+            MenuItem.AutomaticSize = Enum.AutomaticSize.XY
+            MenuItem.ZIndex = thisWidget.ZIndex
+            MenuItem.LayoutOrder = thisWidget.ZIndex
+            MenuItem.AutoButtonColor = false
+
+            widgets.UIPadding(MenuItem, Iris._config.FramePadding)
+            widgets.UIListLayout(MenuItem, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+
+            widgets.applyInteractionHighlights(MenuItem, MenuItem, {
+                ButtonColor = Iris._config.HeaderColor,
+                ButtonTransparency = 1,
+                ButtonHoveredColor = Iris._config.HeaderHoveredColor,
+                ButtonHoveredTransparency = Iris._config.HeaderHoveredTransparency,
+                ButtonActiveColor = Iris._config.HeaderHoveredColor,
+                ButtonActiveTransparency = Iris._config.HeaderHoveredTransparency,
+            })
+
+            MenuItem.MouseButton1Click:Connect(function()
+                local wasChecked: boolean = thisWidget.state.isChecked.value
+                thisWidget.state.isChecked:set(not wasChecked)
+                EmptyMenuStack()
+            end)
+
+            local TextLabel: TextLabel = Instance.new("TextLabel")
+            TextLabel.Name = "TextLabel"
+            TextLabel.AnchorPoint = Vector2.new(0, 0)
+            TextLabel.BackgroundTransparency = 1
+            TextLabel.BorderSizePixel = 0
+            TextLabel.ZIndex = thisWidget.ZIndex + 2
+            TextLabel.LayoutOrder = thisWidget.ZIndex + 2
+            TextLabel.AutomaticSize = Enum.AutomaticSize.XY
+
+            widgets.applyTextStyle(TextLabel)
+
+            TextLabel.Parent = MenuItem
+
+            local Shortcut: TextLabel = Instance.new("TextLabel")
+            Shortcut.Name = "Shortcut"
+            Shortcut.AnchorPoint = Vector2.new(0, 0)
+            Shortcut.BackgroundTransparency = 1
+            Shortcut.BorderSizePixel = 0
+            Shortcut.ZIndex = thisWidget.ZIndex + 3
+            Shortcut.LayoutOrder = thisWidget.ZIndex + 3
+            Shortcut.AutomaticSize = Enum.AutomaticSize.XY
+
+            widgets.applyTextStyle(Shortcut)
+
+            Shortcut.Text = ""
+            Shortcut.TextColor3 = Iris._config.TextDisabledColor
+            Shortcut.TextTransparency = Iris._config.TextDisabledTransparency
+
+            Shortcut.Parent = MenuItem
+
+            local Icon: ImageLabel = Instance.new("ImageLabel")
+            Icon.Name = "Icon"
+            Icon.Size = UDim2.fromOffset(Iris._config.TextSize, Iris._config.TextSize)
+            Icon.BackgroundTransparency = 1
+            Icon.BorderSizePixel = 0
+            Icon.ImageColor3 = Iris._config.TextColor
+            Icon.ImageTransparency = Iris._config.TextTransparency
+            Icon.Image = widgets.ICONS.CHECK_MARK
+            Icon.ZIndex = thisWidget.ZIndex + 4
+            Icon.LayoutOrder = thisWidget.ZIndex + 4
+
+            Icon.Parent = MenuItem
+
+            return MenuItem
+        end,
+        GenerateState = function(thisWidget: Types.Widget)
+            if thisWidget.state.isChecked == nil then
+                thisWidget.state.isChecked = Iris._widgetState(thisWidget, "isChecked", false)
+            end
+        end,
+        Update = function(thisWidget: Types.Widget)
+            local MenuItem = thisWidget.Instance :: TextButton
+            local TextLabel: TextLabel = MenuItem.TextLabel
+            local Shortcut: TextLabel = MenuItem.Shortcut
+
+            TextLabel.Text = thisWidget.arguments.Text
+            if thisWidget.arguments.KeyCode then
+                Shortcut.Text = thisWidget.arguments.ModifierKey.Name .. " + " .. thisWidget.arguments.KeyCode.Name
+            end
+        end,
+        UpdateState = function(thisWidget: Types.Widget)
+            local MenuItem = thisWidget.Instance :: TextButton
+            local Icon: ImageLabel = MenuItem.Icon
+
+            if thisWidget.state.isChecked.value then
+                Icon.Image = widgets.ICONS.CHECK_MARK
+                thisWidget.lastCheckedTick = Iris._cycleTick + 1
+            else
+                Icon.Image = ""
+                thisWidget.lastUncheckedTick = Iris._cycleTick + 1
+            end
+        end,
+        Discard = function(thisWidget: Types.Widget)
+            thisWidget.Instance:Destroy()
+            widgets.discardState(thisWidget)
         end,
     } :: Types.WidgetClass)
 end

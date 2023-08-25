@@ -36,7 +36,7 @@ return function(Iris, widgets)
             local isUncollapsed = thisWidget.state.isUncollapsed.value
             local Arrow = thisWidget.ArrowInstance
             local ChildContainer = thisWidget.Instance.ChildContainer
-            Arrow.Text = (isUncollapsed and widgets.ICONS.DOWN_POINTING_TRIANGLE or widgets.ICONS.RIGHT_POINTING_TRIANGLE)
+            Arrow.Image = (isUncollapsed and widgets.ICONS.DOWN_POINTING_TRIANGLE or widgets.ICONS.RIGHT_POINTING_TRIANGLE)
 
             if isUncollapsed then
                 thisWidget.lastUncollaspedTick = Iris._cycleTick + 1
@@ -126,18 +126,16 @@ return function(Iris, widgets)
                 local ButtonUIListLayout = widgets.UIListLayout(Button, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.FramePadding.X))
                 ButtonUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
-                local Arrow = Instance.new("TextLabel")
+                local Arrow = Instance.new("ImageLabel")
                 Arrow.Name = "Arrow"
-                Arrow.Size = UDim2.fromOffset(Iris._config.TextSize, 0)
+                Arrow.Size = UDim2.fromOffset(Iris._config.TextSize, math.floor(Iris._config.TextSize * 0.7))
                 Arrow.BackgroundTransparency = 1
                 Arrow.BorderSizePixel = 0
+                Arrow.ImageColor3 = Iris._config.TextColor
+                Arrow.ImageTransparency = Iris._config.TextTransparency
+                Arrow.ScaleType = Enum.ScaleType.Fit
                 Arrow.ZIndex = thisWidget.ZIndex
                 Arrow.LayoutOrder = thisWidget.ZIndex
-                Arrow.AutomaticSize = Enum.AutomaticSize.Y
-
-                widgets.applyTextStyle(Arrow)
-                Arrow.TextXAlignment = Enum.TextXAlignment.Center
-                Arrow.TextSize = Iris._config.TextSize - 4
 
                 Arrow.Parent = Button
                 thisWidget.ArrowInstance = Arrow
@@ -260,18 +258,17 @@ return function(Iris, widgets)
                 local ButtonUIListLayout = widgets.UIListLayout(Collapse, Enum.FillDirection.Horizontal, UDim.new(0, 2 * Iris._config.FramePadding.X))
                 ButtonUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
-                local Arrow = Instance.new("TextLabel")
+                local Arrow = Instance.new("ImageLabel")
                 Arrow.Name = "Arrow"
-                Arrow.Size = UDim2.fromOffset(Iris._config.TextSize, 0)
+                Arrow.Size = UDim2.fromOffset(Iris._config.TextSize, math.ceil(Iris._config.TextSize * 0.8))
                 Arrow.BackgroundTransparency = 1
                 Arrow.BorderSizePixel = 0
+                Arrow.ImageColor3 = Iris._config.TextColor
+                Arrow.ImageTransparency = Iris._config.TextTransparency
+                Arrow.ScaleType = Enum.ScaleType.Fit
                 Arrow.ZIndex = thisWidget.ZIndex
                 Arrow.LayoutOrder = thisWidget.ZIndex
                 Arrow.AutomaticSize = Enum.AutomaticSize.Y
-
-                widgets.applyTextStyle(Arrow)
-                Arrow.TextXAlignment = Enum.TextXAlignment.Center
-                Arrow.TextSize = Iris._config.TextSize - 4
 
                 Arrow.Parent = Collapse
                 thisWidget.ArrowInstance = Arrow

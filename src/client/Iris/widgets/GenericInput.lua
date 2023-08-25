@@ -8,152 +8,6 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         end,
     }
 
-    --[[
-        Widgets:
-            Input:
-                - Text
-                - Number
-                - Vector2
-                - Vector3
-                - UDim
-                - UDim2
-            Drag:
-                - Number
-                - Vector2
-                - Vector3
-                - UDim
-                - UDim2
-                - Color3
-                - Color4
-            Slider:
-                - Number
-                - Vector2
-                - Vector3
-                - UDim
-                - UDim2
-                - Angle
-                - Enum
-
-        Types:
-            InputText:
-                - Label: string
-                - Hint: string?
-            
-            InputNum:
-                - Label: string
-                - Increment: number? = 1
-                - Min: number?
-                - Max: number?
-                - Format: string?
-            InputVector2:
-                - Label: string
-                - Increment: Vector2? = Vector2.new(0.1, 0.1)
-                - Min: Vector2?
-                - Max: Vector2?
-            InputVector3:
-                - Label: string
-                - Increment: Vector3? = Vector3.new(0.1, 0.1)
-                - Min: Vector3?
-                - Max: Vector3?
-            InputUDim:
-                - Label: string
-                - Increment: UDim? = UDim.new(0.1, 1)
-                - Min: UDim?
-                - Max: UDim?
-            InputUDim2:
-                - Label: string
-                - Increment: UDim2? = UDim2.new(0.1, 1, 0.1, 1)
-                - Min: UDim2?
-                - Max: UDim2?
-
-            DragNum:
-                - Label: string
-                - Increment: number? = 1
-                - Min: number?
-                - Max: number?
-                - Format: string?
-            DragVector2
-                - Label: string
-                - Increment: Vector2? = Vector2.new(0.1, 0.1)
-                - Min: Vector2?
-                - Max: Vector2?
-                - Format: string?
-            DragVector3:
-                - Label: string
-                - Increment: Vector3? = Vector3.new(0.1, 0.1, 0.1)
-                - Min: Vector3?
-                - Max: Vector3?
-                - Format: string?
-            DragUDim:
-                - Label: string
-                - Increment: UDim? = UDim.new(0.1, 1)
-                - Min: UDim?
-                - Max: UDim?
-                - Format: string?
-            DragUDim2:
-                - Label: string
-                - Increment: UDim2? = UDim2.new(0.1, 1, 0.1, 1)
-                - Min: UDim2?
-                - Max: UDim2?
-                - Format: string?
-            
-            InputColor3:
-                - Label: string
-                - UseFloat: boolean? = false
-                - UseHSV: boolean? = false
-                - Min: number = 0
-                - Max: number = if UseFloats then 1 else 255
-                - Format: string = nil
-            InputColor4:
-                - Label: string
-                - UseFloat: boolean? = false
-                - UseHSV: boolean? = false
-                - Min: number = 0
-                - Max: number = if UseFloats then 1 else 255
-                - Format: string = nil
-            
-            SliderNum:
-                - Label: string
-                - Increment: number? = 1
-                - Min: number
-                - Max: number
-                - Format: string?
-            SliderVector2:
-                - Label: string
-                - Increment: Vector2? = 1
-                - Min: Vector2
-                - Max: Vector2
-                - Format: string?
-            SliderVector3:
-                - Label: string
-                - Increment: Vector3? = 1
-                - Min: Vector3
-                - Max: Vector3
-                - Format: string?
-            SliderUDim:
-                - Label: string
-                - Increment: UDim? = 1
-                - Min: UDim
-                - Max: UDim
-                - Format: string?
-            SliderUDim2:
-                - Label: string
-                - Increment: UDim2? = 1
-                - Min: UDim2
-                - Max: UDim2
-                - Format: string?
-            SliderEnum:
-                - Label: string
-                - Increment: mumber = 1
-                - Min: number = 0
-                - Max: number = #values
-                - Format: any = enum[value]
-
-		- DragScalar
-        - SliderScalar
-        - InputScalar
-    ]]
-
     local function getValueByIndex(value: Types.InputDataType, index: number, arguments: Types.Arguments): number
         if typeof(value) == "number" then
             return value
@@ -263,7 +117,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         error(`Incorrect datatype or value {value} {typeof(value)} {index}`)
     end
 
-    local defaultIncrements: { [Types.InputDataTypes | ""]: { number } } = {
+    local defaultIncrements: { [Types.InputDataTypes]: { number } } = {
         Num = { 1 },
         Vector2 = { 1, 1 },
         Vector3 = { 1, 1, 1 },
@@ -273,7 +127,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         Color4 = { 1, 1, 1, 1 },
     }
 
-    local defaultMin: { [Types.InputDataTypes | ""]: { number } } = {
+    local defaultMin: { [Types.InputDataTypes]: { number } } = {
         Num = { 0 },
         Vector2 = { 0, 0 },
         Vector3 = { 0, 0, 0 },
@@ -281,7 +135,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         UDim2 = { 0, 0, 0, 0 },
     }
 
-    local defaultMax: { [Types.InputDataTypes | ""]: { number } } = {
+    local defaultMax: { [Types.InputDataTypes]: { number } } = {
         Num = { 100 },
         Vector2 = { 100, 100 },
         Vector3 = { 100, 100, 100 },
@@ -289,7 +143,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         UDim2 = { 1, 960, 1, 960 },
     }
 
-    local defaultPrefx: { [Types.InputDataTypes | "" | string]: { string } } = {
+    local defaultPrefx: { [Types.InputDataTypes]: { string } } = {
         Num = { "" },
         Vector2 = { "X: ", "Y: " },
         Vector3 = { "X: ", "Y: ", "Z: " },
