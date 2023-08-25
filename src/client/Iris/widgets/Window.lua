@@ -5,7 +5,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         if Iris._rootInstance == nil then
             return
         end
-        local PopupScreenGui = Iris._rootInstance.PopupScreenGui
+        local PopupScreenGui = Iris._rootInstance:FindFirstChild("PopupScreenGui")
         local TooltipContainer = PopupScreenGui.TooltipContainer
         local mouseLocation = widgets.getMouseLocation()
         local newPosition = widgets.findBestWindowPosForPopup(mouseLocation, TooltipContainer.AbsoluteSize, Iris._config.DisplaySafeAreaPadding, PopupScreenGui.AbsoluteSize)
@@ -327,25 +327,25 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         },
         Events = {
             ["closed"] = {
-                ["Init"] = function(thisWidget) end,
+                ["Init"] = function(_thisWidget) end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.lastClosedTick == Iris._cycleTick
                 end,
             },
             ["opened"] = {
-                ["Init"] = function(thisWidget) end,
+                ["Init"] = function(_thisWidget) end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.lastOpenedTick == Iris._cycleTick
                 end,
             },
             ["collapsed"] = {
-                ["Init"] = function(thisWidget) end,
+                ["Init"] = function(_thisWidget) end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.lastCollapsedTick == Iris._cycleTick
                 end,
             },
             ["uncollapsed"] = {
-                ["Init"] = function(thisWidget) end,
+                ["Init"] = function(_thisWidget) end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.lastUncollapsedTick == Iris._cycleTick
                 end,

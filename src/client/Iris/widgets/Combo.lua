@@ -19,19 +19,19 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         },
         Events = {
             ["selected"] = {
-                ["Init"] = function(thisWidget) end,
+                ["Init"] = function(_thisWidget) end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.lastSelectedTick == Iris._cycleTick
                 end,
             },
             ["unselected"] = {
-                ["Init"] = function(thisWidget) end,
+                ["Init"] = function(_thisWidget) end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.lastUnselected == Iris._cycleTick
                 end,
             },
             ["active"] = {
-                ["Init"] = function(thisWidget) end,
+                ["Init"] = function(_thisWidget) end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.state.index.value == thisWidget.arguments.Index
                 end,
@@ -183,13 +183,13 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 return thisWidget.Instance
             end),
             ["opened"] = {
-                ["Init"] = function(thisWidget) end,
+                ["Init"] = function(_thisWidget) end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.lastOpenedTick == Iris._cycleTick
                 end,
             },
             ["closed"] = {
-                ["Init"] = function(thisWidget) end,
+                ["Init"] = function(_thisWidget) end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.lastClosedTick == Iris._cycleTick
                 end,
@@ -335,7 +335,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             local ChildContainerUIListLayout = widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
             ChildContainerUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 
-            local RootPopupScreenGui = Iris._rootInstance.PopupScreenGui
+            local RootPopupScreenGui = Iris._rootInstance:WaitForChild("PopupScreenGui")
             ChildContainer.Parent = RootPopupScreenGui
             thisWidget.ChildContainer = ChildContainer
 

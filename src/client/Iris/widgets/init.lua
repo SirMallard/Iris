@@ -118,8 +118,8 @@ return function(Iris: Types.Iris)
     end
     -- below uses Iris
 
-    function widgets.applyTextStyle(thisInstance: TextLabel | TextButton | TextBox)
-        thisInstance.FontFace = Font.fromEnum(Iris._config.TextFont)
+    function widgets.applyTextStyle(thisInstance: TextLabel & TextButton & TextBox)
+        thisInstance.FontFace = Iris._config.TextFont
         thisInstance.TextSize = Iris._config.TextSize
         thisInstance.TextColor3 = Iris._config.TextColor
         thisInstance.TextTransparency = Iris._config.TextTransparency
@@ -219,7 +219,7 @@ return function(Iris: Types.Iris)
         Button.SelectionImageObject = Iris.SelectionImageObject
     end
 
-    function widgets.applyTextInteractionHighlights(Button: GuiButton, Highlightee: TextLabel | TextButton | TextBox, Colors: { [string]: any })
+    function widgets.applyTextInteractionHighlights(Button: GuiButton, Highlightee: TextLabel & TextButton & TextBox, Colors: { [string]: any })
         local exitedButton = false
         Button.MouseEnter:Connect(function()
             Highlightee.TextColor3 = Colors.ButtonHoveredColor

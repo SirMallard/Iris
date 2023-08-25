@@ -86,6 +86,19 @@ function Iris._deepCompare(t1: {}, t2: {}): boolean
     return true
 end
 
+function Iris._deepCopy(t: {}): {}
+    local copy: {} = {}
+
+    for k: any, v: any in pairs(t) do
+        if type(v) == "table" then
+            v = Iris._deepCopy(v)
+        end
+        copy[k] = v
+    end
+
+    return copy
+end
+
 function Iris._getID(levelsToIgnore: number): Types.ID
     if Iris._nextWidgetId then
         local ID: Types.ID = Iris._nextWidgetId
@@ -224,7 +237,7 @@ end
 
 Iris._cycleCoroutine = coroutine.create(function()
     while true do
-        for _, callback: () -> () in Iris._connectedFunctions do
+        for _, callback: () -> string in Iris._connectedFunctions do
             debug.profilebegin("Iris/Connection")
             local status: boolean, _error: string = pcall(callback)
             debug.profileend()
@@ -654,7 +667,9 @@ function Iris._GenNewWidget(widgetType: string, arguments: Types.Arguments, widg
     thisWidget.Instance = thisWidgetClass.Generate(thisWidget)
     thisWidget.Instance.Parent = if Iris._config.Parent then Iris._config.Parent else Iris._widgets[thisWidget.parentWidget.type].ChildAdded(thisWidget.parentWidget, thisWidget)
 
-    thisWidget.arguments = arguments
+    -- we can modify the arguments table, but keep a frozen copy to compare for user-end changes.
+    thisWidget.providedArguments = arguments
+    thisWidget.arguments = Iris._deepCopy(arguments)
     thisWidgetClass.Update(thisWidget)
 
     local eventMTParent
@@ -716,7 +731,7 @@ function Iris._Insert(widgetType: string, args: { [number]: any }, widgetState: 
             arguments[thisWidgetClass.ArgNames[index]] = argument
         end
     end
-    -- table.freeze(arguments) -- I'm not sure whether this is vital?
+    table.freeze(arguments)
 
     if Iris._lastVDOM[ID] and widgetType == Iris._lastVDOM[ID].type then
         -- found a matching widget from last frame
@@ -731,9 +746,11 @@ function Iris._Insert(widgetType: string, args: { [number]: any }, widgetState: 
         thisWidget = Iris._GenNewWidget(widgetType, arguments, widgetState, ID)
     end
 
-    if Iris._deepCompare(thisWidget.arguments, arguments) == false then
+    if Iris._deepCompare(thisWidget.providedArguments, arguments) == false then
         -- the widgets arguments have changed, the widget should update to reflect changes.
-        thisWidget.arguments = arguments
+        -- providedargs is the frozen which will not change.
+        thisWidget.arguments = Iris._deepCopy(arguments)
+        thisWidget.providedArguments = arguments
         thisWidgetClass.Update(thisWidget)
     end
 

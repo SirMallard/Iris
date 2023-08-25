@@ -2,7 +2,7 @@ local Types = require(script.Parent.Parent.Types)
 
 return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
     local numberChanged = {
-        ["Init"] = function(thisWidget: Types.Widget) end,
+        ["Init"] = function(_thisWidget: Types.Widget) end,
         ["Get"] = function(thisWidget: Types.Widget)
             return thisWidget.lastNumberChangedTick == Iris._cycleTick
         end,
@@ -289,14 +289,16 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         UDim2 = { 1, 960, 1, 960 },
     }
 
-    local defaultAppend: { [Types.InputDataTypes | ""]: { string } } = {
+    local defaultPrefx: { [Types.InputDataTypes | "" | string]: { string } } = {
         Num = { "" },
         Vector2 = { "X: ", "Y: " },
         Vector3 = { "X: ", "Y: ", "Z: " },
         UDim = { "", "" },
         UDim2 = { "", "", "", "" },
-        Color3 = { "R: ", "G: ", "B: " },
-        Color4 = { "R: ", "G: ", "B: ", "T: " },
+        Color3_RGB = { "R: ", "G: ", "B: " },
+        Color3_HSV = { "H: ", "S: ", "V: " },
+        Color4_RGB = { "R: ", "G: ", "B: ", "T: " },
+        Color4_HSV = { "H: ", "S: ", "V: ", "T: " },
     }
 
     --[[
@@ -313,7 +315,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             SubButton.LayoutOrder = thisWidget.ZIndex + 5
             SubButton.TextXAlignment = Enum.TextXAlignment.Center
             SubButton.Text = "-"
-            SubButton.Size = UDim2.fromOffset(Iris._config.TextSize - 2 * (Iris._config.FramePadding.X - Iris._config.FramePadding.Y), Iris._config.TextSize)
+            SubButton.Size = UDim2.fromOffset(Iris._config.TextSize + 2 * Iris._config.FramePadding.Y, Iris._config.TextSize)
             SubButton.Parent = parent
 
             SubButton.MouseButton1Click:Connect(function()
@@ -336,7 +338,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             AddButton.LayoutOrder = thisWidget.ZIndex + 6
             AddButton.TextXAlignment = Enum.TextXAlignment.Center
             AddButton.Text = "+"
-            AddButton.Size = UDim2.fromOffset(Iris._config.TextSize - 2 * (Iris._config.FramePadding.X - Iris._config.FramePadding.Y), Iris._config.TextSize)
+            AddButton.Size = UDim2.fromOffset(Iris._config.TextSize + 2 * Iris._config.FramePadding.Y, Iris._config.TextSize)
             AddButton.Parent = parent
 
             AddButton.MouseButton1Click:Connect(function()
@@ -439,22 +441,12 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
 
                                 thisWidget.state.number:set(updateValueByIndex(thisWidget.state.number.value, index, newValue, thisWidget.arguments))
                                 thisWidget.lastNumberChangedTick = Iris._cycleTick + 1
-
-                                if thisWidget.arguments.Format then
-                                    InputField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments))
-                                else
-                                    -- this prevents float values to UDim offsets
-                                    local value: number = getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments)
-                                    InputField.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == value then "%d" else "%.3f", value)
-                                end
-                            else
-                                if thisWidget.arguments.Format then
-                                    InputField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments))
-                                else
-                                    local value: number = getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments)
-                                    InputField.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == value then "%d" else "%.3f", value)
-                                end
                             end
+                            local format: string = thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1]
+                            if thisWidget.arguments.Prefix then
+                                format = thisWidget.arguments.Prefix[index] .. format
+                            end
+                            InputField.Text = string.format(format, getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments))
 
                             thisWidget.state.editingText:set(0)
                         end)
@@ -495,6 +487,39 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
 
                     if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then
                         thisWidget.arguments.Format = { thisWidget.arguments.Format }
+                    else
+                        -- we calculate the format for the s.f. using the max, min and increment arguments.
+                        local sigfigs: number = 0
+
+                        if thisWidget.arguments.Increment then
+                            for index = 1, components do
+                                local value: number = getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)
+                                sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
+                            end
+                        end
+
+                        if thisWidget.arguments.Max then
+                            for index = 1, components do
+                                local value: number = getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments)
+                                sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
+                            end
+                        end
+
+                        if thisWidget.arguments.Min then
+                            for index = 1, components do
+                                local value: number = getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments)
+                                sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
+                            end
+                        end
+
+                        if sigfigs > 0 then
+                            -- we know it's a float.
+                            thisWidget.arguments.Format = { `%.{sigfigs}f` }
+                        else
+                            thisWidget.arguments.Format = { "%d" }
+                        end
+
+                        thisWidget.arguments.Prefix = defaultPrefx[dataType]
                     end
                 end,
                 Discard = function(thisWidget: Types.Widget)
@@ -514,12 +539,11 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
 
                     for index = 1, components do
                         local InputField: TextBox = Input:FindFirstChild("InputField" .. tostring(index))
-                        if thisWidget.arguments.Format then
-                            InputField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments))
-                        else
-                            local value: number = getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments)
-                            InputField.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == value then "%d" else "%.3f", value)
+                        local format: string = thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1]
+                        if thisWidget.arguments.Prefix then
+                            format = thisWidget.arguments.Prefix[index] .. format
                         end
+                        InputField.Text = string.format(format, getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments))
                     end
                 end,
             }
@@ -560,6 +584,8 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             local increment: number = ActiveDrag.arguments.Increment and getValueByIndex(ActiveDrag.arguments.Increment, ActiveIndex, ActiveDrag.arguments) or defaultIncrements[ActiveDataType][ActiveIndex]
             increment *= (widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightShift)) and 10 or 1
             increment *= (widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftAlt) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightAlt)) and 0.1 or 1
+            -- we increase the speed for Color3 and Color4 since it's too slow because the increment argument needs to be low.
+            increment *= (ActiveDataType == "Color3" or ActiveDataType == "Color4") and 5 or 1
 
             local value: number = getValueByIndex(state.value, ActiveIndex, ActiveDrag.arguments)
             local newValue: number = value + (mouseXDelta * increment)
@@ -641,12 +667,14 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                     if dataType == "Color3" or dataType == "Color4" then
                         rightPadding += Iris._config.ItemInnerSpacing.X + textHeight
 
-                        local ColorBox: Frame = Instance.new("Frame")
+                        local ColorBox: ImageLabel = Instance.new("ImageLabel")
                         ColorBox.Name = "ColorBox"
                         ColorBox.BorderSizePixel = 0
                         ColorBox.Size = UDim2.fromOffset(textHeight, textHeight)
                         ColorBox.ZIndex = thisWidget.ZIndex + 5
                         ColorBox.LayoutOrder = thisWidget.ZIndex + 5
+                        ColorBox.Image = widgets.ICONS.ALPHA_BACKGROUND_TEXTURE
+                        ColorBox.ImageTransparency = 1
 
                         widgets.applyFrameStyle(ColorBox, true, true)
 
@@ -735,28 +763,18 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
 
                                 state:set(updateValueByIndex(state.value, index, newValue, thisWidget.arguments))
                                 thisWidget.lastNumberChangedTick = Iris._cycleTick + 1
-
-                                local value: number = getValueByIndex(state.value, index, thisWidget.arguments)
-                                if dataType == "Color3" or dataType == "Color4" and not thisWidget.arguments.UseFloats then
-                                    value = math.round(value * 255)
-                                end
-                                if thisWidget.arguments.Format then
-                                    InputField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], value)
-                                else
-                                    -- this prevents float values to UDim offsets
-                                    InputField.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == value then "%d" else "%.3f", value)
-                                end
-                            else
-                                local value: number = getValueByIndex(state.value, index, thisWidget.arguments)
-                                if dataType == "Color3" or dataType == "Color4" and not thisWidget.arguments.UseFloats then
-                                    value = math.round(value * 255)
-                                end
-                                if thisWidget.arguments.Format then
-                                    InputField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], value)
-                                else
-                                    InputField.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == value then "%d" else "%.3f", value)
-                                end
                             end
+
+                            local value: number = getValueByIndex(state.value, index, thisWidget.arguments)
+                            if dataType == "Color3" or dataType == "Color4" and not thisWidget.arguments.UseFloats then
+                                value = math.round(value * 255)
+                            end
+
+                            local format: string = thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1]
+                            if thisWidget.arguments.Prefix then
+                                format = thisWidget.arguments.Prefix[index] .. format
+                            end
+                            InputField.Text = string.format(format, value)
 
                             thisWidget.state.editingText:set(0)
                             InputField:ReleaseFocus(true)
@@ -797,6 +815,39 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
 
                     if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then
                         thisWidget.arguments.Format = { thisWidget.arguments.Format }
+                    else
+                        -- we calculate the format for the s.f. using the max, min and increment arguments.
+                        local sigfigs: number = 0
+
+                        if thisWidget.arguments.Increment then
+                            for index = 1, components do
+                                local value: number = getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)
+                                sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
+                            end
+                        end
+
+                        if thisWidget.arguments.Max then
+                            for index = 1, components do
+                                local value: number = getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments)
+                                sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
+                            end
+                        end
+
+                        if thisWidget.arguments.Min then
+                            for index = 1, components do
+                                local value: number = getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments)
+                                sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
+                            end
+                        end
+
+                        if sigfigs > 0 then
+                            -- we know it's a float.
+                            thisWidget.arguments.Format = { `%.{sigfigs}f` }
+                        else
+                            thisWidget.arguments.Format = { "%d" }
+                        end
+
+                        thisWidget.arguments.Prefix = defaultPrefx[dataType]
                     end
                 end,
                 Discard = function(thisWidget: Types.Widget)
@@ -825,15 +876,16 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                         local DragField = Drag:FindFirstChild("DragField" .. tostring(index)) :: TextButton
                         local InputField: TextBox = DragField.InputField
                         local value: number = getValueByIndex(state.value, index, thisWidget.arguments)
-                        if dataType == "Color3" or dataType == "Color4" and not thisWidget.arguments.UseFloats then
+                        if (dataType == "Color3" or dataType == "Color4") and not thisWidget.arguments.UseFloats then
                             value = math.round(value * 255)
                         end
-                        if thisWidget.arguments.Format then
-                            DragField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], value)
-                        else
-                            DragField.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == value then "%d" else "%.3f", value)
-                            InputField.Text = tostring(value)
+
+                        local format: string = thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1]
+                        if thisWidget.arguments.Prefix then
+                            format = thisWidget.arguments.Prefix[index] .. format
                         end
+                        DragField.Text = string.format(format, value)
+                        InputField.Text = tostring(value)
 
                         if thisWidget.state.editingText.value == index then
                             InputField.Visible = true
@@ -846,12 +898,12 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                     end
 
                     if dataType == "Color3" or dataType == "Color4" then
-                        local ColorBox: Frame = Drag.ColorBox
+                        local ColorBox: ImageLabel = Drag.ColorBox
 
                         ColorBox.BackgroundColor3 = thisWidget.state.color.value
 
                         if dataType == "Color4" then
-                            ColorBox.BackgroundTransparency = thisWidget.state.transparency.value
+                            ColorBox.ImageTransparency = 1 - thisWidget.state.transparency.value
                         end
                     end
                 end,
@@ -869,6 +921,33 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                     ["UseHSV"] = 3,
                     ["Format"] = 4,
                 },
+                Update = function(thisWidget: Types.Widget)
+                    local Input = thisWidget.Instance :: GuiObject
+                    local TextLabel: TextLabel = Input.TextLabel
+                    TextLabel.Text = thisWidget.arguments.Text or "Input Slider"
+
+                    if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then
+                        thisWidget.arguments.Format = { thisWidget.arguments.Format }
+                    else
+                        if thisWidget.arguments.UseFloats then
+                            thisWidget.arguments.Format = { "%.3f" }
+                        else
+                            thisWidget.arguments.Format = { "%d" }
+                        end
+
+                        thisWidget.arguments.Prefix = defaultPrefx[dataType .. if thisWidget.arguments.UseHSV then "_HSV" else "_RGB"]
+                    end
+
+                    thisWidget.arguments.Min = { 0, 0, 0, 0 }
+                    thisWidget.arguments.Max = { 1, 1, 1, 1 }
+                    thisWidget.arguments.Increment = { 0.001, 0.001, 0.001, 0.001 }
+
+                    -- since the state values have changed display, we call an update. The check is because state is not
+                    -- initialised on creation, so it would error otherwise.
+                    if thisWidget.state then
+                        Iris._widgets[thisWidget.type].UpdateState(thisWidget)
+                    end
+                end,
                 GenerateState = function(thisWidget)
                     if thisWidget.state.color == nil then
                         thisWidget.state.color = Iris._widgetState(thisWidget, "color", defaultValues[1])
@@ -881,19 +960,6 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                     if thisWidget.state.editingText == nil then
                         thisWidget.state.editingText = Iris._widgetState(thisWidget, "editingText", false)
                     end
-                end,
-                Update = function(thisWidget: Types.Widget)
-                    local Input = thisWidget.Instance :: GuiObject
-                    local TextLabel: TextLabel = Input.TextLabel
-                    TextLabel.Text = thisWidget.arguments.Text or "Input Slider"
-
-                    if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then
-                        thisWidget.arguments.Format = { thisWidget.arguments.Format }
-                    end
-
-                    thisWidget.arguments.Min = { 0, 0, 0, 0 }
-                    thisWidget.arguments.Max = { 1, 1, 1, 1 }
-                    thisWidget.arguments.Increment = { 0.005, 0.005, 0.005, 0.005 }
                 end,
             })
         end
@@ -1073,22 +1139,14 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
 
                                 thisWidget.state.number:set(updateValueByIndex(thisWidget.state.number.value, index, newValue, thisWidget.arguments))
                                 thisWidget.lastNumberChangedTick = Iris._cycleTick + 1
-
-                                if thisWidget.arguments.Format then
-                                    InputField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments))
-                                else
-                                    -- this prevents float values to UDim offsets
-                                    local value: number = getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments)
-                                    InputField.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == value then "%d" else "%.3f", value)
-                                end
-                            else
-                                if thisWidget.arguments.Format then
-                                    InputField.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments))
-                                else
-                                    local value: number = getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments)
-                                    InputField.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == value then "%d" else "%.3f", value)
-                                end
                             end
+
+                            local format: string = thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1]
+                            if thisWidget.arguments.Prefix then
+                                format = thisWidget.arguments.Prefix[index] .. format
+                            end
+
+                            InputField.Text = string.format(format, getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments))
 
                             thisWidget.state.editingText:set(0)
                             InputField:ReleaseFocus(true)
@@ -1144,6 +1202,39 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
 
                     if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then
                         thisWidget.arguments.Format = { thisWidget.arguments.Format }
+                    else
+                        -- we calculate the format for the s.f. using the max, min and increment arguments.
+                        local sigfigs: number = 0
+
+                        if thisWidget.arguments.Increment then
+                            for index = 1, components do
+                                local value: number = getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)
+                                sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
+                            end
+                        end
+
+                        if thisWidget.arguments.Max then
+                            for index = 1, components do
+                                local value: number = getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments)
+                                sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
+                            end
+                        end
+
+                        if thisWidget.arguments.Min then
+                            for index = 1, components do
+                                local value: number = getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments)
+                                sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
+                            end
+                        end
+
+                        if sigfigs > 0 then
+                            -- we know it's a float.
+                            thisWidget.arguments.Format = { `%.{sigfigs}f` }
+                        else
+                            thisWidget.arguments.Format = { "%d" }
+                        end
+
+                        thisWidget.arguments.Prefix = defaultPrefx[dataType]
                     end
 
                     for index = 1, components do
@@ -1181,12 +1272,13 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                         local GrabBar: Frame = SliderField.GrabBar
 
                         local value: number = getValueByIndex(thisWidget.state.number.value, index, thisWidget.arguments)
-                        if thisWidget.arguments.Format then
-                            OverlayText.Text = string.format(thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1], value)
-                        else
-                            OverlayText.Text = defaultAppend[dataType][index] .. string.format(if math.floor(value) == value then "%d" else "%.3f", value)
-                            InputField.Text = tostring(value)
+                        local format: string = thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1]
+                        if thisWidget.arguments.Prefix then
+                            format = thisWidget.arguments.Prefix[index] .. format
                         end
+
+                        OverlayText.Text = string.format(format, value)
+                        InputField.Text = tostring(value)
 
                         local increment: number = thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments) or defaultIncrements[dataType][index]
                         local min: number = thisWidget.arguments.Min and getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments) or defaultMin[dataType][index]

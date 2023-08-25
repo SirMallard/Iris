@@ -657,7 +657,7 @@ return function(Iris)
         Iris.Text({ `isChecked: {checkbox3.state.isChecked.value}\n` })
 
         local checkboxState1 = Iris.State(false)
-        local checkbox4 = Iris.Checkbox({ "Widget and Code Coupled State" }, { isChecked = checkboxState1 })
+        local _checkbox4 = Iris.Checkbox({ "Widget and Code Coupled State" }, { isChecked = checkboxState1 })
         local Button0 = Iris.Button({ "Click to toggle above checkbox" })
         if Button0.clicked() then
             checkboxState1:set(not checkboxState1:get())
@@ -668,8 +668,8 @@ return function(Iris)
         local checkboxState3 = Iris.ComputedState(checkboxState2, function(newValue)
             return not newValue
         end)
-        local checkbox5 = Iris.Checkbox({ "ComputedState (dynamic coupling)" }, { isChecked = checkboxState2 })
-        local checkbox5 = Iris.Checkbox({ "Inverted of above checkbox" }, { isChecked = checkboxState3 })
+        local _checkbox5 = Iris.Checkbox({ "ComputedState (dynamic coupling)" }, { isChecked = checkboxState2 })
+        local _checkbox5 = Iris.Checkbox({ "Inverted of above checkbox" }, { isChecked = checkboxState3 })
         Iris.Text({ `isChecked: {checkboxState3.value}\n` })
 
         Iris.End()

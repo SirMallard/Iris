@@ -9,13 +9,13 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         },
         Events = {
             ["checked"] = {
-                ["Init"] = function(thisWidget: Types.Widget) end,
+                ["Init"] = function(_thisWidget: Types.Widget) end,
                 ["Get"] = function(thisWidget: Types.Widget): boolean
                     return thisWidget.lastCheckedTick == Iris._cycleTick
                 end,
             },
             ["unchecked"] = {
-                ["Init"] = function(thisWidget: Types.Widget) end,
+                ["Init"] = function(_thisWidget: Types.Widget) end,
                 ["Get"] = function(thisWidget: Types.Widget): boolean
                     return thisWidget.lastUncheckedTick == Iris._cycleTick
                 end,

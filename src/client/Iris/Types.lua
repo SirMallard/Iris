@@ -41,6 +41,7 @@ export type Widget = {
     Instance: GuiObject,
     ChildContainer: GuiObject,
     arguments: Arguments,
+    providedArguments: Arguments,
 
     ZIndex: number,
 
@@ -49,16 +50,24 @@ export type Widget = {
     LabelHeight: number,
 
     isHoveredEvent: boolean,
+
     lastClickedTick: number,
-    lastRightClickedTick: number,
     lastClickedTime: number,
     lastClickedPosition: Vector2,
-    lastShortcutTick: number,
+
+    lastRightClickedTick: number,
     lastDoubleClickedTick: number,
     lastCtrlClickedTick: number,
+
+    lastNumberChangedTick: number,
+
     lastCheckedTick: number,
     lastUncheckedTick: number,
-    lastNumberChangedTick: number,
+
+    lastOpenedTick: number,
+    lastClosedTick: number,
+
+    lastShortcutTick: number,
 
     clicked: () -> boolean,
     closed: () -> boolean,
@@ -84,6 +93,7 @@ export type Arguments = {
     UseFloats: boolean,
     UseHSV: boolean,
     UseHex: boolean,
+    Prefix: { string },
 
     Color: Color3,
     Width: number,
@@ -151,6 +161,7 @@ export type WidgetUtility = {
         MULTIPLICATION_SIGN: string,
         BOTTOM_RIGHT_CORNER: string,
         CHECK_MARK: string,
+        ALPHA_BACKGROUND_TEXTURE: string,
     },
 
     GuiInset: Vector2,
@@ -219,6 +230,7 @@ export type Iris = {
     _generateSelectionImageObject: () -> (),
     _generateRootInstance: () -> (),
     _deepCompare: (t1: {}, t2: {}) -> boolean,
+    _deepCopy: (t: {}) -> {},
     _getID: (levelsToIgnore: number) -> ID,
     PushId: (Input: string | number) -> (),
     PopId: () -> (),

@@ -8,19 +8,19 @@ return function(Iris, widgets)
         },
         Events = {
             ["selected"] = {
-                ["Init"] = function(thisWidget) end,
+                ["Init"] = function(_thisWidget) end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.lastSelectedTick == Iris._cycleTick
                 end,
             },
             ["unselected"] = {
-                ["Init"] = function(thisWidget) end,
+                ["Init"] = function(_thisWidget) end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.lastUnselectedTick == Iris._cycleTick
                 end,
             },
             ["active"] = {
-                ["Init"] = function(thisWidget) end,
+                ["Init"] = function(_thisWidget) end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.state.index.value == thisWidget.arguments.Index
                 end,

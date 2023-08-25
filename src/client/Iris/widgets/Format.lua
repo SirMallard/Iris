@@ -24,7 +24,7 @@ return function(Iris, widgets)
 
             return Separator
         end,
-        Update = function(thisWidget) end,
+        Update = function(_thisWidget) end,
         Discard = function(thisWidget)
             thisWidget.Instance:Destroy()
         end,
@@ -64,7 +64,7 @@ return function(Iris, widgets)
         Discard = function(thisWidget)
             thisWidget.Instance:Destroy()
         end,
-        ChildAdded = function(thisWidget, thisChild)
+        ChildAdded = function(thisWidget, _thisChild)
             return thisWidget.Instance
         end,
     })
@@ -109,7 +109,7 @@ return function(Iris, widgets)
         Discard = function(thisWidget)
             thisWidget.Instance:Destroy()
         end,
-        ChildAdded = function(thisWidget, thisChild)
+        ChildAdded = function(thisWidget, _thisChild)
             return thisWidget.Instance
         end,
     })
@@ -130,15 +130,15 @@ return function(Iris, widgets)
             Group.AutomaticSize = Enum.AutomaticSize.XY
             Group.ClipsDescendants = true
 
-            local uiListLayout = widgets.UIListLayout(Group, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.X))
+            widgets.UIListLayout(Group, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.X))
 
             return Group
         end,
-        Update = function(thisWidget) end,
+        Update = function(_thisWidget) end,
         Discard = function(thisWidget)
             thisWidget.Instance:Destroy()
         end,
-        ChildAdded = function(thisWidget, thisChild)
+        ChildAdded = function(thisWidget, _thisChild)
             return thisWidget.Instance
         end,
     })

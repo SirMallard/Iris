@@ -4,13 +4,13 @@ return function(Iris, widgets)
         hasChildren = true,
         Events = {
             ["collasped"] = {
-                ["Init"] = function(thisWidget) end,
+                ["Init"] = function(_thisWidget) end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.lastCollapsedTick == Iris._cycleTick
                 end,
             },
             ["uncollapsed"] = {
-                ["Init"] = function(thisWidget) end,
+                ["Init"] = function(_thisWidget) end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.lastUncollaspedTick == Iris._cycleTick
                 end,

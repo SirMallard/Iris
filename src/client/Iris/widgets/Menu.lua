@@ -121,13 +121,13 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 return thisWidget.Instance
             end),
             ["opened"] = {
-                ["Init"] = function(thisWidget) end,
+                ["Init"] = function(_thisWidget: Types.Widget) end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.lastOpenedTick == Iris._cycleTick
                 end,
             },
             ["closed"] = {
-                ["Init"] = function(thisWidget) end,
+                ["Init"] = function(_thisWidget: Types.Widget) end,
                 ["Get"] = function(thisWidget)
                     return thisWidget.lastClosedTick == Iris._cycleTick
                 end,
@@ -140,13 +140,34 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             Menu.BackgroundColor3 = Iris._config.HeaderColor
             Menu.BackgroundTransparency = 1
             Menu.AutomaticSize = Enum.AutomaticSize.X
+            Menu.Text = ""
             Menu.LayoutOrder = thisWidget.ZIndex
             Menu.ZIndex = thisWidget.ZIndex
             Menu.AutoButtonColor = false
             Menu.ClipsDescendants = true
 
-            widgets.applyTextStyle(Menu)
-            widgets.UIPadding(Menu, Vector2.new(Iris._config.ItemSpacing.X, Iris._config.FramePadding.Y))
+            local TextLabel: TextLabel = Instance.new("TextLabel")
+            TextLabel.Name = "TextLabel"
+            TextLabel.Size = UDim2.fromScale(0, 1)
+            TextLabel.BackgroundColor3 = Iris._config.HeaderColor
+            TextLabel.BackgroundTransparency = 1
+            TextLabel.AutomaticSize = Enum.AutomaticSize.X
+            TextLabel.LayoutOrder = thisWidget.ZIndex + 1
+            TextLabel.ZIndex = thisWidget.ZIndex + 1
+
+            widgets.applyTextStyle(TextLabel)
+            widgets.UIPadding(TextLabel, Vector2.new(Iris._config.ItemSpacing.X, Iris._config.FramePadding.Y))
+
+            widgets.applyInteractionHighlights(Menu, TextLabel, {
+                ButtonColor = Iris._config.HeaderColor,
+                ButtonTransparency = 1,
+                ButtonHoveredColor = Iris._config.HeaderHoveredColor,
+                ButtonHoveredTransparency = Iris._config.HeaderHoveredTransparency,
+                ButtonActiveColor = Iris._config.HeaderHoveredColor,
+                ButtonActiveTransparency = Iris._config.HeaderHoveredTransparency,
+            })
+
+            TextLabel.Parent = Menu
 
             Menu.InputBegan:Connect(function(inputObject: InputObject)
                 if inputObject.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -205,7 +226,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             local ChildContainerUIListLayout = widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new())
             ChildContainerUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 
-            local RootPopupScreenGui = Iris._rootInstance.PopupScreenGui
+            local RootPopupScreenGui = Iris._rootInstance:FindFirstChild("PopupScreenGui")
             ChildContainer.Parent = RootPopupScreenGui
             thisWidget.ChildContainer = ChildContainer
 
@@ -223,49 +244,31 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         end,
         Update = function(thisWidget: Types.Widget)
             local Menu = thisWidget.Instance :: TextButton
-            Menu.Text = thisWidget.arguments.Text or "Menu"
+            local TextLabel: TextLabel = Menu.TextLabel
+            TextLabel.Text = thisWidget.arguments.Text or "Menu"
         end,
-        ChildAdded = function(thisWidget: Types.Widget, thisChild: Types.Widget)
+        ChildAdded = function(thisWidget: Types.Widget, _thisChild: Types.Widget)
             return thisWidget.ChildContainer
         end,
         GenerateState = function(thisWidget: Types.Widget)
             if thisWidget.state.isOpened == nil then
                 thisWidget.state.isOpened = Iris._widgetState(thisWidget, "isOpened", false)
             end
-
-            local Menu = thisWidget.Instance :: TextButton
-            local interactionColors = {
-                ButtonColor = Iris._config.HeaderColor,
-                ButtonTransparency = 1,
-                ButtonHoveredColor = Iris._config.HeaderHoveredColor,
-                ButtonHoveredTransparency = Iris._config.HeaderHoveredTransparency,
-                ButtonActiveColor = Iris._config.HeaderHoveredColor,
-                ButtonActiveTransparency = Iris._config.HeaderHoveredTransparency,
-            }
-
-            widgets.applyInteractionHighlights(Menu, Menu, interactionColors)
-
-            -- thisWidget.state.isOpened:onChange(function(opened: boolean)
-            --     if opened then
-            --         interactionColors.ButtonTransparency = Iris._config.HeaderTransparency
-            --     else
-            --         interactionColors.ButtonTransparency = 1
-            --     end
-            -- end)
         end,
-        UpdateState = function(thisWidget)
-            local ChildContainer = thisWidget.ChildContainer
+        UpdateState = function(thisWidget: Types.Widget)
+            local Menu = thisWidget.Instance :: TextButton
+            local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
 
             if thisWidget.state.isOpened.value then
                 thisWidget.lastOpenedTick = Iris._cycleTick + 1
+                Menu.BackgroundTransparency = Iris._config.HeaderTransparency
                 ChildContainer.Visible = true
-                print(thisWidget.arguments.Text, "is visible.")
 
                 UpdateChildContainerTransform(thisWidget)
             else
                 thisWidget.lastClosedTick = Iris._cycleTick + 1
+                Menu.BackgroundTransparency = 1
                 ChildContainer.Visible = false
-                print(thisWidget.arguments.Text, "is not visible.")
             end
         end,
         Discard = function(thisWidget: Types.Widget)

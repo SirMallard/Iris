@@ -1,13 +1,13 @@
 local Types = require(script.Parent.Parent.Types)
 
-return function(Iris: Types.Iris, widgets: Types.Widget)
+return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
     local NumNonWindowChildren: number = 0
     Iris.WidgetConstructor("Root", {
         hasState = false,
         hasChildren = true,
         Args = {},
         Events = {},
-        Generate = function(thisWidget)
+        Generate = function(_thisWidget)
             local Root = Instance.new("Folder")
             Root.Name = "Iris_Root"
 
