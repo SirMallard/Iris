@@ -58,11 +58,13 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
 
             CheckboxBox.Parent = Checkbox
 
+            local padding: number = math.ceil(checkboxSize * 0.1)
+            local checkmarkSize: number = checkboxSize - 2 * padding
+
             local Checkmark: ImageLabel = Instance.new("ImageLabel")
             Checkmark.Name = "Checkmark"
-            Checkmark.AnchorPoint = Vector2.new(0.5, 0.5)
-            Checkmark.Size = UDim2.fromScale(0.8, 0.8)
-            Checkmark.Position = UDim2.fromScale(0.5, 0.5)
+            Checkmark.Size = UDim2.fromOffset(checkmarkSize, checkmarkSize)
+            Checkmark.Position = UDim2.fromOffset(padding, padding)
             Checkmark.BackgroundTransparency = 1
             Checkmark.ImageColor3 = Iris._config.CheckMarkColor
             Checkmark.ImageTransparency = Iris._config.CheckMarkTransparency
@@ -70,7 +72,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             Checkmark.ZIndex = thisWidget.ZIndex + 2
             Checkmark.LayoutOrder = thisWidget.ZIndex + 2
 
-            Checkmark.Parent = CheckboxBox
+            Checkmark.Parent = Checkbox
 
             Checkbox.MouseButton1Click:Connect(function()
                 local wasChecked: boolean = thisWidget.state.isChecked.value
@@ -106,8 +108,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         end,
         UpdateState = function(thisWidget: Types.Widget)
             local Checkbox = thisWidget.Instance :: TextButton
-            local CheckboxBox = Checkbox.CheckboxBox :: Frame
-            local Checkmark: ImageLabel = CheckboxBox.Checkmark
+            local Checkmark: ImageLabel = Checkbox.Checkmark
             if thisWidget.state.isChecked.value then
                 Checkmark.Image = widgets.ICONS.CHECK_MARK
                 thisWidget.lastCheckedTick = Iris._cycleTick + 1

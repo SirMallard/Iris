@@ -224,6 +224,14 @@ export type Iris = {
     SelectionImageObject: Frame,
     parentInstance: BasePlayerGui,
 
+    -- Debug functions
+    _debug: {
+        HoverOverlayEnabled: boolean,
+        WidgetSelectionEnabled: boolean,
+        HoverOverlayInstance: GuiObject,
+    },
+    _enableHoverOverlay: (enabled: boolean) -> (),
+
     _lastVDOM: { [ID]: Widget },
     _VDOM: { [ID]: Widget },
 
@@ -231,6 +239,7 @@ export type Iris = {
 
     Disabled: boolean,
 
+    _generateHoverOverlay: () -> (),
     _generateSelectionImageObject: () -> (),
     _generateRootInstance: () -> (),
     _deepCompare: (t1: {}, t2: {}) -> boolean,
@@ -402,6 +411,9 @@ export type Config = {
 
     CheckMarkColor: Color3,
     CheckMarkTransparency: number,
+
+    HoverColor: Color3,
+    HoverTransparency: number,
 
     -- Sizes
     ItemWidth: UDim,

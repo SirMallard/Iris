@@ -231,6 +231,9 @@ local TemplateConfig = {
 
         MouseDoubleClickTime = 0.30, -- Time for a double-click, in seconds.
         MouseDoubleClickMaxDist = 6.0, -- Distance threshold to stay in to validate a double-click, in pixels.
+
+        HoverColor = Color3.fromRGB(255, 255, 0),
+        HoverTransparency = 0.1,
     },
 }
 

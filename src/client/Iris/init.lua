@@ -32,6 +32,39 @@ Iris._widgetCount = 0 -- only used to compute ZIndex, resets to 0 for every cycl
 Iris._lastWidget = Iris._rootWidget -- widget which was most recently rendered
 Iris._cycleCoroutine = nil -- coroutine which calls functions connected each cycle, used to check if any functions yield
 
+Iris._debug = {
+    HoverOverlayEnabled = false,
+    WidgetSelectionEnabled = false,
+    HoverOverlayInstance = nil,
+}
+
+function Iris._generateHoverOverlay()
+    if Iris._debug.HoverOverlayInstance then
+        Iris._debug.HoverOverlayInstance:Destroy()
+    end
+
+    local frame: Frame = Instance.new("Frame")
+    frame.Name = "HoverOverlay"
+    frame.BackgroundTransparency = 1
+    frame.BorderSizePixel = 0
+
+    local uiStroke: UIStroke = Instance.new("UIStroke")
+    uiStroke.Name = "Stroke"
+    uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    uiStroke.Color = Iris._config.HoverColor
+    uiStroke.Transparency = Iris._config.HoverTransparency
+    uiStroke.Thickness = 1
+
+    uiStroke.Parent = frame
+    frame.Parent = Iris._rootInstance
+    Iris._debug.HoverOverlayInstance = frame
+end
+
+function Iris._enableHoverOverlay(enabled: boolean)
+    Iris._debug.HoverOverlayEnabled = enabled
+    Iris._debug.HoverOverlayInstance.Visible = enabled
+end
+
 function Iris._generateSelectionImageObject()
     if Iris.SelectionImageObject then
         Iris.SelectionImageObject:Destroy()
@@ -615,6 +648,7 @@ function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSi
 
     Iris._generateRootInstance()
     Iris._generateSelectionImageObject()
+    Iris._generateHoverOverlay()
 
     task.spawn(function()
         if typeof(eventConnection) == "function" then

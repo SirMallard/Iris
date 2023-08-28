@@ -64,7 +64,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             PseudoWindow.SelectionBehaviorRight = Enum.SelectionBehavior.Stop
 
             PseudoWindow.Visible = false
-            widgets.UIPadding(PseudoWindow, Iris._config.WindowPadding)
+            -- widgets.UIPadding(PseudoWindow, Iris._config.WindowPadding)
 
             widgets.UIListLayout(PseudoWindow, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
 

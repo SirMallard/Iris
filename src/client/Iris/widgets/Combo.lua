@@ -239,17 +239,31 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             PreviewLabel.Parent = PreviewContainer
 
             local DropdownButtonSize = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
-            local DropdownButton = Instance.new("ImageLabel")
+            local DropdownButton: TextLabel = Instance.new("TextLabel")
             DropdownButton.Name = "DropdownButton"
             DropdownButton.Size = UDim2.new(0, DropdownButtonSize, 0, DropdownButtonSize)
             DropdownButton.BorderSizePixel = 0
             DropdownButton.BackgroundColor3 = Iris._config.ButtonColor
             DropdownButton.BackgroundTransparency = Iris._config.ButtonTransparency
-            DropdownButton.ImageColor3 = Iris._config.TextColor
-            DropdownButton.ImageTransparency = Iris._config.TextTransparency
+            DropdownButton.Text = ""
             DropdownButton.ZIndex = thisWidget.ZIndex + 4
             DropdownButton.LayoutOrder = thisWidget.ZIndex + 4
 
+            local padding: number = math.round(DropdownButtonSize * 0.2)
+            local dropdownSize: number = DropdownButtonSize - 2 * padding
+
+            local Dropdown: ImageLabel = Instance.new("ImageLabel")
+            Dropdown.Name = "Dropdown"
+            Dropdown.Size = UDim2.fromOffset(dropdownSize, dropdownSize)
+            Dropdown.Position = UDim2.fromOffset(padding, padding)
+            Dropdown.BackgroundTransparency = 1
+            Dropdown.BorderSizePixel = 0
+            Dropdown.ImageColor3 = Iris._config.TextColor
+            Dropdown.ImageTransparency = Iris._config.TextTransparency
+            Dropdown.ZIndex = thisWidget.ZIndex + 5
+            Dropdown.LayoutOrder = thisWidget.ZIndex + 5
+
+            Dropdown.Parent = DropdownButton
             DropdownButton.Parent = PreviewContainer
 
             local textLabelHeight = Iris._config.TextSize + Iris._config.FramePadding.Y * 2
@@ -404,6 +418,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             local PreviewContainer = Iris_Combo.PreviewContainer
             local PreviewLabel = PreviewContainer.PreviewLabel
             local DropdownButton = PreviewContainer.DropdownButton
+            local Dropdown: ImageLabel = DropdownButton.Dropdown
             local ChildContainer = thisWidget.ChildContainer
 
             if thisWidget.state.isOpened.value then
@@ -413,7 +428,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 thisWidget.lastOpenedTick = Iris._cycleTick + 1
 
                 -- ImGui also does not do this, and the Arrow is always facing down
-                DropdownButton.Image = widgets.ICONS.RIGHT_POINTING_TRIANGLE
+                Dropdown.Image = widgets.ICONS.RIGHT_POINTING_TRIANGLE
                 ChildContainer.Visible = true
 
                 UpdateChildContainerTransform(thisWidget)
@@ -423,7 +438,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                     OpenedCombo = nil
                     thisWidget.lastClosedTick = Iris._cycleTick + 1
                 end
-                DropdownButton.Image = widgets.ICONS.DOWN_POINTING_TRIANGLE
+                Dropdown.Image = widgets.ICONS.DOWN_POINTING_TRIANGLE
                 ChildContainer.Visible = false
             end
 

@@ -8,11 +8,11 @@ return function(Iris)
     -- stylua: ignore start
     local function helpMarker(helpText)
         Iris.PushConfig({ TextColor = Iris._config.TextDisabledColor })
-        Iris.Text({ "(?)" })
+        local text = Iris.Text({ "(?)" })
         Iris.PopConfig()
 
         Iris.PushConfig({ ContentWidth = UDim.new(0, 350) })
-        if Iris.Events.hovered() then
+        if text.hovered() then
             Iris.Tooltip({ helpText })
         end
         Iris.PopConfig()
@@ -475,7 +475,7 @@ return function(Iris)
 
                         local Enums = {
                             "WindowTitleAlign",
-                            "TextFont"
+                            -- "TextFont"
                         }
                         for _, vEnum in Enums do
                             local Input = Iris.InputEnum({ vEnum }, { index = Iris.WeakState(Iris._config[vEnum]) }, Iris._config[vEnum].EnumType)
@@ -902,6 +902,8 @@ return function(Iris)
         Iris.Checkbox({ "NoResize" }, { isChecked = NoResize })
         Iris.NextColumn()
         Iris.Checkbox({ "NoNav" }, { isChecked = NoNav })
+        Iris.NextColumn()
+        Iris.Checkbox({ "NoMenu" }, { isChecked = NoMenu })
         Iris.End()
         Iris.End()
 
