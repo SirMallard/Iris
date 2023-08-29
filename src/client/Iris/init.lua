@@ -880,7 +880,9 @@ require(script.widgets)(Iris)
 --- hasChildren: false,
 --- hasState: false,
 --- Arguments: {
----     Text: String
+---     Text: string,
+---     Wrapped: boolean,
+---     Color: Color3,
 --- },
 --- Events: {
 ---     hovered: boolean
@@ -898,7 +900,7 @@ end
 --- hasChildren: false,
 --- hasState: false,
 --- Arguments: {
----     Text: String,
+---     Text: string,
 ---     Color: Color3
 --- },
 --- Events: {
@@ -906,7 +908,9 @@ end
 --- }
 --- ```
 Iris.TextColored = function(args: Types.WidgetArguments): Types.Widget
-    return Iris._Insert("TextColored", args)
+    args[3] = args[2]
+    args[2] = nil
+    return Iris._Insert("Text", args)
 end
 
 --- @prop TextWrapped Widget
@@ -918,17 +922,31 @@ end
 --- hasChildren: false,
 --- hasState: false,
 --- Arguments: {
----     Text: String,
----     Color: Color3
+---     Text: string,
 --- },
 --- Events: {
 ---     hovered: boolean
 --- }
 --- ```
 Iris.TextWrapped = function(args: Types.WidgetArguments): Types.Widget
-    return Iris._Insert("TextWrapped", args)
+    args[2] = true
+    return Iris._Insert("Text", args)
 end
 
+--- @prop SeparatorText Widget
+--- @within Widgets
+--- A simple combination of a text widget and separator widget.
+---
+--- ```json
+--- hasChildren: false,
+--- hasState: false,
+--- Arguments: {
+---     Text: string,
+--- },
+--- Events: {
+---     hovered: boolean,
+--- }
+--- ```
 Iris.SeparatorText = function(args: Types.WidgetArguments): Types.Widget
     return Iris._Insert("SeparatorText", args)
 end
@@ -941,7 +959,7 @@ end
 --- hasChildren: false,
 --- hasState: false,
 --- Arguments: {
----     Text: String
+---     Text: string
 --- },
 --- Events: {
 ---     clicked: boolean,
@@ -963,7 +981,7 @@ end
 --- hasChildren: false,
 --- hasState: false,
 --- Arguments: {
----     Text: String
+---     Text: string
 --- },
 --- Events: {
 ---     clicked: boolean,

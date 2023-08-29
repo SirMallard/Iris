@@ -33,6 +33,8 @@ export type Event = {
 }
 export type Events = { [string]: Event }
 
+type EventAPI = () -> boolean
+
 export type InputDataType = number | Vector2 | Vector3 | UDim | UDim2 | Color3 | { number }
 export type InputDataTypes = "Num" | "Vector2" | "Vector3" | "UDim" | "UDim2" | "Color3" | "Color4" | "Enum" | "" | string
 
@@ -41,6 +43,8 @@ export type Arguments = {
     [string]: Argument,
     Text: string,
     TextHint: string,
+    Wrapped: boolean,
+    Color: Color3,
 
     Increment: InputDataType,
     Min: InputDataType,
@@ -51,7 +55,6 @@ export type Arguments = {
     UseHex: boolean,
     Prefix: { string },
 
-    Color: Color3,
     Width: number,
     VerticalAlignment: Enum.VerticalAlignment,
     Index: any,
@@ -119,17 +122,34 @@ export type Widget = {
     lastOpenedTick: number,
     lastClosedTick: number,
 
+    lastSelectedTick: number,
+    lastUnselectedTick: number,
+
+    lastTextchangeTick: number,
+
     lastShortcutTick: number,
 
-    clicked: () -> boolean,
-    closed: () -> boolean,
-    opened: () -> boolean,
-    collapsed: () -> boolean,
-    uncollapsed: () -> boolean,
-    hovered: () -> boolean,
-    active: () -> boolean,
-    selected: () -> boolean,
-    unselected: () -> boolean,
+    hovered: EventAPI,
+    clicked: EventAPI,
+    rightClicked: EventAPI,
+    ctrlClicked: EventAPI,
+    doubleClicked: EventAPI,
+
+    checked: EventAPI,
+    unchecked: EventAPI,
+    activated: EventAPI,
+    deactivated: EventAPI,
+    collapsed: EventAPI,
+    uncollapsed: EventAPI,
+    selected: EventAPI,
+    unselected: EventAPI,
+    opened: EventAPI,
+    closed: EventAPI,
+
+    active: EventAPI,
+
+    numberChanged: EventAPI,
+    textChanged: EventAPI,
 }
 
 export type WidgetClass = {
@@ -153,6 +173,7 @@ export type WidgetClass = {
 export type WidgetUtility = {
     GuiService: GuiService,
     RunService: RunService,
+    TextService: TextService,
     UserInputService: UserInputService,
     ContextActionService: ContextActionService,
 
@@ -182,6 +203,7 @@ export type WidgetUtility = {
     UISizeConstraint: (Parent: GuiObject, MinSize: Vector2?, MaxSize: Vector2?) -> UISizeConstraint,
     UIReference: (Parent: GuiObject, Child: GuiObject, Name: string) -> ObjectValue,
 
+    calculateTextSize: (text: string, width: number?) -> Vector2,
     applyTextStyle: (thisInstance: TextLabel | TextButton | TextBox) -> (),
     applyInteractionHighlights: (Button: GuiButton, Highlightee: GuiObject, Colors: { [string]: any }) -> (),
     applyInteractionHighlightsWithMultiHighlightee: (Button: GuiButton, Highlightees: { { GuiObject | { [string]: Color3 | number } } }) -> (),

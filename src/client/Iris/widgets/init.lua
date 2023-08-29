@@ -7,6 +7,7 @@ return function(Iris: Types.Iris)
     widgets.RunService = game:GetService("RunService")
     widgets.UserInputService = game:GetService("UserInputService")
     widgets.ContextActionService = game:GetService("ContextActionService")
+    widgets.TextService = game:GetService("TextService")
 
     widgets.ICONS = {
         RIGHT_POINTING_TRIANGLE = "rbxasset://textures/DeveloperFramework/button_arrow_right.png",
@@ -117,6 +118,25 @@ return function(Iris: Types.Iris)
         return ObjectValue
     end
     -- below uses Iris
+
+    local textParams: GetTextBoundsParams = Instance.new("GetTextBoundsParams")
+    textParams.Font = Iris._config.TextFont
+    textParams.Size = Iris._config.TextSize
+    textParams.Width = math.huge
+    function widgets.calculateTextSize(text: string, width: number?): Vector2
+        if width then
+            textParams.Width = width
+        end
+        textParams.Text = text
+
+        local size: Vector2 = widgets.TextService:GetTextBoundsAsync(textParams)
+
+        if width then
+            textParams.Width = math.huge
+        end
+
+        return size
+    end
 
     function widgets.applyTextStyle(thisInstance: TextLabel & TextButton & TextBox)
         thisInstance.FontFace = Iris._config.TextFont
@@ -451,7 +471,6 @@ return function(Iris: Types.Iris)
     require(script.Tree)(Iris, widgets)
 
     require(script.Input)(Iris, widgets)
-    require(script.GenericInput)(Iris, widgets)
     require(script.Combo)(Iris, widgets)
 
     require(script.Table)(Iris, widgets)

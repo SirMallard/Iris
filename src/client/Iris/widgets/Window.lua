@@ -680,7 +680,6 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             local ChildContainer: ScrollingFrame = WindowButton.ChildContainer
             local ResizeGrip: TextButton = WindowButton.ResizeGrip
 
-            local TitleBarHeight: number = Iris._config.TextSize + Iris._config.FramePadding.Y * 2
             local containerHeight: number = 0
             local menuHeight: number = 0
 
@@ -698,11 +697,12 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 TitleBar.Visible = false
             else
                 TitleBar.Visible = true
-                containerHeight += TitleBarHeight
-                menuHeight += TitleBarHeight
+                local titlebarSize: number = widgets.calculateTextSize(thisWidget.arguments.Title or "").Y + 2 * Iris._config.FramePadding.Y
+                containerHeight += titlebarSize
+                menuHeight += titlebarSize
             end
             if menuBar and not thisWidget.arguments.NoMenu then
-                containerHeight += TitleBarHeight
+                containerHeight += menuBar.Instance.AbsoluteSize.Y
                 -- we move the menu bar to the correct position.
                 menuBar.Instance.Parent = WindowButton
                 menuBar.Instance.Position = UDim2.fromOffset(0, menuHeight)
