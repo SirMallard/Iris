@@ -2,6 +2,7 @@ local Types = require(script.Parent.Types)
 
 --[[
     =========================================================================
+
           _____  _   _  _______  ______  _____   _   _            _      
          |_   _|| \ | ||__   __||  ____||  __ \ | \ | |    /\    | |     
            | |  |  \| |   | |   | |__   | |__) ||  \| |   /  \   | |     
@@ -9,17 +10,17 @@ local Types = require(script.Parent.Types)
           _| |_ | |\  |   | |   | |____ | | \ \ | |\  | / ____ \ | |____ 
          |_____||_| \_|   |_|   |______||_|  \_\|_| \_|/_/    \_\|______|
 
+
     =========================================================================
 ]]
 
-return function(Iris: Types.Iris)
-    local Internal = {} :: Types.Internal
-
+return function(Iris: Types.Iris): Types.Internal
     --[=[
         @class Internal
         An internal class within Iris containing all the backend data and functions for Iris to operate.
         It is recommended that you don't generally interact with Internal unless you understand what you are doing.
     ]=]
+    local Internal = {} :: Types.Internal
 
     --[[
         ---------------------------------
@@ -811,4 +812,5 @@ return function(Iris: Types.Iris)
     end
 
     Iris.Internal = Internal
+    return Internal
 end

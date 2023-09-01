@@ -1,6 +1,6 @@
 local Types = require(script.Parent.Parent.Types)
 
-return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
+return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local AnyMenuOpen: boolean = false
     local ActiveMenu: Types.Widget?
     local MenuStack: { Types.Widget } = {}
@@ -308,7 +308,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             local ChildContainerUIListLayout = widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new())
             ChildContainerUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 
-            local RootPopupScreenGui = Iris._rootInstance:FindFirstChild("PopupScreenGui")
+            local RootPopupScreenGui = Iris._rootInstance and Iris._rootInstance:FindFirstChild("PopupScreenGui")
             ChildContainer.Parent = RootPopupScreenGui
             thisWidget.ChildContainer = ChildContainer
 

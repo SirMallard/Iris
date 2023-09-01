@@ -1,4 +1,6 @@
-return function(Iris, widgets)
+local Types = require(script.Parent.Parent.Types)
+
+return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     Iris.WidgetConstructor("Separator", {
         hasState = false,
         hasChildren = false,
@@ -28,7 +30,7 @@ return function(Iris, widgets)
         Discard = function(thisWidget)
             thisWidget.Instance:Destroy()
         end,
-    })
+    } :: Types.WidgetClass)
 
     Iris.WidgetConstructor("Indent", {
         hasState = false,
@@ -67,7 +69,7 @@ return function(Iris, widgets)
         ChildAdded = function(thisWidget, _thisChild)
             return thisWidget.Instance
         end,
-    })
+    } :: Types.WidgetClass)
 
     Iris.WidgetConstructor("SameLine", {
         hasState = false,
@@ -112,7 +114,7 @@ return function(Iris, widgets)
         ChildAdded = function(thisWidget, _thisChild)
             return thisWidget.Instance
         end,
-    })
+    } :: Types.WidgetClass)
 
     Iris.WidgetConstructor("Group", {
         hasState = false,
@@ -141,5 +143,5 @@ return function(Iris, widgets)
         ChildAdded = function(thisWidget, _thisChild)
             return thisWidget.Instance
         end,
-    })
+    } :: Types.WidgetClass)
 end

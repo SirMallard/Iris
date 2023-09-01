@@ -1,4 +1,6 @@
-return function(Iris, widgets)
+local Types = require(script.Parent.Parent.Types)
+
+return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local tableWidgets = {}
 
     table.insert(Iris._postCycleCallbacks, function()
@@ -6,22 +8,6 @@ return function(Iris, widgets)
             v.RowColumnIndex = 0
         end
     end)
-
-    Iris.NextColumn = function()
-        Iris._GetParentWidget().RowColumnIndex += 1
-    end
-    Iris.SetColumnIndex = function(ColumnIndex)
-        local ParentWidget = Iris._GetParentWidget()
-        assert(ColumnIndex >= ParentWidget.InitialNumColumns, "Iris.SetColumnIndex Argument must be in column range")
-        ParentWidget.RowColumnIndex = math.floor(ParentWidget.RowColumnIndex / ParentWidget.InitialNumColumns) + (ColumnIndex - 1)
-    end
-    Iris.NextRow = function()
-        -- sets column Index back to 0, increments Row
-        local ParentWidget = Iris._GetParentWidget()
-        local InitialNumColumns = ParentWidget.InitialNumColumns
-        local nextRow = math.floor((ParentWidget.RowColumnIndex + 1) / InitialNumColumns) * InitialNumColumns
-        ParentWidget.RowColumnIndex = nextRow
-    end
 
     Iris.WidgetConstructor("Table", {
         hasState = false,
@@ -107,8 +93,8 @@ return function(Iris, widgets)
                     v.BackgroundTransparency = 1
                 end
             else
-                for rowColumnIndex, v in thisWidget.CellInstances do
-                    local currentRow = math.ceil(rowColumnIndex / thisWidget.InitialNumColumns)
+                for RowColumnIndex, v in thisWidget.CellInstances do
+                    local currentRow = math.ceil(RowColumnIndex / thisWidget.InitialNumColumns)
                     v.BackgroundTransparency = if currentRow % 2 == 0 then Iris._config.TableRowBgAltTransparency else Iris._config.TableRowBgTransparency
                 end
             end
@@ -171,5 +157,5 @@ return function(Iris, widgets)
             cell.Parent = selectedParent
             return cell
         end,
-    })
+    } :: Types.WidgetClass)
 end

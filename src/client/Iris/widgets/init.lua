@@ -2,7 +2,7 @@ local Types = require(script.Parent.Types)
 
 local widgets = {} :: Types.WidgetUtility
 
-return function(Iris: Types.Iris)
+return function(Iris: Types.Internal)
     widgets.GuiService = game:GetService("GuiService")
     widgets.RunService = game:GetService("RunService")
     widgets.UserInputService = game:GetService("UserInputService")

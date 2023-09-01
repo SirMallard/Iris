@@ -1,5 +1,19 @@
 local Types = require(script.Parent.Types)
 
+--[[
+    ======================================================================
+
+         __          __ _____  _____    _____  ______  _______  _____ 
+         \ \        / /|_   _||  __ \  / ____||  ____||__   __|/ ____|
+          \ \  /\  / /   | |  | |  | || |  __ | |__      | |  | (___  
+           \ \/  \/ /    | |  | |  | || | |_ ||  __|     | |   \___ \ 
+            \  /\  /    _| |_ | |__| || |__| || |____    | |   ____) |
+             \/  \/    |_____||_____/  \_____||______|   |_|  |_____/ 
+
+                                  
+    ======================================================================
+    ]]
+
 return function(Iris: Types.Iris)
     -- basic wrapper for nearly every widget, saves space.
     local function wrapper(name: string): (arguments: Types.WidgetArguments?, states: Types.States?) -> Types.Widget
@@ -7,18 +21,6 @@ return function(Iris: Types.Iris)
             return Iris.Internal._Insert(name, arguments, states)
         end
     end
-
-    --[[
-        =============================================================
-
-             __        __ ___  ____    ____  _____  _____  ____  
-             \ \      / /|_ _||  _ \  / ___|| ____||_   _|/ ___| 
-              \ \ /\ / /  | | | | | || |  _ |  _|    | |  \___ \ 
-               \ V  V /   | | | |_| || |_| || |___   | |   ___) |
-                \_/\_/   |___||____/  \____||_____|  |_|  |____/ 
-                                                     
-        =============================================================
-    ]]
 
     --[[
         ----------------------------
@@ -90,6 +92,15 @@ return function(Iris: Types.Iris)
         ```
     ]=]
     Iris.Window = wrapper("Window")
+
+    --[=[
+        @function SetFocusedWindow
+        @within Iris
+        @param window Types.Widget -- the window to focus.
+
+        Sets the focused window to the window provided, which brings it to the front and makes it active.
+    ]=]
+    Iris.SetFocusedWindow = Iris.Internal.SetFocusedWindow
 
     --[[
         ---------------------------------
@@ -462,8 +473,40 @@ return function(Iris: Types.Iris)
 
     Iris.Selectable = wrapper("Selectable")
     Iris.Combo = wrapper("Combo")
-    Iris.ComboArray = wrapper("ComboArray")
-    Iris.ComboEnum = wrapper("ComboEnum")
+
+    Iris.ComboArray = function(args, state, SelectionArray)
+        local defaultState
+        if state == nil then
+            defaultState = Iris.State(SelectionArray[1])
+        else
+            defaultState = state
+        end
+        local thisWidget = Iris.Internal._Insert("Combo", args, defaultState)
+        local sharedIndex: Types.State = thisWidget.state.index
+        for _, Selection in SelectionArray do
+            Iris.Internal._Insert("Selectable", { Selection, Selection }, { index = sharedIndex } :: Types.States)
+        end
+        Iris.End()
+
+        return thisWidget
+    end
+
+    Iris.InputEnum = function(args, state, enumType)
+        local defaultState
+        if state == nil then
+            defaultState = Iris.State(enumType[1])
+        else
+            defaultState = state
+        end
+        local thisWidget = Iris.Internal._Insert("Combo", args, defaultState)
+        local sharedIndex = thisWidget.state.index
+        for _, Selection in enumType:GetEnumItems() do
+            Iris.Internal._Insert("Selectable", { Selection.Name, Selection }, { index = sharedIndex } :: Types.States)
+        end
+        Iris.End()
+
+        return thisWidget
+    end
 
     --[[
         ----------------------------------
@@ -477,41 +520,21 @@ return function(Iris: Types.Iris)
 
     Iris.Table = wrapper("Table")
 
-    --[[
-        =========================================
-
-              ____  _____   _   _____  _____ 
-             / ___||_   _| / \ |_   _|| ____|
-             \___ \  | |  / _ \  | |  |  _|  
-              ___) | | | / ___ \ | |  | |___ 
-             |____/  |_|/_/   \_\|_|  |_____|                                             
-                                                     
-        =========================================
-    ]]
-
-    --[[
-        =====================================================================
-
-              _____  _   _  _   _   ____  _____  ___  ___   _   _  ____  
-             |  ___|| | | || \ | | / ___||_   _||_ _|/ _ \ | \ | |/ ___| 
-             | |_   | | | ||  \| || |      | |   | || | | ||  \| |\___ \ 
-             |  _|  | |_| || |\  || |___   | |   | || |_| || |\  | ___) |
-             |_|     \___/ |_| \_| \____|  |_|  |___|\___/ |_| \_||____/                                                 
-                                                     
-        =====================================================================
-    ]]
-
-    function Iris.PushId(id: Types.ID)
-        assert(typeof(id) == "string", "API expected the ID to PushId to be a string.")
-
-        Iris.Internal._pushedId = tostring(id)
+    Iris.NextColumn = function()
+        Iris.Internal._GetParentWidget().RowColumnIndex += 1
     end
 
-    function Iris.PopId()
-        Iris.Internal._pushedId = nil
+    Iris.SetColumnIndex = function(columnIndex: number)
+        local ParentWidget: Types.Widget = Iris.Internal._GetParentWidget()
+        assert(columnIndex >= ParentWidget.InitialNumColumns, "Iris.SetColumnIndex Argument must be in column range")
+        ParentWidget.RowColumnIndex = math.floor(ParentWidget.RowColumnIndex / ParentWidget.InitialNumColumns) + (columnIndex - 1)
     end
 
-    function Iris.SetNextWidgetID(id: Types.ID)
-        Iris.Internal._nextWidgetId = id
+    Iris.NextRow = function()
+        -- sets column Index back to 0, increments Row
+        local ParentWidget = Iris.Internal._GetParentWidget()
+        local InitialNumColumns = ParentWidget.InitialNumColumns
+        local nextRow = math.floor((ParentWidget.RowColumnIndex + 1) / InitialNumColumns) * InitialNumColumns
+        ParentWidget.RowColumnIndex = nextRow
     end
 end

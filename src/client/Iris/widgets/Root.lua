@@ -1,6 +1,6 @@
 local Types = require(script.Parent.Parent.Types)
 
-return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
+return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local NumNonWindowChildren: number = 0
     Iris.WidgetConstructor("Root", {
         hasState = false,

@@ -1,43 +1,5 @@
 export type ID = string
 
-export type State = {
-    value: any,
-    ConnectedWidgets: { [ID]: string },
-    ConnectedFunctions: { (any) -> () },
-
-    get: (self: State) -> any,
-    set: (self: State, newValue: any) -> (),
-    onChange: (self: State, funcToConnect: (any) -> ()) -> (),
-}
-
-export type States = {
-    [string]: State,
-    number: State,
-    color: State,
-    transparency: State,
-    editingText: State,
-    index: State,
-
-    size: State,
-    position: State,
-    scrollDistance: State,
-
-    isChecked: State,
-    isOpened: State,
-    isUncollapsed: State,
-}
-
-export type Event = {
-    Init: (Widget) -> (),
-    Get: (Widget) -> boolean,
-}
-export type Events = { [string]: Event }
-
-type EventAPI = () -> boolean
-
-export type InputDataType = number | Vector2 | Vector3 | UDim | UDim2 | Color3 | Rect | { number }
-export type InputDataTypes = "Num" | "Vector2" | "Vector3" | "UDim" | "UDim2" | "Color3" | "Color4" | "Rect" | "Enum" | "" | string
-
 export type Argument = any
 export type Arguments = {
     [string]: Argument,
@@ -85,6 +47,45 @@ export type Arguments = {
     ModifierKey: Enum.ModifierKey,
     Disabled: boolean,
 }
+
+export type State = {
+    value: any,
+    ConnectedWidgets: { [ID]: string },
+    ConnectedFunctions: { (any) -> () },
+
+    get: (self: State) -> any,
+    set: (self: State, newValue: any) -> (),
+    onChange: (self: State, funcToConnect: (any) -> ()) -> (),
+}
+
+export type States = {
+    [string]: State,
+    number: State,
+    color: State,
+    transparency: State,
+    editingText: State,
+    index: State,
+
+    size: State,
+    position: State,
+    scrollDistance: State,
+
+    isChecked: State,
+    isOpened: State,
+    isUncollapsed: State,
+}
+
+export type Event = {
+    Init: (Widget) -> (),
+    Get: (Widget) -> boolean,
+}
+export type Events = { [string]: Event }
+
+type EventAPI = () -> boolean
+
+export type InputDataType = number | Vector2 | Vector3 | UDim | UDim2 | Color3 | Rect | { number }
+export type InputDataTypes = "Num" | "Vector2" | "Vector3" | "UDim" | "UDim2" | "Color3" | "Color4" | "Rect" | "Enum" | "" | string
+
 export type WidgetArguments = { [number]: Argument }
 
 export type Widget = {
@@ -103,7 +104,11 @@ export type Widget = {
     trackedEvents: {},
     lastCycleTick: number,
     LabelHeight: number,
+    RowColumnIndex: number,
+    InitialNumColumns: number,
+    usesScreenGUI: boolean,
 
+    -- Event Props
     isHoveredEvent: boolean,
 
     lastClickedTick: number,
@@ -114,21 +119,18 @@ export type Widget = {
     lastDoubleClickedTick: number,
     lastCtrlClickedTick: number,
 
-    lastNumberChangedTick: number,
-
     lastCheckedTick: number,
     lastUncheckedTick: number,
-
     lastOpenedTick: number,
     lastClosedTick: number,
-
     lastSelectedTick: number,
     lastUnselectedTick: number,
 
+    lastNumberChangedTick: number,
     lastTextchangeTick: number,
-
     lastShortcutTick: number,
 
+    -- Events
     hovered: EventAPI,
     clicked: EventAPI,
     rightClicked: EventAPI,
@@ -299,6 +301,7 @@ export type Internal = {
     _widgetState: (thisWidget: Widget, stateName: string, initialValue: any) -> State,
     _EventCall: (thisWidget: Widget, eventName: string) -> boolean,
     _GetParentWidget: () -> Widget,
+    SetFocusedWindow: (thisWidget: Widget?) -> (),
 
     -- Generate
     _generateEmptyVDOM: () -> { [ID]: Widget },
@@ -391,6 +394,9 @@ export type Iris = {
 
     -- Table Widget Api
     Table: (arguments: WidgetArguments) -> Widget,
+    NextColumn: () -> (),
+    SetColumnIndex: (columnIndex: number) -> (),
+    NextRow: () -> (),
 
     --[[
         ---------

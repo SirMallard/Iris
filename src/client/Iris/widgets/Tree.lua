@@ -1,4 +1,6 @@
-return function(Iris, widgets)
+local Types = require(script.Parent.Parent.Types)
+
+return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local abstractTree = {
         hasState = true,
         hasChildren = true,
@@ -51,7 +53,7 @@ return function(Iris, widgets)
                 thisWidget.state.isUncollapsed = Iris._widgetState(thisWidget, "isUncollapsed", false)
             end
         end,
-    }
+    } :: Types.WidgetClass
 
     Iris.WidgetConstructor(
         "Tree",

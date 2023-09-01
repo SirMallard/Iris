@@ -1,12 +1,26 @@
 --!optimize 2
 local Types = require(script.Types)
 
+--[[
+    =======================================
+
+          _____  _____   _____   _____ 
+         |_   _||  __ \ |_   _| / ____|
+           | |  | |__) |  | |  | (___  
+           | |  |  _  /   | |   \___ \ 
+          _| |_ | | \ \  _| |_  ____) |
+         |_____||_|  \_\|_____||_____/ 
+
+
+    =======================================
+]]
+
 --[=[
     @class Iris
----
     Iris; contains the library.
 ]=]
 local Iris = {} :: Types.Iris
+local Internal: Types.Internal = require(script.Internal)(Iris)
 
 --[=[
     @prop Disabled boolean
@@ -30,6 +44,104 @@ Iris.Args = {}
 Iris.Events = {}
 
 --[=[
+    @within Iris
+    @function Init
+    @param parentInstance Instance | nil -- instance which Iris will place UI in. defaults to [PlayerGui] if unspecified
+    @param eventConnection RBXScriptSignal | () -> {} | nil
+    @return Iris
+    Initializes Iris. May only be called once.
+]=]
+function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSignal | () -> {})?): Types.Iris
+    if parentInstance == nil then
+        -- coalesce to playerGui
+        parentInstance = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+    end
+    if eventConnection == nil then
+        -- coalesce to Heartbeat
+        eventConnection = game:GetService("RunService").Heartbeat
+    end
+    Internal.parentInstance = parentInstance :: BasePlayerGui
+    assert(Internal._started == false, "Iris.Init can only be called once.")
+    Internal._started = true
+
+    Internal._generateRootInstance()
+    Internal._generateSelectionImageObject()
+
+    task.spawn(function()
+        if typeof(eventConnection) == "function" then
+            while true do
+                eventConnection()
+                Internal._cycle()
+            end
+        elseif eventConnection ~= nil then
+            eventConnection:Connect(function()
+                Internal._cycle()
+            end)
+        end
+    end)
+
+    return Iris
+end
+
+--[=[
+    @within Iris
+    @method Connect
+    @param callback function -- allows users to connect a function which will execute every Iris cycle, (cycle is determined by the callback or event passed to Iris.Init)
+]=]
+function Iris:Connect(callback: () -> {}) -- this uses method syntax for no reason.
+    if Internal._started == false then
+        warn("Iris:Connect() was called before calling Iris.Init(), the connected function will never run")
+    end
+    table.insert(Internal._connectedFunctions, callback)
+end
+
+--[=[
+    @within Iris
+    @function Append
+    Allows the caller to insert any Roblox Instance into the current parent Widget.
+]=]
+function Iris.Append(userInstance: GuiObject)
+    local parentWidget: Types.Widget = Internal._GetParentWidget()
+    local widgetInstanceParent: GuiObject
+    if Internal._config.Parent then
+        widgetInstanceParent = Internal._config.Parent :: any
+    else
+        widgetInstanceParent = Internal._widgets[parentWidget.type].ChildAdded(parentWidget, { type = "userInstance" } :: Types.Widget)
+    end
+    userInstance.Parent = widgetInstanceParent
+end
+
+--[=[
+    @within Iris
+    @function End
+    This function marks the end of any widgets which contain children. For example:
+    ```lua
+    -- Widgets placed here **will not** be inside the tree
+    Iris.Tree({"My First Tree"})
+        -- Widgets placed here **will** be inside the tree
+    Iris.End()
+    -- Widgets placed here **will not** be inside the tree
+    ```
+    :::caution Caution: Error
+    Seeing the error `Callback has too few calls to Iris.End()` or `Callback has too many calls to Iris.End()`?
+    Using the wrong amount of `Iris.End()` calls in your code will lead to an error. Each widget called which might have children should be paired with a call to `Iris.End()`, **Even if the Widget doesnt currently have any children**.
+    :::
+]=]
+function Iris.End()
+    if Internal._stackIndex == 1 then
+        error("Callback has too many calls to Iris.End()", 2)
+    end
+    Internal._IDStack[Internal._stackIndex] = nil
+    Internal._stackIndex -= 1
+end
+
+--[[
+    ------------------------
+        [SECTION] Config
+    ------------------------
+]]
+
+--[=[
     @function ForceRefresh
     @within Iris
     Destroys and regenerates all instances used by Iris. useful if you want to propogate state changes.
@@ -39,7 +151,7 @@ Iris.Events = {}
     :::
 ]=]
 function Iris.ForceRefresh()
-    Iris._globalRefreshRequested = true
+    Internal._globalRefreshRequested = true
 end
 
 --[=[
@@ -55,7 +167,7 @@ end
 ]=]
 function Iris.UpdateGlobalConfig(deltaStyle: { [any]: any })
     for index, style in deltaStyle do
-        Iris._rootConfig[index] = style
+        Internal._rootConfig[index] = style
     end
     Iris.ForceRefresh()
 end
@@ -79,15 +191,16 @@ function Iris.PushConfig(deltaStyle: { [string]: any })
         ID:set(deltaStyle)
     else
         -- compare tables
-        if Iris._deepCompare(ID:get(), deltaStyle) == false then
+        if Internal._deepCompare(ID:get(), deltaStyle) == false then
             -- refresh local
-            Iris._localRefreshActive = true
+            Internal._localRefreshActive = true
             ID:set(deltaStyle)
         end
     end
-    Iris._config = setmetatable(deltaStyle, {
-        __index = Iris._config,
-    })
+
+    Internal._config = setmetatable(deltaStyle, {
+        __index = Internal._config,
+    }) :: any
 end
 
 --[=[
@@ -97,9 +210,54 @@ end
     Each call to [Iris.PushConfig] must be paired with a call to Iris.PopConfig.
 ]=]
 function Iris.PopConfig()
-    Iris._localRefreshActive = false
-    Iris._config = getmetatable(Iris._config).__index
+    Internal._localRefreshActive = false
+    Internal._config = getmetatable(Internal._config :: any).__index
 end
+
+--[=[
+    @within Iris
+    @prop TemplateConfig table
+    TemplateConfig provides a table of default styles and configurations which you may apply to your UI.
+]=]
+Iris.TemplateConfig = require(script.config)
+Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark) -- use colorDark and sizeDefault themes by default
+Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
+Iris.UpdateGlobalConfig(Iris.TemplateConfig.utilityDefault)
+Internal._globalRefreshRequested = false -- UpdatingGlobalConfig changes this to true, leads to Root being generated twice.
+
+--[=[
+    @within Iris
+    @function ShowDemoWindow
+    ShowDemoWindow is a function which creates a Demonstration window. this window contains many useful utilities for coders, and serves as a refrence for using each part of the library.
+    Ideally, the DemoWindow should always be available in your UI.
+]=]
+Iris.ShowDemoWindow = require(script.demoWindow)(Iris)
+
+--[[
+    --------------------
+        [SECTION] ID
+    --------------------
+]]
+
+function Iris.PushId(id: Types.ID)
+    assert(typeof(id) == "string", "API expected the ID to PushId to be a string.")
+
+    Internal._pushedId = tostring(id)
+end
+
+function Iris.PopId()
+    Internal._pushedId = nil
+end
+
+function Iris.SetNextWidgetID(id: Types.ID)
+    Internal._nextWidgetId = id
+end
+
+--[[
+    -----------------------
+        [SECTION] State
+    -----------------------
+]]
 
 --[=[
     @function State
@@ -131,17 +289,17 @@ end
     :::
 ]=]
 function Iris.State(initialValue: any): Types.State
-    local ID: Types.ID = Iris._getID(2)
-    if Iris._states[ID] then
-        return Iris._states[ID]
+    local ID: Types.ID = Internal._getID(2)
+    if Internal._states[ID] then
+        return Internal._states[ID]
     end
-    Iris._states[ID] = {
+    Internal._states[ID] = {
         value = initialValue,
         ConnectedWidgets = {},
         ConnectedFunctions = {},
-    }
-    setmetatable(Iris._states[ID], StateClass)
-    return Iris._states[ID]
+    } :: any
+    setmetatable(Internal._states[ID], Internal.StateClass)
+    return Internal._states[ID]
 end
 
 --[=[
@@ -151,21 +309,21 @@ end
     Constructs a new state object, subsequent ID calls will return the same object, except all widgets connected to the state are discarded, the state reverts to the passed initialValue
 ]=]
 function Iris.WeakState(initialValue: any): Types.State
-    local ID: Types.ID = Iris._getID(2)
-    if Iris._states[ID] then
-        if #Iris._states[ID].ConnectedWidgets == 0 then
-            Iris._states[ID] = nil
+    local ID: Types.ID = Internal._getID(2)
+    if Internal._states[ID] then
+        if #Internal._states[ID].ConnectedWidgets == 0 then
+            Internal._states[ID] = nil
         else
-            return Iris._states[ID]
+            return Internal._states[ID]
         end
     end
-    Iris._states[ID] = {
+    Internal._states[ID] = {
         value = initialValue,
         ConnectedWidgets = {},
         ConnectedFunctions = {},
-    }
-    setmetatable(Iris._states[ID], StateClass)
-    return Iris._states[ID]
+    } :: any
+    setmetatable(Internal._states[ID], Internal.StateClass)
+    return Internal._states[ID]
 end
 
 --[=[
@@ -184,139 +342,25 @@ end
     :::
 ]=]
 function Iris.ComputedState(firstState: Types.State, onChangeCallback: (firstState: any) -> any): Types.State
-    local ID: Types.ID = Iris._getID(2)
+    local ID: Types.ID = Internal._getID(2)
 
-    if Iris._states[ID] then
-        return Iris._states[ID]
+    if Internal._states[ID] then
+        return Internal._states[ID]
     else
-        Iris._states[ID] = {
+        Internal._states[ID] = {
             value = onChangeCallback(firstState.value),
             ConnectedWidgets = {},
             ConnectedFunctions = {},
-        }
+        } :: any
         firstState:onChange(function(newValue: any)
-            Iris._states[ID]:set(onChangeCallback(newValue))
+            Internal._states[ID]:set(onChangeCallback(newValue))
         end)
-        setmetatable(Iris._states[ID], StateClass)
-        return Iris._states[ID]
+        setmetatable(Internal._states[ID], Internal.StateClass)
+        return Internal._states[ID]
     end
 end
--- constructor which uses ID derived from a widget object
-
---[=[
-    @within Iris
-    @function Init
-    @param parentInstance Instance | nil -- instance which Iris will place UI in. defaults to [PlayerGui] if unspecified
-    @param eventConnection RBXScriptSignal | () -> {} | nil
-    @return Iris
-    Initializes Iris. May only be called once.
-]=]
-function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSignal | () -> {})?): Types.Iris
-    if parentInstance == nil then
-        -- coalesce to playerGui
-        parentInstance = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
-    end
-    if eventConnection == nil then
-        -- coalesce to Heartbeat
-        eventConnection = game:GetService("RunService").Heartbeat
-    end
-    Iris.parentInstance = parentInstance
-    assert(Iris._started == false, "Iris.Init can only be called once.")
-    Iris._started = true
-
-    Iris._generateRootInstance()
-    Iris._generateSelectionImageObject()
-    Iris._generateHoverOverlay()
-
-    task.spawn(function()
-        if typeof(eventConnection) == "function" then
-            while true do
-                eventConnection()
-                Iris._cycle()
-            end
-        elseif eventConnection ~= nil then
-            eventConnection:Connect(function()
-                Iris._cycle()
-            end)
-        end
-    end)
-
-    return Iris
-end
-
---[=[
-    @within Iris
-    @method Connect
-    @param callback function -- allows users to connect a function which will execute every Iris cycle, (cycle is determined by the callback or event passed to Iris.Init)
-]=]
-function Iris:Connect(callback: () -> {}) -- this uses method syntax for no reason.
-    if Iris._started == false then
-        warn("Iris:Connect() was called before calling Iris.Init(), the connected function will never run")
-    end
-    table.insert(Iris._connectedFunctions, callback)
-end
-
---[=[
-    @within Iris
-    @function Append
-    Allows the caller to insert any Roblox Instance into the current parent Widget.
-]=]
-function Iris.Append(userInstance: GuiObject)
-    local parentWidget: Types.Widget = Iris._GetParentWidget()
-    local widgetInstanceParent: GuiObject
-    if Iris._config.Parent then
-        widgetInstanceParent = Iris._config.Parent
-    else
-        widgetInstanceParent = Iris._widgets[parentWidget.type].ChildAdded(parentWidget, { type = "userInstance" })
-    end
-    userInstance.Parent = widgetInstanceParent
-end
-
---[=[
-    @within Iris
-    @function End
-    This function marks the end of any widgets which contain children. For example:
-    ```lua
-    -- Widgets placed here **will not** be inside the tree
-    Iris.Tree({"My First Tree"})
-        -- Widgets placed here **will** be inside the tree
-    Iris.End()
-    -- Widgets placed here **will not** be inside the tree
-    ```
-    :::caution Caution: Error
-    Seeing the error `Callback has too few calls to Iris.End()` or `Callback has too many calls to Iris.End()`?
-    Using the wrong amount of `Iris.End()` calls in your code will lead to an error. Each widget called which might have children should be paired with a call to `Iris.End()`, **Even if the Widget doesnt currently have any children**.
-    :::
-]=]
-function Iris.End()
-    if Iris._stackIndex == 1 then
-        error("Callback has too many calls to Iris.End()", 2)
-    end
-    Iris._IDStack[Iris._stackIndex] = nil
-    Iris._stackIndex -= 1
-end
-
---[=[
-    @within Iris
-    @prop TemplateConfig table
-    TemplateConfig provides a table of default styles and configurations which you may apply to your UI.
-]=]
-Iris.TemplateConfig = require(script.config)
-Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark) -- use colorDark and sizeDefault themes by default
-Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
-Iris.UpdateGlobalConfig(Iris.TemplateConfig.utilityDefault)
-Iris._globalRefreshRequested = false -- UpdatingGlobalConfig changes this to true, leads to Root being generated twice.
-
---[=[
-    @within Iris
-    @function ShowDemoWindow
-    ShowDemoWindow is a function which creates a Demonstration window. this window contains many useful utilities for coders, and serves as a refrence for using each part of the library.
-    Ideally, the DemoWindow should always be available in your UI.
-]=]
-Iris.ShowDemoWindow = require(script.demoWindow)(Iris)
 
 require(script.widgets)(Iris)
-
 require(script.API)(Iris)
 
 return Iris

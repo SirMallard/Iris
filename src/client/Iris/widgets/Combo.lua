@@ -1,6 +1,6 @@
 local Types = require(script.Parent.Parent.Types)
 
-return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
+return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local function onSelectionChange(thisWidget)
         if type(thisWidget.state.index.value) == "boolean" then
             thisWidget.state.index:set(not thisWidget.state.index.value)
@@ -349,7 +349,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             local ChildContainerUIListLayout = widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
             ChildContainerUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 
-            local RootPopupScreenGui = Iris._rootInstance:WaitForChild("PopupScreenGui")
+            local RootPopupScreenGui = Iris._rootInstance and Iris._rootInstance:WaitForChild("PopupScreenGui")
             ChildContainer.Parent = RootPopupScreenGui
             thisWidget.ChildContainer = ChildContainer
 
@@ -450,38 +450,4 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             widgets.discardState(thisWidget)
         end,
     } :: Types.WidgetClass)
-
-    Iris.ComboArray = function(args, state, SelectionArray)
-        local defaultState
-        if state == nil then
-            defaultState = Iris.State(SelectionArray[1])
-        else
-            defaultState = state
-        end
-        local thisWidget = Iris._Insert("Combo", args, defaultState)
-        local sharedIndex: Types.State = thisWidget.state.index
-        for _, Selection in SelectionArray do
-            Iris._Insert("Selectable", { Selection, Selection }, { index = sharedIndex } :: Types.States)
-        end
-        Iris.End()
-
-        return thisWidget
-    end
-
-    Iris.InputEnum = function(args, state, enumType)
-        local defaultState
-        if state == nil then
-            defaultState = Iris.State(enumType[1])
-        else
-            defaultState = state
-        end
-        local thisWidget = Iris._Insert("Combo", args, defaultState)
-        local sharedIndex = thisWidget.state.index
-        for _, Selection in enumType:GetEnumItems() do
-            Iris._Insert("Selectable", { Selection.Name, Selection }, { index = sharedIndex } :: Types.States)
-        end
-        Iris.End()
-
-        return thisWidget
-    end
 end

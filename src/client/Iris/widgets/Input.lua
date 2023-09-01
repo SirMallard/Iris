@@ -1,6 +1,6 @@
 local Types = require(script.Parent.Parent.Types)
 
-return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
+return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local numberChanged = {
         ["Init"] = function(_thisWidget: Types.Widget) end,
         ["Get"] = function(thisWidget: Types.Widget)

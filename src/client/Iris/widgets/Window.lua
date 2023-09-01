@@ -1,6 +1,6 @@
 local Types = require(script.Parent.Parent.Types)
 
-return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
+return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local function relocateTooltips()
         if Iris._rootInstance == nil then
             return
@@ -159,7 +159,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         )
     end
 
-    Iris.SetFocusedWindow = function(thisWidget: { [any]: any } | nil)
+    Iris.SetFocusedWindow = function(thisWidget: Types.Widget?)
         if focusedWindow == thisWidget then
             return
         end
