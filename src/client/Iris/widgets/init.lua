@@ -332,19 +332,9 @@ return function(Iris: Types.Iris)
                     local hoveredGuiObject: GuiObject = pathToHovered(thisWidget)
                     hoveredGuiObject.MouseEnter:Connect(function()
                         thisWidget.isHoveredEvent = true
-                        if Iris._debug.HoverOverlayEnabled then
-                            local position: Vector2 = thisWidget.Instance.AbsolutePosition
-                            local size: Vector2 = thisWidget.Instance.AbsoluteSize
-                            Iris._debug.HoverOverlayInstance.Position = UDim2.fromOffset(position.X, position.Y)
-                            Iris._debug.HoverOverlayInstance.Size = UDim2.fromOffset(size.X, size.Y)
-                            Iris._debug.HoverOverlayInstance.Visible = true
-                        end
                     end)
                     hoveredGuiObject.MouseLeave:Connect(function()
                         thisWidget.isHoveredEvent = false
-                        if Iris._debug.HoverOverlayEnabled then
-                            Iris._debug.HoverOverlayInstance.Visible = false
-                        end
                     end)
                     thisWidget.isHoveredEvent = false
                 end,

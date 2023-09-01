@@ -1,7 +1,7 @@
 local Types = require(script.Parent.Parent.Types)
 
 return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
-    local abstractText = {
+    Iris.WidgetConstructor("Text", {
         hasState = false,
         hasChildren = false,
         Args = {
@@ -50,9 +50,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         Discard = function(thisWidget: Types.Widget)
             thisWidget.Instance:Destroy()
         end,
-    } :: Types.WidgetClass
-
-    Iris.WidgetConstructor("Text", abstractText)
+    } :: Types.WidgetClass)
 
     Iris.WidgetConstructor("SeparatorText", {
         hasState = false,

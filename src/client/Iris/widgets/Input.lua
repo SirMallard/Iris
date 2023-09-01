@@ -52,6 +52,16 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             elseif index == 3 then
                 return color[3]
             end
+        elseif typeof(value) == "Rect" then
+            if index == 1 then
+                return value.Min.X
+            elseif index == 2 then
+                return value.Min.Y
+            elseif index == 3 then
+                return value.Max.X
+            elseif index == 4 then
+                return value.Max.Y
+            end
         elseif typeof(value) == "table" then
             return value[index]
         end
@@ -94,6 +104,16 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             elseif index == 4 then
                 return UDim2.new(value.X, UDim.new(value.Y.Scale, newValue))
             end
+        elseif typeof(value) == "Rect" then
+            if index == 1 then
+                return Rect.new(Vector2.new(newValue, value.Min.Y), value.Max)
+            elseif index == 2 then
+                return Rect.new(Vector2.new(value.Min.X, newValue), value.Max)
+            elseif index == 3 then
+                return Rect.new(value.Min, Vector2.new(newValue, value.Max.Y))
+            elseif index == 4 then
+                return Rect.new(value.Min, Vector2.new(value.Max.X, newValue))
+            end
         elseif typeof(value) == "Color3" then
             if arguments.UseHSV then
                 local h: number, s: number, v: number = value:ToHSV()
@@ -125,6 +145,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         UDim2 = { 0.01, 1, 0.01, 1 },
         Color3 = { 1, 1, 1 },
         Color4 = { 1, 1, 1, 1 },
+        Rect = { 1, 1, 1, 1 },
     }
 
     local defaultMin: { [Types.InputDataTypes]: { number } } = {
@@ -133,6 +154,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         Vector3 = { 0, 0, 0 },
         UDim = { 0, 0 },
         UDim2 = { 0, 0, 0, 0 },
+        Rect = { 0, 0, 0, 0 },
     }
 
     local defaultMax: { [Types.InputDataTypes]: { number } } = {
@@ -141,6 +163,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         Vector3 = { 100, 100, 100 },
         UDim = { 1, 960 },
         UDim2 = { 1, 960, 1, 960 },
+        Rect = { 960, 960, 960, 960 },
     }
 
     local defaultPrefx: { [Types.InputDataTypes]: { string } } = {
@@ -153,6 +176,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
         Color3_HSV = { "H: ", "S: ", "V: " },
         Color4_RGB = { "R: ", "G: ", "B: ", "T: " },
         Color4_HSV = { "H: ", "S: ", "V: ", "T: " },
+        Rect = { "X: ", "Y: ", "X: ", "Y: " },
     }
 
     --[[
@@ -1171,12 +1195,14 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
     Iris.WidgetConstructor("InputVector3", generateInputScalar("Vector3", 3, Vector3.zero))
     Iris.WidgetConstructor("InputUDim", generateInputScalar("UDim", 2, UDim.new()))
     Iris.WidgetConstructor("InputUDim2", generateInputScalar("UDim2", 4, UDim2.new()))
+    Iris.WidgetConstructor("InputRect", generateInputScalar("Rect", 4, Rect.new(0, 0, 0, 0)))
 
     Iris.WidgetConstructor("DragNum", generateDragScalar("Num", 1, 0))
     Iris.WidgetConstructor("DragVector2", generateDragScalar("Vector2", 2, Vector2.zero))
     Iris.WidgetConstructor("DragVector3", generateDragScalar("Vector3", 3, Vector3.zero))
     Iris.WidgetConstructor("DragUDim", generateDragScalar("UDim", 2, UDim.new()))
     Iris.WidgetConstructor("DragUDim2", generateDragScalar("UDim2", 4, UDim2.new()))
+    Iris.WidgetConstructor("DragRect", generateDragScalar("Rect", 4, Rect.new(0, 0, 0, 0)))
 
     Iris.WidgetConstructor("InputColor3", generateColorDragScalar("Color3", Color3.fromRGB(0, 0, 0)))
     Iris.WidgetConstructor("InputColor4", generateColorDragScalar("Color4", Color3.fromRGB(0, 0, 0), 0))
@@ -1186,6 +1212,7 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
     Iris.WidgetConstructor("SliderVector3", generateSliderScalar("Vector3", 3, Vector3.zero))
     Iris.WidgetConstructor("SliderUDim", generateSliderScalar("UDim", 2, UDim.new()))
     Iris.WidgetConstructor("SliderUDim2", generateSliderScalar("UDim2", 4, UDim2.new()))
+    Iris.WidgetConstructor("SliderRect", generateSliderScalar("Rect", 4, Rect.new(0, 0, 0, 0)))
     Iris.WidgetConstructor("SliderEnum", generateSliderScalar("Enum", 4, 0))
 
     Iris.WidgetConstructor("InputText", {

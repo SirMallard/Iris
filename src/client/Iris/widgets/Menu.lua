@@ -41,7 +41,6 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
             end
         end
 
-        print(menuPosition.Y + containerSize.Y, screenSize.Y)
         if menuPosition.Y + containerSize.Y > screenSize.Y then
             print("Too low.")
             y = menuPosition.Y - borderSize - containerSize.Y + (submenu and menuSize.Y or 0)
@@ -171,6 +170,8 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 Overlay.Size = UDim2.fromScale(1, 1)
                 Overlay.BackgroundTransparency = 1
                 Overlay.BorderSizePixel = 0
+                Overlay.ZIndex = thisWidget.ZIndex + 1
+                Overlay.LayoutOrder = thisWidget.ZIndex + 1
 
                 widgets.UIPadding(Overlay, Iris._config.FramePadding)
                 widgets.UIListLayout(Overlay, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
@@ -209,8 +210,8 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 Icon.ImageColor3 = Iris._config.TextColor
                 Icon.ImageTransparency = Iris._config.TextTransparency
                 Icon.Image = widgets.ICONS.RIGHT_POINTING_TRIANGLE
-                Icon.ZIndex = thisWidget.ZIndex + 4
-                Icon.LayoutOrder = thisWidget.ZIndex + 4
+                Icon.ZIndex = thisWidget.ZIndex + 3
+                Icon.LayoutOrder = thisWidget.ZIndex + 3
 
                 Icon.Parent = Overlay
                 Overlay.Parent = Menu
@@ -415,6 +416,17 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 EmptyMenuStack()
             end)
 
+            MenuItem.MouseEnter:Connect(function()
+                local parentMenu: Types.Widget = thisWidget.parentWidget
+                if AnyMenuOpen and ActiveMenu and ActiveMenu ~= parentMenu then
+                    local parentIndex: number? = table.find(MenuStack, parentMenu)
+
+                    EmptyMenuStack(parentIndex)
+                    ActiveMenu = parentMenu
+                    AnyMenuOpen = true
+                end
+            end)
+
             local TextLabel: TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
             TextLabel.AnchorPoint = Vector2.new(0, 0)
@@ -513,6 +525,17 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
                 local wasChecked: boolean = thisWidget.state.isChecked.value
                 thisWidget.state.isChecked:set(not wasChecked)
                 EmptyMenuStack()
+            end)
+
+            MenuItem.MouseEnter:Connect(function()
+                local parentMenu: Types.Widget = thisWidget.parentWidget
+                if AnyMenuOpen and ActiveMenu and ActiveMenu ~= parentMenu then
+                    local parentIndex: number? = table.find(MenuStack, parentMenu)
+
+                    EmptyMenuStack(parentIndex)
+                    ActiveMenu = parentMenu
+                    AnyMenuOpen = true
+                end
             end)
 
             local TextLabel: TextLabel = Instance.new("TextLabel")

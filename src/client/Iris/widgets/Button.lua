@@ -75,11 +75,11 @@ return function(Iris: Types.Iris, widgets: Types.WidgetUtility)
     Iris.WidgetConstructor(
         "SmallButton",
         widgets.extend(abstractButton, {
-            Generate = function(thisWidget): TextButton
+            Generate = function(thisWidget: Types.Widget): TextButton
                 local SmallButton = abstractButton.Generate(thisWidget) :: TextButton
                 SmallButton.Name = "Iris_SmallButton"
 
-                local uiPadding = SmallButton.UIPadding :: UIPadding
+                local uiPadding: UIPadding = SmallButton.UIPadding
                 uiPadding.PaddingLeft = UDim.new(0, 2)
                 uiPadding.PaddingRight = UDim.new(0, 2)
                 uiPadding.PaddingTop = UDim.new(0, 0)
