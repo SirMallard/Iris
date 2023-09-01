@@ -278,7 +278,7 @@ export type Internal = {
 
         get: (self: State) -> any,
         set: (self: State, newValue: any) -> any,
-        onChange: (self: State, callback: () -> ()) -> (),
+        onChange: (self: State, callback: (newValue: any) -> ()) -> (),
     },
 
     --[[

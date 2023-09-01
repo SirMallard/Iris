@@ -20,20 +20,36 @@ return function(Iris: Types.Iris)
         =============================================================
     ]]
 
-    --[=[
-        @class Widgets
-        Every constructable widget through Iris
-    ]=]
-
     --[[
         ----------------------------
             [SECTION] Window API
         ----------------------------
     ]]
+    --[=[
+        @class Window
+        
+        Windows are the fundamental widget for Iris. Every other widget must be a descendant of a window.
+
+        ```lua
+        Iris.Window({ "Example Window" })
+            Iris.Text({ "This is an example window!" })
+        Iris.End()
+        ```
+
+        If you do not want the code inside a window to run unless it is open then you can use the following:
+        ```lua
+        local window = Iris.Window({ "Many Widgets Window" })
+
+        if window.state.isOpened.value and window.state.isUncollapsed.value then
+            Iris.Text({ "I will only be created when the window is open." })
+        end
+        Iris.End() -- must always call `Iris.End()`, regardless of whether the window is open or not.
+        ```
+    ]=]
 
     --[=[
         @prop Window Iris.Window
-        @within Widgets
+        @within Window
         @tag Widget
         @tag HasChildren
         @tag HasState
@@ -80,6 +96,10 @@ return function(Iris: Types.Iris)
             [SECTION] Menu Widget API
         ---------------------------------
     ]]
+    --[=[
+        @class Menu
+        Menu API
+    ]=]
 
     Iris.MenuBar = wrapper("MenuBar")
     Iris.Menu = wrapper("Menu")
@@ -91,6 +111,10 @@ return function(Iris: Types.Iris)
             [SECTION] Format Widget Iris
         -----------------------------------
     ]]
+    --[=[
+        @class Format
+        Format API
+    ]=]
 
     Iris.Separator = wrapper("Separator")
     Iris.Indent = wrapper("Indent")
@@ -102,10 +126,14 @@ return function(Iris: Types.Iris)
             [SECTION] Text Widget API
         ---------------------------------
     ]]
+    --[=[
+        @class Text
+        Text Widget API
+    ]=]
 
     --[=[
         @prop Text Iris.Text
-        @within Widgets
+        @within Text
         @tag Widget
         
         A text label to display the text argument.
@@ -129,7 +157,7 @@ return function(Iris: Types.Iris)
 
     --[=[
         @prop TextWrapped Iris.Text
-        @within Widgets
+        @within Text
         @tag Widget
         
         An alias for `Iris.Text` with the Wrapped argument set to true, and the text will wrap around if cut off by its parent.
@@ -152,7 +180,7 @@ return function(Iris: Types.Iris)
 
     --[=[
         @prop TextColored Iris.Text
-        @within Widgets
+        @within Text
         @tag Widget
         
         An alias for `Iris.Text` with the color set by the Color argument.
@@ -182,10 +210,14 @@ return function(Iris: Types.Iris)
             [SECTION] Basic Widget API
         ----------------------------------
     ]]
+    --[=[
+        @class Basic
+        Basic Widget API
+    ]=]
 
     --[=[
         @prop Button Iris.Button
-        @within Widgets
+        @within Basic
         @tag Widget
         
         A clickable button the size of the text with padding. Can listen to the `clicked()` event to determine if it was pressed.
@@ -209,7 +241,7 @@ return function(Iris: Types.Iris)
 
     --[=[
         @prop SmallButton Iris.SmallButton
-        @within Widgets
+        @within Basic
         @tag Widget
         
         A smaller clickable button, the same as a `Iris.Button` but without padding. Can listen to the `clicked()` event to determine if it was pressed.
@@ -233,7 +265,7 @@ return function(Iris: Types.Iris)
 
     --[=[
         @prop Checkbox Iris.Checkbox
-        @within Widgets
+        @within Basic
         @tag Widget
         @tag HasState
         
@@ -259,7 +291,7 @@ return function(Iris: Types.Iris)
 
     --[=[
         @prop RadioButton Iris.RadioButton
-        @within Widgets
+        @within Basic
         @tag Widget
         @tag HasState
         
@@ -290,10 +322,14 @@ return function(Iris: Types.Iris)
             [SECTION] Tree Widget API
         ---------------------------------
     ]]
+    --[=[
+        @class Tree
+        Tree Widget API
+    ]=]
 
     --[=[
         @prop Tree Iris.Tree
-        @within Widgets
+        @within Tree
         @tag Widget
         @tag HasChildren
         @tag HasState
@@ -322,7 +358,7 @@ return function(Iris: Types.Iris)
 
     --[=[
         @prop CollapsingHeader Iris.CollapsingHeader
-        @within Widgets
+        @within Tree
         @tag Widget
         @tag HasChildren
         @tag HasState
@@ -352,6 +388,10 @@ return function(Iris: Types.Iris)
             [SECTION] Input Widget API
         ----------------------------------
     ]]
+    --[=[
+        @class Input
+        Input Widget API
+    ]=]
 
     Iris.InputNum = wrapper("InputNum")
     Iris.InputVector2 = wrapper("InputVector2")
@@ -367,6 +407,10 @@ return function(Iris: Types.Iris)
             [SECTION] Drag Widget API
         ---------------------------------
     ]]
+    --[=[
+        @class Drag
+        Drag Widget API
+    ]=]
 
     Iris.DragNum = wrapper("DragNum")
     Iris.DragVector2 = wrapper("DragVector2")
@@ -380,6 +424,10 @@ return function(Iris: Types.Iris)
             [SECTION] Slider Widget API
         -----------------------------------
     ]]
+    --[=[
+        @class Slider
+        Slider Widget API
+    ]=]
 
     Iris.SliderNum = wrapper("SliderNum")
     Iris.SliderVector2 = wrapper("SliderVector2")
@@ -394,6 +442,10 @@ return function(Iris: Types.Iris)
             [SECTION] Other Input Widget API
         ----------------------------------------
     ]]
+    --[=[
+        @class Other Input
+        Other Input Widget API
+    ]=]
 
     Iris.InputText = wrapper("InputText")
     Iris.InputEnum = wrapper("InputEnum")
@@ -403,6 +455,10 @@ return function(Iris: Types.Iris)
             [SECTION] Combo Widget API
         ----------------------------------
     ]]
+    --[=[
+        @class Combo
+        Combo Widget API
+    ]=]
 
     Iris.Selectable = wrapper("Selectable")
     Iris.Combo = wrapper("Combo")
@@ -414,6 +470,10 @@ return function(Iris: Types.Iris)
             [SECTION] Table Widget API
         ----------------------------------
     ]]
+    --[=[
+        @class Table
+        Table Widget API
+    ]=]
 
     Iris.Table = wrapper("Table")
 
