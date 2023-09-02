@@ -375,7 +375,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Text = 1,
             KeyCode = 2,
             ModifierKey = 3,
-            Disabled = 4,
         },
         Events = {
             ["clicked"] = widgets.EVENTS.click(function(thisWidget: Types.Widget)
@@ -383,9 +382,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end),
             ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
                 return thisWidget.Instance
-            end),
-            ["shortcut"] = widgets.EVENTS.shortcut(function(thisWidget: Types.Widget)
-                return thisWidget.arguments.KeyCode, thisWidget.arguments.ModifierKey
             end),
         },
         Generate = function(thisWidget: Types.Widget)
@@ -481,7 +477,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Text = 1,
             KeyCode = 2,
             ModifierKey = 3,
-            Disabled = 4,
         },
         Events = {
             ["checked"] = {
@@ -496,6 +491,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     return thisWidget.lastUncheckedTick == Iris._cycleTick
                 end,
             },
+            ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
+                return thisWidget.Instance
+            end),
         },
         Generate = function(thisWidget: Types.Widget)
             local MenuItem: TextButton = Instance.new("TextButton")

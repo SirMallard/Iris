@@ -98,7 +98,6 @@ export type Widget = {
     ChildContainer: GuiObject,
     arguments: Arguments,
     providedArguments: Arguments,
-
     ZIndex: number,
 
     trackedEvents: {},
@@ -414,7 +413,7 @@ export type Iris = {
         -------------
     ]]
 
-    Init: (playerInstance: BasePlayerGui?, eventConnection: (RBXScriptConnection | () -> {})?) -> Iris,
+    Init: (playerInstance: BasePlayerGui?, eventConnection: (RBXScriptConnection | () -> ())?) -> Iris,
     Connect: (callback: () -> ()) -> (),
     Append: (userInstance: GuiObject) -> (),
     ForceRefresh: () -> (),
