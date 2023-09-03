@@ -251,19 +251,6 @@ Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
 Iris.UpdateGlobalConfig(Iris.TemplateConfig.utilityDefault)
 Internal._globalRefreshRequested = false -- UpdatingGlobalConfig changes this to true, leads to Root being generated twice.
 
---[=[
-    @function ShowDemoWindow
-    @within Iris
-
-    ShowDemoWindow is a function which creates a Demonstration window. this window contains many useful utilities for coders,
-    and serves as a refrence for using each part of the library. Ideally, the DemoWindow should always be available in your UI.
-    It is the same as any other callback you would connect to Iris using [Iris.Connect]
-    ```lua
-    Iris:Connect(Iris.ShowDemoWindow)
-    ```
-]=]
-Iris.ShowDemoWindow = require(script.demoWindow)(Iris)
-
 --[[
     --------------------
         [SECTION] ID
@@ -429,7 +416,20 @@ function Iris.ComputedState(firstState: Types.State, onChangeCallback: (firstSta
     end
 end
 
-require(script.widgets)(Iris)
+--[=[
+    @function ShowDemoWindow
+    @within Iris
+
+    ShowDemoWindow is a function which creates a Demonstration window. this window contains many useful utilities for coders,
+    and serves as a refrence for using each part of the library. Ideally, the DemoWindow should always be available in your UI.
+    It is the same as any other callback you would connect to Iris using [Iris.Connect]
+    ```lua
+    Iris:Connect(Iris.ShowDemoWindow)
+    ```
+]=]
+Iris.ShowDemoWindow = require(script.demoWindow)(Iris)
+
+require(script.widgets)(Internal)
 require(script.API)(Iris)
 
 return Iris

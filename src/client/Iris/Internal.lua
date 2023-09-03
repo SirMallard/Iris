@@ -94,10 +94,6 @@ return function(Iris: Types.Iris): Types.Internal
         end
     end)
 
-    -- VDOM
-    Internal._lastVDOM = Internal._generateEmptyVDOM()
-    Internal._VDOM = Internal._generateEmptyVDOM()
-
     --[[
         -----------------------
             [SECTION] State
@@ -191,13 +187,13 @@ return function(Iris: Types.Iris): Types.Internal
     ]=]
     function Internal._cycle()
         debug.profilebegin("Iris/Cycle")
-        if Internal.Disabled then
+        if Iris.Disabled then
             return -- Stops all rendering, effectively freezes the current frame with no interaction.
         end
 
         Internal._rootWidget.lastCycleTick = Internal._cycleTick
         if Internal._rootInstance == nil or Internal._rootInstance.Parent == nil then
-            Internal.ForceRefresh()
+            Iris.ForceRefresh()
         end
 
         for _, widget: Types.Widget in Internal._lastVDOM do
@@ -388,8 +384,8 @@ return function(Iris: Types.Iris): Types.Internal
         thisWidget.ArgNames = ArgNames
 
         for index: string, _ in thisWidget.Events do
-            if Internal.Events[index] == nil then
-                Internal.Events[index] = function()
+            if Iris.Events[index] == nil then
+                Iris.Events[index] = function()
                     return Internal._EventCall(Internal._lastWidget, index)
                 end
             end
@@ -811,6 +807,11 @@ return function(Iris: Types.Iris): Types.Internal
         return copy
     end
 
+    -- VDOM
+    Internal._lastVDOM = Internal._generateEmptyVDOM()
+    Internal._VDOM = Internal._generateEmptyVDOM()
+
     Iris.Internal = Internal
+    Iris._config = Internal._config
     return Internal
 end

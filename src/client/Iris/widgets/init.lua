@@ -90,6 +90,8 @@ return function(Iris: Types.Internal)
         UIStrokeInstance.Thickness = Thickness
         UIStrokeInstance.Color = Color
         UIStrokeInstance.Transparency = Transparency
+        UIStrokeInstance.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+        UIStrokeInstance.LineJoinMode = Enum.LineJoinMode.Round
         UIStrokeInstance.Parent = Parent
         return UIStrokeInstance
     end

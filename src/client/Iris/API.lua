@@ -296,7 +296,7 @@ return function(Iris: Types.Iris)
         }
         ```
     ]=]
-    Iris.Sameline = wrapper("Sameline")
+    Iris.SameLine = wrapper("SameLine")
 
     --[=[
         @prop Group Iris.Group
@@ -414,6 +414,32 @@ return function(Iris: Types.Iris)
         ```
     ]=]
     Iris.SeparatorText = wrapper("SeparatorText")
+
+    --[=[
+        @prop InputText Iris.InputText
+        @within Text
+        @tag Widget
+        @tag HasState
+
+        A field which allows the user to enter text.        
+        
+        ```lua
+        hasChildren = false
+        hasState = true
+        Arguments = {
+            Text: string? = "InputText",
+            TextHint: string? = "" -- a hint to display when the text box is empty.
+        }
+        Events = {
+            textChanged: () -> boolean, -- whenever the textbox looses focus and a change was made.
+            hovered: () -> boolean
+        }
+        States = {
+            text: State<string>?
+        }
+        ```
+    ]=]
+    Iris.InputText = wrapper("InputText")
 
     --[[
         ----------------------------------
@@ -601,6 +627,23 @@ return function(Iris: Types.Iris)
     --[=[
         @class Input
         Input Widget API
+
+        Input Widgets are textboxes for typing in specific number values. See [Drag], [Slider] or [Other Input] for more input types.
+
+        Iris provides a set of specific inputs for the datatypes:
+        Number,
+        [Vector2](https://create.roblox.com/docs/reference/engine/datatypes/Vector2),
+        [Vector3](https://create.roblox.com/docs/reference/engine/datatypes/Vector3),
+        [UDim](https://create.roblox.com/docs/reference/engine/datatypes/UDim),
+        [UDim2](https://create.roblox.com/docs/reference/engine/datatypes/UDim2),
+        [Rect](https://create.roblox.com/docs/reference/engine/datatypes/Rect),
+        [Color3](https://create.roblox.com/docs/reference/engine/datatypes/Color3)
+        and the custom [Color4](https://create.roblox.com/docs/reference/engine/datatypes/Color3).
+        
+        Each Input widget has the same arguments:
+        1. Text: string? = "Input{type}" -- the text to be displayed to the right of the textbox.
+        2. Increment: number? = nil, -- the increment argument determines how a value will be rounded once the textbox looses focus.
+        
     ]=]
 
     --[=[
@@ -609,13 +652,15 @@ return function(Iris: Types.Iris)
         @tag Widget
         @tag HasState
         
+        An input box for numbers. The numbers can be either integers or floats and is determined by the Increment,
+        and Min, Max arguments.
         
         ```lua
         hasChildren = false
         hasState = true
         Arguments = {
             Text: string? = "InputNum",
-            Increment: number? = nil, -- determines whether
+            Increment: number? = nil,
             Min: number? = nil,
             Max: number? = nil,
             Format: string? | { string }? = "%d" or "%.{}f", -- Iris will dynamically generate an approriate format.
@@ -708,62 +753,6 @@ return function(Iris: Types.Iris)
     Iris.SliderEnum = wrapper("SliderEnum")
 
     --[[
-        ----------------------------------------
-            [SECTION] Other Input Widget API
-        ----------------------------------------
-    ]]
-    --[=[
-        @class Other Input
-        Other Input Widget API
-    ]=]
-
-    --[=[
-        @prop InputText Iris.InputText
-        @within Other Input
-        @tag Widget
-        @tag HasState
-
-        A field which allows the user to enter text.        
-        
-        ```lua
-        hasChildren = false
-        hasState = true
-        Arguments = {
-            Text: string? = "InputText",
-            TextHint: string? = "" -- a hint to display when the text box is empty.
-        }
-        Events = {
-            textChanged: () -> boolean, -- whenever the textbox looses focus and a change was made.
-            hovered: () -> boolean
-        }
-        States = {
-            text: State<string>?
-        }
-        ```
-    ]=]
-    Iris.InputText = wrapper("InputText")
-
-    --[=[
-        @unreleased
-        @prop InputEnum Iris.InputEnum
-        @within Other Input
-        @tag Widget
-        @tag HasState
-        
-        ```lua
-        hasChildren = false
-        hasState = true
-        Arguments = {
-        }
-        Events = {
-        }
-        States = {
-        }
-        ```
-    ]=]
-    Iris.InputEnum = wrapper("InputEnum")
-
-    --[[
         ----------------------------------
             [SECTION] Combo Widget API
         ----------------------------------
@@ -785,10 +774,22 @@ return function(Iris: Types.Iris)
         hasChildren = false
         hasState = true
         Arguments = {
+            Text: string,
+            Index: any, -- index of selectable value.
+            NoClick: boolean? = false -- prevents the selectable from being clicked by the user.
         }
         Events = {
+            selected: () -> boolean,
+            unselected: () -> boolean,
+            active: () -> boolean,
+            clicked: () -> boolean,
+            rightClicked: () -> boolean,
+            doubleClicked: () -> boolean,
+            ctrlClicked: () -> boolean,
+            hovered: () -> boolean,
         }
         States = {
+            index: State<any> -- a shared state between all selectables.
         }
         ```
     ]=]
@@ -801,15 +802,25 @@ return function(Iris: Types.Iris)
         @tag HasChildren
         @tag HasState
         
+        A selection box to choose a value from a range of values.
         
         ```lua
         hasChildren = true
         hasState = true
         Arguments = {
+            Text: string,
+            NoButton: boolean? = false, -- hide the dropdown button.
+            NoPreview: boolean? = false -- hide the preview field.
         }
         Events = {
+            opened: () -> boolean,
+            clsoed: () -> boolean,
+            clicked: () -> boolean,
+            hovered: () -> boolean
         }
         States = {
+            index: State<any>,
+            isOpened: State<boolean>?
         }
         ```
     ]=]
@@ -822,28 +833,41 @@ return function(Iris: Types.Iris)
         @tag HasChildren
         @tag HasState
         
+        A selection box to choose a value from an array.
         
         ```lua
         hasChildren = true
         hasState = true
         Arguments = {
+            Text: string,
+            NoButton: boolean? = false, -- hide the dropdown button.
+            NoPreview: boolean? = false -- hide the preview field.
         }
         Events = {
+            opened: () -> boolean,
+            clsoed: () -> boolean,
+            clicked: () -> boolean,
+            hovered: () -> boolean
         }
         States = {
+            index: State<any>,
+            isOpened: State<boolean>?
+        }
+        Extra = {
+            selectionArray: { any } -- the array to generate a combo from.
         }
         ```
     ]=]
-    Iris.ComboArray = function(args, state, SelectionArray)
+    Iris.ComboArray = function(arguments: Types.WidgetArguments, states: Types.WidgetStates?, selectionArray: { any })
         local defaultState
-        if state == nil then
-            defaultState = Iris.State(SelectionArray[1])
+        if states == nil then
+            defaultState = Iris.State(selectionArray[1])
         else
-            defaultState = state
+            defaultState = states
         end
-        local thisWidget = Iris.Internal._Insert("Combo", args, defaultState)
+        local thisWidget = Iris.Internal._Insert("Combo", arguments, defaultState)
         local sharedIndex: Types.State = thisWidget.state.index
-        for _, Selection in SelectionArray do
+        for _, Selection in selectionArray do
             Iris.Internal._Insert("Selectable", { Selection, Selection }, { index = sharedIndex } :: Types.States)
         end
         Iris.End()
@@ -858,27 +882,39 @@ return function(Iris: Types.Iris)
         @tag HasChildren
         @tag HasState
         
+        A selection box to choose a value from an Enum.
         
         ```lua
         hasChildren = true
         hasState = true
         Arguments = {
-            Title: string,
+            Text: string,
+            NoButton: boolean? = false, -- hide the dropdown button.
+            NoPreview: boolean? = false -- hide the preview field.
         }
         Events = {
+            opened: () -> boolean,
+            clsoed: () -> boolean,
+            clicked: () -> boolean,
+            hovered: () -> boolean
         }
         States = {
+            index: State<any>,
+            isOpened: State<boolean>?
+        }
+        Extra = {
+            enumType: Enum -- the enum to generate a combo from.
         }
         ```
     ]=]
-    Iris.ComboEnum = function(args, state, enumType)
+    Iris.ComboEnum = function(arguments: Types.WidgetArguments, states: Types.WidgetStates?, enumType: Enum)
         local defaultState
-        if state == nil then
+        if states == nil then
             defaultState = Iris.State(enumType[1])
         else
-            defaultState = state
+            defaultState = states
         end
-        local thisWidget = Iris.Internal._Insert("Combo", args, defaultState)
+        local thisWidget = Iris.Internal._Insert("Combo", arguments, defaultState)
         local sharedIndex = thisWidget.state.index
         for _, Selection in enumType:GetEnumItems() do
             Iris.Internal._Insert("Selectable", { Selection.Name, Selection }, { index = sharedIndex } :: Types.States)
@@ -887,6 +923,7 @@ return function(Iris: Types.Iris)
 
         return thisWidget
     end
+    Iris.InputEnum = Iris.ComboEnum
 
     --[[
         ----------------------------------

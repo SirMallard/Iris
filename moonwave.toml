@@ -20,7 +20,6 @@ classes = [
     "Input",
     "Drag",
     "Slider",
-    "Other Input",
     "Combo",
     "Table"
 ]

@@ -1,4 +1,6 @@
-return function(Iris)
+local Types = require(script.Parent.Types)
+
+return function(Iris: Types.Iris)
     local showMainWindow = Iris.State(true)
     local showRecursiveWindow = Iris.State(false)
     local showRuntimeInfo = Iris.State(false)
@@ -270,8 +272,8 @@ return function(Iris)
                     Iris.End()
                 Iris.End()
 
-                local InputEnum = Iris.InputEnum({ "Using InputEnum" }, { index = Enum.UserInputState.Begin }, Enum.UserInputState)
-                Iris.Text({ "Selected: " .. InputEnum.index:get().Name })
+                local ComboEnum = Iris.ComboEnum({ "Using ComboEnum" }, { index = Enum.UserInputState.Begin }, Enum.UserInputState)
+                Iris.Text({ "Selected: " .. ComboEnum.index:get().Name })
                 Iris.PopConfig()
             Iris.End()
         end,
@@ -298,8 +300,8 @@ return function(Iris)
     -- shows list of runtime widgets and states, including IDs. shows other info about runtime and can show widgets/state info in depth.
     local function runtimeInfo()
         local runtimeInfoWindow = Iris.Window({ "Runtime Info" }, { isOpened = showRuntimeInfo })
-            local lastVDOM = Iris._lastVDOM
-            local states = Iris._states
+            local lastVDOM = Iris.Internal._lastVDOM
+            local states = Iris.Internal._states
 
             local numSecondsDisabled = Iris.State(3)
             local rollingDT = Iris.State(0)
@@ -478,7 +480,7 @@ return function(Iris)
                             -- "TextFont"
                         }
                         for _, vEnum in Enums do
-                            local Input = Iris.InputEnum({ vEnum }, { index = Iris.WeakState(Iris._config[vEnum]) }, Iris._config[vEnum].EnumType)
+                            local Input = Iris.ComboEnum({ vEnum }, { index = Iris.WeakState(Iris._config[vEnum]) }, Iris._config[vEnum].EnumType)
                             if Input.closed() then
                                 Iris.UpdateGlobalConfig({ [vEnum] = Input.index:get() })
                             end
@@ -607,12 +609,14 @@ return function(Iris)
         Iris.RadioButton({ "ctrlClicked", "ctrlClicked" }, { index = selectedEvent })
         Iris.End()
         Iris.SameLine()
+
         if Iris.Button({ selectedEvent:get() .. " to reveal text" })[selectedEvent:get()]() then
             showEventText:set(not showEventText:get())
         end
         if showEventText:get() then
             Iris.Text({ "Here i am!" })
         end
+
         Iris.End()
 
         Iris.Separator()
@@ -800,7 +804,7 @@ return function(Iris)
         Iris.End()
         Iris.PushConfig({ ContentWidth = UDim.new(0, 150) })
         Iris.DragNum({ "number", 1, 0, 100 }, { number = value })
-        Iris.InputEnum({ "axis" }, { index = index }, Enum.Axis)
+        Iris.ComboEnum({ "axis" }, { index = index }, Enum.Axis)
         Iris.PopConfig()
 
         Iris.SameLine()
@@ -809,7 +813,7 @@ return function(Iris)
         Iris.End()
         Iris.PushConfig({ ContentWidth = UDim.new(0.5, 0) })
         Iris.DragNum({ "number", 1, 0, 100 }, { number = value })
-        Iris.InputEnum({ "axis" }, { index = index }, Enum.Axis)
+        Iris.ComboEnum({ "axis" }, { index = index }, Enum.Axis)
         Iris.PopConfig()
 
         Iris.SameLine()
@@ -831,9 +835,9 @@ return function(Iris)
         Iris.TextWrapped({ "Windowless widgets" })
         helpMarker("Widgets which are placed outside of a window will appear on the top left side of the screen.")
         Iris.End()
-        Iris.Button()
-        Iris.Tree()
-        Iris.InputText()
+        Iris.Button({})
+        Iris.Tree({})
+        Iris.InputText({})
         Iris.End()
         Iris.PopConfig()
     end
