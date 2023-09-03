@@ -2,20 +2,23 @@ local Types = require(script.Parent.Types)
 
 local widgets = {} :: Types.WidgetUtility
 
-return function(Iris: Types.Iris)
-
+return function(Iris: Types.Internal)
     widgets.GuiService = game:GetService("GuiService")
     widgets.RunService = game:GetService("RunService")
     widgets.UserInputService = game:GetService("UserInputService")
+    widgets.ContextActionService = game:GetService("ContextActionService")
+    widgets.TextService = game:GetService("TextService")
 
     widgets.ICONS = {
-        RIGHT_POINTING_TRIANGLE = "\u{25BA}",
-        DOWN_POINTING_TRIANGLE = "\u{25BC}",
-        MULTIPLICATION_SIGN = "\u{00D7}", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
+        RIGHT_POINTING_TRIANGLE = "rbxasset://textures/DeveloperFramework/button_arrow_right.png",
+        DOWN_POINTING_TRIANGLE = "rbxasset://textures/DeveloperFramework/button_arrow_down.png",
+        MULTIPLICATION_SIGN = "rbxasset://textures/AnimationEditor/icon_close.png", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
         BOTTOM_RIGHT_CORNER = "\u{25E2}", -- used in window resize icon in bottom right
         CHECK_MARK = "rbxasset://textures/AnimationEditor/icon_checkmark.png",
-        ALPHA_BACKGROUND_TEXTURE = "rbxasset://textures/meshPartFallback.png" -- used for color4 alpha
+        ALPHA_BACKGROUND_TEXTURE = "rbxasset://textures/meshPartFallback.png", -- used for color4 alpha
     }
+
+    widgets.GuiInset = widgets.GuiService:GetGuiInset()
 
     widgets.IS_STUDIO = widgets.RunService:IsStudio()
     function widgets.getTime()
@@ -27,13 +30,17 @@ return function(Iris: Types.Iris)
         end
     end
 
+    function widgets.getMouseLocation(): Vector2
+        return widgets.UserInputService:GetMouseLocation() - widgets.GuiInset
+    end
+
     function widgets.findBestWindowPosForPopup(refPos: Vector2, size: Vector2, outerMin: Vector2, outerMax: Vector2): Vector2
         local CURSOR_OFFSET_DIST: number = 20
-        
+
         if refPos.X + size.X + CURSOR_OFFSET_DIST > outerMax.X then
             if refPos.Y + size.Y + CURSOR_OFFSET_DIST > outerMax.Y then
                 -- placed to the top
-                refPos += Vector2.new(0, - (CURSOR_OFFSET_DIST + size.Y))
+                refPos += Vector2.new(0, -(CURSOR_OFFSET_DIST + size.Y))
             else
                 -- placed to the bottom
                 refPos += Vector2.new(0, CURSOR_OFFSET_DIST)
@@ -43,10 +50,7 @@ return function(Iris: Types.Iris)
             refPos += Vector2.new(CURSOR_OFFSET_DIST, 0)
         end
 
-        local clampedPos: Vector2 = Vector2.new(
-            math.max(math.min(refPos.X + size.X, outerMax.X) - size.X, outerMin.X),
-            math.max(math.min(refPos.Y + size.Y, outerMax.Y) - size.Y, outerMin.Y)
-        )
+        local clampedPos: Vector2 = Vector2.new(math.max(math.min(refPos.X + size.X, outerMax.X) - size.X, outerMin.X), math.max(math.min(refPos.Y + size.Y, outerMax.Y) - size.Y, outerMin.Y))
         return clampedPos
     end
 
@@ -90,14 +94,14 @@ return function(Iris: Types.Iris)
         return UIStrokeInstance
     end
 
-    function widgets.UICorner(Parent: GuiObject, PxRounding: number): UICorner
+    function widgets.UICorner(Parent: GuiObject, PxRounding: number?): UICorner
         local UICornerInstance: UICorner = Instance.new("UICorner")
         UICornerInstance.CornerRadius = UDim.new(PxRounding ~= nil and 0 or 1, PxRounding or 0)
         UICornerInstance.Parent = Parent
         return UICornerInstance
     end
 
-    function widgets.UISizeConstraint(Parent: GuiObject, MinSize: Vector2, MaxSize: Vector2): UISizeConstraint
+    function widgets.UISizeConstraint(Parent: GuiObject, MinSize: Vector2?, MaxSize: Vector2?): UISizeConstraint
         local UISizeConstraintInstance: UISizeConstraint = Instance.new("UISizeConstraint")
         UISizeConstraintInstance.MinSize = MinSize or UISizeConstraintInstance.MinSize -- made these optional
         UISizeConstraintInstance.MaxSize = MaxSize or UISizeConstraintInstance.MaxSize
@@ -105,10 +109,37 @@ return function(Iris: Types.Iris)
         return UISizeConstraintInstance
     end
 
+    function widgets.UIReference(Parent: GuiObject, Child: GuiObject, Name: string): ObjectValue
+        local ObjectValue: ObjectValue = Instance.new("ObjectValue")
+        ObjectValue.Name = Name
+        ObjectValue.Value = Child
+        ObjectValue.Parent = Parent
+
+        return ObjectValue
+    end
     -- below uses Iris
 
-    function widgets.applyTextStyle(thisInstance: TextLabel | TextButton | TextBox)
-        thisInstance.FontFace = Font.fromEnum(Iris._config.TextFont)
+    local textParams: GetTextBoundsParams = Instance.new("GetTextBoundsParams")
+    textParams.Font = Iris._config.TextFont
+    textParams.Size = Iris._config.TextSize
+    textParams.Width = math.huge
+    function widgets.calculateTextSize(text: string, width: number?): Vector2
+        if width then
+            textParams.Width = width
+        end
+        textParams.Text = text
+
+        local size: Vector2 = widgets.TextService:GetTextBoundsAsync(textParams)
+
+        if width then
+            textParams.Width = math.huge
+        end
+
+        return size
+    end
+
+    function widgets.applyTextStyle(thisInstance: TextLabel & TextButton & TextBox)
+        thisInstance.FontFace = Iris._config.TextFont
         thisInstance.TextSize = Iris._config.TextSize
         thisInstance.TextColor3 = Iris._config.TextColor
         thisInstance.TextTransparency = Iris._config.TextTransparency
@@ -155,17 +186,17 @@ return function(Iris: Types.Iris)
                 Highlightee.BackgroundTransparency = Colors.ButtonTransparency
             end
         end)
-        
+
         Button.SelectionImageObject = Iris.SelectionImageObject
     end
 
-    function widgets.applyInteractionHighlightsWithMultiHighlightee(Button: GuiButton, Highlightees: { { GuiObject | { [string]: Color3 | number} } })
+    function widgets.applyInteractionHighlightsWithMultiHighlightee(Button: GuiButton, Highlightees: { { GuiObject | { [string]: Color3 | number } } })
         local exitedButton: boolean = false
         Button.MouseEnter:Connect(function()
             for _, Highlightee in Highlightees do
                 Highlightee[1].BackgroundColor3 = Highlightee[2].ButtonHoveredColor
                 Highlightee[1].BackgroundTransparency = Highlightee[2].ButtonHoveredTransparency
-    
+
                 exitedButton = false
             end
         end)
@@ -204,11 +235,11 @@ return function(Iris: Types.Iris)
                 end
             end
         end)
-        
+
         Button.SelectionImageObject = Iris.SelectionImageObject
     end
 
-    function widgets.applyTextInteractionHighlights(Button: GuiButton, Highlightee: TextLabel | TextButton | TextBox, Colors: { [string]: any })
+    function widgets.applyTextInteractionHighlights(Button: GuiButton, Highlightee: TextLabel & TextButton & TextBox, Colors: { [string]: any })
         local exitedButton = false
         Button.MouseEnter:Connect(function()
             Highlightee.TextColor3 = Colors.ButtonHoveredColor
@@ -245,7 +276,7 @@ return function(Iris: Types.Iris)
                 Highlightee.TextTransparency = Colors.ButtonTransparency
             end
         end)
-        
+
         Button.SelectionImageObject = Iris.SelectionImageObject
     end
 
@@ -257,7 +288,7 @@ return function(Iris: Types.Iris)
         local FrameBorderColor: Color3 = Iris._config.BorderColor
         local FrameBorderTransparency: number = Iris._config.ButtonTransparency
         local FrameRounding: number = Iris._config.FrameRounding
-        
+
         if FrameBorderSize > 0 and FrameRounding > 0 then
             thisInstance.BorderSizePixel = 0
 
@@ -309,7 +340,7 @@ return function(Iris: Types.Iris)
                 end,
                 ["Get"] = function(thisWidget: Types.Widget): boolean
                     return thisWidget.isHoveredEvent
-                end
+                end,
             }
         end,
 
@@ -325,7 +356,7 @@ return function(Iris: Types.Iris)
                 end,
                 ["Get"] = function(thisWidget: Types.Widget): boolean
                     return thisWidget.lastClickedTick == Iris._cycleTick
-                end
+                end,
             }
         end,
 
@@ -341,7 +372,7 @@ return function(Iris: Types.Iris)
                 end,
                 ["Get"] = function(thisWidget: Types.Widget): boolean
                     return thisWidget.lastRightClickedTick == Iris._cycleTick
-                end
+                end,
             }
         end,
 
@@ -366,7 +397,7 @@ return function(Iris: Types.Iris)
                 end,
                 ["Get"] = function(thisWidget: Types.Widget): boolean
                     return thisWidget.lastDoubleClickedTick == Iris._cycleTick
-                end
+                end,
             }
         end,
 
@@ -384,9 +415,29 @@ return function(Iris: Types.Iris)
                 end,
                 ["Get"] = function(thisWidget: Types.Widget): boolean
                     return thisWidget.lastCtrlClickedTick == Iris._cycleTick
-                end
+                end,
             }
-        end
+        end,
+
+        shortcut = function(pathToKeys: (thisWidget: Types.Widget) -> (Enum.KeyCode, Enum.ModifierKey))
+            return {
+                ["Init"] = function(thisWidget: Types.Widget)
+                    local keycode: Enum.KeyCode, modifier: Enum.ModifierKey = pathToKeys(thisWidget)
+                    thisWidget.lastShortcutTick = -1
+
+                    widgets.ContextActionService:BindAction(thisWidget.ID, function(_, inputState: Enum.UserInputState, inputObject: InputObject)
+                        if inputState == Enum.UserInputState.Begin then
+                            if inputObject:IsModifierKeyDown(modifier) then
+                                thisWidget.lastShortcutTick = Iris._cycleTick + 1
+                            end
+                        end
+                    end, false, keycode)
+                end,
+                ["Get"] = function(thisWidget: Types.Widget): boolean
+                    return thisWidget.lastShortcutTick == Iris._cycleTick
+                end,
+            }
+        end,
     }
 
     function widgets.discardState(thisWidget: Types.Widget)
@@ -395,15 +446,22 @@ return function(Iris: Types.Iris)
         end
     end
 
-    require(script.Root)       (Iris, widgets)
-    require(script.Text)       (Iris, widgets)
-    require(script.Button)     (Iris, widgets)
-    require(script.Format)     (Iris, widgets)
-    require(script.Checkbox)   (Iris, widgets)
+    require(script.Root)(Iris, widgets)
+    require(script.Window)(Iris, widgets)
+
+    require(script.Menu)(Iris, widgets)
+
+    require(script.Format)(Iris, widgets)
+
+    require(script.Text)(Iris, widgets)
+    require(script.Button)(Iris, widgets)
+    require(script.Checkbox)(Iris, widgets)
     require(script.RadioButton)(Iris, widgets)
-    require(script.Tree)       (Iris, widgets)
-    require(script.Input)      (Iris, widgets)
-    require(script.Combo)      (Iris, widgets)
-    require(script.Table)      (Iris, widgets)
-    require(script.Window)     (Iris, widgets)
+
+    require(script.Tree)(Iris, widgets)
+
+    require(script.Input)(Iris, widgets)
+    require(script.Combo)(Iris, widgets)
+
+    require(script.Table)(Iris, widgets)
 end

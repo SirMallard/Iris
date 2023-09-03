@@ -5,12 +5,12 @@ local TemplateConfig = {
         TextDisabledColor = Color3.fromRGB(128, 128, 128),
         TextDisabledTransparency = 0,
 
-        BorderColor = Color3.fromRGB(110, 110, 125), 
+        BorderColor = Color3.fromRGB(110, 110, 125),
         -- Dear ImGui uses 110, 110, 125
         -- The Roblox window selection highlight is 67, 191, 254
         BorderActiveColor = Color3.fromRGB(160, 160, 175), -- does not exist in Dear ImGui
 
-        BorderTransparency = 0, 
+        BorderTransparency = 0,
         BorderActiveTransparency = 0,
         -- BorderTransparency will be problematic for non UIStroke border implimentations
         -- is not implimented because of this
@@ -80,7 +80,7 @@ local TemplateConfig = {
         SeparatorTransparency = 0.5,
 
         CheckMarkColor = Color3.fromRGB(66, 150, 250),
-        CheckMarkTransparency = 0
+        CheckMarkTransparency = 0,
     },
     colorLight = { -- Dear, ImGui default light
         TextColor = Color3.fromRGB(0, 0, 0),
@@ -160,9 +160,9 @@ local TemplateConfig = {
 
         SeparatorColor = Color3.fromRGB(99, 99, 99),
         SeparatorTransparency = 0.38,
-        
+
         CheckMarkColor = Color3.fromRGB(66, 150, 250),
-        CheckMarkTransparency = 0
+        CheckMarkTransparency = 0,
     },
 
     sizeDefault = { -- Dear, ImGui default
@@ -176,19 +176,22 @@ local TemplateConfig = {
         ItemInnerSpacing = Vector2.new(4, 4),
         CellPadding = Vector2.new(4, 2),
         DisplaySafeAreaPadding = Vector2.new(0, 0),
+        SeparatorTextPadding = Vector2.new(20, 3),
         IndentSpacing = 21,
 
-        TextFont = Enum.Font.Code,
+        TextFont = Font.fromEnum(Enum.Font.Code),
         TextSize = 13,
         FrameBorderSize = 0,
         FrameRounding = 0,
         GrabRounding = 0,
+        WindowRounding = 0, -- these don't actually work but it's nice to have them.
         WindowBorderSize = 1,
         WindowTitleAlign = Enum.LeftRight.Left,
         PopupBorderSize = 1,
         PopupRounding = 0,
         ScrollbarSize = 7,
         GrabMinSize = 10,
+        SeparatorTextBorderSize = 3,
     },
     sizeClear = { -- easier to read and manuveure
         ItemWidth = UDim.new(1, 0),
@@ -201,30 +204,37 @@ local TemplateConfig = {
         ItemInnerSpacing = Vector2.new(8, 8),
         CellPadding = Vector2.new(4, 4),
         DisplaySafeAreaPadding = Vector2.new(8, 8),
+        SeparatorTextPadding = Vector2.new(24, 6),
         IndentSpacing = 25,
 
-        TextFont = Enum.Font.Ubuntu,
+        TextFont = Font.fromEnum(Enum.Font.Ubuntu),
         TextSize = 15,
         FrameBorderSize = 1,
         FrameRounding = 4,
         GrabRounding = 4,
+        WindowRounding = 4,
         WindowBorderSize = 1,
         WindowTitleAlign = Enum.LeftRight.Center,
         PopupBorderSize = 1,
         PopupRounding = 4,
         ScrollbarSize = 9,
         GrabMinSize = 14,
+        SeparatorTextBorderSize = 4,
     },
 
     utilityDefault = {
         UseScreenGUIs = true,
+        IgnoreGuiInset = false,
         Parent = nil,
         DisplayOrderOffset = 127,
         ZIndexOffset = 0,
 
         MouseDoubleClickTime = 0.30, -- Time for a double-click, in seconds.
         MouseDoubleClickMaxDist = 6.0, -- Distance threshold to stay in to validate a double-click, in pixels.
-    }
+
+        HoverColor = Color3.fromRGB(255, 255, 0),
+        HoverTransparency = 0.1,
+    },
 }
 
 return TemplateConfig

@@ -3,7 +3,30 @@ gitRepoUrl = "https://github.com/Michael-48/Iris" # From Git
 
 gitSourceBranch = "master"
 changelog = true
-classOrder = []
+
+
+[[classOrder]]
+classes = ["Iris"]
+
+[[classOrder]]
+section = "Widgets"
+classes = [
+    "Window",
+    "Menu",
+    "Format",
+    "Text",
+    "Basic",
+    "Tree",
+    "Input",
+    "Drag",
+    "Slider",
+    "Other Input",
+    "Combo",
+    "Table"
+]
+
+[[classOrder]]
+classes = ["State", "Internal"]
 
 [docusaurus]
 onBrokenMarkdownLinks = "warn"
@@ -14,6 +37,7 @@ projectName = "Iris"
 url = "https://Michael-48.github.io"
 baseUrl = "/Iris"
 tagline = "Iris is an Immediate mode GUI Library for Roblox, Based on Dear ImGui"
+
 
 [footer]
 style = "dark"

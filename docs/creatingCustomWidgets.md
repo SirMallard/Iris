@@ -39,13 +39,13 @@ The First argument, `type: string`, specifies a name for the widget
 The fourth argument contains the class for the widget. The methods which a widget class may have depend on the value of `hasState` and `hasChildren`.
 every widget class should specify if it hasState and hasChildren. In the instance of Iris.Text, It has no state, and it cant contain other widgets, so both are false.
 
-| All Widgets  | Widgets with State | Widgets with Children     |
-|--------------|--------------------|---------------------------|
-| Generate     | GenerateState      | ChildAdded                |
-| Update       | UpdateState        | ChildDiscarded (optional) |
-| Discard      |                    |                           |
-| Args         |                    |                           |
-| Events       |                    |                           |
+| All Widgets | Widgets with State | Widgets with Children     |
+| ----------- | ------------------ | ------------------------- |
+| Generate    | GenerateState      | ChildAdded                |
+| Update      | UpdateState        | ChildDiscarded (optional) |
+| Discard     |                    |                           |
+| Args        |                    |                           |
+| Events      |                    |                           |
 
 ### Generate
 Generate is called when a widget is first instantiated. It should create all the instances and properly adjust them to fit the config properties.

@@ -1,4 +1,6 @@
-return function(Iris, widgets)
+local Types = require(script.Parent.Parent.Types)
+
+return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local tableWidgets = {}
 
     table.insert(Iris._postCycleCallbacks, function()
@@ -7,22 +9,6 @@ return function(Iris, widgets)
         end
     end)
 
-    Iris.NextColumn = function()
-        Iris._GetParentWidget().RowColumnIndex += 1
-    end
-    Iris.SetColumnIndex = function(ColumnIndex)
-        local ParentWidget = Iris._GetParentWidget()
-        assert(ColumnIndex >= ParentWidget.InitialNumColumns, "Iris.SetColumnIndex Argument must be in column range")
-        ParentWidget.RowColumnIndex = math.floor(ParentWidget.RowColumnIndex / ParentWidget.InitialNumColumns) + (ColumnIndex - 1)
-    end
-    Iris.NextRow = function()
-        -- sets column Index back to 0, increments Row
-        local ParentWidget = Iris._GetParentWidget()
-        local InitialNumColumns = ParentWidget.InitialNumColumns
-        local nextRow = math.floor((ParentWidget.RowColumnIndex + 1) / InitialNumColumns) * InitialNumColumns
-        ParentWidget.RowColumnIndex = nextRow
-    end
-
     Iris.WidgetConstructor("Table", {
         hasState = false,
         hasChildren = true,
@@ -30,12 +16,12 @@ return function(Iris, widgets)
             ["NumColumns"] = 1,
             ["RowBg"] = 2,
             ["BordersOuter"] = 3,
-            ["BordersInner"] = 4
+            ["BordersInner"] = 4,
         },
         Events = {
             ["hovered"] = widgets.EVENTS.hover(function(thisWidget)
                 return thisWidget.Instance
-            end)
+            end),
         },
         Generate = function(thisWidget)
             tableWidgets[thisWidget.ID] = thisWidget
@@ -60,7 +46,6 @@ return function(Iris, widgets)
 
             widgets.UIStroke(Table, 1, Iris._config.TableBorderStrongColor, Iris._config.TableBorderStrongTransparency)
 
-
             return Table
         end,
         Update = function(thisWidget)
@@ -82,13 +67,14 @@ return function(Iris, widgets)
                 for i = 1, thisWidget.InitialNumColumns do
                     local column = Instance.new("Frame")
                     column.Name = `Column_{i}`
+                    column.Size = UDim2.new(1 / thisWidget.InitialNumColumns, 0, 0, 0)
                     column.BackgroundTransparency = 1
                     column.BorderSizePixel = 0
                     local ColumnZIndex = thisWidget.ZIndex + 1 + i
                     column.ZIndex = ColumnZIndex
                     column.LayoutOrder = ColumnZIndex
                     column.AutomaticSize = Enum.AutomaticSize.Y
-                    column.Size = UDim2.new(1 / thisWidget.InitialNumColumns, 0, 0, 0)
+                    column.ClipsDescendants = true
                     --column.ClipsDescendants = true
 
                     widgets.UIListLayout(column, Enum.FillDirection.Vertical, UDim.new(0, 0))
@@ -96,7 +82,6 @@ return function(Iris, widgets)
                     ColumnInstances[i] = column
                     column.Parent = thisWidgetInstance
                 end
-
             elseif thisWidget.arguments.NumColumns ~= thisWidget.InitialNumColumns then
                 -- its possible to make it so that the NumColumns can increase,
                 -- but decreasing it would interfere with child widget instances
@@ -104,22 +89,22 @@ return function(Iris, widgets)
             end
 
             if thisWidget.arguments.RowBg == false then
-                for _,v in thisWidget.CellInstances do
+                for _, v in thisWidget.CellInstances do
                     v.BackgroundTransparency = 1
                 end
             else
-                for rowColumnIndex, v in thisWidget.CellInstances do
-                    local currentRow = math.ceil((rowColumnIndex) / thisWidget.InitialNumColumns)
+                for RowColumnIndex, v in thisWidget.CellInstances do
+                    local currentRow = math.ceil(RowColumnIndex / thisWidget.InitialNumColumns)
                     v.BackgroundTransparency = if currentRow % 2 == 0 then Iris._config.TableRowBgAltTransparency else Iris._config.TableRowBgTransparency
                 end
             end
 
             if thisWidget.arguments.BordersInner == false then
-                for _,v in thisWidget.CellInstances do
+                for _, v in thisWidget.CellInstances do
                     v.UIStroke.Thickness = 0
                 end
             else
-                for _,v in thisWidget.CellInstances do
+                for _, v in thisWidget.CellInstances do
                     v.UIStroke.Thickness = 0.5
                 end
             end
@@ -146,6 +131,7 @@ return function(Iris, widgets)
             local newZIndex = selectedParent.ZIndex + thisWidget.RowColumnIndex
             cell.ZIndex = newZIndex
             cell.LayoutOrder = newZIndex
+            cell.ClipsDescendants = true
             cell.Name = `Cell_{thisWidget.RowColumnIndex}`
 
             widgets.UIListLayout(cell, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
@@ -159,7 +145,7 @@ return function(Iris, widgets)
             end
 
             if thisWidget.arguments.RowBg ~= false then
-                local currentRow = math.ceil((thisWidget.RowColumnIndex) / thisWidget.InitialNumColumns)
+                local currentRow = math.ceil(thisWidget.RowColumnIndex / thisWidget.InitialNumColumns)
                 local color = if currentRow % 2 == 0 then Iris._config.TableRowBgAltColor else Iris._config.TableRowBgColor
                 local transparency = if currentRow % 2 == 0 then Iris._config.TableRowBgAltTransparency else Iris._config.TableRowBgTransparency
 
@@ -170,6 +156,6 @@ return function(Iris, widgets)
             thisWidget.CellInstances[thisWidget.RowColumnIndex] = cell
             cell.Parent = selectedParent
             return cell
-        end
-    })
+        end,
+    } :: Types.WidgetClass)
 end

@@ -1,0 +1,19 @@
+[package]
+name = "Michael-48/Iris"
+description = "Iris is an Immediate mode GUI Library for Roblox, Based on Dear ImGui."
+version = "2.0.5"
+
+license = "MIT"
+authors = ["Michael-48", "SirMallard"]
+
+realm = "shared"
+registry = "https://github.com/upliftgames/wally-index"
+
+exclude = []
+private = false
+
+[dependencies]
+
+[server-dependencies]
+
+[dev-dependencies]
