@@ -327,6 +327,12 @@ return function(Iris: Types.Internal)
         end
     end
 
+    function widgets.discardState(thisWidget: Types.Widget)
+        for _, state: Types.State in thisWidget.state do
+            state.ConnectedWidgets[thisWidget.ID] = nil
+        end
+    end
+
     widgets.EVENTS = {
         hover = function(pathToHovered: (thisWidget: Types.Widget) -> GuiObject)
             return {
@@ -441,12 +447,6 @@ return function(Iris: Types.Internal)
             }
         end,
     }
-
-    function widgets.discardState(thisWidget: Types.Widget)
-        for _, state: Types.State in thisWidget.state do
-            state.ConnectedWidgets[thisWidget.ID] = nil
-        end
-    end
 
     require(script.Root)(Iris, widgets)
     require(script.Window)(Iris, widgets)

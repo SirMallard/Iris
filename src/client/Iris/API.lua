@@ -686,7 +686,7 @@ return function(Iris: Types.Iris)
         }
         States = {
             number: State<number>?,
-            editingText: State<boolean>
+            editingText: State<boolean>?
         }
         ```
     ]=]
@@ -716,7 +716,7 @@ return function(Iris: Types.Iris)
         }
         States = {
             number: State<Vector2>?,
-            editingText: State<boolean>
+            editingText: State<boolean>?
         }
         ```
     ]=]
@@ -738,8 +738,7 @@ return function(Iris: Types.Iris)
             Increment: Vector3? = nil,
             Min: Vector3? = nil,
             Max: Vector3? = nil,
-            Format: string? | { string }? = [DYNAMIC], -- Iris will dynamically generate an approriate format.
-            NoButtons: boolean? = false -- whether to display + and - buttons next to the input box.
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
         }
         Events = {
             numberChanged: () -> boolean,
@@ -747,7 +746,7 @@ return function(Iris: Types.Iris)
         }
         States = {
             number: State<Vector3>?,
-            editingText: State<boolean>
+            editingText: State<boolean>?
         }
         ```
     ]=]
@@ -770,8 +769,7 @@ return function(Iris: Types.Iris)
             Increment: UDim? = nil,
             Min: UDim? = nil,
             Max: UDim? = nil,
-            Format: string? | { string }? = [DYNAMIC], -- Iris will dynamically generate an approriate format.
-            NoButtons: boolean? = false -- whether to display + and - buttons next to the input box.
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
         }
         Events = {
             numberChanged: () -> boolean,
@@ -779,7 +777,7 @@ return function(Iris: Types.Iris)
         }
         States = {
             number: State<UDim>?,
-            editingText: State<boolean>
+            editingText: State<boolean>?
         }
         ```
     ]=]
@@ -802,8 +800,7 @@ return function(Iris: Types.Iris)
             Increment: UDim2? = nil,
             Min: UDim2? = nil,
             Max: UDim2? = nil,
-            Format: string? | { string }? = [DYNAMIC], -- Iris will dynamically generate an approriate format.
-            NoButtons: boolean? = false -- whether to display + and - buttons next to the input box.
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
         }
         Events = {
             numberChanged: () -> boolean,
@@ -811,7 +808,7 @@ return function(Iris: Types.Iris)
         }
         States = {
             number: State<UDim2>?,
-            editingText: State<boolean>
+            editingText: State<boolean>?
         }
         ```
     ]=]
@@ -833,8 +830,7 @@ return function(Iris: Types.Iris)
             Increment: Rect? = nil,
             Min: Rect? = nil,
             Max: Rect? = nil,
-            Format: string? | { string }? = [DYNAMIC], -- Iris will dynamically generate an approriate format.
-            NoButtons: boolean? = false -- whether to display + and - buttons next to the input box.
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
         }
         Events = {
             numberChanged: () -> boolean,
@@ -842,7 +838,7 @@ return function(Iris: Types.Iris)
         }
         States = {
             number: State<Rect>?,
-            editingText: State<boolean>
+            editingText: State<boolean>?
         }
         ```
     ]=]
@@ -856,6 +852,10 @@ return function(Iris: Types.Iris)
     --[=[
         @class Drag
         Drag Widget API
+
+        A draggable widget for each datatype. Allows direct typing input but also dragging values by clicking and holding.
+        
+        See [Input] for more details on the arguments.
     ]=]
 
     --[=[
@@ -864,23 +864,190 @@ return function(Iris: Types.Iris)
         @tag Widget
         @tag HasState
         
+        A field which allows the user to click and drag their cursor to enter a number.
+        You can ctrl + click to directly input a number, like InputNum.
+        You can hold Shift to increase speed, and Alt to decrease speed when dragging.
         
         ```lua
         hasChildren = false
         hasState = true
         Arguments = {
+            Text: string? = "DragNum",
+            Increment: number? = nil,
+            Min: number? = nil,
+            Max: number? = nil,
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
         }
         Events = {
+            numberChanged: () -> boolean,
+            hovered: () -> boolean
         }
         States = {
+            number: State<number>?,
+            editingText: State<boolean>?
         }
         ```
     ]=]
     Iris.DragNum = wrapper("DragNum")
+
+    --[=[
+        @prop DragVector2 Iris.DragVector2
+        @within Drag
+        @tag Widget
+        @tag HasState
+        
+        A field which allows the user to click and drag their cursor to enter a Vector2.
+        You can ctrl + click to directly input a Vector2, like InputVector2.
+        You can hold Shift to increase speed, and Alt to decrease speed when dragging.
+        
+        ```lua
+        hasChildren = false
+        hasState = true
+        Arguments = {
+            Text: string? = "DragVector2",
+            Increment: Vector2? = nil,
+            Min: Vector2? = nil,
+            Max: Vector2? = nil,
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
+        }
+        Events = {
+            numberChanged: () -> boolean,
+            hovered: () -> boolean
+        }
+        States = {
+            number: State<Vector2>?,
+            editingText: State<boolean>?
+        }
+        ```
+    ]=]
     Iris.DragVector2 = wrapper("DragVector2")
+
+    --[=[
+        @prop DragVector3 Iris.DragVector3
+        @within Drag
+        @tag Widget
+        @tag HasState
+        
+        A field which allows the user to click and drag their cursor to enter a Vector3.
+        You can ctrl + click to directly input a Vector3, like InputVector3.
+        You can hold Shift to increase speed, and Alt to decrease speed when dragging.
+        
+        ```lua
+        hasChildren = false
+        hasState = true
+        Arguments = {
+            Text: string? = "DragVector3",
+            Increment: Vector3? = nil,
+            Min: Vector3? = nil,
+            Max: Vector3? = nil,
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
+        }
+        Events = {
+            numberChanged: () -> boolean,
+            hovered: () -> boolean
+        }
+        States = {
+            number: State<Vector3>?,
+            editingText: State<boolean>?
+        }
+        ```
+    ]=]
     Iris.DragVector3 = wrapper("DragVector3")
+
+    --[=[
+        @prop DragUDim Iris.DragUDim
+        @within Drag
+        @tag Widget
+        @tag HasState
+        
+        A field which allows the user to click and drag their cursor to enter a UDim.
+        You can ctrl + click to directly input a UDim, like InputUDim.
+        You can hold Shift to increase speed, and Alt to decrease speed when dragging.
+        
+        ```lua
+        hasChildren = false
+        hasState = true
+        Arguments = {
+            Text: string? = "DragUDim",
+            Increment: UDim? = nil,
+            Min: UDim? = nil,
+            Max: UDim? = nil,
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
+        }
+        Events = {
+            numberChanged: () -> boolean,
+            hovered: () -> boolean
+        }
+        States = {
+            number: State<UDim>?,
+            editingText: State<boolean>?
+        }
+        ```
+    ]=]
     Iris.DragUDim = wrapper("DragUDim")
+
+    --[=[
+        @prop DragUDim2 Iris.DragUDim2
+        @within Drag
+        @tag Widget
+        @tag HasState
+        
+        A field which allows the user to click and drag their cursor to enter a UDim2.
+        You can ctrl + click to directly input a UDim2, like InputUDim2.
+        You can hold Shift to increase speed, and Alt to decrease speed when dragging.
+        
+        ```lua
+        hasChildren = false
+        hasState = true
+        Arguments = {
+            Text: string? = "DragUDim2",
+            Increment: UDim2? = nil,
+            Min: UDim2? = nil,
+            Max: UDim2? = nil,
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
+        }
+        Events = {
+            numberChanged: () -> boolean,
+            hovered: () -> boolean
+        }
+        States = {
+            number: State<UDim2>?,
+            editingText: State<boolean>?
+        }
+        ```
+    ]=]
     Iris.DragUDim2 = wrapper("DragUDim2")
+
+    --[=[
+        @prop DragRect Iris.DragRect
+        @within Drag
+        @tag Widget
+        @tag HasState
+        
+        A field which allows the user to click and drag their cursor to enter a Rect.
+        You can ctrl + click to directly input a Rect, like InputRect.
+        You can hold Shift to increase speed, and Alt to decrease speed when dragging.
+        
+        ```lua
+        hasChildren = false
+        hasState = true
+        Arguments = {
+            Text: string? = "DragRect",
+            Increment: Rect? = nil,
+            Min: Rect? = nil,
+            Max: Rect? = nil,
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
+        }
+        Events = {
+            numberChanged: () -> boolean,
+            hovered: () -> boolean
+        }
+        States = {
+            number: State<Rect>?,
+            editingText: State<boolean>?
+        }
+        ```
+    ]=]
     Iris.DragRect = wrapper("DragRect")
 
     --[=[
@@ -889,31 +1056,63 @@ return function(Iris: Types.Iris)
         @tag Widget
         @tag HasState
         
-        An input box for Color3.
+        An input box for Color3. The input boxes are draggable between 0 and 255 or if UseFloats then between 0 and 1.
+        Input can also be done using HSV instead of the default RGB.
+        If no format argument is provided then a default R, G, B or H, S, V prefix is applied.
         
         ```lua
         hasChildren = false
         hasState = true
         Arguments = {
             Text: string? = "InputColor3",
-            Increment: Color3? = nil,
-            Min: Color3? = nil,
-            Max: Color3? = nil,
-            Format: string? | { string }? = [DYNAMIC], -- Iris will dynamically generate an approriate format.
-            NoButtons: boolean? = false -- whether to display + and - buttons next to the input box.
+            UseFloats: boolean? = false, -- constrain the values between floats 0 and 1 or integers 0 and 255.
+            UseHSV: boolean? = false, -- input using HSV instead.
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
         }
         Events = {
             numberChanged: () -> boolean,
             hovered: () -> boolean
         }
         States = {
-            number: State<Color3>?,
-            editingText: State<boolean>
+            color: State<Color3>?,
+            editingText: State<boolean>?
         }
         ```
     ]=]
     Iris.InputColor3 = wrapper("InputColor3")
 
+    --[=[
+        @prop InputColor4 Iris.InputColor4
+        @within Drag
+        @tag Widget
+        @tag HasState
+        
+        An input box for Color4. Color4 is a combination of Color3 and a fourth transparency argument.
+        It has two states for this purpose.
+        The input boxes are draggable between 0 and 255 or if UseFloats then between 0 and 1.
+        Input can also be done using HSV instead of the default RGB.
+        If no format argument is provided then a default R, G, B, T or H, S, V, T prefix is applied.
+        
+        ```lua
+        hasChildren = false
+        hasState = true
+        Arguments = {
+            Text: string? = "InputColor4",
+            UseFloats: boolean? = false, -- constrain the values between floats 0 and 1 or integers 0 and 255.
+            UseHSV: boolean? = false, -- input using HSV instead.
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
+        }
+        Events = {
+            numberChanged: () -> boolean,
+            hovered: () -> boolean
+        }
+        States = {
+            color: State<Color3>?,
+            transparency: State<number>?,
+            editingText: State<boolean>?
+        }
+        ```
+    ]=]
     Iris.InputColor4 = wrapper("InputColor4")
 
     --[[
@@ -924,6 +1123,11 @@ return function(Iris: Types.Iris)
     --[=[
         @class Slider
         Slider Widget API
+
+        A draggable widget with a visual bar constrained between a min and max for each datatype.
+        Allows direct typing input but also dragging the slider by clicking and holding anywhere in the box.
+        
+        See [Input] for more details on the arguments.
     ]=]
 
     --[=[
@@ -932,25 +1136,217 @@ return function(Iris: Types.Iris)
         @tag Widget
         @tag HasState
         
+        A field which allows the user to slide a grip to enter a number within a range.
+        You can ctrl + click to directly input a number, like InputNum.
         
         ```lua
         hasChildren = false
         hasState = true
         Arguments = {
+            Text: string? = "SliderNum",
+            Increment: number? = 1,
+            Min: number? = 0,
+            Max: number? = 100,
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
         }
         Events = {
+            numberChanged: () -> boolean,
+            hovered: () -> boolean
         }
         States = {
+            number: State<number>?,
+            editingText: State<boolean>?
         }
         ```
     ]=]
     Iris.SliderNum = wrapper("SliderNum")
+
+    --[=[
+        @prop SliderVector2 Iris.SliderVector2
+        @within Slider
+        @tag Widget
+        @tag HasState
+        
+        A field which allows the user to slide a grip to enter a Vector2 within a range.
+        You can ctrl + click to directly input a Vector2, like InputVector2.
+        
+        ```lua
+        hasChildren = false
+        hasState = true
+        Arguments = {
+            Text: string? = "SliderVector2",
+            Increment: Vector2? = { 1, 1 },
+            Min: Vector2? = { 0, 0 },
+            Max: Vector2? = { 100, 100 },
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
+        }
+        Events = {
+            numberChanged: () -> boolean,
+            hovered: () -> boolean
+        }
+        States = {
+            number: State<Vector2>?,
+            editingText: State<boolean>?
+        }
+        ```
+    ]=]
     Iris.SliderVector2 = wrapper("SliderVector2")
+
+    --[=[
+        @prop SliderVector3 Iris.SliderVector3
+        @within Slider
+        @tag Widget
+        @tag HasState
+        
+        A field which allows the user to slide a grip to enter a Vector3 within a range.
+        You can ctrl + click to directly input a Vector3, like InputVector3.
+        
+        ```lua
+        hasChildren = false
+        hasState = true
+        Arguments = {
+            Text: string? = "SliderVector3",
+            Increment: Vector3? = { 1, 1, 1 },
+            Min: Vector3? = { 0, 0, 0 },
+            Max: Vector3? = { 100, 100, 100 },
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
+        }
+        Events = {
+            numberChanged: () -> boolean,
+            hovered: () -> boolean
+        }
+        States = {
+            number: State<Vector3>?,
+            editingText: State<boolean>?
+        }
+        ```
+    ]=]
     Iris.SliderVector3 = wrapper("SliderVector3")
+
+    --[=[
+        @prop SliderUDim Iris.SliderUDim
+        @within Slider
+        @tag Widget
+        @tag HasState
+        
+        A field which allows the user to slide a grip to enter a UDim within a range.
+        You can ctrl + click to directly input a UDim, like InputUDim.
+        
+        ```lua
+        hasChildren = false
+        hasState = true
+        Arguments = {
+            Text: string? = "SliderUDim",
+            Increment: UDim? = { 0.01, 1 },
+            Min: UDim? = { 0, 0 },
+            Max: UDim? = { 1, 960 },
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
+        }
+        Events = {
+            numberChanged: () -> boolean,
+            hovered: () -> boolean
+        }
+        States = {
+            number: State<UDim>?,
+            editingText: State<boolean>?
+        }
+        ```
+    ]=]
     Iris.SliderUDim = wrapper("SliderUDim")
+
+    --[=[
+        @prop SliderUDim2 Iris.SliderUDim2
+        @within Slider
+        @tag Widget
+        @tag HasState
+        
+        A field which allows the user to slide a grip to enter a UDim2 within a range.
+        You can ctrl + click to directly input a UDim2, like InputUDim2.
+        
+        ```lua
+        hasChildren = false
+        hasState = true
+        Arguments = {
+            Text: string? = "SliderUDim2",
+            Increment: UDim2? = { 0.01, 1, 0.01, 1 },
+            Min: UDim2? = { 0, 0, 0, 0 },
+            Max: UDim2? = { 1, 960, 1, 960 },
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
+        }
+        Events = {
+            numberChanged: () -> boolean,
+            hovered: () -> boolean
+        }
+        States = {
+            number: State<UDim2>?,
+            editingText: State<boolean>?
+        }
+        ```
+    ]=]
     Iris.SliderUDim2 = wrapper("SliderUDim2")
+
+    --[=[
+        @prop SliderRect Iris.SliderRect
+        @within Slider
+        @tag Widget
+        @tag HasState
+        
+        A field which allows the user to slide a grip to enter a Rect within a range.
+        You can ctrl + click to directly input a Rect, like InputRect.
+        
+        ```lua
+        hasChildren = false
+        hasState = true
+        Arguments = {
+            Text: string? = "SliderRect",
+            Increment: Rect? = { 1, 1, 1, 1 },
+            Min: Rect? = { 0, 0, 0, 0 },
+            Max: Rect? = { 960, 960, 960, 960 },
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
+        }
+        Events = {
+            numberChanged: () -> boolean,
+            hovered: () -> boolean
+        }
+        States = {
+            number: State<Rect>?,
+            editingText: State<boolean>?
+        }
+        ```
+    ]=]
     Iris.SliderRect = wrapper("SliderRect")
-    Iris.SliderEnum = wrapper("SliderEnum")
+
+    --[=[
+        @private
+        @prop SliderNum Iris.SliderNum
+        @within Slider
+        @tag Widget
+        @tag HasState
+        
+        A field which allows the user to slide a grip to enter a number within a range.
+        You can ctrl + click to directly input a number, like InputNum.
+        
+        ```lua
+        hasChildren = false
+        hasState = true
+        Arguments = {
+            Text: string? = "SliderNum",
+            Increment: number? = 1,
+            Min: number? = 0,
+            Max: number? = 100,
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
+        }
+        Events = {
+            numberChanged: () -> boolean,
+            hovered: () -> boolean
+        }
+        States = {
+            number: State<number>?,
+            editingText: State<boolean>?
+        }
+        ```
+    ]=]
+    -- Iris.SliderEnum = wrapper("SliderEnum")
 
     --[[
         ----------------------------------

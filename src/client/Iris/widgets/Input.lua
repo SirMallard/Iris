@@ -11,8 +11,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local function getValueByIndex(value: Types.InputDataType, index: number, arguments: Types.Arguments): number
         if typeof(value) == "number" then
             return value
-        elseif typeof(value) == "Enum" then
-            return value
         elseif typeof(value) == "Vector2" then
             if index == 1 then
                 return value.X
@@ -72,8 +70,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local function updateValueByIndex(value: Types.InputDataType, index: number, newValue: number, arguments: Types.Arguments): Types.InputDataType
         if typeof(value) == "number" then
             return newValue
-        elseif typeof(value) == "Enum" then
-            return value
         elseif typeof(value) == "Vector2" then
             if index == 1 then
                 return Vector2.new(newValue, value.Y)
@@ -854,6 +850,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Slider
     ]]
     local generateSliderScalar: (dataType: Types.InputDataTypes, components: number, defaultValue: any) -> Types.WidgetClass
+    local generateEnumSliderScalar: (enum: Enum, item: EnumItem) -> Types.WidgetClass
     do
         local AnyActiveSlider: boolean = false
         local ActiveSlider: Types.Widget? = nil
@@ -909,7 +906,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end)
 
-        function generateSliderScalar(dataType: Types.InputDataTypes, components: number, defaultValue: any)
+        function generateSliderScalar(dataType: Types.InputDataTypes, components: number, defaultValue: any, ...: any)
             return {
                 hasState = true,
                 hasChildren = false,
@@ -1189,6 +1186,48 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end,
             }
         end
+
+        function generateEnumSliderScalar(enum: Enum, item: EnumItem)
+            local input: Types.WidgetClass = generateSliderScalar("Enum", 1, item.Value)
+            local valueToName = { string }
+
+            for _, enumItem: EnumItem in enum:GetEnumItems() do
+                valueToName[enumItem.Value] = enumItem.Name
+            end
+
+            return widgets.extend(input, {
+                Args = {
+                    ["Text"] = 1,
+                },
+                Update = function(thisWidget: Types.Widget)
+                    local Input = thisWidget.Instance :: GuiObject
+                    local TextLabel: TextLabel = Input.TextLabel
+                    TextLabel.Text = thisWidget.arguments.Text or "Input Slider"
+
+                    thisWidget.arguments.Increment = 1
+                    thisWidget.arguments.Min = 0
+                    thisWidget.arguments.Max = #enum:GetEnumItems() - 1
+
+                    local SliderField = Input:FindFirstChild("SliderField1") :: TextButton
+                    local GrabBar: Frame = SliderField.GrabBar
+
+                    local grabScaleSize = math.max(1 / math.floor(#enum:GetEnumItems()), Iris._config.GrabMinSize / SliderField.AbsoluteSize.X)
+
+                    GrabBar.Size = UDim2.new(grabScaleSize, 0, 1, 0)
+                end,
+                GenerateState = function(thisWidget: Types.Widget)
+                    if thisWidget.state.number == nil then
+                        thisWidget.state.number = Iris._widgetState(thisWidget, "number", item.Value)
+                    end
+                    if thisWidget.state.enumItem == nil then
+                        thisWidget.state.enumItem = Iris._widgetState(thisWidget, "enumItem", item)
+                    end
+                    if thisWidget.state.editingText == nil then
+                        thisWidget.state.editingText = Iris._widgetState(thisWidget, "editingText", false)
+                    end
+                end,
+            })
+        end
     end
 
     do
@@ -1218,7 +1257,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     Iris.WidgetConstructor("SliderUDim", generateSliderScalar("UDim", 2, UDim.new()))
     Iris.WidgetConstructor("SliderUDim2", generateSliderScalar("UDim2", 4, UDim2.new()))
     Iris.WidgetConstructor("SliderRect", generateSliderScalar("Rect", 4, Rect.new(0, 0, 0, 0)))
-    Iris.WidgetConstructor("SliderEnum", generateSliderScalar("Enum", 4, 0))
+    -- Iris.WidgetConstructor("SliderEnum", generateSliderScalar("Enum", 4, 0))
 
     Iris.WidgetConstructor("InputText", {
         hasState = true,
