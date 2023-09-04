@@ -98,7 +98,7 @@ return function(Iris: Types.Internal)
 
     function widgets.UICorner(Parent: GuiObject, PxRounding: number?): UICorner
         local UICornerInstance: UICorner = Instance.new("UICorner")
-        UICornerInstance.CornerRadius = UDim.new(PxRounding ~= nil and 0 or 1, PxRounding or 0)
+        UICornerInstance.CornerRadius = UDim.new(PxRounding and 0 or 1, PxRounding or 0)
         UICornerInstance.Parent = Parent
         return UICornerInstance
     end

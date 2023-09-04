@@ -93,6 +93,8 @@ export type Widget = {
     ID: ID,
     type: string,
     state: States,
+    lastCycleTick: number,
+    trackedEvents: {},
 
     parentWidget: Widget,
     Instance: GuiObject,
@@ -101,13 +103,15 @@ export type Widget = {
     providedArguments: Arguments,
     ZIndex: number,
 
-    trackedEvents: {},
-    lastCycleTick: number,
-    RowColumnIndex: number,
-    InitialNumColumns: number,
     usesScreenGUI: boolean,
     ButtonColors: { [string]: Color3 | number },
     ComboChildrenHeight: number,
+
+    -- Table properties
+    RowColumnIndex: number,
+    InitialNumColumns: number,
+    ColumnInstances: { Frame },
+    CellInstances: { Frame },
 
     -- Event Props
     isHoveredEvent: boolean,
@@ -126,6 +130,8 @@ export type Widget = {
     lastClosedTick: number,
     lastSelectedTick: number,
     lastUnselectedTick: number,
+    lastCollapsedTick: number,
+    lastUncollapsedTick: number,
 
     lastNumberChangedTick: number,
     lastTextchangeTick: number,

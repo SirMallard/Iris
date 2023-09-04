@@ -42,7 +42,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
 
         if menuPosition.Y + containerSize.Y > screenSize.Y then
-            print("Too low.")
             y = menuPosition.Y - borderSize - containerSize.Y + (submenu and menuSize.Y or 0)
         else
             y = menuPosition.Y + borderSize + (submenu and 0 or menuSize.Y)
@@ -139,13 +138,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end),
             ["opened"] = {
                 ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget)
+                ["Get"] = function(thisWidget: Types.Widget)
                     return thisWidget.lastOpenedTick == Iris._cycleTick
                 end,
             },
             ["closed"] = {
                 ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget)
+                ["Get"] = function(thisWidget: Types.Widget)
                     return thisWidget.lastClosedTick == Iris._cycleTick
                 end,
             },

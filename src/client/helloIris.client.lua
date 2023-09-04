@@ -55,6 +55,13 @@ Iris:Connect(function()
         local UDim2State = Iris.State(UDim2.new())
         local RectState = Iris.State(Rect.new(0, 0, 960, 960))
 
+        Iris.Text({ tostring(NumberState:get()) })
+        Iris.Text({ tostring(Vector2State:get()) })
+        Iris.Text({ tostring(Vector3State:get()) })
+        Iris.Text({ tostring(UDimState:get()) })
+        Iris.Text({ tostring(UDim2State:get()) })
+        Iris.Text({ tostring(RectState:get()) })
+
         local UseFloats = Iris.State(false)
         local UseHSV = Iris.State(false)
         local sharedColor = Iris.State(Color3.new())

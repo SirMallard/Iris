@@ -19,37 +19,42 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         },
         Events = {
             ["selected"] = {
-                ["Init"] = function(_thisWidget) end,
-                ["Get"] = function(thisWidget)
+                ["Init"] = function(_thisWidget: Types.Widget) end,
+                ["Get"] = function(thisWidget: Types.Widget)
                     return thisWidget.lastSelectedTick == Iris._cycleTick
                 end,
             },
             ["unselected"] = {
-                ["Init"] = function(_thisWidget) end,
-                ["Get"] = function(thisWidget)
-                    return thisWidget.lastUnselected == Iris._cycleTick
+                ["Init"] = function(_thisWidget: Types.Widget) end,
+                ["Get"] = function(thisWidget: Types.Widget)
+                    return thisWidget.lastUnselectedTick == Iris._cycleTick
                 end,
             },
             ["active"] = {
-                ["Init"] = function(_thisWidget) end,
-                ["Get"] = function(thisWidget)
+                ["Init"] = function(_thisWidget: Types.Widget) end,
+                ["Get"] = function(thisWidget: Types.Widget)
                     return thisWidget.state.index.value == thisWidget.arguments.Index
                 end,
             },
-            ["clicked"] = widgets.EVENTS.click(function(thisWidget)
-                return thisWidget.Instance.SelectableButton
+            ["clicked"] = widgets.EVENTS.click(function(thisWidget: Types.Widget)
+                local Selectable = thisWidget.Instance :: Frame
+                return Selectable.SelectableButton
             end),
-            ["rightClicked"] = widgets.EVENTS.rightClick(function(thisWidget)
-                return thisWidget.Instance.SelectableButton
+            ["rightClicked"] = widgets.EVENTS.rightClick(function(thisWidget: Types.Widget)
+                local Selectable = thisWidget.Instance :: Frame
+                return Selectable.SelectableButton
             end),
-            ["doubleClicked"] = widgets.EVENTS.doubleClick(function(thisWidget)
-                return thisWidget.Instance.SelectableButton
+            ["doubleClicked"] = widgets.EVENTS.doubleClick(function(thisWidget: Types.Widget)
+                local Selectable = thisWidget.Instance :: Frame
+                return Selectable.SelectableButton
             end),
-            ["ctrlClicked"] = widgets.EVENTS.ctrlClick(function(thisWidget)
-                return thisWidget.Instance.SelectableButton
+            ["ctrlClicked"] = widgets.EVENTS.ctrlClick(function(thisWidget: Types.Widget)
+                local Selectable = thisWidget.Instance :: Frame
+                return Selectable.SelectableButton
             end),
-            ["hovered"] = widgets.EVENTS.hover(function(thisWidget)
-                return thisWidget.Instance.SelectableButton
+            ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
+                local Selectable = thisWidget.Instance :: Frame
+                return Selectable.SelectableButton
             end),
         },
         Generate = function(thisWidget: Types.Widget): Frame
@@ -182,21 +187,21 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         },
         Events = {
             ["opened"] = {
-                ["Init"] = function(_thisWidget) end,
-                ["Get"] = function(thisWidget)
+                ["Init"] = function(_thisWidget: Types.Widget) end,
+                ["Get"] = function(thisWidget: Types.Widget)
                     return thisWidget.lastOpenedTick == Iris._cycleTick
                 end,
             },
             ["closed"] = {
-                ["Init"] = function(_thisWidget) end,
-                ["Get"] = function(thisWidget)
+                ["Init"] = function(_thisWidget: Types.Widget) end,
+                ["Get"] = function(thisWidget: Types.Widget)
                     return thisWidget.lastClosedTick == Iris._cycleTick
                 end,
             },
-            ["clicked"] = widgets.EVENTS.click(function(thisWidget)
+            ["clicked"] = widgets.EVENTS.click(function(thisWidget: Types.Widget)
                 return thisWidget.Instance
             end),
-            ["hovered"] = widgets.EVENTS.hover(function(thisWidget)
+            ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
                 return thisWidget.Instance
             end),
         },

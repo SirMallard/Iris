@@ -179,6 +179,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Rect = { "X: ", "Y: ", "X: ", "Y: " },
     }
 
+    local defaultSigFigs: { [Types.InputDataTypes]: { number } } = {
+        Num = { 0 },
+        Vector2 = { 0, 0 },
+        Vector3 = { 0, 0, 0 },
+        UDim = { 3, 0 },
+        UDim2 = { 3, 0, 3, 0 },
+        Color3 = { 0, 0, 0 },
+        Color4 = { 0, 0, 0, 0 },
+        Rect = { 0, 0, 0, 0 },
+    }
+
     --[[
         Input
     ]]
@@ -367,36 +378,34 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         thisWidget.arguments.Format = { thisWidget.arguments.Format }
                     else
                         -- we calculate the format for the s.f. using the max, min and increment arguments.
-                        local sigfigs: number = 0
+                        local format: { string } = {}
+                        for index = 1, components do
+                            local sigfigs: number = defaultSigFigs[dataType][index]
 
-                        if thisWidget.arguments.Increment then
-                            for index = 1, components do
+                            if thisWidget.arguments.Increment then
                                 local value: number = getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)
                                 sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                             end
-                        end
 
-                        if thisWidget.arguments.Max then
-                            for index = 1, components do
+                            if thisWidget.arguments.Max then
                                 local value: number = getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments)
                                 sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                             end
-                        end
 
-                        if thisWidget.arguments.Min then
-                            for index = 1, components do
+                            if thisWidget.arguments.Min then
                                 local value: number = getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments)
                                 sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                             end
+
+                            if sigfigs > 0 then
+                                -- we know it's a float.
+                                format[index] = `%.{sigfigs}f`
+                            else
+                                format[index] = "%d"
+                            end
                         end
 
-                        if sigfigs > 0 then
-                            -- we know it's a float.
-                            thisWidget.arguments.Format = { `%.{sigfigs}f` }
-                        else
-                            thisWidget.arguments.Format = { "%d" }
-                        end
-
+                        thisWidget.arguments.Format = format
                         thisWidget.arguments.Prefix = defaultPrefx[dataType]
                     end
                 end,
@@ -695,36 +704,34 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         thisWidget.arguments.Format = { thisWidget.arguments.Format }
                     else
                         -- we calculate the format for the s.f. using the max, min and increment arguments.
-                        local sigfigs: number = 0
+                        local format: { string } = {}
+                        for index = 1, components do
+                            local sigfigs: number = defaultSigFigs[dataType][index]
 
-                        if thisWidget.arguments.Increment then
-                            for index = 1, components do
+                            if thisWidget.arguments.Increment then
                                 local value: number = getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)
                                 sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                             end
-                        end
 
-                        if thisWidget.arguments.Max then
-                            for index = 1, components do
+                            if thisWidget.arguments.Max then
                                 local value: number = getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments)
                                 sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                             end
-                        end
 
-                        if thisWidget.arguments.Min then
-                            for index = 1, components do
+                            if thisWidget.arguments.Min then
                                 local value: number = getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments)
                                 sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                             end
+
+                            if sigfigs > 0 then
+                                -- we know it's a float.
+                                format[index] = `%.{sigfigs}f`
+                            else
+                                format[index] = "%d"
+                            end
                         end
 
-                        if sigfigs > 0 then
-                            -- we know it's a float.
-                            thisWidget.arguments.Format = { `%.{sigfigs}f` }
-                        else
-                            thisWidget.arguments.Format = { "%d" }
-                        end
-
+                        thisWidget.arguments.Format = format
                         thisWidget.arguments.Prefix = defaultPrefx[dataType]
                     end
                 end,
@@ -826,7 +833,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         Iris._widgets[thisWidget.type].UpdateState(thisWidget)
                     end
                 end,
-                GenerateState = function(thisWidget)
+                GenerateState = function(thisWidget: Types.Widget)
                     if thisWidget.state.color == nil then
                         thisWidget.state.color = Iris._widgetState(thisWidget, "color", defaultValues[1])
                     end
@@ -1082,36 +1089,34 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         thisWidget.arguments.Format = { thisWidget.arguments.Format }
                     else
                         -- we calculate the format for the s.f. using the max, min and increment arguments.
-                        local sigfigs: number = 0
+                        local format: { string } = {}
+                        for index = 1, components do
+                            local sigfigs: number = defaultSigFigs[dataType][index]
 
-                        if thisWidget.arguments.Increment then
-                            for index = 1, components do
+                            if thisWidget.arguments.Increment then
                                 local value: number = getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)
                                 sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                             end
-                        end
 
-                        if thisWidget.arguments.Max then
-                            for index = 1, components do
+                            if thisWidget.arguments.Max then
                                 local value: number = getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments)
                                 sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                             end
-                        end
 
-                        if thisWidget.arguments.Min then
-                            for index = 1, components do
+                            if thisWidget.arguments.Min then
                                 local value: number = getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments)
                                 sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                             end
+
+                            if sigfigs > 0 then
+                                -- we know it's a float.
+                                format[index] = `%.{sigfigs}f`
+                            else
+                                format[index] = "%d"
+                            end
                         end
 
-                        if sigfigs > 0 then
-                            -- we know it's a float.
-                            thisWidget.arguments.Format = { `%.{sigfigs}f` }
-                        else
-                            thisWidget.arguments.Format = { "%d" }
-                        end
-
+                        thisWidget.arguments.Format = format
                         thisWidget.arguments.Prefix = defaultPrefx[dataType]
                     end
 
