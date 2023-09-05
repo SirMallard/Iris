@@ -24,10 +24,7 @@ return function(Iris: Types.Iris)
     local widgetDemos = {
         Basic = function()
             Iris.Tree({ "Basic" })
-                Iris.SameLine()
-                    Iris.Text({ "Simple, common widgets" })
-                    helpMarker("The Widgets shown are, in order, Iris.Button, Iris.SmallButton, Iris.Text, Iris.TextWrapped, Iris.TextColored, and Iris.RadioButton")
-                Iris.End()
+                Iris.SeparatorText({ "Basic" })
 
                 local radioButtonState = Iris.State(1)
                 Iris.Button({ "Button" })
@@ -45,6 +42,13 @@ return function(Iris: Types.Iris)
                     end
                 Iris.End()
                 Iris.Text({ "The Index is: " .. tostring(radioButtonState.value) })
+
+                Iris.SeparatorText({ "Inputs" })
+
+                Iris.InputNum()
+                Iris.DragNum()
+                Iris.SliderNum()
+
             Iris.End()
         end,
 
@@ -289,7 +293,7 @@ return function(Iris: Types.Iris)
     end
 
     local function recursiveWindow(parentCheckboxState)
-        Iris.Window({ "Recursive Window" }, { size = Iris.State(Vector2.new(150, 100)), isOpened = parentCheckboxState })
+        Iris.Window({ "Recursive Window" }, { size = Iris.State(Vector2.new(175, 100)), isOpened = parentCheckboxState })
             local theCheckbox = Iris.Checkbox({ "Recurse Again" })
         Iris.End()
         if theCheckbox.isChecked.value then
@@ -589,7 +593,6 @@ return function(Iris: Types.Iris)
         end
     end
 
-    -- showcases how events can be used
     local function widgetEventInteractivity()
         Iris.CollapsingHeader({ "Widget Event Interactivity" })
         local clickCount = Iris.State(0)
@@ -646,7 +649,6 @@ return function(Iris: Types.Iris)
         Iris.End()
     end
 
-    -- showcases how state can be used
     local function widgetStateInteractivity()
         Iris.CollapsingHeader({ "Widget State Interactivity" })
         local checkbox0 = Iris.Checkbox({ "Widget-Generated State" })
@@ -679,7 +681,6 @@ return function(Iris: Types.Iris)
         Iris.End()
     end
 
-    -- showcases how dynamic styles can be used
     local function dynamicStyle()
         Iris.CollapsingHeader({ "Dynamic Styles" })
         local colorH = Iris.State(0)
@@ -696,7 +697,6 @@ return function(Iris: Types.Iris)
         Iris.End()
     end
 
-    -- showcases how tables can be used
     local function tablesDemo()
         local showTablesTree = Iris.State(false)
 
@@ -842,6 +842,30 @@ return function(Iris: Types.Iris)
         Iris.PopConfig()
     end
 
+    local function recursiveMenu()
+        -- stylua: ignore start
+        if Iris.Menu({ "Recursive" }).state.isOpened.value then
+            Iris.MenuItem({ "New", Enum.KeyCode.N, Enum.ModifierKey.Ctrl })
+            Iris.MenuItem({ "Open", Enum.KeyCode.O, Enum.ModifierKey.Ctrl })
+            Iris.MenuItem({ "Save", Enum.KeyCode.S, Enum.ModifierKey.Ctrl })
+            Iris.Separator()
+            Iris.MenuToggle({ "Autosave" })
+            Iris.MenuToggle({ "Checked" })
+            Iris.Separator()
+            Iris.Menu({ "Options" })
+                Iris.MenuItem({ "Red" })
+                Iris.MenuItem({ "Yellow" })
+                Iris.MenuItem({ "Green" })
+                Iris.MenuItem({ "Blue" })
+                Iris.Separator()
+                recursiveMenu()
+            Iris.End()
+        end
+        Iris.End()
+        -- stylua: ignore end
+        
+    end
+
     -- main demo window
     return function()
         local NoTitleBar = Iris.State(false)
@@ -872,21 +896,27 @@ return function(Iris: Types.Iris)
             [Iris.Args.Window.NoMenu] = NoMenu.value,
         }, { size = Iris.State(Vector2.new(600, 550)), position = Iris.State(Vector2.new(100, 25)), isOpened = showMainWindow })
 
-        Iris.Text({ "Iris says hello. (2.0.4)" })
-        Iris.Separator()
+        Iris.MenuBar()
+            Iris.Menu({ "File" })
+                Iris.MenuItem({ "New", Enum.KeyCode.N, Enum.ModifierKey.Ctrl })
+                Iris.MenuItem({ "Open", Enum.KeyCode.O, Enum.ModifierKey.Ctrl })
+                Iris.MenuItem({ "Save", Enum.KeyCode.S, Enum.ModifierKey.Ctrl })
+                recursiveMenu()
+                Iris.MenuItem({ "Quit", Enum.KeyCode.Q, Enum.ModifierKey.Alt })
+            Iris.End()
+            
+            Iris.Menu({ "Examples" })
+                Iris.MenuToggle({ "Recursive Window" }, { isChecked = showRecursiveWindow })
+                Iris.MenuToggle({ "Windowless" }, { isChecked = showWindowlessDemo })
+            Iris.End()
 
-        Iris.Table({ 3, false, false, false })
-        Iris.NextColumn()
-        Iris.Checkbox({ "Recursive Window" }, { isChecked = showRecursiveWindow })
-        Iris.NextColumn()
-        Iris.Checkbox({ "Runtime Info" }, { isChecked = showRuntimeInfo })
-        Iris.NextColumn()
-        Iris.Checkbox({ "Style Editor" }, { isChecked = showStyleEditor })
-        Iris.NextColumn()
-        Iris.Checkbox({ "Windowless" }, { isChecked = showWindowlessDemo })
+            Iris.Menu({ "Tools" })
+                Iris.MenuToggle({ "Runtime Info" }, { isChecked = showRuntimeInfo })
+                Iris.MenuToggle({ "Style Editor" }, { isChecked = showStyleEditor })
+            Iris.End()
         Iris.End()
 
-        Iris.Separator()
+        Iris.Text({ "Iris says hello. (2.1.0)" })
 
         Iris.CollapsingHeader({ "Window Options" })
         Iris.Table({ 3, false, false, false })

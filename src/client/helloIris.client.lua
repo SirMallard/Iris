@@ -3,44 +3,9 @@ local Iris = require(StarterPlayerScripts.Client.Iris).Init()
 
 Iris:Connect(Iris.ShowDemoWindow)
 
-local function recursive()
-    -- stylua: ignore start
-    if Iris.Menu({ "Recursive" }).state.isOpened.value then
-        Iris.MenuItem({ "New", Enum.KeyCode.N, Enum.ModifierKey.Ctrl })
-        Iris.MenuItem({ "Open", Enum.KeyCode.O, Enum.ModifierKey.Ctrl })
-        Iris.MenuItem({ "Save", Enum.KeyCode.S, Enum.ModifierKey.Ctrl })
-        Iris.Separator()
-        Iris.MenuToggle({ "Autosave" })
-        Iris.MenuToggle({ "Checked" })
-        Iris.Separator()
-        Iris.Menu({ "Options" })
-            Iris.MenuItem({ "Red" })
-            Iris.MenuItem({ "Yellow" })
-            Iris.MenuItem({ "Green" })
-            Iris.MenuItem({ "Blue" })
-            Iris.Separator()
-            recursive()
-        Iris.End()
-    end
-    Iris.End()
-    -- stylua: ignore end
-end
-
 Iris:Connect(function()
     -- stylua: ignore start
     Iris.Window({ "Testing Window" })
-
-        Iris.MenuBar()
-            Iris.Menu({ "File" })
-                recursive()
-            Iris.End()
-            
-            Iris.Menu({ "Edit" })
-            Iris.End()
-
-            Iris.Menu({ "View" })
-            Iris.End()
-        Iris.End()
 
         if Iris.Button({ "Disable Iris" }).clicked() then
             Iris.Disabled = true

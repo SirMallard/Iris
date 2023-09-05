@@ -6,6 +6,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local MenuStack: { Types.Widget } = {}
 
     local function EmptyMenuStack(menuIndex: number?)
+        if (menuIndex == nil or menuIndex == 0) then
+            MenuStack[1].Instance.BackgroundColor3 = Iris._config.HeaderColor
+            MenuStack[1].Instance.BackgroundTransparency = 1
+        end
+
         for index = #MenuStack, menuIndex and menuIndex + 1 or 1, -1 do
             local widget: Types.Widget = MenuStack[index]
             widget.state.isOpened:set(false)
@@ -23,6 +28,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
         local Menu = thisWidget.Instance :: Frame
         local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
+        ChildContainer.Size = UDim2.fromOffset(math.max(ChildContainer.AbsoluteSize.X, Menu.AbsoluteSize.X), math.max(ChildContainer.AbsoluteSize.Y, Menu.AbsoluteSize.Y))
 
         local menuPosition: Vector2 = Menu.AbsolutePosition
         local menuSize: Vector2 = Menu.AbsoluteSize
@@ -42,7 +48,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
 
         if menuPosition.Y + containerSize.Y > screenSize.Y then
-            print("Too low.")
+            -- too low.
             y = menuPosition.Y - borderSize - containerSize.Y + (submenu and menuSize.Y or 0)
         else
             y = menuPosition.Y + borderSize + (submenu and 0 or menuSize.Y)
@@ -97,7 +103,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             MenuBar.LayoutOrder = thisWidget.ZIndex
             MenuBar.ClipsDescendants = true
 
-            widgets.UIPadding(MenuBar, Vector2.new(Iris._config.ItemSpacing.X, 1))
+            widgets.UIPadding(MenuBar, Vector2.new(Iris._config.ItemSpacing.X, 2))
             widgets.UIListLayout(MenuBar, Enum.FillDirection.Horizontal, UDim.new())
 
             return MenuBar
@@ -352,9 +358,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             MenuItem.Name = "MenuItem"
             MenuItem.BackgroundTransparency = 1
             MenuItem.BorderSizePixel = 0
-            MenuItem.Size = UDim2.fromOffset(0, 0)
+            MenuItem.Size = UDim2.fromScale(1, 0)
             MenuItem.Text = ""
-            MenuItem.AutomaticSize = Enum.AutomaticSize.XY
+            MenuItem.AutomaticSize = Enum.AutomaticSize.Y
             MenuItem.ZIndex = thisWidget.ZIndex
             MenuItem.LayoutOrder = thisWidget.ZIndex
             MenuItem.AutoButtonColor = false
@@ -463,9 +469,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             MenuItem.Name = "MenuItem"
             MenuItem.BackgroundTransparency = 1
             MenuItem.BorderSizePixel = 0
-            MenuItem.Size = UDim2.fromOffset(0, 0)
+            MenuItem.Size = UDim2.fromScale(1, 0)
             MenuItem.Text = ""
-            MenuItem.AutomaticSize = Enum.AutomaticSize.XY
+            MenuItem.AutomaticSize = Enum.AutomaticSize.Y
             MenuItem.ZIndex = thisWidget.ZIndex
             MenuItem.LayoutOrder = thisWidget.ZIndex
             MenuItem.AutoButtonColor = false

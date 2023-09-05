@@ -380,7 +380,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             WindowButton.Size = UDim2.fromOffset(0, 0)
             WindowButton.AutomaticSize = Enum.AutomaticSize.None
             WindowButton.Text = ""
-            WindowButton.ClipsDescendants = true
+            WindowButton.ClipsDescendants = false
             WindowButton.AutoButtonColor = false
             WindowButton.Active = false
             WindowButton.Selectable = false
