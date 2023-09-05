@@ -1,11 +1,12 @@
 local Types = require(script.Parent.Parent.Types)
 
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
-    local tableWidgets = {}
+    local tableWidgets: { [Types.ID]: Types.Widget } = {}
 
+    -- reset the cell index every frame.
     table.insert(Iris._postCycleCallbacks, function()
-        for _, v in tableWidgets do
-            v.RowColumnIndex = 0
+        for _, thisWidget: Types.Widget in tableWidgets do
+            thisWidget.RowColumnIndex = 0
         end
     end)
 
@@ -19,11 +20,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ["BordersInner"] = 4,
         },
         Events = {
-            ["hovered"] = widgets.EVENTS.hover(function(thisWidget)
+            ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
                 return thisWidget.Instance
             end),
         },
-        Generate = function(thisWidget)
+        Generate = function(thisWidget: Types.Widget)
             tableWidgets[thisWidget.ID] = thisWidget
 
             thisWidget.InitialNumColumns = -1
@@ -32,30 +33,28 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             thisWidget.ColumnInstances = {}
             thisWidget.CellInstances = {}
 
-            local Table = Instance.new("Frame")
+            local Table: Frame = Instance.new("Frame")
             Table.Name = "Iris_Table"
             Table.Size = UDim2.new(Iris._config.ItemWidth, UDim.new(0, 0))
+            Table.AutomaticSize = Enum.AutomaticSize.Y
             Table.BackgroundTransparency = 1
             Table.BorderSizePixel = 0
             Table.ZIndex = thisWidget.ZIndex + 1024 -- allocate room for 1024 cells, because Table UIStroke has to appear above cell UIStroke
             Table.LayoutOrder = thisWidget.ZIndex
-            Table.AutomaticSize = Enum.AutomaticSize.Y
             Table.ClipsDescendants = true
 
             widgets.UIListLayout(Table, Enum.FillDirection.Horizontal, UDim.new(0, 0))
-
             widgets.UIStroke(Table, 1, Iris._config.TableBorderStrongColor, Iris._config.TableBorderStrongTransparency)
 
             return Table
         end,
-        Update = function(thisWidget)
-            local thisWidgetInstance = thisWidget.Instance
-            local ColumnInstances = thisWidget.ColumnInstances
+        Update = function(thisWidget: Types.Widget)
+            local Table = thisWidget.Instance :: Frame
 
             if thisWidget.arguments.BordersOuter == false then
-                thisWidgetInstance.UIStroke.Thickness = 0
+                Table.UIStroke.Thickness = 0
             else
-                thisWidget.Instance.UIStroke.Thickness = 1
+                Table.UIStroke.Thickness = 1
             end
 
             if thisWidget.InitialNumColumns == -1 then
@@ -64,23 +63,23 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
                 thisWidget.InitialNumColumns = thisWidget.arguments.NumColumns
 
-                for i = 1, thisWidget.InitialNumColumns do
-                    local column = Instance.new("Frame")
-                    column.Name = `Column_{i}`
-                    column.Size = UDim2.new(1 / thisWidget.InitialNumColumns, 0, 0, 0)
-                    column.BackgroundTransparency = 1
-                    column.BorderSizePixel = 0
-                    local ColumnZIndex = thisWidget.ZIndex + 1 + i
-                    column.ZIndex = ColumnZIndex
-                    column.LayoutOrder = ColumnZIndex
-                    column.AutomaticSize = Enum.AutomaticSize.Y
-                    column.ClipsDescendants = true
-                    --column.ClipsDescendants = true
+                for index = 1, thisWidget.InitialNumColumns do
+                    local zindex: number = thisWidget.ZIndex + 1 + index
 
-                    widgets.UIListLayout(column, Enum.FillDirection.Vertical, UDim.new(0, 0))
+                    local Column: Frame = Instance.new("Frame")
+                    Column.Name = `Column_{index}`
+                    Column.Size = UDim2.new(1 / thisWidget.InitialNumColumns, 0, 0, 0)
+                    Column.AutomaticSize = Enum.AutomaticSize.Y
+                    Column.BackgroundTransparency = 1
+                    Column.BorderSizePixel = 0
+                    Column.ZIndex = zindex
+                    Column.LayoutOrder = zindex
+                    Column.ClipsDescendants = true
 
-                    ColumnInstances[i] = column
-                    column.Parent = thisWidgetInstance
+                    widgets.UIListLayout(Column, Enum.FillDirection.Vertical, UDim.new(0, 0))
+
+                    thisWidget.ColumnInstances[index] = Column
+                    Column.Parent = Table
                 end
             elseif thisWidget.arguments.NumColumns ~= thisWidget.InitialNumColumns then
                 -- its possible to make it so that the NumColumns can increase,
@@ -89,73 +88,77 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
 
             if thisWidget.arguments.RowBg == false then
-                for _, v in thisWidget.CellInstances do
-                    v.BackgroundTransparency = 1
+                for _, Cell: Frame in thisWidget.CellInstances do
+                    Cell.BackgroundTransparency = 1
                 end
             else
-                for RowColumnIndex, v in thisWidget.CellInstances do
-                    local currentRow = math.ceil(RowColumnIndex / thisWidget.InitialNumColumns)
-                    v.BackgroundTransparency = if currentRow % 2 == 0 then Iris._config.TableRowBgAltTransparency else Iris._config.TableRowBgTransparency
+                for index: number, Cell: Frame in thisWidget.CellInstances do
+                    local currentRow: number = math.ceil(index / thisWidget.InitialNumColumns)
+                    Cell.BackgroundTransparency = if currentRow % 2 == 0 then Iris._config.TableRowBgAltTransparency else Iris._config.TableRowBgTransparency
                 end
             end
 
+            -- wooo, I love lua types. Especially on an object and child based system like Roblox! I never have to do anything
+            -- annoying or dumb to make it like me!
             if thisWidget.arguments.BordersInner == false then
-                for _, v in thisWidget.CellInstances do
-                    v.UIStroke.Thickness = 0
+                for _, Cell: Frame & { UIStroke: UIStroke } in thisWidget.CellInstances :: any do
+                    Cell.UIStroke.Thickness = 0
                 end
             else
-                for _, v in thisWidget.CellInstances do
-                    v.UIStroke.Thickness = 0.5
+                for _, Cell: Frame & { UIStroke: UIStroke } in thisWidget.CellInstances :: any do
+                    Cell.UIStroke.Thickness = 0.5
                 end
             end
         end,
-        Discard = function(thisWidget)
+        Discard = function(thisWidget: Types.Widget)
             tableWidgets[thisWidget.ID] = nil
             thisWidget.Instance:Destroy()
         end,
-        ChildAdded = function(thisWidget)
+        ChildAdded = function(thisWidget: Types.Widget)
             if thisWidget.RowColumnIndex == 0 then
                 thisWidget.RowColumnIndex = 1
             end
-            local potentialCellParent = thisWidget.CellInstances[thisWidget.RowColumnIndex]
+            local potentialCellParent: Frame = thisWidget.CellInstances[thisWidget.RowColumnIndex]
             if potentialCellParent then
                 return potentialCellParent
             end
-            local cell = Instance.new("Frame")
-            cell.AutomaticSize = Enum.AutomaticSize.Y
-            cell.Size = UDim2.new(1, 0, 0, 0)
-            cell.BackgroundTransparency = 1
-            cell.BorderSizePixel = 0
-            widgets.UIPadding(cell, Iris._config.CellPadding)
-            local selectedParent = thisWidget.ColumnInstances[((thisWidget.RowColumnIndex - 1) % thisWidget.InitialNumColumns) + 1]
-            local newZIndex = selectedParent.ZIndex + thisWidget.RowColumnIndex
-            cell.ZIndex = newZIndex
-            cell.LayoutOrder = newZIndex
-            cell.ClipsDescendants = true
-            cell.Name = `Cell_{thisWidget.RowColumnIndex}`
 
-            widgets.UIListLayout(cell, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
+            local selectedParent: Frame = thisWidget.ColumnInstances[((thisWidget.RowColumnIndex - 1) % thisWidget.InitialNumColumns) + 1]
+            local zindex: number = selectedParent.ZIndex + thisWidget.RowColumnIndex
+
+            local Cell: Frame = Instance.new("Frame")
+            Cell.Name = `Cell_{thisWidget.RowColumnIndex}`
+            Cell.Size = UDim2.new(1, 0, 0, 0)
+            Cell.AutomaticSize = Enum.AutomaticSize.Y
+            Cell.BackgroundTransparency = 1
+            Cell.BorderSizePixel = 0
+            Cell.ZIndex = zindex
+            Cell.LayoutOrder = zindex
+            Cell.ClipsDescendants = true
+
+            widgets.UIPadding(Cell, Iris._config.CellPadding)
+            widgets.UIListLayout(Cell, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
 
             if thisWidget.arguments.BordersInner == false then
-                widgets.UIStroke(cell, 0, Iris._config.TableBorderLightColor, Iris._config.TableBorderLightTransparency)
+                widgets.UIStroke(Cell, 0, Iris._config.TableBorderLightColor, Iris._config.TableBorderLightTransparency)
             else
-                widgets.UIStroke(cell, 0.5, Iris._config.TableBorderLightColor, Iris._config.TableBorderLightTransparency)
+                widgets.UIStroke(Cell, 0.5, Iris._config.TableBorderLightColor, Iris._config.TableBorderLightTransparency)
                 -- this takes advantage of unintended behavior when UIStroke is set to 0.5 to render cell borders,
                 -- at 0.5, only the top and left side of the cell will be rendered with a border.
             end
 
             if thisWidget.arguments.RowBg ~= false then
-                local currentRow = math.ceil(thisWidget.RowColumnIndex / thisWidget.InitialNumColumns)
-                local color = if currentRow % 2 == 0 then Iris._config.TableRowBgAltColor else Iris._config.TableRowBgColor
-                local transparency = if currentRow % 2 == 0 then Iris._config.TableRowBgAltTransparency else Iris._config.TableRowBgTransparency
+                local currentRow: number = math.ceil(thisWidget.RowColumnIndex / thisWidget.InitialNumColumns)
+                local color: Color3 = if currentRow % 2 == 0 then Iris._config.TableRowBgAltColor else Iris._config.TableRowBgColor
+                local transparency: number = if currentRow % 2 == 0 then Iris._config.TableRowBgAltTransparency else Iris._config.TableRowBgTransparency
 
-                cell.BackgroundColor3 = color
-                cell.BackgroundTransparency = transparency
+                Cell.BackgroundColor3 = color
+                Cell.BackgroundTransparency = transparency
             end
 
-            thisWidget.CellInstances[thisWidget.RowColumnIndex] = cell
-            cell.Parent = selectedParent
-            return cell
+            thisWidget.CellInstances[thisWidget.RowColumnIndex] = Cell
+            Cell.Parent = selectedParent
+            return Cell
         end,
     } :: Types.WidgetClass)
 end

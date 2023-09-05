@@ -11,8 +11,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local function getValueByIndex(value: Types.InputDataType, index: number, arguments: Types.Arguments): number
         if typeof(value) == "number" then
             return value
-        elseif typeof(value) == "Enum" then
-            return value
         elseif typeof(value) == "Vector2" then
             if index == 1 then
                 return value.X
@@ -72,8 +70,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local function updateValueByIndex(value: Types.InputDataType, index: number, newValue: number, arguments: Types.Arguments): Types.InputDataType
         if typeof(value) == "number" then
             return newValue
-        elseif typeof(value) == "Enum" then
-            return value
         elseif typeof(value) == "Vector2" then
             if index == 1 then
                 return Vector2.new(newValue, value.Y)
@@ -177,6 +173,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Color4_RGB = { "R: ", "G: ", "B: ", "T: " },
         Color4_HSV = { "H: ", "S: ", "V: ", "T: " },
         Rect = { "X: ", "Y: ", "X: ", "Y: " },
+    }
+
+    local defaultSigFigs: { [Types.InputDataTypes]: { number } } = {
+        Num = { 0 },
+        Vector2 = { 0, 0 },
+        Vector3 = { 0, 0, 0 },
+        UDim = { 3, 0 },
+        UDim2 = { 3, 0, 3, 0 },
+        Color3 = { 0, 0, 0 },
+        Color4 = { 0, 0, 0, 0 },
+        Rect = { 0, 0, 0, 0 },
     }
 
     --[[
@@ -367,36 +374,34 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         thisWidget.arguments.Format = { thisWidget.arguments.Format }
                     else
                         -- we calculate the format for the s.f. using the max, min and increment arguments.
-                        local sigfigs: number = 0
+                        local format: { string } = {}
+                        for index = 1, components do
+                            local sigfigs: number = defaultSigFigs[dataType][index]
 
-                        if thisWidget.arguments.Increment then
-                            for index = 1, components do
+                            if thisWidget.arguments.Increment then
                                 local value: number = getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)
                                 sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                             end
-                        end
 
-                        if thisWidget.arguments.Max then
-                            for index = 1, components do
+                            if thisWidget.arguments.Max then
                                 local value: number = getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments)
                                 sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                             end
-                        end
 
-                        if thisWidget.arguments.Min then
-                            for index = 1, components do
+                            if thisWidget.arguments.Min then
                                 local value: number = getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments)
                                 sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                             end
+
+                            if sigfigs > 0 then
+                                -- we know it's a float.
+                                format[index] = `%.{sigfigs}f`
+                            else
+                                format[index] = "%d"
+                            end
                         end
 
-                        if sigfigs > 0 then
-                            -- we know it's a float.
-                            thisWidget.arguments.Format = { `%.{sigfigs}f` }
-                        else
-                            thisWidget.arguments.Format = { "%d" }
-                        end
-
+                        thisWidget.arguments.Format = format
                         thisWidget.arguments.Prefix = defaultPrefx[dataType]
                     end
                 end,
@@ -695,36 +700,34 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         thisWidget.arguments.Format = { thisWidget.arguments.Format }
                     else
                         -- we calculate the format for the s.f. using the max, min and increment arguments.
-                        local sigfigs: number = 0
+                        local format: { string } = {}
+                        for index = 1, components do
+                            local sigfigs: number = defaultSigFigs[dataType][index]
 
-                        if thisWidget.arguments.Increment then
-                            for index = 1, components do
+                            if thisWidget.arguments.Increment then
                                 local value: number = getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)
                                 sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                             end
-                        end
 
-                        if thisWidget.arguments.Max then
-                            for index = 1, components do
+                            if thisWidget.arguments.Max then
                                 local value: number = getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments)
                                 sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                             end
-                        end
 
-                        if thisWidget.arguments.Min then
-                            for index = 1, components do
+                            if thisWidget.arguments.Min then
                                 local value: number = getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments)
                                 sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                             end
+
+                            if sigfigs > 0 then
+                                -- we know it's a float.
+                                format[index] = `%.{sigfigs}f`
+                            else
+                                format[index] = "%d"
+                            end
                         end
 
-                        if sigfigs > 0 then
-                            -- we know it's a float.
-                            thisWidget.arguments.Format = { `%.{sigfigs}f` }
-                        else
-                            thisWidget.arguments.Format = { "%d" }
-                        end
-
+                        thisWidget.arguments.Format = format
                         thisWidget.arguments.Prefix = defaultPrefx[dataType]
                     end
                 end,
@@ -826,7 +829,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         Iris._widgets[thisWidget.type].UpdateState(thisWidget)
                     end
                 end,
-                GenerateState = function(thisWidget)
+                GenerateState = function(thisWidget: Types.Widget)
                     if thisWidget.state.color == nil then
                         thisWidget.state.color = Iris._widgetState(thisWidget, "color", defaultValues[1])
                     end
@@ -847,6 +850,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Slider
     ]]
     local generateSliderScalar: (dataType: Types.InputDataTypes, components: number, defaultValue: any) -> Types.WidgetClass
+    local generateEnumSliderScalar: (enum: Enum, item: EnumItem) -> Types.WidgetClass
     do
         local AnyActiveSlider: boolean = false
         local ActiveSlider: Types.Widget? = nil
@@ -902,7 +906,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end)
 
-        function generateSliderScalar(dataType: Types.InputDataTypes, components: number, defaultValue: any)
+        function generateSliderScalar(dataType: Types.InputDataTypes, components: number, defaultValue: any, ...: any)
             return {
                 hasState = true,
                 hasChildren = false,
@@ -1082,36 +1086,34 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         thisWidget.arguments.Format = { thisWidget.arguments.Format }
                     else
                         -- we calculate the format for the s.f. using the max, min and increment arguments.
-                        local sigfigs: number = 0
+                        local format: { string } = {}
+                        for index = 1, components do
+                            local sigfigs: number = defaultSigFigs[dataType][index]
 
-                        if thisWidget.arguments.Increment then
-                            for index = 1, components do
+                            if thisWidget.arguments.Increment then
                                 local value: number = getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)
                                 sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                             end
-                        end
 
-                        if thisWidget.arguments.Max then
-                            for index = 1, components do
+                            if thisWidget.arguments.Max then
                                 local value: number = getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments)
                                 sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                             end
-                        end
 
-                        if thisWidget.arguments.Min then
-                            for index = 1, components do
+                            if thisWidget.arguments.Min then
                                 local value: number = getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments)
                                 sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                             end
+
+                            if sigfigs > 0 then
+                                -- we know it's a float.
+                                format[index] = `%.{sigfigs}f`
+                            else
+                                format[index] = "%d"
+                            end
                         end
 
-                        if sigfigs > 0 then
-                            -- we know it's a float.
-                            thisWidget.arguments.Format = { `%.{sigfigs}f` }
-                        else
-                            thisWidget.arguments.Format = { "%d" }
-                        end
-
+                        thisWidget.arguments.Format = format
                         thisWidget.arguments.Prefix = defaultPrefx[dataType]
                     end
 
@@ -1184,6 +1186,48 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end,
             }
         end
+
+        function generateEnumSliderScalar(enum: Enum, item: EnumItem)
+            local input: Types.WidgetClass = generateSliderScalar("Enum", 1, item.Value)
+            local valueToName = { string }
+
+            for _, enumItem: EnumItem in enum:GetEnumItems() do
+                valueToName[enumItem.Value] = enumItem.Name
+            end
+
+            return widgets.extend(input, {
+                Args = {
+                    ["Text"] = 1,
+                },
+                Update = function(thisWidget: Types.Widget)
+                    local Input = thisWidget.Instance :: GuiObject
+                    local TextLabel: TextLabel = Input.TextLabel
+                    TextLabel.Text = thisWidget.arguments.Text or "Input Slider"
+
+                    thisWidget.arguments.Increment = 1
+                    thisWidget.arguments.Min = 0
+                    thisWidget.arguments.Max = #enum:GetEnumItems() - 1
+
+                    local SliderField = Input:FindFirstChild("SliderField1") :: TextButton
+                    local GrabBar: Frame = SliderField.GrabBar
+
+                    local grabScaleSize = math.max(1 / math.floor(#enum:GetEnumItems()), Iris._config.GrabMinSize / SliderField.AbsoluteSize.X)
+
+                    GrabBar.Size = UDim2.new(grabScaleSize, 0, 1, 0)
+                end,
+                GenerateState = function(thisWidget: Types.Widget)
+                    if thisWidget.state.number == nil then
+                        thisWidget.state.number = Iris._widgetState(thisWidget, "number", item.Value)
+                    end
+                    if thisWidget.state.enumItem == nil then
+                        thisWidget.state.enumItem = Iris._widgetState(thisWidget, "enumItem", item)
+                    end
+                    if thisWidget.state.editingText == nil then
+                        thisWidget.state.editingText = Iris._widgetState(thisWidget, "editingText", false)
+                    end
+                end,
+            })
+        end
     end
 
     do
@@ -1213,7 +1257,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     Iris.WidgetConstructor("SliderUDim", generateSliderScalar("UDim", 2, UDim.new()))
     Iris.WidgetConstructor("SliderUDim2", generateSliderScalar("UDim2", 4, UDim2.new()))
     Iris.WidgetConstructor("SliderRect", generateSliderScalar("Rect", 4, Rect.new(0, 0, 0, 0)))
-    Iris.WidgetConstructor("SliderEnum", generateSliderScalar("Enum", 4, 0))
+    -- Iris.WidgetConstructor("SliderEnum", generateSliderScalar("Enum", 4, 0))
 
     Iris.WidgetConstructor("InputText", {
         hasState = true,

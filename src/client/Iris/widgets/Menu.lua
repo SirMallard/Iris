@@ -145,13 +145,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end),
             ["opened"] = {
                 ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget)
+                ["Get"] = function(thisWidget: Types.Widget)
                     return thisWidget.lastOpenedTick == Iris._cycleTick
                 end,
             },
             ["closed"] = {
                 ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget)
+                ["Get"] = function(thisWidget: Types.Widget)
                     return thisWidget.lastClosedTick == Iris._cycleTick
                 end,
             },

@@ -98,7 +98,7 @@ return function(Iris: Types.Internal)
 
     function widgets.UICorner(Parent: GuiObject, PxRounding: number?): UICorner
         local UICornerInstance: UICorner = Instance.new("UICorner")
-        UICornerInstance.CornerRadius = UDim.new(PxRounding ~= nil and 0 or 1, PxRounding or 0)
+        UICornerInstance.CornerRadius = UDim.new(PxRounding and 0 or 1, PxRounding or 0)
         UICornerInstance.Parent = Parent
         return UICornerInstance
     end
@@ -327,6 +327,12 @@ return function(Iris: Types.Internal)
         end
     end
 
+    function widgets.discardState(thisWidget: Types.Widget)
+        for _, state: Types.State in thisWidget.state do
+            state.ConnectedWidgets[thisWidget.ID] = nil
+        end
+    end
+
     widgets.EVENTS = {
         hover = function(pathToHovered: (thisWidget: Types.Widget) -> GuiObject)
             return {
@@ -441,12 +447,6 @@ return function(Iris: Types.Internal)
             }
         end,
     }
-
-    function widgets.discardState(thisWidget: Types.Widget)
-        for _, state: Types.State in thisWidget.state do
-            state.ConnectedWidgets[thisWidget.ID] = nil
-        end
-    end
 
     require(script.Root)(Iris, widgets)
     require(script.Window)(Iris, widgets)
