@@ -1,19 +1,5 @@
 local Types = require(script.Parent.Types)
 
---[[
-    ======================================================================
-
-         __          __ _____  _____    _____  ______  _______  _____ 
-         \ \        / /|_   _||  __ \  / ____||  ____||__   __|/ ____|
-          \ \  /\  / /   | |  | |  | || |  __ | |__      | |  | (___  
-           \ \/  \/ /    | |  | |  | || | |_ ||  __|     | |   \___ \ 
-            \  /\  /    _| |_ | |__| || |__| || |____    | |   ____) |
-             \/  \/    |_____||_____/  \_____||______|   |_|  |_____/ 
-
-                                  
-    ======================================================================
-    ]]
-
 return function(Iris: Types.Iris)
     -- basic wrapper for nearly every widget, saves space.
     local function wrapper(name: string): (arguments: Types.WidgetArguments?, states: Types.States?) -> Types.Widget
