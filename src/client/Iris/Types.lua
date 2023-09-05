@@ -7,6 +7,7 @@ export type Arguments = {
     TextHint: string,
     Wrapped: boolean,
     Color: Color3,
+    RichText: boolean,
 
     Increment: InputDataType,
     Min: InputDataType,

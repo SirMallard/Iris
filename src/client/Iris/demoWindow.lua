@@ -32,6 +32,7 @@ return function(Iris: Types.Iris)
                 Iris.Text({ "Text" })
                 Iris.TextWrapped({ string.rep("Text Wrapped ", 5) })
                 Iris.TextColored({ "Colored Text", Color3.fromRGB(255, 128, 0) })
+                Iris.Text({ `Rich Text: <b>bold text</b> <i>italic text</i> <u>underline text</u> <s>strikethrough text</s> <font color= "rgb(240, 40, 10)">red text</font> <font size="32">bigger text</font>`, true, nil, true })
                 Iris.SameLine()
                     Iris.RadioButton({ "Index '1'", 1 }, { index = radioButtonState })
                     Iris.RadioButton({ "Index 'two'", "two" }, { index = radioButtonState })
@@ -45,9 +46,9 @@ return function(Iris: Types.Iris)
 
                 Iris.SeparatorText({ "Inputs" })
 
-                Iris.InputNum()
-                Iris.DragNum()
-                Iris.SliderNum()
+                Iris.InputNum({})
+                Iris.DragNum({})
+                Iris.SliderNum({})
 
             Iris.End()
         end,
