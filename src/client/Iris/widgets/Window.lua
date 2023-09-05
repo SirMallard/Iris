@@ -676,11 +676,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return Window
         end,
-        Update = function(thisWidget: Types.Widget, menuBar: Types.Widget)
+        Update = function(thisWidget: Types.Widget)
             local WindowGui = thisWidget.Instance :: GuiObject
             local WindowButton = WindowGui.WindowButton :: TextButton
             local TitleBar = WindowButton.TitleBar :: Frame
             local Title: TextLabel = TitleBar.Title
+            local MenuBar: Frame? = WindowButton:FindFirstChild("MenuBar")
             local ChildContainer: ScrollingFrame = WindowButton.ChildContainer
             local ResizeGrip: TextButton = WindowButton.ResizeGrip
 
@@ -701,15 +702,20 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 TitleBar.Visible = false
             else
                 TitleBar.Visible = true
-                local titlebarSize: number = widgets.calculateTextSize(thisWidget.arguments.Title or "").Y + 2 * Iris._config.FramePadding.Y
+                --local titlebarSize: number = widgets.calculateTextSize(thisWidget.arguments.Title or "").Y + 2 * Iris._config.FramePadding.Y
+                local titlebarSize: number = TitleBar.AbsoluteSize.Y
                 containerHeight += titlebarSize
                 menuHeight += titlebarSize
             end
-            if menuBar and not thisWidget.arguments.NoMenu then
-                containerHeight += menuBar.Instance.AbsoluteSize.Y
+            if MenuBar then
+                if thisWidget.arguments.NoMenu then
+                    MenuBar.Visible = false
+                else
+                    MenuBar.Visible = true
+                    containerHeight += MenuBar.AbsoluteSize.Y
+                end
                 -- we move the menu bar to the correct position.
-                menuBar.Instance.Parent = WindowButton
-                menuBar.Instance.Position = UDim2.fromOffset(0, menuHeight)
+                MenuBar.Position = UDim2.fromOffset(0, menuHeight)
             end
             if thisWidget.arguments.NoBackground then
                 ChildContainer.BackgroundTransparency = 1
@@ -805,7 +811,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 WindowButton.AutomaticSize = Enum.AutomaticSize.None
                 thisWidget.lastUncollapsedTick = Iris._cycleTick + 1
             else
-                local collapsedHeight: number = Iris._config.TextSize + Iris._config.FramePadding.Y * 2
+                local collapsedHeight: number = TitleBar.AbsoluteSize.Y -- Iris._config.TextSize + Iris._config.FramePadding.Y * 2
                 TitleBar.CollapseButton.Arrow.Image = widgets.ICONS.RIGHT_POINTING_TRIANGLE
 
                 ChildContainer.Visible = false

@@ -267,7 +267,7 @@ function Iris.PopId()
 end
 
 --[=[
-    @function PushId
+    @function SetNextWidgetId
     @within Iris
     @param id Types.ID -- custom id.
 
