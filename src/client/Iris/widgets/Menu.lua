@@ -197,7 +197,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Menu.LayoutOrder = thisWidget.ZIndex
                 Menu.AutoButtonColor = false
 
-                widgets.UIPadding(Menu, Iris._config.FramePadding)
+                local UIPadding = widgets.UIPadding(Menu, Iris._config.FramePadding)
+                UIPadding.PaddingTop = UIPadding.PaddingTop - UDim.new(0, 1)
                 widgets.UIListLayout(Menu, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
                 local TextLabel: TextLabel = Instance.new("TextLabel")
@@ -300,7 +301,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             --     widgets.UICorner(ChildContainer, Iris._config.PopupRounding)
             -- end
 
-            local ChildContainerUIListLayout: UIListLayout = widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new())
+            local ChildContainerUIListLayout: UIListLayout = widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, 1))
             ChildContainerUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 
             local RootPopupScreenGui = Iris._rootInstance and Iris._rootInstance:FindFirstChild("PopupScreenGui") :: GuiObject
@@ -383,7 +384,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             MenuItem.LayoutOrder = thisWidget.ZIndex
             MenuItem.AutoButtonColor = false
 
-            widgets.UIPadding(MenuItem, Iris._config.FramePadding)
+            local UIPadding = widgets.UIPadding(MenuItem, Iris._config.FramePadding)
+            UIPadding.PaddingTop = UIPadding.PaddingTop - UDim.new(0, 1)
             widgets.UIListLayout(MenuItem, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
 
             widgets.applyInteractionHighlights(MenuItem, MenuItem, {
@@ -494,7 +496,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             MenuItem.LayoutOrder = thisWidget.ZIndex
             MenuItem.AutoButtonColor = false
 
-            widgets.UIPadding(MenuItem, Iris._config.FramePadding)
+            local UIPadding = widgets.UIPadding(MenuItem, Iris._config.FramePadding)
+            UIPadding.PaddingTop = UIPadding.PaddingTop - UDim.new(0, 1)
             widgets.UIListLayout(MenuItem, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
             widgets.applyInteractionHighlights(MenuItem, MenuItem, {
