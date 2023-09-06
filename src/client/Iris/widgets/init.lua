@@ -119,6 +119,26 @@ return function(Iris: Types.Internal)
 
         return ObjectValue
     end
+
+    function widgets.getScreenSizeForWindow(thisWidget: Types.Widget): Vector2 -- possible parents are GuiBase2d, CoreGui, PlayerGui
+        local size: Vector2
+        if thisWidget.usesScreenGUI then
+            size = thisWidget.Instance.AbsoluteSize
+        else
+            local rootParent = thisWidget.Instance.Parent
+            if rootParent:IsA("GuiBase2d") then
+                size = rootParent.AbsoluteSize
+            else
+                if rootParent.Parent:IsA("GuiBase2d") then
+                    size = rootParent.AbsoluteSize
+                else
+                    size = workspace.CurrentCamera.ViewportSize
+                end
+            end
+        end
+        return size
+    end
+
     -- below uses Iris
 
     local textParams: GetTextBoundsParams = Instance.new("GetTextBoundsParams")

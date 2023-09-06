@@ -38,7 +38,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 TooltipContainer.BackgroundTransparency = 1
                 TooltipContainer.BorderSizePixel = 0
 
-                widgets.UIListLayout(TooltipContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.FrameBorderSize))
+                widgets.UIListLayout(TooltipContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.PopupBorderSize))
 
                 TooltipContainer.Parent = PopupScreenGui
             else
@@ -103,7 +103,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         ChildDiscarded = function(thisWidget: Types.Widget, childWidget: Types.Widget)
-            if childWidget.type ~= "Window" then
+            if childWidget.type ~= "Window" and childWidget.type ~= "Tooltip" then
                 NumNonWindowChildren -= 1
                 if NumNonWindowChildren == 0 then
                     local Root = thisWidget.Instance :: any

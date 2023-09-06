@@ -88,26 +88,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
     local windowWidgets: { [Types.ID]: Types.Widget } = {} -- array of widget objects of type window
 
-    local function getAbsoluteSize(thisWidget: Types.Widget): Vector2 -- possible parents are GuiBase2d, CoreGui, PlayerGui
-        -- possibly the stupidest function ever written
-        local size: Vector2
-        if thisWidget.usesScreenGUI then
-            size = thisWidget.Instance.AbsoluteSize
-        else
-            local rootParent = thisWidget.Instance.Parent
-            if rootParent:IsA("GuiBase2d") then
-                size = rootParent.AbsoluteSize
-            else
-                if rootParent.Parent:IsA("GuiBase2d") then
-                    size = rootParent.AbsoluteSize
-                else
-                    size = workspace.CurrentCamera.ViewportSize
-                end
-            end
-        end
-        return size
-    end
-
     local function quickSwapWindows()
         -- ctrl + tab swapping functionality
         if Iris._config.UseScreenGUIs == false then
@@ -138,7 +118,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local function fitSizeToWindowBounds(thisWidget: Types.Widget, intentedSize: Vector2): Vector2
         local windowSize: Vector2 = Vector2.new(thisWidget.state.position.value.X, thisWidget.state.position.value.Y)
         local minWindowSize: number = (Iris._config.TextSize + Iris._config.FramePadding.Y * 2) * 2
-        local usableSize: Vector2 = getAbsoluteSize(thisWidget)
+        local usableSize: Vector2 = widgets.getScreenSizeForWindow(thisWidget)
         local safeAreaPadding: Vector2 = Vector2.new(Iris._config.WindowBorderSize + Iris._config.DisplaySafeAreaPadding.X, Iris._config.WindowBorderSize + Iris._config.DisplaySafeAreaPadding.Y)
 
         local maxWindowSize: Vector2 = (usableSize - windowSize - safeAreaPadding)
@@ -147,7 +127,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
     local function fitPositionToWindowBounds(thisWidget: Types.Widget, intendedPosition: Vector2): Vector2
         local thisWidgetInstance = thisWidget.Instance
-        local usableSize: Vector2 = getAbsoluteSize(thisWidget)
+        local usableSize: Vector2 = widgets.getScreenSizeForWindow(thisWidget)
         local safeAreaPadding: Vector2 = Vector2.new(Iris._config.WindowBorderSize + Iris._config.DisplaySafeAreaPadding.X, Iris._config.WindowBorderSize + Iris._config.DisplaySafeAreaPadding.Y)
 
         return Vector2.new(

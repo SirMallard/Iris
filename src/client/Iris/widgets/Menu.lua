@@ -6,14 +6,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local MenuStack: { Types.Widget } = {}
 
     local function EmptyMenuStack(menuIndex: number?)
-        if menuIndex == nil or menuIndex == 0 then
-            MenuStack[1].Instance.BackgroundColor3 = Iris._config.HeaderColor
-            MenuStack[1].Instance.BackgroundTransparency = 1
-        end
-
         for index = #MenuStack, menuIndex and menuIndex + 1 or 1, -1 do
             local widget: Types.Widget = MenuStack[index]
             widget.state.isOpened:set(false)
+
+            widget.Instance.BackgroundColor3 = Iris._config.HeaderColor
+            widget.Instance.BackgroundTransparency = 1
+            
             table.remove(MenuStack, index)
         end
 
@@ -29,6 +28,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         local Menu = thisWidget.Instance :: Frame
         local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
         ChildContainer.Size = UDim2.fromOffset(math.max(ChildContainer.AbsoluteSize.X, Menu.AbsoluteSize.X), math.max(ChildContainer.AbsoluteSize.Y, Menu.AbsoluteSize.Y))
+        if ChildContainer.Parent == nil then
+            return
+        end
 
         local menuPosition: Vector2 = Menu.AbsolutePosition
         local menuSize: Vector2 = Menu.AbsoluteSize
@@ -182,14 +184,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ButtonActiveTransparency = Iris._config.HeaderHoveredTransparency,
             }
             if thisWidget.parentWidget.type == "Menu" then
+                -- this Menu is a sub-Menu
                 Menu = Instance.new("TextButton")
                 Menu.Name = "Menu"
                 Menu.BackgroundColor3 = Iris._config.HeaderColor
                 Menu.BackgroundTransparency = 1
                 Menu.BorderSizePixel = 0
-                Menu.Size = UDim2.fromOffset(0, 0)
+                Menu.Size = UDim2.fromScale(1, 0)
                 Menu.Text = ""
-                Menu.AutomaticSize = Enum.AutomaticSize.XY
+                Menu.AutomaticSize = Enum.AutomaticSize.Y
                 Menu.ZIndex = thisWidget.ZIndex
                 Menu.LayoutOrder = thisWidget.ZIndex
                 Menu.AutoButtonColor = false
