@@ -6,6 +6,7 @@ return function(Iris: Types.Iris)
     local showRuntimeInfo = Iris.State(false)
     local showStyleEditor = Iris.State(false)
     local showWindowlessDemo = Iris.State(false)
+    local showMainMenuBarWindow = Iris.State(false)
 
     -- stylua: ignore start
     local function helpMarker(helpText)
@@ -208,6 +209,48 @@ return function(Iris: Types.Iris)
             Iris.End()
         end,
 
+        MultiInput = function()
+            Iris.Tree({"Multi-Component Input"})
+
+                local sharedVector2 = Iris.State(Vector2.new())
+                local sharedVector3 = Iris.State(Vector3.new())
+                local sharedUDim = Iris.State(UDim.new())
+                local sharedUDim2 = Iris.State(UDim2.new())
+                local sharedColor3 = Iris.State(Color3.new())
+                local SharedRect = Iris.State(Rect.new())
+
+                Iris.SeparatorText({"Input"})
+
+                Iris.InputVector2({}, {number = sharedVector2})
+                Iris.InputVector3({}, {number = sharedVector3})
+                Iris.InputUDim({}, {number = sharedUDim})
+                Iris.InputUDim2({}, {number = sharedUDim2})
+                Iris.InputRect({}, {number = SharedRect})
+
+                Iris.SeparatorText({"Drag"})
+
+                Iris.DragVector2({}, {number = sharedVector2})
+                Iris.DragVector3({}, {number = sharedVector3})
+                Iris.DragUDim({}, {number = sharedUDim})
+                Iris.DragUDim2({}, {number = sharedUDim2})
+                Iris.DragRect({}, {number = SharedRect})
+
+                Iris.SeparatorText({"Slider"})
+
+                Iris.SliderVector2({}, {number = sharedVector2})
+                Iris.SliderVector3({}, {number = sharedVector3})
+                Iris.SliderUDim({}, {number = sharedUDim})
+                Iris.SliderUDim2({}, {number = sharedUDim2})
+                Iris.SliderRect({}, {number = SharedRect})
+
+                Iris.SeparatorText({"Color"})
+
+                Iris.InputColor3({}, {color = sharedColor3})
+                Iris.InputColor4({}, {color = sharedColor3})
+
+            Iris.End()
+        end,
+
         Tooltip = function()
             Iris.PushConfig({ ContentWidth = UDim.new(0, 250) })
             Iris.Tree({ "Tooltip" })
@@ -283,7 +326,7 @@ return function(Iris: Types.Iris)
             Iris.End()
         end,
     }
-    local widgetDemosOrder = { "Basic", "Tree", "CollapsingHeader", "Group", "Indent", "Input", "InputText", "Tooltip", "Selectable", "Combo" }
+    local widgetDemosOrder = { "Basic", "Tree", "CollapsingHeader", "Group", "Indent", "Input", "MultiInput", "InputText", "Tooltip", "Selectable", "Combo" }
 
     local function recursiveTree()
         local theTree = Iris.Tree({ "Recursive Tree" })
@@ -416,6 +459,65 @@ return function(Iris: Types.Iris)
             end
             Iris.End()
         Iris.End()
+    end
+
+    local function recursiveMenu()
+        -- stylua: ignore start
+        if Iris.Menu({ "Recursive" }).state.isOpened.value then
+            Iris.MenuItem({ "New", Enum.KeyCode.N, Enum.ModifierKey.Ctrl })
+            Iris.MenuItem({ "Open", Enum.KeyCode.O, Enum.ModifierKey.Ctrl })
+            Iris.MenuItem({ "Save", Enum.KeyCode.S, Enum.ModifierKey.Ctrl })
+            Iris.Separator()
+            Iris.MenuToggle({ "Autosave" })
+            Iris.MenuToggle({ "Checked" })
+            Iris.Separator()
+            Iris.Menu({ "Options" })
+                Iris.MenuItem({ "Red" })
+                Iris.MenuItem({ "Yellow" })
+                Iris.MenuItem({ "Green" })
+                Iris.MenuItem({ "Blue" })
+                Iris.Separator()
+                recursiveMenu()
+            Iris.End()
+        end
+        Iris.End()
+        -- stylua: ignore end
+        
+    end
+
+    local function mainMenuBar()
+        Iris.MenuBar()
+            Iris.Menu({ "File" })
+                Iris.MenuItem({ "New", Enum.KeyCode.N, Enum.ModifierKey.Ctrl })
+                Iris.MenuItem({ "Open", Enum.KeyCode.O, Enum.ModifierKey.Ctrl })
+                Iris.MenuItem({ "Save", Enum.KeyCode.S, Enum.ModifierKey.Ctrl })
+                recursiveMenu()
+                Iris.MenuItem({ "Quit", Enum.KeyCode.Q, Enum.ModifierKey.Alt })
+            Iris.End()
+            
+            Iris.Menu({ "Examples" })
+                Iris.MenuToggle({ "Recursive Window" }, { isChecked = showRecursiveWindow })
+                Iris.MenuToggle({ "Windowless" }, { isChecked = showWindowlessDemo })
+                Iris.MenuToggle({ "Main Menu Bar" }, { isChecked = showMainMenuBarWindow })
+            Iris.End()
+
+            Iris.Menu({ "Tools" })
+                Iris.MenuToggle({ "Runtime Info" }, { isChecked = showRuntimeInfo })
+                Iris.MenuToggle({ "Style Editor" }, { isChecked = showStyleEditor })
+            Iris.End()
+        Iris.End()
+    end
+
+    local function mainMenuBarExample()
+        local screenSize = Iris.Internal._rootWidget.Instance.PseudoWindowScreenGui.AbsoluteSize
+        -- Iris.Window(
+        --     {[Iris.Args.Window.NoBackground] = true, [Iris.Args.Window.NoTitleBar] = true, [Iris.Args.Window.NoMove] = true, [Iris.Args.Window.NoResize] = true},
+        --     {size = Iris.State(screenSize), position = Iris.State(Vector2.new(0, 0))}
+        -- )
+        
+        mainMenuBar()
+
+        --Iris.End()
     end
 
     -- allows users to edit state
@@ -843,30 +945,6 @@ return function(Iris: Types.Iris)
         Iris.PopConfig()
     end
 
-    local function recursiveMenu()
-        -- stylua: ignore start
-        if Iris.Menu({ "Recursive" }).state.isOpened.value then
-            Iris.MenuItem({ "New", Enum.KeyCode.N, Enum.ModifierKey.Ctrl })
-            Iris.MenuItem({ "Open", Enum.KeyCode.O, Enum.ModifierKey.Ctrl })
-            Iris.MenuItem({ "Save", Enum.KeyCode.S, Enum.ModifierKey.Ctrl })
-            Iris.Separator()
-            Iris.MenuToggle({ "Autosave" })
-            Iris.MenuToggle({ "Checked" })
-            Iris.Separator()
-            Iris.Menu({ "Options" })
-                Iris.MenuItem({ "Red" })
-                Iris.MenuItem({ "Yellow" })
-                Iris.MenuItem({ "Green" })
-                Iris.MenuItem({ "Blue" })
-                Iris.Separator()
-                recursiveMenu()
-            Iris.End()
-        end
-        Iris.End()
-        -- stylua: ignore end
-        
-    end
-
     -- main demo window
     return function()
         local NoTitleBar = Iris.State(false)
@@ -897,27 +975,9 @@ return function(Iris: Types.Iris)
             [Iris.Args.Window.NoMenu] = NoMenu.value,
         }, { size = Iris.State(Vector2.new(600, 550)), position = Iris.State(Vector2.new(100, 25)), isOpened = showMainWindow })
 
-        Iris.MenuBar()
-            Iris.Menu({ "File" })
-                Iris.MenuItem({ "New", Enum.KeyCode.N, Enum.ModifierKey.Ctrl })
-                Iris.MenuItem({ "Open", Enum.KeyCode.O, Enum.ModifierKey.Ctrl })
-                Iris.MenuItem({ "Save", Enum.KeyCode.S, Enum.ModifierKey.Ctrl })
-                recursiveMenu()
-                Iris.MenuItem({ "Quit", Enum.KeyCode.Q, Enum.ModifierKey.Alt })
-            Iris.End()
-            
-            Iris.Menu({ "Examples" })
-                Iris.MenuToggle({ "Recursive Window" }, { isChecked = showRecursiveWindow })
-                Iris.MenuToggle({ "Windowless" }, { isChecked = showWindowlessDemo })
-            Iris.End()
+        mainMenuBar()
 
-            Iris.Menu({ "Tools" })
-                Iris.MenuToggle({ "Runtime Info" }, { isChecked = showRuntimeInfo })
-                Iris.MenuToggle({ "Style Editor" }, { isChecked = showStyleEditor })
-            Iris.End()
-        Iris.End()
-
-        Iris.Text({ "Iris says hello. (2.1.0)" })
+        Iris.Text({ "Iris says hello. (2.1.1)" })
 
         Iris.CollapsingHeader({ "Window Options" })
         Iris.Table({ 3, false, false, false })
@@ -978,6 +1038,10 @@ return function(Iris: Types.Iris)
         end
         if showWindowlessDemo.value then
             windowlessDemo()
+        end
+
+        if showMainMenuBarWindow.value then
+            mainMenuBarExample()
         end
     end
 end
