@@ -88,26 +88,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
     local windowWidgets: { [Types.ID]: Types.Widget } = {} -- array of widget objects of type window
 
-    local function getAbsoluteSize(thisWidget: Types.Widget): Vector2 -- possible parents are GuiBase2d, CoreGui, PlayerGui
-        -- possibly the stupidest function ever written
-        local size: Vector2
-        if thisWidget.usesScreenGUI then
-            size = thisWidget.Instance.AbsoluteSize
-        else
-            local rootParent = thisWidget.Instance.Parent
-            if rootParent:IsA("GuiBase2d") then
-                size = rootParent.AbsoluteSize
-            else
-                if rootParent.Parent:IsA("GuiBase2d") then
-                    size = rootParent.AbsoluteSize
-                else
-                    size = workspace.CurrentCamera.ViewportSize
-                end
-            end
-        end
-        return size
-    end
-
     local function quickSwapWindows()
         -- ctrl + tab swapping functionality
         if Iris._config.UseScreenGUIs == false then
@@ -138,7 +118,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local function fitSizeToWindowBounds(thisWidget: Types.Widget, intentedSize: Vector2): Vector2
         local windowSize: Vector2 = Vector2.new(thisWidget.state.position.value.X, thisWidget.state.position.value.Y)
         local minWindowSize: number = (Iris._config.TextSize + Iris._config.FramePadding.Y * 2) * 2
-        local usableSize: Vector2 = getAbsoluteSize(thisWidget)
+        local usableSize: Vector2 = widgets.getScreenSizeForWindow(thisWidget)
         local safeAreaPadding: Vector2 = Vector2.new(Iris._config.WindowBorderSize + Iris._config.DisplaySafeAreaPadding.X, Iris._config.WindowBorderSize + Iris._config.DisplaySafeAreaPadding.Y)
 
         local maxWindowSize: Vector2 = (usableSize - windowSize - safeAreaPadding)
@@ -147,7 +127,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
     local function fitPositionToWindowBounds(thisWidget: Types.Widget, intendedPosition: Vector2): Vector2
         local thisWidgetInstance = thisWidget.Instance
-        local usableSize: Vector2 = getAbsoluteSize(thisWidget)
+        local usableSize: Vector2 = widgets.getScreenSizeForWindow(thisWidget)
         local safeAreaPadding: Vector2 = Vector2.new(Iris._config.WindowBorderSize + Iris._config.DisplaySafeAreaPadding.X, Iris._config.WindowBorderSize + Iris._config.DisplaySafeAreaPadding.Y)
 
         return Vector2.new(
@@ -675,11 +655,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return Window
         end,
-        Update = function(thisWidget: Types.Widget, menuBar: Types.Widget)
+        Update = function(thisWidget: Types.Widget)
             local WindowGui = thisWidget.Instance :: GuiObject
             local WindowButton = WindowGui.WindowButton :: TextButton
             local TitleBar = WindowButton.TitleBar :: Frame
             local Title: TextLabel = TitleBar.Title
+            local MenuBar: Frame? = WindowButton:FindFirstChild("MenuBar")
             local ChildContainer: ScrollingFrame = WindowButton.ChildContainer
             local ResizeGrip: TextButton = WindowButton.ResizeGrip
 
@@ -700,15 +681,20 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 TitleBar.Visible = false
             else
                 TitleBar.Visible = true
-                local titlebarSize: number = widgets.calculateTextSize(thisWidget.arguments.Title or "").Y + 2 * Iris._config.FramePadding.Y
+                --local titlebarSize: number = widgets.calculateTextSize(thisWidget.arguments.Title or "").Y + 2 * Iris._config.FramePadding.Y
+                local titlebarSize: number = TitleBar.AbsoluteSize.Y
                 containerHeight += titlebarSize
                 menuHeight += titlebarSize
             end
-            if menuBar and not thisWidget.arguments.NoMenu then
-                containerHeight += menuBar.Instance.AbsoluteSize.Y
+            if MenuBar then
+                if thisWidget.arguments.NoMenu then
+                    MenuBar.Visible = false
+                else
+                    MenuBar.Visible = true
+                    containerHeight += MenuBar.AbsoluteSize.Y
+                end
                 -- we move the menu bar to the correct position.
-                menuBar.Instance.Parent = WindowButton
-                menuBar.Instance.Position = UDim2.fromOffset(0, menuHeight)
+                MenuBar.Position = UDim2.fromOffset(0, menuHeight)
             end
             if thisWidget.arguments.NoBackground then
                 ChildContainer.BackgroundTransparency = 1
@@ -804,7 +790,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 WindowButton.AutomaticSize = Enum.AutomaticSize.None
                 thisWidget.lastUncollapsedTick = Iris._cycleTick + 1
             else
-                local collapsedHeight: number = Iris._config.TextSize + Iris._config.FramePadding.Y * 2
+                local collapsedHeight: number = TitleBar.AbsoluteSize.Y -- Iris._config.TextSize + Iris._config.FramePadding.Y * 2
                 TitleBar.CollapseButton.Arrow.Image = widgets.ICONS.RIGHT_POINTING_TRIANGLE
 
                 ChildContainer.Visible = false

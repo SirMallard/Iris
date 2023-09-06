@@ -363,7 +363,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Update = function(thisWidget: Types.Widget)
                     local Input = thisWidget.Instance :: GuiObject
                     local TextLabel: TextLabel = Input.TextLabel
-                    TextLabel.Text = thisWidget.arguments.Text or "Input " .. dataType
+                    TextLabel.Text = thisWidget.arguments.Text or `Input {dataType}`
 
                     if components == 1 then
                         Input.SubButton.Visible = not thisWidget.arguments.NoButtons
@@ -694,7 +694,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Update = function(thisWidget: Types.Widget)
                     local Input = thisWidget.Instance :: GuiObject
                     local TextLabel: TextLabel = Input.TextLabel
-                    TextLabel.Text = thisWidget.arguments.Text or "Input Slider"
+                    TextLabel.Text = thisWidget.arguments.Text or `Drag {dataType}`
 
                     if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then
                         thisWidget.arguments.Format = { thisWidget.arguments.Format }
@@ -805,7 +805,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Update = function(thisWidget: Types.Widget)
                     local Input = thisWidget.Instance :: GuiObject
                     local TextLabel: TextLabel = Input.TextLabel
-                    TextLabel.Text = thisWidget.arguments.Text or "Input Slider"
+                    TextLabel.Text = thisWidget.arguments.Text or `Drag {dataType}`
 
                     if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then
                         thisWidget.arguments.Format = { thisWidget.arguments.Format }
@@ -1080,7 +1080,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Update = function(thisWidget: Types.Widget)
                     local Input = thisWidget.Instance :: GuiObject
                     local TextLabel: TextLabel = Input.TextLabel
-                    TextLabel.Text = thisWidget.arguments.Text or "Input Slider"
+                    TextLabel.Text = thisWidget.arguments.Text or `Slider {dataType}`
 
                     if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then
                         thisWidget.arguments.Format = { thisWidget.arguments.Format }
@@ -1202,7 +1202,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Update = function(thisWidget: Types.Widget)
                     local Input = thisWidget.Instance :: GuiObject
                     local TextLabel: TextLabel = Input.TextLabel
-                    TextLabel.Text = thisWidget.arguments.Text or "Input Slider"
+                    TextLabel.Text = thisWidget.arguments.Text or "Input Enum"
 
                     thisWidget.arguments.Increment = 1
                     thisWidget.arguments.Min = 0

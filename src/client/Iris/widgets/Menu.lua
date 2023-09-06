@@ -6,14 +6,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local MenuStack: { Types.Widget } = {}
 
     local function EmptyMenuStack(menuIndex: number?)
-        if (menuIndex == nil or menuIndex == 0) then
-            MenuStack[1].Instance.BackgroundColor3 = Iris._config.HeaderColor
-            MenuStack[1].Instance.BackgroundTransparency = 1
-        end
-
         for index = #MenuStack, menuIndex and menuIndex + 1 or 1, -1 do
             local widget: Types.Widget = MenuStack[index]
             widget.state.isOpened:set(false)
+
+            widget.Instance.BackgroundColor3 = Iris._config.HeaderColor
+            widget.Instance.BackgroundTransparency = 1
+            
             table.remove(MenuStack, index)
         end
 
@@ -29,6 +28,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         local Menu = thisWidget.Instance :: Frame
         local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
         ChildContainer.Size = UDim2.fromOffset(math.max(ChildContainer.AbsoluteSize.X, Menu.AbsoluteSize.X), math.max(ChildContainer.AbsoluteSize.Y, Menu.AbsoluteSize.Y))
+        if ChildContainer.Parent == nil then
+            return
+        end
 
         local menuPosition: Vector2 = Menu.AbsolutePosition
         local menuSize: Vector2 = Menu.AbsoluteSize
@@ -95,7 +97,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Generate = function(thisWidget: Types.Widget)
             local MenuBar: Frame = Instance.new("Frame")
             MenuBar.Name = "MenuBar"
-            MenuBar.Size = UDim2.new(1, 0, 0, Iris._config.TextSize + 2 * (Iris._config.FramePadding.Y + 1))
+            MenuBar.Size = UDim2.fromScale(1, 0)
+            MenuBar.AutomaticSize = Enum.AutomaticSize.Y
             MenuBar.BackgroundColor3 = Iris._config.MenubarBgColor
             MenuBar.BackgroundTransparency = Iris._config.MenubarBgTransparency
             MenuBar.BorderSizePixel = 0
@@ -104,14 +107,28 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             MenuBar.ClipsDescendants = true
 
             widgets.UIPadding(MenuBar, Vector2.new(Iris._config.ItemSpacing.X, 2))
-            widgets.UIListLayout(MenuBar, Enum.FillDirection.Horizontal, UDim.new())
+            widgets.UIListLayout(MenuBar, Enum.FillDirection.Horizontal, UDim.new()).VerticalAlignment = Enum.VerticalAlignment.Center
 
             return MenuBar
         end,
         Update = function(thisWidget: Types.Widget)
             local parent: Types.Widget = thisWidget.parentWidget
             if parent.type == "Window" then
-                Iris._widgets["Window"].Update(parent, thisWidget)
+                local instance = parent.Instance and parent.Instance:FindFirstChild("WindowButton") :: TextButton?
+                -- we very sneakily change our parent to the window and then update it.
+                if instance then
+                    thisWidget.Instance.Parent = instance
+
+                    -- even sneakier trick to update the window the next frame.
+                    local callbackIndex: number = #Iris._postCycleCallbacks + 1
+                    local desiredCycleTick: number = Iris._cycleTick + 1
+                    Iris._postCycleCallbacks[callbackIndex] = function()
+                        if Iris._cycleTick == desiredCycleTick then
+                            Iris._widgets["Window"].Update(parent)
+                            Iris._postCycleCallbacks[callbackIndex] = nil
+                        end
+                    end
+                end
                 return
             elseif parent.type == "Root" then
                 return
@@ -124,9 +141,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
         Discard = function(thisWidget: Types.Widget)
             local Window: Types.Widget = thisWidget.parentWidget
-            Iris._widgets["Window"].Update(Window, nil)
-            -- the window no longer needs to render the menubar.
             thisWidget.Instance:Destroy()
+            -- the window no longer needs to render the menubar.
+            Iris._widgets["Window"].Update(Window)
         end,
     } :: Types.WidgetClass)
 
@@ -167,19 +184,21 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ButtonActiveTransparency = Iris._config.HeaderHoveredTransparency,
             }
             if thisWidget.parentWidget.type == "Menu" then
+                -- this Menu is a sub-Menu
                 Menu = Instance.new("TextButton")
                 Menu.Name = "Menu"
                 Menu.BackgroundColor3 = Iris._config.HeaderColor
                 Menu.BackgroundTransparency = 1
                 Menu.BorderSizePixel = 0
-                Menu.Size = UDim2.fromOffset(0, 0)
+                Menu.Size = UDim2.fromScale(1, 0)
                 Menu.Text = ""
-                Menu.AutomaticSize = Enum.AutomaticSize.XY
+                Menu.AutomaticSize = Enum.AutomaticSize.Y
                 Menu.ZIndex = thisWidget.ZIndex
                 Menu.LayoutOrder = thisWidget.ZIndex
                 Menu.AutoButtonColor = false
 
-                widgets.UIPadding(Menu, Iris._config.FramePadding)
+                local UIPadding = widgets.UIPadding(Menu, Iris._config.FramePadding)
+                UIPadding.PaddingTop = UIPadding.PaddingTop - UDim.new(0, 1)
                 widgets.UIListLayout(Menu, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
                 local TextLabel: TextLabel = Instance.new("TextLabel")
@@ -214,11 +233,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             else
                 Menu = Instance.new("TextButton")
                 Menu.Name = "Menu"
-                Menu.Size = UDim2.fromScale(0, 1)
+                Menu.Size = UDim2.fromScale(0, 0)
+                Menu.AutomaticSize = Enum.AutomaticSize.XY
                 Menu.BackgroundColor3 = Iris._config.HeaderColor
                 Menu.BackgroundTransparency = 1
                 Menu.BorderSizePixel = 0
-                Menu.AutomaticSize = Enum.AutomaticSize.X
                 Menu.Text = ""
                 Menu.LayoutOrder = thisWidget.ZIndex
                 Menu.ZIndex = thisWidget.ZIndex
@@ -282,7 +301,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             --     widgets.UICorner(ChildContainer, Iris._config.PopupRounding)
             -- end
 
-            local ChildContainerUIListLayout: UIListLayout = widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new())
+            local ChildContainerUIListLayout: UIListLayout = widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, 1))
             ChildContainerUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 
             local RootPopupScreenGui = Iris._rootInstance and Iris._rootInstance:FindFirstChild("PopupScreenGui") :: GuiObject
@@ -365,7 +384,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             MenuItem.LayoutOrder = thisWidget.ZIndex
             MenuItem.AutoButtonColor = false
 
-            widgets.UIPadding(MenuItem, Iris._config.FramePadding)
+            local UIPadding = widgets.UIPadding(MenuItem, Iris._config.FramePadding)
+            UIPadding.PaddingTop = UIPadding.PaddingTop - UDim.new(0, 1)
             widgets.UIListLayout(MenuItem, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
 
             widgets.applyInteractionHighlights(MenuItem, MenuItem, {
@@ -476,7 +496,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             MenuItem.LayoutOrder = thisWidget.ZIndex
             MenuItem.AutoButtonColor = false
 
-            widgets.UIPadding(MenuItem, Iris._config.FramePadding)
+            local UIPadding = widgets.UIPadding(MenuItem, Iris._config.FramePadding)
+            UIPadding.PaddingTop = UIPadding.PaddingTop - UDim.new(0, 1)
             widgets.UIListLayout(MenuItem, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
             widgets.applyInteractionHighlights(MenuItem, MenuItem, {

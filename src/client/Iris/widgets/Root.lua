@@ -38,9 +38,18 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 TooltipContainer.BackgroundTransparency = 1
                 TooltipContainer.BorderSizePixel = 0
 
-                widgets.UIListLayout(TooltipContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.FrameBorderSize))
+                widgets.UIListLayout(TooltipContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.PopupBorderSize))
 
                 TooltipContainer.Parent = PopupScreenGui
+
+                local MenuBarContainer: Frame = Instance.new("Frame")
+                MenuBarContainer.Name = "MenuBarContainer"
+                MenuBarContainer.AutomaticSize = Enum.AutomaticSize.Y
+                MenuBarContainer.Size = UDim2.fromScale(1, 0)
+                MenuBarContainer.BackgroundTransparency = 1
+                MenuBarContainer.BorderSizePixel = 0
+
+                MenuBarContainer.Parent = PopupScreenGui
             else
                 PopupScreenGui = Instance.new("Folder")
             end
@@ -92,6 +101,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return thisWidget.Instance
             elseif childWidget.type == "Tooltip" then
                 return Root.PopupScreenGui.TooltipContainer
+            elseif childWidget.type == "MenuBar" then
+                return Root.PopupScreenGui.MenuBarContainer
             else
                 local PseudoWindowScreenGui = Root.PseudoWindowScreenGui :: any
                 local PseudoWindow: Frame = PseudoWindowScreenGui.PseudoWindow
@@ -103,7 +114,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         ChildDiscarded = function(thisWidget: Types.Widget, childWidget: Types.Widget)
-            if childWidget.type ~= "Window" then
+            if childWidget.type ~= "Window" and childWidget.type ~= "Tooltip" and childWidget.type ~= "MenuBar" then
                 NumNonWindowChildren -= 1
                 if NumNonWindowChildren == 0 then
                     local Root = thisWidget.Instance :: any

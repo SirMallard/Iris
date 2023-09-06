@@ -317,6 +317,7 @@ return function(Iris: Types.Iris)
         A text label to display the text argument.
         The Wrapped argument will make the text wrap around if it is cut off by its parent.
         The Color argument will change the color of the text, by default it is defined in the configuration file.
+        The RichText argument will 
 
         ```lua
         hasChildren = false
@@ -324,7 +325,8 @@ return function(Iris: Types.Iris)
         Arguments = {
             Text: string,
             Wrapped: boolean? = false, -- whether the text will wrap around inside the parent container.
-            Color: Color3? = Iris._config.TextColor -- the colour of the text.
+            Color: Color3? = Iris._config.TextColor, -- the colour of the text.
+            RichText: boolean? = false -- enable RichText
         }
         Events = {
             hovered: () -> boolean
