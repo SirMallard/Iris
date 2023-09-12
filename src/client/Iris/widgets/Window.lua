@@ -370,7 +370,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             WindowButton.SelectionImageObject = Iris.SelectionImageObject
             WindowButton.ZIndex = thisWidget.ZIndex + 1
             WindowButton.LayoutOrder = thisWidget.ZIndex + 1
-            WindowButton.ClipsDescendants = true
 
             WindowButton.SelectionGroup = true
             WindowButton.SelectionBehaviorUp = Enum.SelectionBehavior.Stop
