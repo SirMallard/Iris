@@ -113,7 +113,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Button.LayoutOrder = thisWidget.ZIndex
                 Button.AutoButtonColor = false
 
-                widgets.applyInteractionHighlights(Button, Header, {
+                widgets.applyInteractionHighlights(thisWidget, Button, Header, {
                     ButtonColor = Color3.fromRGB(0, 0, 0),
                     ButtonTransparency = 1,
                     ButtonHoveredColor = Iris._config.HeaderHoveredColor,
@@ -157,7 +157,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 TextLabel.Parent = Button
 
-                Button.MouseButton1Click:Connect(function()
+                widgets.applyButtonClick(thisWidget, Button, function()
                     thisWidget.state.isUncollapsed:set(not thisWidget.state.isUncollapsed.value)
                 end)
 
@@ -253,7 +253,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 local ButtonUIListLayout: UIListLayout = widgets.UIListLayout(Button, Enum.FillDirection.Horizontal, UDim.new(0, 2 * Iris._config.FramePadding.X))
                 ButtonUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
-                widgets.applyInteractionHighlights(Button, Button, {
+                widgets.applyInteractionHighlights(thisWidget, Button, Button, {
                     ButtonColor = Iris._config.HeaderColor,
                     ButtonTransparency = Iris._config.HeaderTransparency,
                     ButtonHoveredColor = Iris._config.HeaderHoveredColor,
@@ -293,7 +293,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 TextLabel.Parent = Button
 
-                Button.MouseButton1Click:Connect(function()
+                widgets.applyButtonClick(thisWidget, Button, function()
                     thisWidget.state.isUncollapsed:set(not thisWidget.state.isUncollapsed.value)
                 end)
 

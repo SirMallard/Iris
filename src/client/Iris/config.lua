@@ -226,6 +226,8 @@ local TemplateConfig = {
         UseScreenGUIs = true,
         IgnoreGuiInset = false,
         Parent = nil,
+        RichText = false,
+        DisableWidget = false,
         DisplayOrderOffset = 127,
         ZIndexOffset = 0,
 

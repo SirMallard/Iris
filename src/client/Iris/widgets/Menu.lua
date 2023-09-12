@@ -12,7 +12,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             widget.Instance.BackgroundColor3 = Iris._config.HeaderColor
             widget.Instance.BackgroundTransparency = 1
-            
+
             table.remove(MenuStack, index)
         end
 
@@ -114,19 +114,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Update = function(thisWidget: Types.Widget)
             local parent: Types.Widget = thisWidget.parentWidget
             if parent.type == "Window" then
-                local instance = parent.Instance and parent.Instance:FindFirstChild("WindowButton") :: TextButton?
-                -- we very sneakily change our parent to the window and then update it.
-                if instance then
-                    thisWidget.Instance.Parent = instance
-
-                    -- even sneakier trick to update the window the next frame.
-                    local callbackIndex: number = #Iris._postCycleCallbacks + 1
-                    local desiredCycleTick: number = Iris._cycleTick + 1
-                    Iris._postCycleCallbacks[callbackIndex] = function()
-                        if Iris._cycleTick == desiredCycleTick then
-                            Iris._widgets["Window"].Update(parent)
-                            Iris._postCycleCallbacks[callbackIndex] = nil
-                        end
+                -- even sneakier trick to update the window the next frame.
+                local callbackIndex: number = #Iris._postCycleCallbacks + 1
+                local desiredCycleTick: number = Iris._cycleTick + 1
+                Iris._postCycleCallbacks[callbackIndex] = function()
+                    if Iris._cycleTick == desiredCycleTick then
+                        Iris._widgets["Window"].Update(parent)
+                        Iris._postCycleCallbacks[callbackIndex] = nil
                     end
                 end
                 return
@@ -143,7 +137,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local Window: Types.Widget = thisWidget.parentWidget
             thisWidget.Instance:Destroy()
             -- the window no longer needs to render the menubar.
-            Iris._widgets["Window"].Update(Window)
+            if #Window.Instance:GetChildren() > 0 then
+                Iris._widgets["Window"].Update(Window)
+            end
         end,
     } :: Types.WidgetClass)
 
@@ -247,9 +243,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 widgets.applyTextStyle(Menu)
                 widgets.UIPadding(Menu, Vector2.new(Iris._config.ItemSpacing.X, Iris._config.FramePadding.Y))
             end
-            widgets.applyInteractionHighlights(Menu, Menu, thisWidget.ButtonColors)
+            widgets.applyInteractionHighlights(thisWidget, Menu, Menu, thisWidget.ButtonColors)
 
-            Menu.MouseButton1Click:Connect(function()
+            widgets.applyButtonClick(thisWidget, Menu, function()
                 local openMenu: boolean = if #MenuStack <= 1 then not thisWidget.state.isOpened.value else true
                 thisWidget.state.isOpened:set(openMenu)
 
@@ -264,7 +260,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     end
                 end
             end)
-            Menu.MouseEnter:Connect(function()
+            widgets.applyMouseEnter(thisWidget, Menu, function()
                 if AnyMenuOpen and ActiveMenu and ActiveMenu ~= thisWidget then
                     local parentMenu: Types.Widget = thisWidget.parentWidget
                     local parentIndex: number? = table.find(MenuStack, parentMenu)
@@ -388,7 +384,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             UIPadding.PaddingTop = UIPadding.PaddingTop - UDim.new(0, 1)
             widgets.UIListLayout(MenuItem, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
 
-            widgets.applyInteractionHighlights(MenuItem, MenuItem, {
+            widgets.applyInteractionHighlights(thisWidget, MenuItem, MenuItem, {
                 ButtonColor = Iris._config.HeaderColor,
                 ButtonTransparency = 1,
                 ButtonHoveredColor = Iris._config.HeaderHoveredColor,
@@ -397,11 +393,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ButtonActiveTransparency = Iris._config.HeaderHoveredTransparency,
             })
 
-            MenuItem.MouseButton1Click:Connect(function()
+            widgets.applyButtonClick(thisWidget, MenuItem, function()
                 EmptyMenuStack()
             end)
 
-            MenuItem.MouseEnter:Connect(function()
+            widgets.applyMouseEnter(thisWidget, MenuItem, function()
                 local parentMenu: Types.Widget = thisWidget.parentWidget
                 if AnyMenuOpen and ActiveMenu and ActiveMenu ~= parentMenu then
                     local parentIndex: number? = table.find(MenuStack, parentMenu)
@@ -500,7 +496,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             UIPadding.PaddingTop = UIPadding.PaddingTop - UDim.new(0, 1)
             widgets.UIListLayout(MenuItem, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
-            widgets.applyInteractionHighlights(MenuItem, MenuItem, {
+            widgets.applyInteractionHighlights(thisWidget, MenuItem, MenuItem, {
                 ButtonColor = Iris._config.HeaderColor,
                 ButtonTransparency = 1,
                 ButtonHoveredColor = Iris._config.HeaderHoveredColor,
@@ -509,13 +505,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ButtonActiveTransparency = Iris._config.HeaderHoveredTransparency,
             })
 
-            MenuItem.MouseButton1Click:Connect(function()
+            widgets.applyButtonClick(thisWidget, MenuItem, function()
                 local wasChecked: boolean = thisWidget.state.isChecked.value
                 thisWidget.state.isChecked:set(not wasChecked)
                 EmptyMenuStack()
             end)
 
-            MenuItem.MouseEnter:Connect(function()
+            widgets.applyMouseEnter(thisWidget, MenuItem, function()
                 local parentMenu: Types.Widget = thisWidget.parentWidget
                 if AnyMenuOpen and ActiveMenu and ActiveMenu ~= parentMenu then
                     local parentIndex: number? = table.find(MenuStack, parentMenu)

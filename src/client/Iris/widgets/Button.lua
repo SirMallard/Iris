@@ -36,7 +36,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             widgets.applyFrameStyle(Button)
 
-            widgets.applyInteractionHighlights(Button, Button, {
+            widgets.applyInteractionHighlights(thisWidget, Button, Button, {
                 ButtonColor = Iris._config.ButtonColor,
                 ButtonTransparency = Iris._config.ButtonTransparency,
                 ButtonHoveredColor = Iris._config.ButtonHoveredColor,

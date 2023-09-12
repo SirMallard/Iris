@@ -217,7 +217,7 @@ return function(Iris: Types.Iris)
                 local sharedUDim = Iris.State(UDim.new())
                 local sharedUDim2 = Iris.State(UDim2.new())
                 local sharedColor3 = Iris.State(Color3.new())
-                local SharedRect = Iris.State(Rect.new())
+                local SharedRect = Iris.State(Rect.new(0, 0, 0, 0))
 
                 Iris.SeparatorText({"Input"})
 
@@ -509,7 +509,7 @@ return function(Iris: Types.Iris)
     end
 
     local function mainMenuBarExample()
-        local screenSize = Iris.Internal._rootWidget.Instance.PseudoWindowScreenGui.AbsoluteSize
+        -- local screenSize = Iris.Internal._rootWidget.Instance.PseudoWindowScreenGui.AbsoluteSize
         -- Iris.Window(
         --     {[Iris.Args.Window.NoBackground] = true, [Iris.Args.Window.NoTitleBar] = true, [Iris.Args.Window.NoMove] = true, [Iris.Args.Window.NoResize] = true},
         --     {size = Iris.State(screenSize), position = Iris.State(Vector2.new(0, 0))}
@@ -659,7 +659,8 @@ return function(Iris: Types.Iris)
                 },
             }
 
-            Iris.Window({ "Style Editor" }, { isOpened = showStyleEditor })
+            local window = Iris.Window({ "Style Editor" }, { isOpened = showStyleEditor })
+                Iris.Text({ `Clicked close: {window.closed()}` })
                 Iris.Text({ "Customize the look of Iris in realtime." })
                 Iris.SameLine()
                     if Iris.SmallButton({ "Light Theme" }).clicked() then

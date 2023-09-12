@@ -6,13 +6,6 @@ Iris:Connect(Iris.ShowDemoWindow)
 Iris:Connect(function()
     -- stylua: ignore start
     Iris.Window({ "Testing Window" })
-
-        if Iris.Button({ "Disable Iris" }).clicked() then
-            Iris.Disabled = true
-        end
-
-        Iris.InputVector3({ "Dynamic Formatting", 0.05, 0, 1 })
-
         local NumberState = Iris.State(0)
         local Vector2State = Iris.State(Vector2.zero)
         local Vector3State = Iris.State(Vector3.zero)
@@ -67,6 +60,36 @@ Iris:Connect(function()
             Iris.SliderRect({ "SliderRect" }, { number = RectState})
         Iris.End()
 
+    Iris.End()
+    -- stylua: ignore end
+end)
+
+Iris:Connect(function()
+    -- stylua: ignore start
+    Iris.Window({ "Style Editor" })
+        Iris.SeparatorText({ "Customize the look of Iris in realtime." })
+        Iris.SameLine()
+            if Iris.Button({ "Light Theme" }).clicked() then
+                Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorLight)
+            end
+            if Iris.Button({ "Dark Theme" }).clicked() then
+                Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark)
+            end
+        Iris.End()
+
+        Iris.SameLine()
+            if Iris.Button({ "Classic Size" }).clicked() then
+                Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
+            end
+            if Iris.Button({ "Larger Size" }).clicked() then
+                Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeClear)
+            end
+        Iris.End()
+
+        if Iris.Button({ "Reset Everything" }).clicked() then
+            Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark)
+            Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
+        end
     Iris.End()
     -- stylua: ignore end
 end)
