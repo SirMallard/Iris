@@ -87,9 +87,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ButtonActiveTransparency = Iris._config.HeaderActiveTransparency,
             }
 
-            widgets.applyInteractionHighlights(SelectableButton, SelectableButton, thisWidget.ButtonColors)
+            widgets.applyInteractionHighlights(thisWidget, SelectableButton, SelectableButton, thisWidget.ButtonColors)
 
-            SelectableButton.MouseButton1Click:Connect(function()
+            widgets.applyButtonClick(thisWidget, SelectableButton, function()
                 if thisWidget.arguments.NoClick ~= true then
                     onSelectionChange(thisWidget)
                 end
@@ -279,7 +279,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             -- for some reason ImGui Combo has no highlights for Active, only hovered.
             -- so this deviates from ImGui, but its a good UX change
-            widgets.applyInteractionHighlightsWithMultiHighlightee(PreviewContainer, {
+            widgets.applyInteractionHighlightsWithMultiHighlightee(thisWidget, PreviewContainer, {
                 {
                     PreviewLabel,
                     {

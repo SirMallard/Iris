@@ -66,7 +66,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Circle.BackgroundTransparency = Iris._config.CheckMarkTransparency
             widgets.UICorner(Circle)
 
-            widgets.applyInteractionHighlights(RadioButton, Button, {
+            widgets.applyInteractionHighlights(thisWidget, RadioButton, Button, {
                 ButtonColor = Iris._config.FrameBgColor,
                 ButtonTransparency = Iris._config.FrameBgTransparency,
                 ButtonHoveredColor = Iris._config.FrameBgHoveredColor,
@@ -75,7 +75,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ButtonActiveTransparency = Iris._config.FrameBgActiveTransparency,
             })
 
-            RadioButton.MouseButton1Click:Connect(function()
+            widgets.applyButtonClick(thisWidget, RadioButton, function()
                 thisWidget.state.index:set(thisWidget.arguments.Index)
             end)
 

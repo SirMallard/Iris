@@ -47,7 +47,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             CheckboxBox.LayoutOrder = thisWidget.ZIndex + 1
             widgets.applyFrameStyle(CheckboxBox, true)
 
-            widgets.applyInteractionHighlights(Checkbox, CheckboxBox, {
+            widgets.applyInteractionHighlights(thisWidget, Checkbox, CheckboxBox, {
                 ButtonColor = Iris._config.FrameBgColor,
                 ButtonTransparency = Iris._config.FrameBgTransparency,
                 ButtonHoveredColor = Iris._config.FrameBgHoveredColor,
@@ -74,7 +74,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             Checkmark.Parent = Checkbox
 
-            Checkbox.MouseButton1Click:Connect(function()
+            widgets.applyButtonClick(thisWidget, Checkbox, function()
                 local wasChecked: boolean = thisWidget.state.isChecked.value
                 thisWidget.state.isChecked:set(not wasChecked)
             end)

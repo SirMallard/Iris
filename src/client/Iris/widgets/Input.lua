@@ -203,7 +203,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             SubButton.Size = UDim2.fromOffset(Iris._config.TextSize + 2 * Iris._config.FramePadding.Y, Iris._config.TextSize)
             SubButton.Parent = parent
 
-            SubButton.MouseButton1Click:Connect(function()
+            widgets.applyButtonClick(thisWidget, SubButton, function()
                 local isCtrlHeld: boolean = widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
                 local changeValue: number = (thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, 1, thisWidget.arguments) or 1) * (isCtrlHeld and 100 or 1)
                 local newValue: number = thisWidget.state.number.value - changeValue
@@ -226,7 +226,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             AddButton.Size = UDim2.fromOffset(Iris._config.TextSize + 2 * Iris._config.FramePadding.Y, Iris._config.TextSize)
             AddButton.Parent = parent
 
-            AddButton.MouseButton1Click:Connect(function()
+            widgets.applyButtonClick(thisWidget, AddButton, function()
                 local isCtrlHeld: boolean = widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
                 local changeValue: number = (thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, 1, thisWidget.arguments) or 1) * (isCtrlHeld and 100 or 1)
                 local newValue: number = thisWidget.state.number.value + changeValue
@@ -596,7 +596,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                         DragField.Parent = Drag
 
-                        widgets.applyInteractionHighlights(DragField, DragField, {
+                        widgets.applyInteractionHighlights(thisWidget, DragField, DragField, {
                             ButtonColor = Iris._config.FrameBgColor,
                             ButtonTransparency = Iris._config.FrameBgTransparency,
                             ButtonHoveredColor = Iris._config.FrameBgHoveredColor,
@@ -671,7 +671,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                             thisWidget.state.editingText:set(index)
                         end)
 
-                        DragField.MouseButton1Down:Connect(function(x: number, y: number)
+                        widgets.applyButtonDown(thisWidget, DragField, function(x: number, y: number)
                             DragMouseDown(thisWidget, dataType, index, x, y)
                         end)
                     end
@@ -872,6 +872,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local min: number = ActiveSlider.arguments.Min and getValueByIndex(ActiveSlider.arguments.Min, ActiveIndex, ActiveSlider.arguments) or defaultMin[ActiveDataType][ActiveIndex]
             local max: number = ActiveSlider.arguments.Max and getValueByIndex(ActiveSlider.arguments.Max, ActiveIndex, ActiveSlider.arguments) or defaultMax[ActiveDataType][ActiveIndex]
 
+            do -- trying to find a better implementation.
+                local framePadding: number = Iris._config.FramePadding.X
+                local Range: number = max - min
+                local SliderWidth: number = SliderField.AbsoluteSize.X - 2 * framePadding
+                local MouseOffset: number = widgets.getMouseLocation().X - SliderField.AbsolutePosition.X - framePadding
+                local Ratio: number = MouseOffset / SliderWidth
+                local _newValue: number = math.clamp(math.modf(Ratio * (math.ceil(Range / increment) + 1)), 0, Range) * increment + min
+            end
+
             local GrabPadding: number = Iris._config.FramePadding.X
             local decimalFix: number = increment < 1 and 0 or 1 -- ??? ?? ??? ?
             local GrabNumPossiblePositions: number = math.floor((decimalFix + max - min) / increment)
@@ -980,7 +989,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                         OverlayText.Parent = SliderField
 
-                        widgets.applyInteractionHighlights(SliderField, SliderField, {
+                        widgets.applyInteractionHighlights(thisWidget, SliderField, SliderField, {
                             ButtonColor = Iris._config.FrameBgColor,
                             ButtonTransparency = Iris._config.FrameBgTransparency,
                             ButtonHoveredColor = Iris._config.FrameBgHoveredColor,
@@ -1042,7 +1051,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                             thisWidget.state.editingText:set(index)
                         end)
 
-                        SliderField.MouseButton1Down:Connect(function()
+                        widgets.applyButtonDown(thisWidget, SliderField, function()
                             SliderMouseDown(thisWidget, dataType, index)
                         end)
 
@@ -1050,7 +1059,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         GrabBar.Name = "GrabBar"
                         GrabBar.ZIndex = thisWidget.ZIndex + 5
                         GrabBar.LayoutOrder = thisWidget.ZIndex + 5
-                        GrabBar.AnchorPoint = Vector2.new(0, 0.5)
+                        GrabBar.AnchorPoint = Vector2.new(0.5, 0.5)
                         GrabBar.Position = UDim2.new(0, 0, 0.5, 0)
                         GrabBar.BorderSizePixel = 0
                         GrabBar.BackgroundColor3 = Iris._config.SliderGrabColor
@@ -1058,6 +1067,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         if Iris._config.GrabRounding > 0 then
                             widgets.UICorner(GrabBar, Iris._config.GrabRounding)
                         end
+
+                        widgets.UISizeConstraint(GrabBar, Vector2.new(Iris._config.GrabMinSize, 0))
 
                         GrabBar.Parent = SliderField
                     end
@@ -1163,6 +1174,22 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         local increment: number = thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments) or defaultIncrements[dataType][index]
                         local min: number = thisWidget.arguments.Min and getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments) or defaultMin[dataType][index]
                         local max: number = thisWidget.arguments.Max and getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments) or defaultMax[dataType][index]
+
+                        do -- trying to find a better implementation.
+                            local GrabWidth: number = GrabBar.AbsoluteSize.X
+                            local GrabPadding: number = Iris._config.FramePadding.X
+                            local _decimalFix: number = increment < 1 and 0 or 1 -- ??? ?? ??? ?
+                            local _GrabNumPossiblePositions: number = math.floor((max - min) / increment) + 1
+                            local _PositionRatio: number = (value - min) / (max - min)
+                            local _MinScaleSize: number = (GrabPadding + GrabWidth / 2) / Slider.AbsoluteSize.X -- 1 - (GrabWidth / (SliderField.AbsoluteSize.X - 2 * GrabPadding - GrabWidth))
+                            -- local GrabBarPos: number = math.clamp(math.floor(PositionRatio * GrabNumPossiblePositions) / GrabNumPossiblePositions, 0, 1) * (1 - 2 * MinScaleSize) + MinScaleSize
+                            local _UsableRatio: number = (Slider.AbsoluteSize.X - GrabWidth * 2 - GrabWidth) / (Slider.AbsoluteSize.X - GrabPadding * 2)
+                            local Ratio: number = (value - min) / (math.ceil(max - min / increment))
+                            local _Position: number = Ratio --* UsableRatio + ((1 - UsableRatio) / 2)
+
+                            -- GrabBar.Position = UDim2.new(Position, 0, 0.5, 0)
+                            -- GrabBar.AnchorPoint = Vector2.new(Position, 0.5)
+                        end
 
                         local GrabPadding: number = Iris._config.FramePadding.X
                         local decimalFix: number = increment < 1 and 0 or 1 -- ??? ?? ??? ?

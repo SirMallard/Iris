@@ -191,6 +191,7 @@ return function(Iris: Types.Iris): Types.Internal
 
         -- represents all widgets created last frame. We keep the _lastVDOM to reuse widgets from the previous frame
         -- rather than creating a new instance every frame.
+        setmetatable(Internal._lastVDOM, { __mode = "kv" })
         Internal._lastVDOM = Internal._VDOM
         Internal._VDOM = Internal._generateEmptyVDOM()
 
@@ -441,6 +442,7 @@ return function(Iris: Types.Iris): Types.Internal
         end
 
         thisWidget.lastCycleTick = Internal._cycleTick
+        thisWidget.Disabled = Iris._config.DisableWidget
 
         if thisWidgetClass.hasChildren then
             -- a parent widget, so we increase our depth.

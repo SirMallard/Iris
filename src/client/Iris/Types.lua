@@ -88,7 +88,23 @@ export type InputDataType = number | Vector2 | Vector3 | UDim | UDim2 | Color3 |
 export type InputDataTypes = "Num" | "Vector2" | "Vector3" | "UDim" | "UDim2" | "Color3" | "Color4" | "Rect" | "Enum" | "" | string
 
 export type WidgetArguments = { [number]: Argument }
-export type WidgetStates = { [string]: State }
+export type WidgetStates = {
+    number: State?,
+    color: State?,
+    transparency: State?,
+    editingText: State?,
+    index: State?,
+
+    size: State?,
+    position: State?,
+    scrollDistance: State?,
+
+    isChecked: State?,
+    isOpened: State?,
+    isUncollapsed: State?,
+
+    [string]: State,
+}
 
 export type Widget = {
     ID: ID,
@@ -100,6 +116,7 @@ export type Widget = {
     parentWidget: Widget,
     Instance: GuiObject,
     ChildContainer: GuiObject,
+    Disabled: boolean,
     arguments: Arguments,
     providedArguments: Arguments,
     ZIndex: number,
@@ -204,6 +221,7 @@ export type WidgetUtility = {
     GuiInset: Vector2,
 
     findBestWindowPosForPopup: (refPos: Vector2, size: Vector2, outerMin: Vector2, outerMax: Vector2) -> Vector2,
+    getScreenSizeForWindow: (thisWidget: Widget) -> Vector2,
     isPosInsideRect: (pos: Vector2, rectMin: Vector2, rectMax: Vector2) -> boolean,
     extend: (superClass: WidgetClass, { [any]: any }) -> WidgetClass,
     discardState: (thisWidget: Widget) -> (),
@@ -217,10 +235,17 @@ export type WidgetUtility = {
 
     calculateTextSize: (text: string, width: number?) -> Vector2,
     applyTextStyle: (thisInstance: TextLabel | TextButton | TextBox) -> (),
-    applyInteractionHighlights: (Button: GuiButton, Highlightee: GuiObject, Colors: { [string]: any }) -> (),
-    applyInteractionHighlightsWithMultiHighlightee: (Button: GuiButton, Highlightees: { { GuiObject | { [string]: Color3 | number } } }) -> (),
-    applyTextInteractionHighlights: (Button: GuiButton, Highlightee: TextLabel | TextButton | TextBox, Colors: { [string]: any }) -> (),
+    applyInteractionHighlights: (thisWidget: Widget, Button: GuiButton, Highlightee: GuiObject, Colors: { [string]: any }) -> (),
+    applyInteractionHighlightsWithMultiHighlightee: (thisWidget: Widget, Button: GuiButton, Highlightees: { { GuiObject | { [string]: Color3 | number } } }) -> (),
+    applyTextInteractionHighlights: (thisWidget: Widget, Button: GuiButton, Highlightee: TextLabel | TextButton | TextBox, Colors: { [string]: any }) -> (),
     applyFrameStyle: (thisInstance: GuiObject, forceNoPadding: boolean?, doubleyNoPadding: boolean?) -> (),
+
+    applyButtonClick: (thisWidget: Widget, thisInstance: GuiButton, callback: () -> ()) -> (),
+    applyButtonDown: (thisWidget: Widget, thisInstance: GuiButton, callback: (x: number, y: number) -> ()) -> (),
+    applyMouseEnter: (thisWidget: Widget, thisInstance: GuiObject, callback: () -> ()) -> (),
+    applyMouseLeave: (thisWidget: Widget, thisInstance: GuiObject, callback: () -> ()) -> (),
+    applyInputBegan: (thisWidget: Widget, thisInstance: GuiObject, callback: (input: InputObject) -> ()) -> (),
+    applyInputEnded: (thisWidget: Widget, thisInstance: GuiObject, callback: (input: InputObject) -> ()) -> (),
 
     EVENTS: {
         hover: (pathToHovered: (thisWidget: Widget) -> GuiObject) -> Event,
@@ -228,7 +253,6 @@ export type WidgetUtility = {
         rightClick: (pathToClicked: (thisWidget: Widget) -> GuiButton) -> Event,
         doubleClick: (pathToClicked: (thisWidget: Widget) -> GuiButton) -> Event,
         ctrlClick: (pathToClicked: (thisWidget: Widget) -> GuiButton) -> Event,
-        shortcut: (pathToKeys: (thisWidget: Widget) -> (Enum.KeyCode, Enum.ModifierKey)) -> Event,
     },
 
     abstractButton: WidgetClass,
@@ -566,6 +590,8 @@ export type Config = {
     UseScreenGUIs: boolean,
     IgnoreGuiInset: boolean,
     Parent: BasePlayerGui,
+    RichText: boolean,
+    DisableWidget: boolean,
     DisplayOrderOffset: number,
     ZIndexOffset: number,
 
