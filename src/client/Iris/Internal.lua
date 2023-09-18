@@ -1,19 +1,5 @@
 local Types = require(script.Parent.Types)
 
---[[
-    =========================================================================
-
-          _____  _   _  _______  ______  _____   _   _            _      
-         |_   _|| \ | ||__   __||  ____||  __ \ | \ | |    /\    | |     
-           | |  |  \| |   | |   | |__   | |__) ||  \| |   /  \   | |     
-           | |  | . ` |   | |   |  __|  |  _  / | . ` |  / /\ \  | |     
-          _| |_ | |\  |   | |   | |____ | | \ \ | |\  | / ____ \ | |____ 
-         |_____||_| \_|   |_|   |______||_|  \_\|_| \_|/_/    \_\|______|
-
-
-    =========================================================================
-]]
-
 return function(Iris: Types.Iris): Types.Internal
     --[=[
         @class Internal
@@ -93,10 +79,6 @@ return function(Iris: Types.Iris): Types.Internal
             coroutine.yield(true)
         end
     end)
-
-    -- VDOM
-    Internal._lastVDOM = Internal._generateEmptyVDOM()
-    Internal._VDOM = Internal._generateEmptyVDOM()
 
     --[[
         -----------------------
@@ -190,14 +172,14 @@ return function(Iris: Types.Iris): Types.Internal
         Called every frame to handle all of the widget management. Any previous frame data is ammended and everything updates.
     ]=]
     function Internal._cycle()
-        debug.profilebegin("Iris/Cycle")
-        if Internal.Disabled then
+        --debug.profilebegin("Iris/Cycle")
+        if Iris.Disabled then
             return -- Stops all rendering, effectively freezes the current frame with no interaction.
         end
 
         Internal._rootWidget.lastCycleTick = Internal._cycleTick
         if Internal._rootInstance == nil or Internal._rootInstance.Parent == nil then
-            Internal.ForceRefresh()
+            Iris.ForceRefresh()
         end
 
         for _, widget: Types.Widget in Internal._lastVDOM do
@@ -209,6 +191,7 @@ return function(Iris: Types.Iris): Types.Internal
 
         -- represents all widgets created last frame. We keep the _lastVDOM to reuse widgets from the previous frame
         -- rather than creating a new instance every frame.
+        setmetatable(Internal._lastVDOM, { __mode = "kv" })
         Internal._lastVDOM = Internal._VDOM
         Internal._VDOM = Internal._generateEmptyVDOM()
 
@@ -252,12 +235,12 @@ return function(Iris: Types.Iris): Types.Internal
                 callback()
             end
         else
-            --debug.profilebegin("Iris Generate")
+            --debug.profilebegin("Iris/Generate")
 
             -- each frame we check on our thread status.
             local coroutineStatus = coroutine.status(Internal._cycleCoroutine)
             if coroutineStatus == "suspended" then
-                -- suspended means it yeilded, either because it was a complete success
+                -- suspended means it yielded, either because it was a complete success
                 -- or it caught an error in the code. We run it again for this frame.
                 local _, success, result = coroutine.resume(Internal._cycleCoroutine)
                 if success == false then
@@ -265,7 +248,7 @@ return function(Iris: Types.Iris): Types.Internal
                     error(result, 0)
                 end
             elseif coroutineStatus == "running" then
-                -- still running (probably becayse of an asynchronous method inside a connection).
+                -- still running (probably because of an asynchronous method inside a connection).
                 error("Iris cycleCoroutine took to long to yield. Connected functions should not yield.")
             else
                 -- should never reach this (nothing you can do).
@@ -273,7 +256,7 @@ return function(Iris: Types.Iris): Types.Internal
             end
             --debug.profileend()
         end
-        debug.profileend()
+        --debug.profileend()
     end
 
     --[=[
@@ -341,7 +324,7 @@ return function(Iris: Types.Iris): Types.Internal
 
         for _, field: string in Fields.All.Optional do
             if widgetClass[field] == nil then
-                -- asign a dummy function which does nothing.
+                -- assign a dummy function which does nothing.
                 thisWidget[field] = Internal._NoOp
             else
                 thisWidget[field] = widgetClass[field]
@@ -388,8 +371,8 @@ return function(Iris: Types.Iris): Types.Internal
         thisWidget.ArgNames = ArgNames
 
         for index: string, _ in thisWidget.Events do
-            if Internal.Events[index] == nil then
-                Internal.Events[index] = function()
+            if Iris.Events[index] == nil then
+                Iris.Events[index] = function()
                     return Internal._EventCall(Internal._lastWidget, index)
                 end
             end
@@ -451,17 +434,18 @@ return function(Iris: Types.Iris): Types.Internal
 
         if Internal._deepCompare(thisWidget.providedArguments, arguments) == false then
             -- the widgets arguments have changed, the widget should update to reflect changes.
-            -- providedargumentss is the frozen which will not change.
-            -- the arguments can be alterred internally, which happens for the input widgets.
+            -- providedArguments is the frozen table which will not change.
+            -- the arguments can be altered internally, which happens for the input widgets.
             thisWidget.arguments = Internal._deepCopy(arguments)
             thisWidget.providedArguments = arguments
             thisWidgetClass.Update(thisWidget)
         end
 
         thisWidget.lastCycleTick = Internal._cycleTick
+        thisWidget.Disabled = Iris._config.DisableWidget
 
         if thisWidgetClass.hasChildren then
-            -- a parent widget so we increase our depth.
+            -- a parent widget, so we increase our depth.
             Internal._stackIndex += 1
             Internal._IDStack[Internal._stackIndex] = thisWidget.ID
         end
@@ -531,7 +515,8 @@ return function(Iris: Types.Iris): Types.Internal
             thisWidgetClass.GenerateState(thisWidget)
             thisWidgetClass.UpdateState(thisWidget)
 
-            thisWidget.stateMT = {} -- MT can't be itself because state has to explicitly only contain stateClass objects
+            -- the state MT can't be itself because state has to explicitly only contain stateClass objects
+            thisWidget.stateMT = {}
             setmetatable(thisWidget.state, thisWidget.stateMT)
 
             thisWidget.__index = thisWidget.state
@@ -540,7 +525,6 @@ return function(Iris: Types.Iris): Types.Internal
             eventMTParent = thisWidget
         end
 
-        -- i'm very upset that this function exists.
         eventMTParent.__index = function(_, eventName: string)
             return function()
                 return Internal._EventCall(thisWidget, eventName)
@@ -603,7 +587,7 @@ return function(Iris: Types.Iris): Types.Internal
         @return Types.State -- the state for the widget.
 
         Connects the state to the widget. If no state exists then a new one is created. Called for every state in every
-        widget if the user does not provide one.        
+        widget if the user does not provide a state.
     ]=]
     function Internal._widgetState(thisWidget: Types.Widget, stateName: string, initialValue: any): Types.State
         local ID: Types.ID = thisWidget.ID .. stateName
@@ -628,7 +612,7 @@ return function(Iris: Types.Iris): Types.Internal
         @param evetName string
         @return boolean -- the value of the event.
 
-        A wrapper for any event on any widget. Automatically, Iris does not initialise events unless they are explicitly
+        A wrapper for any event on any widget. Automatically, Iris does not initialize events unless they are explicitly
         called so in the first frame, the event connections are set up. Every event is a function which returns a boolean.
     ]=]
     function Internal._EventCall(thisWidget: Types.Widget, eventName: string): boolean
@@ -759,7 +743,7 @@ return function(Iris: Types.Iris): Types.Internal
 
     --[=[
         @ignore
-        @function _deepCompare 
+        @function _deepCompare
         @within Internal
         @param t1 table
         @param t2 table
@@ -811,6 +795,11 @@ return function(Iris: Types.Iris): Types.Internal
         return copy
     end
 
+    -- VDOM
+    Internal._lastVDOM = Internal._generateEmptyVDOM()
+    Internal._VDOM = Internal._generateEmptyVDOM()
+
     Iris.Internal = Internal
+    Iris._config = Internal._config
     return Internal
 end

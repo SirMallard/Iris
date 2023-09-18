@@ -1,20 +1,6 @@
 --!optimize 2
 local Types = require(script.Types)
 
---[[
-    =======================================
-
-          _____  _____   _____   _____ 
-         |_   _||  __ \ |_   _| / ____|
-           | |  | |__) |  | |  | (___  
-           | |  |  _  /   | |   \___ \ 
-          _| |_ | | \ \  _| |_  ____) |
-         |_____||_|  \_\|_____||_____/ 
-
-
-    =======================================
-]]
-
 --[=[
     @class Iris
 
@@ -104,7 +90,7 @@ end
     @param callback function -- the callback containg the Iris code.
     
     Allows users to connect a function which will execute every Iris cycle, (cycle is determined by the callback or event passed to Iris.Init or default to Heartbeat).
-    Multiple callbacks can be added to Iris from many different scripts or modules.    
+    Multiple callbacks can be added to Iris from many different scripts or modules.
 ]=]
 function Iris:Connect(callback: () -> ()) -- this uses method syntax for no reason.
     if Internal._started == false then
@@ -251,19 +237,6 @@ Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
 Iris.UpdateGlobalConfig(Iris.TemplateConfig.utilityDefault)
 Internal._globalRefreshRequested = false -- UpdatingGlobalConfig changes this to true, leads to Root being generated twice.
 
---[=[
-    @function ShowDemoWindow
-    @within Iris
-
-    ShowDemoWindow is a function which creates a Demonstration window. this window contains many useful utilities for coders,
-    and serves as a refrence for using each part of the library. Ideally, the DemoWindow should always be available in your UI.
-    It is the same as any other callback you would connect to Iris using [Iris.Connect]
-    ```lua
-    Iris:Connect(Iris.ShowDemoWindow)
-    ```
-]=]
-Iris.ShowDemoWindow = require(script.demoWindow)(Iris)
-
 --[[
     --------------------
         [SECTION] ID
@@ -278,7 +251,7 @@ Iris.ShowDemoWindow = require(script.demoWindow)(Iris)
     Sets the id discriminator for the next widgets. Use [Iris.PopId] to remove it.
 ]=]
 function Iris.PushId(id: Types.ID)
-    assert(typeof(id) == "string", "API expected the ID to PushId to be a string.")
+    assert(typeof(id) == "string", "Iris expected Iris.PushId id to PushId to be a string.")
 
     Internal._pushedId = tostring(id)
 end
@@ -294,7 +267,7 @@ function Iris.PopId()
 end
 
 --[=[
-    @function PushId
+    @function SetNextWidgetId
     @within Iris
     @param id Types.ID -- custom id.
 
@@ -429,7 +402,20 @@ function Iris.ComputedState(firstState: Types.State, onChangeCallback: (firstSta
     end
 end
 
-require(script.widgets)(Iris)
+--[=[
+    @function ShowDemoWindow
+    @within Iris
+
+    ShowDemoWindow is a function which creates a Demonstration window. this window contains many useful utilities for coders,
+    and serves as a refrence for using each part of the library. Ideally, the DemoWindow should always be available in your UI.
+    It is the same as any other callback you would connect to Iris using [Iris.Connect]
+    ```lua
+    Iris:Connect(Iris.ShowDemoWindow)
+    ```
+]=]
+Iris.ShowDemoWindow = require(script.demoWindow)(Iris)
+
+require(script.widgets)(Internal)
 require(script.API)(Iris)
 
 return Iris

@@ -7,6 +7,7 @@ export type Arguments = {
     TextHint: string,
     Wrapped: boolean,
     Color: Color3,
+    RichText: boolean,
 
     Increment: InputDataType,
     Min: InputDataType,
@@ -87,25 +88,48 @@ export type InputDataType = number | Vector2 | Vector3 | UDim | UDim2 | Color3 |
 export type InputDataTypes = "Num" | "Vector2" | "Vector3" | "UDim" | "UDim2" | "Color3" | "Color4" | "Rect" | "Enum" | "" | string
 
 export type WidgetArguments = { [number]: Argument }
+export type WidgetStates = {
+    number: State?,
+    color: State?,
+    transparency: State?,
+    editingText: State?,
+    index: State?,
+
+    size: State?,
+    position: State?,
+    scrollDistance: State?,
+
+    isChecked: State?,
+    isOpened: State?,
+    isUncollapsed: State?,
+
+    [string]: State,
+}
 
 export type Widget = {
     ID: ID,
     type: string,
     state: States,
+    lastCycleTick: number,
+    trackedEvents: {},
 
     parentWidget: Widget,
     Instance: GuiObject,
     ChildContainer: GuiObject,
+    Disabled: boolean,
     arguments: Arguments,
     providedArguments: Arguments,
     ZIndex: number,
 
-    trackedEvents: {},
-    lastCycleTick: number,
-    LabelHeight: number,
+    usesScreenGUI: boolean,
+    ButtonColors: { [string]: Color3 | number },
+    ComboChildrenHeight: number,
+
+    -- Table properties
     RowColumnIndex: number,
     InitialNumColumns: number,
-    usesScreenGUI: boolean,
+    ColumnInstances: { Frame },
+    CellInstances: { Frame },
 
     -- Event Props
     isHoveredEvent: boolean,
@@ -124,6 +148,8 @@ export type Widget = {
     lastClosedTick: number,
     lastSelectedTick: number,
     lastUnselectedTick: number,
+    lastCollapsedTick: number,
+    lastUncollapsedTick: number,
 
     lastNumberChangedTick: number,
     lastTextchangeTick: number,
@@ -151,6 +177,8 @@ export type Widget = {
 
     numberChanged: EventAPI,
     textChanged: EventAPI,
+
+    [string]: EventAPI & State,
 }
 
 export type WidgetClass = {
@@ -193,6 +221,7 @@ export type WidgetUtility = {
     GuiInset: Vector2,
 
     findBestWindowPosForPopup: (refPos: Vector2, size: Vector2, outerMin: Vector2, outerMax: Vector2) -> Vector2,
+    getScreenSizeForWindow: (thisWidget: Widget) -> Vector2,
     isPosInsideRect: (pos: Vector2, rectMin: Vector2, rectMax: Vector2) -> boolean,
     extend: (superClass: WidgetClass, { [any]: any }) -> WidgetClass,
     discardState: (thisWidget: Widget) -> (),
@@ -206,10 +235,17 @@ export type WidgetUtility = {
 
     calculateTextSize: (text: string, width: number?) -> Vector2,
     applyTextStyle: (thisInstance: TextLabel | TextButton | TextBox) -> (),
-    applyInteractionHighlights: (Button: GuiButton, Highlightee: GuiObject, Colors: { [string]: any }) -> (),
-    applyInteractionHighlightsWithMultiHighlightee: (Button: GuiButton, Highlightees: { { GuiObject | { [string]: Color3 | number } } }) -> (),
-    applyTextInteractionHighlights: (Button: GuiButton, Highlightee: TextLabel | TextButton | TextBox, Colors: { [string]: any }) -> (),
+    applyInteractionHighlights: (thisWidget: Widget, Button: GuiButton, Highlightee: GuiObject, Colors: { [string]: any }) -> (),
+    applyInteractionHighlightsWithMultiHighlightee: (thisWidget: Widget, Button: GuiButton, Highlightees: { { GuiObject | { [string]: Color3 | number } } }) -> (),
+    applyTextInteractionHighlights: (thisWidget: Widget, Button: GuiButton, Highlightee: TextLabel | TextButton | TextBox, Colors: { [string]: any }) -> (),
     applyFrameStyle: (thisInstance: GuiObject, forceNoPadding: boolean?, doubleyNoPadding: boolean?) -> (),
+
+    applyButtonClick: (thisWidget: Widget, thisInstance: GuiButton, callback: () -> ()) -> (),
+    applyButtonDown: (thisWidget: Widget, thisInstance: GuiButton, callback: (x: number, y: number) -> ()) -> (),
+    applyMouseEnter: (thisWidget: Widget, thisInstance: GuiObject, callback: () -> ()) -> (),
+    applyMouseLeave: (thisWidget: Widget, thisInstance: GuiObject, callback: () -> ()) -> (),
+    applyInputBegan: (thisWidget: Widget, thisInstance: GuiObject, callback: (input: InputObject) -> ()) -> (),
+    applyInputEnded: (thisWidget: Widget, thisInstance: GuiObject, callback: (input: InputObject) -> ()) -> (),
 
     EVENTS: {
         hover: (pathToHovered: (thisWidget: Widget) -> GuiObject) -> Event,
@@ -217,7 +253,6 @@ export type WidgetUtility = {
         rightClick: (pathToClicked: (thisWidget: Widget) -> GuiButton) -> Event,
         doubleClick: (pathToClicked: (thisWidget: Widget) -> GuiButton) -> Event,
         ctrlClick: (pathToClicked: (thisWidget: Widget) -> GuiButton) -> Event,
-        shortcut: (pathToKeys: (thisWidget: Widget) -> (Enum.KeyCode, Enum.ModifierKey)) -> Event,
     },
 
     abstractButton: WidgetClass,
@@ -323,19 +358,19 @@ export type Iris = {
     End: () -> (),
 
     -- Window API
-    Window: (arguments: WidgetArguments, states: States?) -> Widget,
+    Window: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
     Tooltip: (arguments: WidgetArguments) -> Widget,
 
     -- Menu Widget API
     MenuBar: () -> Widget,
-    Menu: (arguments: WidgetArguments, states: States?) -> Widget,
+    Menu: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
     MenuItem: (arguments: WidgetArguments) -> Widget,
-    MenuToggle: (arguments: WidgetArguments, states: States?) -> Widget,
+    MenuToggle: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
 
     -- Format Widget API
     Separator: () -> Widget,
     Indent: (arguments: WidgetArguments?) -> Widget,
-    Sameline: (arguments: WidgetArguments?) -> Widget,
+    SameLine: (arguments: WidgetArguments?) -> Widget,
     Group: () -> Widget,
 
     -- Text Widget API
@@ -343,53 +378,51 @@ export type Iris = {
     TextWrapped: (arguments: WidgetArguments) -> Widget,
     TextColored: (arguments: WidgetArguments) -> Widget,
     SeparatorText: (arguments: WidgetArguments) -> Widget,
+    InputText: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
 
     -- Basic Widget API
     Button: (arguments: WidgetArguments) -> Widget,
     SmallButton: (arguments: WidgetArguments) -> Widget,
-    Checkbox: (arguments: WidgetArguments, states: States?) -> Widget,
-    RadioButton: (arguments: WidgetArguments, states: States?) -> Widget,
+    Checkbox: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    RadioButton: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
 
     -- Tree Widget API
-    Tree: (arguments: WidgetArguments, states: States?) -> Widget,
-    CollapsingHeader: (arguments: WidgetArguments, states: States?) -> Widget,
+    Tree: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    CollapsingHeader: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
 
     -- Input Widget API
-    InputNum: (arguments: WidgetArguments, states: States?) -> Widget,
-    InputVector2: (arguments: WidgetArguments, states: States?) -> Widget,
-    InputVector3: (arguments: WidgetArguments, states: States?) -> Widget,
-    InputUDim: (arguments: WidgetArguments, states: States?) -> Widget,
-    InputUDim2: (arguments: WidgetArguments, states: States?) -> Widget,
-    InputRect: (arguments: WidgetArguments, states: States?) -> Widget,
-    InputColor3: (arguments: WidgetArguments, states: States?) -> Widget,
-    InputColor4: (arguments: WidgetArguments, states: States?) -> Widget,
+    InputNum: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    InputVector2: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    InputVector3: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    InputUDim: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    InputUDim2: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    InputRect: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    InputColor3: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    InputColor4: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
 
     -- Drag Widget API
-    DragNum: (arguments: WidgetArguments, states: States?) -> Widget,
-    DragVector2: (arguments: WidgetArguments, states: States?) -> Widget,
-    DragVector3: (arguments: WidgetArguments, states: States?) -> Widget,
-    DragUDim: (arguments: WidgetArguments, states: States?) -> Widget,
-    DragUDim2: (arguments: WidgetArguments, states: States?) -> Widget,
-    DragRect: (arguments: WidgetArguments, states: States?) -> Widget,
+    DragNum: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    DragVector2: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    DragVector3: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    DragUDim: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    DragUDim2: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    DragRect: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
 
     -- Slider Widget API
-    SliderNum: (arguments: WidgetArguments, states: States?) -> Widget,
-    SliderVector2: (arguments: WidgetArguments, states: States?) -> Widget,
-    SliderVector3: (arguments: WidgetArguments, states: States?) -> Widget,
-    SliderUDim: (arguments: WidgetArguments, states: States?) -> Widget,
-    SliderUDim2: (arguments: WidgetArguments, states: States?) -> Widget,
-    SliderRect: (arguments: WidgetArguments, states: States?) -> Widget,
-    SliderEnum: (arguments: WidgetArguments, states: States?) -> Widget,
-
-    -- Other Input Widget API
-    InputText: (arguments: WidgetArguments, states: States?) -> Widget,
-    InputEnum: (arguments: WidgetArguments, states: States?) -> Widget,
+    SliderNum: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    SliderVector2: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    SliderVector3: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    SliderUDim: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    SliderUDim2: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    SliderRect: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    SliderEnum: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
 
     -- Combo Widget Widget API
-    Selectable: (arguments: WidgetArguments, states: States?) -> Widget,
-    Combo: (arguments: WidgetArguments, states: States?) -> Widget,
-    ComboArray: (arguments: WidgetArguments, states: States?) -> Widget,
-    ComboEnum: (arguments: WidgetArguments, states: States?) -> Widget,
+    Selectable: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    Combo: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    ComboArray: (arguments: WidgetArguments, states: WidgetStates?, selectionArray: { any }) -> Widget,
+    ComboEnum: (arguments: WidgetArguments, states: WidgetStates?, enumType: Enum) -> Widget,
+    InputEnum: (arguments: WidgetArguments, states: WidgetStates?, enumType: Enum) -> Widget,
 
     -- Table Widget Api
     Table: (arguments: WidgetArguments) -> Widget,
@@ -442,7 +475,8 @@ export type Iris = {
     Args: { [string]: { [string]: number } },
     Events: { [string]: () -> boolean },
 
-    TemplateConfig: Config,
+    TemplateConfig: { [string]: Config },
+    _config: Config,
     ShowDemoWindow: () -> (),
 }
 
@@ -556,6 +590,8 @@ export type Config = {
     UseScreenGUIs: boolean,
     IgnoreGuiInset: boolean,
     Parent: BasePlayerGui,
+    RichText: boolean,
+    DisableWidget: boolean,
     DisplayOrderOffset: number,
     ZIndexOffset: number,
 

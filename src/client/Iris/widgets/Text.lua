@@ -8,6 +8,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ["Text"] = 1,
             ["Wrapped"] = 2,
             ["Color"] = 3,
+            ["RichText"] = 4,
         },
         Events = {
             ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
@@ -43,6 +44,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Text.TextColor3 = thisWidget.arguments.Color
             else
                 Text.TextColor3 = Iris._config.TextColor
+            end
+            if thisWidget.arguments.RichText then
+                Text.RichText = true
+            else
+                Text.RichText = false
             end
 
             Text.Text = thisWidget.arguments.Text
