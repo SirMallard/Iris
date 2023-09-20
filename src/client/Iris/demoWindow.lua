@@ -978,7 +978,7 @@ return function(Iris: Types.Iris)
 
         mainMenuBar()
 
-        Iris.Text({ "Iris says hello. (" .. Iris._Internal._version .. ")" })
+        Iris.Text({ "Iris says hello. (" .. Iris.Internal._version .. ")" })
 
         Iris.CollapsingHeader({ "Window Options" })
         Iris.Table({ 3, false, false, false })
