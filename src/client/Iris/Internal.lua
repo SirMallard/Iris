@@ -14,6 +14,8 @@ return function(Iris: Types.Iris): Types.Internal
         ---------------------------------
     ]]
 
+    Internal._version = [[ 2.1.3 ]]
+
     Internal._started = false -- has Iris.connect been called yet
     Internal._cycleTick = 0 -- increments for each call to Cycle, used to determine the relative age and freshness of generated widgets
 
