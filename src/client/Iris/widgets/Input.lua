@@ -372,7 +372,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                     if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then
                         thisWidget.arguments.Format = { thisWidget.arguments.Format }
-                    else
+                    elseif not thisWidget.arguments.Format then
                         -- we calculate the format for the s.f. using the max, min and increment arguments.
                         local format: { string } = {}
                         for index = 1, components do
@@ -698,7 +698,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                     if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then
                         thisWidget.arguments.Format = { thisWidget.arguments.Format }
-                    else
+                    elseif not thisWidget.arguments.Format then
                         -- we calculate the format for the s.f. using the max, min and increment arguments.
                         local format: { string } = {}
                         for index = 1, components do
@@ -809,7 +809,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                     if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then
                         thisWidget.arguments.Format = { thisWidget.arguments.Format }
-                    else
+                    elseif not thisWidget.arguments.Format then
                         if thisWidget.arguments.UseFloats then
                             thisWidget.arguments.Format = { "%.3f" }
                         else
@@ -1095,7 +1095,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                     if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then
                         thisWidget.arguments.Format = { thisWidget.arguments.Format }
-                    else
+                    elseif not thisWidget.arguments.Format then
                         -- we calculate the format for the s.f. using the max, min and increment arguments.
                         local format: { string } = {}
                         for index = 1, components do

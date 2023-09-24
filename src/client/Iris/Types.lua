@@ -327,8 +327,8 @@ export type Internal = {
 
     -- Widget
     WidgetConstructor: (type: string, widgetClass: WidgetClass) -> (),
-    _Insert: (widgetType: string, arguments: WidgetArguments?, states: States?) -> Widget,
-    _GenNewWidget: (widgetType: string, arguments: Arguments, states: States?, ID: ID) -> Widget,
+    _Insert: (widgetType: string, arguments: WidgetArguments?, states: WidgetStates?) -> Widget,
+    _GenNewWidget: (widgetType: string, arguments: Arguments, states: WidgetStates?, ID: ID) -> Widget,
     _ContinueWidget: (ID: ID, widgetType: string) -> Widget,
     _DiscardWidget: (widgetToDiscard: Widget) -> (),
 

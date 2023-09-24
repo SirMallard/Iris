@@ -392,7 +392,7 @@ return function(Iris: Types.Iris): Types.Internal
         Every widget is created through _Insert. An ID is generated based on the line of the calling code and is used to
         find the previous frame widget if it exists. If no widget exists, a new one is created.
     ]=]
-    function Internal._Insert(widgetType: string, args: Types.WidgetArguments?, states: Types.States?): Types.Widget
+    function Internal._Insert(widgetType: string, args: Types.WidgetArguments?, states: Types.WidgetStates?): Types.Widget
         local thisWidget: Types.Widget
         local ID: Types.ID = Internal._getID(3)
         --debug.profilebegin(ID)
@@ -472,7 +472,7 @@ return function(Iris: Types.Iris): Types.Internal
         All widgets are created as tables with properties. The widget class contains the functions to create the UI instances and
         update the widget or change state.
     ]=]
-    function Internal._GenNewWidget(widgetType: string, arguments: Types.Arguments, states: Types.States?, ID: Types.ID): Types.Widget
+    function Internal._GenNewWidget(widgetType: string, arguments: Types.Arguments, states: Types.WidgetStates?, ID: Types.ID): Types.Widget
         local parentId: Types.ID = Internal._IDStack[Internal._stackIndex]
         local thisWidgetClass: Types.WidgetClass = Internal._widgets[widgetType]
 

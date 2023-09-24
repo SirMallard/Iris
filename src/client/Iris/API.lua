@@ -2,8 +2,8 @@ local Types = require(script.Parent.Types)
 
 return function(Iris: Types.Iris)
     -- basic wrapper for nearly every widget, saves space.
-    local function wrapper(name: string): (arguments: Types.WidgetArguments?, states: Types.States?) -> Types.Widget
-        return function(arguments: Types.WidgetArguments?, states: Types.States?): Types.Widget
+    local function wrapper(name: string): (arguments: Types.WidgetArguments?, states: Types.WidgetStates?) -> Types.Widget
+        return function(arguments: Types.WidgetArguments?, states: Types.WidgetStates?): Types.Widget
             return Iris.Internal._Insert(name, arguments, states)
         end
     end
