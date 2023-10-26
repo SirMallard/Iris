@@ -1,4 +1,4 @@
-local StarterPlayerScripts = game.StarterPlayer.StarterPlayerScripts
-local Iris = require(StarterPlayerScripts.Client.Iris).Init()
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Iris = require(ReplicatedStorage.Iris).Init()
 
 Iris:Connect(Iris.ShowDemoWindow)

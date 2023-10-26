@@ -10,11 +10,5 @@ realm = "shared"
 registry = "https://github.com/upliftgames/wally-index"
 
 exclude = ["**"]
-include = ["src/client/Iris", "src/client/Iris/*", "model.project.json", "wally.toml"]
+include = ["default.project.json", "lib", "lib/**", "LICENSE.txt", "wally.toml"]
 private = false
-
-[dependencies]
-
-[server-dependencies]
-
-[dev-dependencies]
