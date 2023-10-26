@@ -1,5 +1,5 @@
-local StarterPlayerScripts = game.StarterPlayer.StarterPlayerScripts
-local Iris = require(StarterPlayerScripts.Client.Iris)
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Iris = require(ReplicatedStorage.Iris)
 
 task.wait(2)
 
