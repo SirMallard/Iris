@@ -1,4 +1,8 @@
 build/
 .vscode/
 
+*.rbxl
+*.rbxm
+*.rbxmx
+
 sourcemap.json

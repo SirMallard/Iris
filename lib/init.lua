@@ -352,7 +352,7 @@ end
 function Iris.WeakState(initialValue: any): Types.State
     local ID: Types.ID = Internal._getID(2)
     if Internal._states[ID] then
-        if #Internal._states[ID].ConnectedWidgets == 0 then
+        if next(Internal._states[ID].ConnectedWidgets) == nil then
             Internal._states[ID] = nil
         else
             return Internal._states[ID]
