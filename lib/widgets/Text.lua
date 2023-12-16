@@ -1,6 +1,7 @@
 local Types = require(script.Parent.Parent.Types)
 
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
+    --stylua: ignore
     Iris.WidgetConstructor("Text", {
         hasState = false,
         hasChildren = false,
@@ -58,6 +59,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
     } :: Types.WidgetClass)
 
+    --stylua: ignore
     Iris.WidgetConstructor("SeparatorText", {
         hasState = false,
         hasChildren = false,

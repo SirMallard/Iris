@@ -57,6 +57,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
     } :: Types.WidgetClass
 
+    --stylua: ignore
     Iris.WidgetConstructor(
         "Tree",
         widgets.extend(abstractTree, {
@@ -189,6 +190,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         })
     )
 
+    --stylua: ignore
     Iris.WidgetConstructor(
         "CollapsingHeader",
         widgets.extend(abstractTree, {

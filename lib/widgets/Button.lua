@@ -60,9 +60,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     } :: Types.WidgetClass
     widgets.abstractButton = abstractButton
 
-    Iris.WidgetConstructor(
-        "Button",
-        widgets.extend(abstractButton, {
+    --stylua: ignore
+    Iris.WidgetConstructor("Button", widgets.extend(abstractButton, {
             Generate = function(thisWidget: Types.Widget): TextButton
                 local Button: TextButton = abstractButton.Generate(thisWidget)
                 Button.Name = "Iris_Button"
@@ -72,9 +71,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         } :: Types.WidgetClass)
     )
 
-    Iris.WidgetConstructor(
-        "SmallButton",
-        widgets.extend(abstractButton, {
+    --stylua: ignore
+    Iris.WidgetConstructor("SmallButton", widgets.extend(abstractButton, {
             Generate = function(thisWidget: Types.Widget): TextButton
                 local SmallButton = abstractButton.Generate(thisWidget) :: TextButton
                 SmallButton.Name = "Iris_SmallButton"

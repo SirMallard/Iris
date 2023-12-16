@@ -14,6 +14,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
     widgets.UserInputService.InputChanged:Connect(relocateTooltips)
 
+    --stylua: ignore
     Iris.WidgetConstructor("Tooltip", {
         hasState = false,
         hasChildren = false,
@@ -296,6 +297,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
     end)
 
+    --stylua: ignore
     Iris.WidgetConstructor("Window", {
         hasState = true,
         hasChildren = true,
