@@ -1,6 +1,7 @@
 local Types = require(script.Parent.Parent.Types)
 
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
+    --stylua: ignore
     Iris.WidgetConstructor("Separator", {
         hasState = false,
         hasChildren = false,
@@ -31,6 +32,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
     } :: Types.WidgetClass)
 
+    --stylua: ignore
     Iris.WidgetConstructor("Indent", {
         hasState = false,
         hasChildren = true,
@@ -72,6 +74,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
     } :: Types.WidgetClass)
 
+    --stylua: ignore
     Iris.WidgetConstructor("SameLine", {
         hasState = false,
         hasChildren = true,
@@ -118,6 +121,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
     } :: Types.WidgetClass)
 
+    --stylua: ignore
     Iris.WidgetConstructor("Group", {
         hasState = false,
         hasChildren = true,

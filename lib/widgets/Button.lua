@@ -60,9 +60,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     } :: Types.WidgetClass
     widgets.abstractButton = abstractButton
 
-    Iris.WidgetConstructor(
-        "Button",
-        widgets.extend(abstractButton, {
+    --stylua: ignore
+    Iris.WidgetConstructor("Button", widgets.extend(abstractButton, {
             Generate = function(thisWidget: Types.Widget): TextButton
                 local Button: TextButton = abstractButton.Generate(thisWidget)
                 Button.Name = "Iris_Button"
@@ -72,21 +71,20 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         } :: Types.WidgetClass)
     )
 
-    Iris.WidgetConstructor(
-        "SmallButton",
-        widgets.extend(abstractButton, {
-            Generate = function(thisWidget: Types.Widget): TextButton
-                local SmallButton = abstractButton.Generate(thisWidget) :: TextButton
-                SmallButton.Name = "Iris_SmallButton"
+    --stylua: ignore
+    Iris.WidgetConstructor("SmallButton", widgets.extend(abstractButton, {
+			Generate = function(thisWidget: Types.Widget): TextButton
+				local SmallButton = abstractButton.Generate(thisWidget) :: TextButton
+				SmallButton.Name = "Iris_SmallButton"
 
-                local uiPadding: UIPadding = SmallButton.UIPadding
-                uiPadding.PaddingLeft = UDim.new(0, 2)
-                uiPadding.PaddingRight = UDim.new(0, 2)
-                uiPadding.PaddingTop = UDim.new(0, 0)
-                uiPadding.PaddingBottom = UDim.new(0, 0)
+				local uiPadding: UIPadding = SmallButton.UIPadding
+				uiPadding.PaddingLeft = UDim.new(0, 2)
+				uiPadding.PaddingRight = UDim.new(0, 2)
+				uiPadding.PaddingTop = UDim.new(0, 0)
+				uiPadding.PaddingBottom = UDim.new(0, 0)
 
-                return SmallButton
-            end,
-        } :: Types.WidgetClass)
+				return SmallButton
+			end,
+		} :: Types.WidgetClass)
     )
 end

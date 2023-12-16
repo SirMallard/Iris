@@ -1,6 +1,7 @@
 local Types = require(script.Parent.Parent.Types)
 
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
+    --stylua: ignore
     Iris.WidgetConstructor("Checkbox", {
         hasState = true,
         hasChildren = false,
