@@ -537,61 +537,60 @@ return function(Iris: Types.Iris)
                             UpdatedConfig:set({})
                         end
 
-                        local UDims = {
-                            { "ItemWidth", nil,  UDim.new(), UDim.new(1, 200) },
-                            { "ContentWidth", nil, UDim.new(), UDim.new(1, 200) }
-                        }
-                        for _, vUDim in UDims do
-                            local Input = Iris.SliderUDim({ table.unpack(vUDim) }, { number = Iris.WeakState(Iris._config[vUDim[1]]) })
-                            if Input.numberChanged() then
-                                UpdatedConfig:get()[vUDim[1]] = Input.number:get()
-                            end
-                        end
+						local function SliderInput(input: string, arguments: {any})
+							local Input = Iris[input](arguments, { number = Iris.WeakState(Iris._config[arguments[1]]) })
+							if Input.numberChanged() then
+								UpdatedConfig:get()[arguments[1]] = Input.number:get()
+							end
+						end
 
-                        local Vector2s = {
-                            { "WindowPadding", nil, Vector2.zero, Vector2.one * 20 },
-                            { "WindowResizePadding", nil, Vector2.zero, Vector2.one * 20 },
-                            { "FramePadding", nil, Vector2.zero, Vector2.one * 20 },
-                            { "ItemSpacing", nil, Vector2.zero, Vector2.one * 20 },
-                            { "ItemInnerSpacing", nil, Vector2.zero, Vector2.one * 20 },
-                            { "CellPadding", nil, Vector2.zero, Vector2.one * 20 },
-                            { "DisplaySafeAreaPadding", nil, Vector2.zero, Vector2.one * 20 },
-                        }
-                        for _, vVector2 in Vector2s do
-                            local Input = Iris.SliderVector2({ table.unpack(vVector2) }, { number = Iris.WeakState(Iris._config[vVector2[1]]) })
-                            if Input.numberChanged() then
-                                UpdatedConfig:get()[vVector2[1]] = Input.number:get()
-                            end
-                        end
+						local function BooleanInput(arguments: {any})
+							local Input = Iris.Checkbox(arguments, { isChecked = Iris.WeakState(Iris._config[arguments[1]]) })
+							if Input.checked() or Input.unchecked() then
+								UpdatedConfig:get()[arguments[1]] = Input.isChecked:get()
+							end
+						end
 
-                        local Numbers = {
-                            { "TextSize", 1, 4, 20 },
-                            { "FrameBorderSize", 0.1, 0, 1 },
-                            { "FrameRounding", 1, 0, 12 },
-                            { "GrabRounding", 1, 0, 12 },
-                            { "WindowBorderSize", 0.1, 0, 1 },
-                            { "PopupBorderSize", 0.1, 0, 1 },
-                            { "PopupRounding", 1, 0, 12 },
-                            { "ScrollbarSize", 1, 0, 20 },
-                            { "GrabMinSize", 1, 0, 20 },
-                        }
-                        for _, vNumber in Numbers do
-                            local Input = Iris.SliderNum({ table.unpack(vNumber) }, { number = Iris.WeakState(Iris._config[vNumber[1]]) })
-                            if Input.numberChanged() then
-                                UpdatedConfig:get()[vNumber[1]] = Input.number:get()
-                            end
-                        end
+						Iris.SeparatorText({ "Main" })
+						SliderInput("SliderVector2", {"WindowPadding", nil, Vector2.zero, Vector2.one * 20 })
+						SliderInput("SliderVector2", {"WindowResizePadding", nil, Vector2.zero, Vector2.one * 20 })
+						SliderInput("SliderVector2", {"FramePadding", nil, Vector2.zero, Vector2.one * 20 })
+						SliderInput("SliderVector2", {"ItemSpacing", nil, Vector2.zero, Vector2.one * 20 })
+						SliderInput("SliderVector2", {"ItemInnerSpacing", nil, Vector2.zero, Vector2.one * 20 })
+						SliderInput("SliderVector2", {"CellPadding", nil, Vector2.zero, Vector2.one * 20 })
+						SliderInput("SliderNum", { "IndentSpacing", 1, 0, 36 })
+						SliderInput("SliderNum", { "ScrollbarSize", 1, 0, 20 })
+						SliderInput("SliderNum", { "GrabMinSize", 1, 0, 20 })
 
-                        local Enums = {
-                            "WindowTitleAlign",
-                            -- "TextFont"
-                        }
-                        for _, vEnum in Enums do
-                            local Input = Iris.ComboEnum({ vEnum }, { index = Iris.WeakState(Iris._config[vEnum]) }, Iris._config[vEnum].EnumType)
-                            if Input.closed() then
-                                Iris.UpdateGlobalConfig({ [vEnum] = Input.index:get() })
-                            end
-                        end
+						Iris.SeparatorText{ "Borders & Rounding" }
+						SliderInput("SliderNum", { "FrameBorderSize", 0.1, 0, 1 })
+						SliderInput("SliderNum", { "WindowBorderSize", 0.1, 0, 1 })
+						SliderInput("SliderNum", { "PopupBorderSize", 0.1, 0, 1 })
+						SliderInput("SliderNum", { "SeparatorTextBorderSize", 1, 0, 20 })
+						SliderInput("SliderNum", { "FrameRounding", 1, 0, 12 })
+						SliderInput("SliderNum", { "GrabRounding", 1, 0, 12 })
+						SliderInput("SliderNum", { "PopupRounding", 1, 0, 12 })
+
+						Iris.SeparatorText{ "Widgets" }
+						SliderInput("SliderVector2", {"DisplaySafeAreaPadding", nil, Vector2.zero, Vector2.one * 20 })
+						SliderInput("SliderVector2", {"SeparatorTextPadding", nil, Vector2.zero, Vector2.one * 36 })
+						SliderInput("SliderUDim", { "ItemWidth", nil,  UDim.new(), UDim.new(1, 200) })
+						SliderInput("SliderUDim", { "ContentWidth", nil, UDim.new(), UDim.new(1, 200) })
+						SliderInput("SliderNum", { "TextSize", 1, 4, 20 })
+						local Input = Iris.ComboEnum({ "WindowTitleAlign" }, { index = Iris.WeakState(Iris._config.WindowTitleAlign) }, Enum.LeftRight)
+						if Input.closed() then
+							UpdatedConfig:get().WindowTitleAlign = Input.index:get()
+						end
+						BooleanInput({ "RichText" })
+						BooleanInput({ "TextWrapped" })
+
+						Iris.SeparatorText{ "Config" }
+						BooleanInput({ "UseScreenGUIs" })
+						BooleanInput({ "IgnoreGuiInset" })
+						SliderInput("DragNum", { "DisplayOrderOffset", 1, 0 })
+						SliderInput("DragNum", { "ZIndexOffset", 1, 0 })
+						SliderInput("SliderNum", { "MouseDoubleClickTime", 0.1, 0, 5 })
+						SliderInput("SliderNum", { "MouseDoubleClickMaxDist", 0.1, 0, 20 })
                     end,
                 },
                 {

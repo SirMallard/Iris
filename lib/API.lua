@@ -324,9 +324,9 @@ return function(Iris: Types.Iris)
         hasState = false
         Arguments = {
             Text: string,
-            Wrapped: boolean? = false, -- whether the text will wrap around inside the parent container.
+            Wrapped: boolean? = [CONFIG] = false, -- whether the text will wrap around inside the parent container. If not specified, then equal to the config
             Color: Color3? = Iris._config.TextColor, -- the colour of the text.
-            RichText: boolean? = false -- enable RichText
+            RichText: boolean? = [CONFIG] = false -- enable RichText. If not specified, then equal to the config
         }
         Events = {
             hovered: () -> boolean
@@ -339,7 +339,8 @@ return function(Iris: Types.Iris)
         @prop TextWrapped Iris.Text
         @within Text
         @tag Widget
-        
+        @deprectated v2.0.0 -- Use 'Text' with the Wrapped argument or change the config.
+
         An alias for [Iris.Text](Text#Text) with the Wrapped argument set to true, and the text will wrap around if cut off by its parent.
 
         ```lua
@@ -362,6 +363,7 @@ return function(Iris: Types.Iris)
         @prop TextColored Iris.Text
         @within Text
         @tag Widget
+        @deprectated v2.0.0 -- Use 'Text' with the Color argument or change the config.
         
         An alias for [Iris.Text](Text#Text) with the color set by the Color argument.
 
