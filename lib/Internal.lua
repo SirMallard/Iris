@@ -53,6 +53,9 @@ return function(Iris: Types.Iris): Types.Internal
     Internal._postCycleCallbacks = {}
     Internal._connectedFunctions = {} -- functions which run each Iris cycle, connected by the user
 
+    -- Error
+    Internal._fullErrorTracebacks = game:GetService("RunService"):IsStudio()
+
     --[=[
         @prop _cycleCoroutine thread
         @within Internal
@@ -67,14 +70,9 @@ return function(Iris: Types.Iris): Types.Internal
                 local status: boolean, _error: string = pcall(callback)
                 debug.profileend()
                 if not status then
-                    -- any error reserts the _stackIndex for the next frame and yeilds the error.
+                    -- any error reserts the _stackIndex for the next frame and yields the error.
                     Internal._stackIndex = 1
                     coroutine.yield(false, _error)
-                end
-                if Internal._stackIndex ~= 1 then
-                    -- has to be larger than 1 because of the check that it isint below 1 in Iris.End
-                    Internal._stackIndex = 1
-                    error("Callback has too few calls to Iris.End()", 0)
                 end
             end
             -- after all callbacks, we yeild so it only runs once a frame.
@@ -232,7 +230,7 @@ return function(Iris: Types.Iris): Types.Internal
 
         -- if we are running in Studio, we want full error tracebacks, so we don't have
         -- any pcall to protect from an error.
-        if game:GetService("RunService"):IsStudio() then
+        if Internal._fullErrorTracebacks then
             for _, callback: () -> () in Internal._connectedFunctions do
                 callback()
             end
@@ -258,6 +256,13 @@ return function(Iris: Types.Iris): Types.Internal
             end
             --debug.profileend()
         end
+
+        if Internal._stackIndex ~= 1 then
+            -- has to be larger than 1 because of the check that it isint below 1 in Iris.End
+            Internal._stackIndex = 1
+            error("Callback has too few calls to Iris.End()", 0)
+        end
+
         --debug.profileend()
     end
 
