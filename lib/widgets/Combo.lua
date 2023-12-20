@@ -9,6 +9,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
     end
 
+    --stylua: ignore
     Iris.WidgetConstructor("Selectable", {
         hasState = true,
         hasChildren = false,
@@ -177,6 +178,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
     end)
 
+    --stylua: ignore
     Iris.WidgetConstructor("Combo", {
         hasState = true,
         hasChildren = true,

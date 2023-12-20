@@ -866,26 +866,18 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
 
             local Slider = ActiveSlider.Instance :: Frame
-            local SliderField: TextButton = Slider:FindFirstChild("SliderField" .. tostring(ActiveIndex))
+            local SliderField = Slider:FindFirstChild("SliderField" .. tostring(ActiveIndex)) :: TextButton
+            local GrabBar: Frame = SliderField.GrabBar
 
             local increment: number = ActiveSlider.arguments.Increment and getValueByIndex(ActiveSlider.arguments.Increment, ActiveIndex, ActiveSlider.arguments) or defaultIncrements[ActiveDataType][ActiveIndex]
             local min: number = ActiveSlider.arguments.Min and getValueByIndex(ActiveSlider.arguments.Min, ActiveIndex, ActiveSlider.arguments) or defaultMin[ActiveDataType][ActiveIndex]
             local max: number = ActiveSlider.arguments.Max and getValueByIndex(ActiveSlider.arguments.Max, ActiveIndex, ActiveSlider.arguments) or defaultMax[ActiveDataType][ActiveIndex]
 
-            do -- trying to find a better implementation.
-                local framePadding: number = Iris._config.FramePadding.X
-                local Range: number = max - min
-                local SliderWidth: number = SliderField.AbsoluteSize.X - 2 * framePadding
-                local MouseOffset: number = widgets.getMouseLocation().X - SliderField.AbsolutePosition.X - framePadding
-                local Ratio: number = MouseOffset / SliderWidth
-                local _newValue: number = math.clamp(math.modf(Ratio * (math.ceil(Range / increment) + 1)), 0, Range) * increment + min
-            end
-
-            local GrabPadding: number = Iris._config.FramePadding.X
-            local decimalFix: number = increment < 1 and 0 or 1 -- ??? ?? ??? ?
-            local GrabNumPossiblePositions: number = math.floor((decimalFix + max - min) / increment)
-            local PositionRatio: number = (widgets.getMouseLocation().X - (SliderField.AbsolutePosition.X + GrabPadding)) / (SliderField.AbsoluteSize.X - 2 * GrabPadding)
-            local newValue: number = math.clamp(math.floor(PositionRatio * GrabNumPossiblePositions) * increment + min, min, max)
+            local GrabWidth: number = GrabBar.AbsoluteSize.X
+            local Offset: number = widgets.getMouseLocation().X - (SliderField.AbsolutePosition.X + GrabWidth / 2)
+            local Ratio: number = Offset / (SliderField.AbsoluteSize.X - GrabWidth)
+            local Positions: number = math.floor((max - min) / increment)
+            local newValue: number = math.clamp(math.round(Ratio * Positions) * increment + min, min, max)
 
             ActiveSlider.state.number:set(updateValueByIndex(ActiveSlider.state.number.value, ActiveIndex, newValue, ActiveSlider.arguments))
             ActiveSlider.lastNumberChangedTick = Iris._cycleTick + 1
@@ -1175,29 +1167,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         local min: number = thisWidget.arguments.Min and getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments) or defaultMin[dataType][index]
                         local max: number = thisWidget.arguments.Max and getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments) or defaultMax[dataType][index]
 
-                        do -- trying to find a better implementation.
-                            local GrabWidth: number = GrabBar.AbsoluteSize.X
-                            local GrabPadding: number = Iris._config.FramePadding.X
-                            local _decimalFix: number = increment < 1 and 0 or 1 -- ??? ?? ??? ?
-                            local _GrabNumPossiblePositions: number = math.floor((max - min) / increment) + 1
-                            local _PositionRatio: number = (value - min) / (max - min)
-                            local _MinScaleSize: number = (GrabPadding + GrabWidth / 2) / Slider.AbsoluteSize.X -- 1 - (GrabWidth / (SliderField.AbsoluteSize.X - 2 * GrabPadding - GrabWidth))
-                            -- local GrabBarPos: number = math.clamp(math.floor(PositionRatio * GrabNumPossiblePositions) / GrabNumPossiblePositions, 0, 1) * (1 - 2 * MinScaleSize) + MinScaleSize
-                            local _UsableRatio: number = (Slider.AbsoluteSize.X - GrabWidth * 2 - GrabWidth) / (Slider.AbsoluteSize.X - GrabPadding * 2)
-                            local Ratio: number = (value - min) / (math.ceil(max - min / increment))
-                            local _Position: number = Ratio --* UsableRatio + ((1 - UsableRatio) / 2)
+                        local SliderWidth: number = SliderField.AbsoluteSize.X
+                        local PaddedWidth: number = SliderWidth - GrabBar.AbsoluteSize.X
+                        local Ratio: number = (value - min) / (max - min)
+                        local Positions: number = math.floor((max - min) / increment)
+                        local ClampedRatio: number = math.clamp(math.floor((Ratio * Positions)) / Positions, 0, 1)
+                        local PaddedRatio: number = ((PaddedWidth / SliderWidth) * ClampedRatio) + ((1 - (PaddedWidth / SliderWidth)) / 2)
 
-                            -- GrabBar.Position = UDim2.new(Position, 0, 0.5, 0)
-                            -- GrabBar.AnchorPoint = Vector2.new(Position, 0.5)
-                        end
-
-                        local GrabPadding: number = Iris._config.FramePadding.X
-                        local decimalFix: number = increment < 1 and 0 or 1 -- ??? ?? ??? ?
-                        local GrabNumPossiblePositions: number = math.floor((decimalFix + max - min) / increment)
-                        local PositionRatio: number = (value - min) / (max - min)
-                        local MaxScaleSize: number = 1 - (GrabBar.AbsoluteSize.X / (SliderField.AbsoluteSize.X - 2 * GrabPadding))
-                        local GrabBarPos: number = math.clamp(math.floor(PositionRatio * GrabNumPossiblePositions) / GrabNumPossiblePositions, 0, MaxScaleSize)
-                        GrabBar.Position = UDim2.new(GrabBarPos, 0, 0.5, 0)
+                        GrabBar.Position = UDim2.new(PaddedRatio, 0, 0.5, 0)
 
                         if thisWidget.state.editingText.value == index then
                             InputField.Visible = true
@@ -1286,102 +1263,103 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     Iris.WidgetConstructor("SliderRect", generateSliderScalar("Rect", 4, Rect.new(0, 0, 0, 0)))
     -- Iris.WidgetConstructor("SliderEnum", generateSliderScalar("Enum", 4, 0))
 
+    --stylua: ignore
     Iris.WidgetConstructor("InputText", {
-        hasState = true,
-        hasChildren = false,
-        Args = {
-            ["Text"] = 1,
-            ["TextHint"] = 2,
-        },
-        Events = {
-            ["textChanged"] = {
-                ["Init"] = function(thisWidget: Types.Widget)
-                    thisWidget.lastTextchangeTick = 0
-                end,
-                ["Get"] = function(thisWidget: Types.Widget)
-                    return thisWidget.lastTextchangeTick == Iris._cycleTick
-                end,
-            },
-            ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
-                return thisWidget.Instance
-            end),
-        },
-        Generate = function(thisWidget: Types.Widget)
-            local InputText: Frame = Instance.new("Frame")
-            InputText.Name = "Iris_InputText"
-            InputText.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
-            InputText.BackgroundTransparency = 1
-            InputText.BorderSizePixel = 0
-            InputText.ZIndex = thisWidget.ZIndex
-            InputText.LayoutOrder = thisWidget.ZIndex
-            InputText.AutomaticSize = Enum.AutomaticSize.Y
-            widgets.UIListLayout(InputText, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+		hasState = true,
+		hasChildren = false,
+		Args = {
+			["Text"] = 1,
+			["TextHint"] = 2,
+		},
+		Events = {
+			["textChanged"] = {
+				["Init"] = function(thisWidget: Types.Widget)
+					thisWidget.lastTextchangeTick = 0
+				end,
+				["Get"] = function(thisWidget: Types.Widget)
+					return thisWidget.lastTextchangeTick == Iris._cycleTick
+				end,
+			},
+			["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
+				return thisWidget.Instance
+			end),
+		},
+		Generate = function(thisWidget: Types.Widget)
+			local InputText: Frame = Instance.new("Frame")
+			InputText.Name = "Iris_InputText"
+			InputText.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+			InputText.BackgroundTransparency = 1
+			InputText.BorderSizePixel = 0
+			InputText.ZIndex = thisWidget.ZIndex
+			InputText.LayoutOrder = thisWidget.ZIndex
+			InputText.AutomaticSize = Enum.AutomaticSize.Y
+			widgets.UIListLayout(InputText, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
 
-            local InputField: TextBox = Instance.new("TextBox")
-            InputField.Name = "InputField"
-            InputField.Size = UDim2.new(1, 0, 0, 0)
-            InputField.AutomaticSize = Enum.AutomaticSize.Y
-            InputField.BackgroundColor3 = Iris._config.FrameBgColor
-            InputField.BackgroundTransparency = Iris._config.FrameBgTransparency
-            InputField.Text = ""
-            InputField.PlaceholderColor3 = Iris._config.TextDisabledColor
-            InputField.TextTruncate = Enum.TextTruncate.AtEnd
-            InputField.ClearTextOnFocus = false
-            InputField.ZIndex = thisWidget.ZIndex + 1
-            InputField.LayoutOrder = thisWidget.ZIndex + 1
-            InputField.ClipsDescendants = true
+			local InputField: TextBox = Instance.new("TextBox")
+			InputField.Name = "InputField"
+			InputField.Size = UDim2.new(1, 0, 0, 0)
+			InputField.AutomaticSize = Enum.AutomaticSize.Y
+			InputField.BackgroundColor3 = Iris._config.FrameBgColor
+			InputField.BackgroundTransparency = Iris._config.FrameBgTransparency
+			InputField.Text = ""
+			InputField.PlaceholderColor3 = Iris._config.TextDisabledColor
+			InputField.TextTruncate = Enum.TextTruncate.AtEnd
+			InputField.ClearTextOnFocus = false
+			InputField.ZIndex = thisWidget.ZIndex + 1
+			InputField.LayoutOrder = thisWidget.ZIndex + 1
+			InputField.ClipsDescendants = true
 
-            widgets.applyFrameStyle(InputField)
-            widgets.applyTextStyle(InputField)
-            widgets.UISizeConstraint(InputField, Vector2.new(1, 0)) -- prevents sizes beaking when getting too small.
-            -- InputField.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-            -- InputField.UIPadding.PaddingRight = UDim.new(0, 0)
-            InputField.Parent = InputText
+			widgets.applyFrameStyle(InputField)
+			widgets.applyTextStyle(InputField)
+			widgets.UISizeConstraint(InputField, Vector2.new(1, 0)) -- prevents sizes beaking when getting too small.
+			-- InputField.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+			-- InputField.UIPadding.PaddingRight = UDim.new(0, 0)
+			InputField.Parent = InputText
 
-            InputField.FocusLost:Connect(function()
-                thisWidget.state.text:set(InputField.Text)
-                thisWidget.lastTextchangeTick = Iris._cycleTick + 1
-            end)
+			InputField.FocusLost:Connect(function()
+				thisWidget.state.text:set(InputField.Text)
+				thisWidget.lastTextchangeTick = Iris._cycleTick + 1
+			end)
 
-            local frameHeight: number = Iris._config.TextSize + Iris._config.FramePadding.Y * 2
+			local frameHeight: number = Iris._config.TextSize + Iris._config.FramePadding.Y * 2
 
-            local TextLabel: TextLabel = Instance.new("TextLabel")
-            TextLabel.Name = "TextLabel"
-            TextLabel.Size = UDim2.fromOffset(0, frameHeight)
-            TextLabel.AutomaticSize = Enum.AutomaticSize.X
-            TextLabel.BackgroundTransparency = 1
-            TextLabel.BorderSizePixel = 0
-            TextLabel.ZIndex = thisWidget.ZIndex + 4
-            TextLabel.LayoutOrder = thisWidget.ZIndex + 4
+			local TextLabel: TextLabel = Instance.new("TextLabel")
+			TextLabel.Name = "TextLabel"
+			TextLabel.Size = UDim2.fromOffset(0, frameHeight)
+			TextLabel.AutomaticSize = Enum.AutomaticSize.X
+			TextLabel.BackgroundTransparency = 1
+			TextLabel.BorderSizePixel = 0
+			TextLabel.ZIndex = thisWidget.ZIndex + 4
+			TextLabel.LayoutOrder = thisWidget.ZIndex + 4
 
-            widgets.applyTextStyle(TextLabel)
+			widgets.applyTextStyle(TextLabel)
 
-            TextLabel.Parent = InputText
+			TextLabel.Parent = InputText
 
-            return InputText
-        end,
-        Update = function(thisWidget: Types.Widget)
-            local InputText = thisWidget.Instance :: Frame
-            local TextLabel: TextLabel = InputText.TextLabel
-            local InputField: TextBox = InputText.InputField
+			return InputText
+		end,
+		Update = function(thisWidget: Types.Widget)
+			local InputText = thisWidget.Instance :: Frame
+			local TextLabel: TextLabel = InputText.TextLabel
+			local InputField: TextBox = InputText.InputField
 
-            TextLabel.Text = thisWidget.arguments.Text or "Input Text"
-            InputField.PlaceholderText = thisWidget.arguments.TextHint or ""
-        end,
-        Discard = function(thisWidget: Types.Widget)
-            thisWidget.Instance:Destroy()
-            widgets.discardState(thisWidget)
-        end,
-        GenerateState = function(thisWidget: Types.Widget)
-            if thisWidget.state.text == nil then
-                thisWidget.state.text = Iris._widgetState(thisWidget, "text", "")
-            end
-        end,
-        UpdateState = function(thisWidget: Types.Widget)
-            local InputText = thisWidget.Instance :: Frame
-            local InputField: TextBox = InputText.InputField
+			TextLabel.Text = thisWidget.arguments.Text or "Input Text"
+			InputField.PlaceholderText = thisWidget.arguments.TextHint or ""
+		end,
+		Discard = function(thisWidget: Types.Widget)
+			thisWidget.Instance:Destroy()
+			widgets.discardState(thisWidget)
+		end,
+		GenerateState = function(thisWidget: Types.Widget)
+			if thisWidget.state.text == nil then
+				thisWidget.state.text = Iris._widgetState(thisWidget, "text", "")
+			end
+		end,
+		UpdateState = function(thisWidget: Types.Widget)
+			local InputText = thisWidget.Instance :: Frame
+			local InputField: TextBox = InputText.InputField
 
-            InputField.Text = thisWidget.state.text.value
-        end,
-    } :: Types.WidgetClass)
+			InputField.Text = thisWidget.state.text.value
+		end,
+	} :: Types.WidgetClass)
 end

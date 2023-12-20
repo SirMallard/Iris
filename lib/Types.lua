@@ -264,6 +264,7 @@ export type Internal = {
           PROPERTIES
         --------------
     ]]
+    _version: string,
     _started: boolean,
     _cycleTick: number,
 
@@ -591,6 +592,7 @@ export type Config = {
     IgnoreGuiInset: boolean,
     Parent: BasePlayerGui,
     RichText: boolean,
+    TextWrapped: boolean,
     DisableWidget: boolean,
     DisplayOrderOffset: number,
     ZIndexOffset: number,

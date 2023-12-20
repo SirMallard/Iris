@@ -227,7 +227,8 @@ local TemplateConfig = {
         IgnoreGuiInset = false,
         Parent = nil,
         RichText = false,
-        DisableWidget = false,
+        TextWrapped = false,
+        DisableWidget = false, -- currently unused
         DisplayOrderOffset = 127,
         ZIndexOffset = 0,
 

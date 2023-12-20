@@ -1,6 +1,7 @@
 local Types = require(script.Parent.Parent.Types)
 
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
+    --stylua: ignore
     Iris.WidgetConstructor("Text", {
         hasState = false,
         hasChildren = false,
@@ -35,20 +36,20 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             if thisWidget.arguments.Text == nil then
                 error("Iris.Text Text Argument is required", 5)
             end
-            if thisWidget.arguments.Wrapped then
-                Text.TextWrapped = true
-            else
+            if thisWidget.arguments.Wrapped == false then
                 Text.TextWrapped = false
+            else
+                Text.TextWrapped = Iris._config.TextWrapped
             end
             if thisWidget.arguments.Color then
                 Text.TextColor3 = thisWidget.arguments.Color
             else
                 Text.TextColor3 = Iris._config.TextColor
             end
-            if thisWidget.arguments.RichText then
-                Text.RichText = true
-            else
+            if thisWidget.arguments.RichText == false then
                 Text.RichText = false
+            else
+                Text.RichText = Iris._config.RichText
             end
 
             Text.Text = thisWidget.arguments.Text
@@ -58,6 +59,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
     } :: Types.WidgetClass)
 
+    --stylua: ignore
     Iris.WidgetConstructor("SeparatorText", {
         hasState = false,
         hasChildren = false,

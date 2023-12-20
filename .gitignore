@@ -1,4 +1,9 @@
 build/
 .vscode/
 
+*.rbxl
+*.rbxm
+*.rbxmx
+*.rbxl.lock
+
 sourcemap.json

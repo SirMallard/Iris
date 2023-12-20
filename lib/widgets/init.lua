@@ -167,9 +167,9 @@ return function(Iris: Types.Internal)
         thisInstance.TextTransparency = Iris._config.TextTransparency
         thisInstance.TextXAlignment = Enum.TextXAlignment.Left
         thisInstance.RichText = Iris._config.RichText
+        thisInstance.TextWrapped = Iris._config.TextWrapped
 
         thisInstance.AutoLocalize = false
-        thisInstance.RichText = false
     end
 
     function widgets.applyInteractionHighlights(thisWidget: Types.Widget, Button: GuiButton, Highlightee: GuiObject, Colors: { [string]: any })

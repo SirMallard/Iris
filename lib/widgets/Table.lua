@@ -10,6 +10,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
     end)
 
+    --stylua: ignore
     Iris.WidgetConstructor("Table", {
         hasState = false,
         hasChildren = true,

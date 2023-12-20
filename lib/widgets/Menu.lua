@@ -89,6 +89,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
     end)
 
+    --stylua: ignore
     Iris.WidgetConstructor("MenuBar", {
         hasState = false,
         hasChildren = true,
@@ -143,6 +144,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
     } :: Types.WidgetClass)
 
+    --stylua: ignore
     Iris.WidgetConstructor("Menu", {
         hasState = true,
         hasChildren = true,
@@ -352,6 +354,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
     } :: Types.WidgetClass)
 
+    --stylua: ignore
     Iris.WidgetConstructor("MenuItem", {
         hasState = false,
         hasChildren = false,
@@ -455,6 +458,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
     } :: Types.WidgetClass)
 
+    --stylua: ignore
     Iris.WidgetConstructor("MenuToggle", {
         hasState = true,
         hasChildren = false,

@@ -14,6 +14,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
     widgets.UserInputService.InputChanged:Connect(relocateTooltips)
 
+    --stylua: ignore
     Iris.WidgetConstructor("Tooltip", {
         hasState = false,
         hasChildren = false,
@@ -40,7 +41,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             TooltipText.BackgroundColor3 = Iris._config.WindowBgColor
             TooltipText.BackgroundTransparency = Iris._config.WindowBgTransparency
             TooltipText.BorderSizePixel = Iris._config.PopupBorderSize
-            TooltipText.TextWrapped = true
+            TooltipText.TextWrapped = Iris._config.TextWrapped
             TooltipText.ZIndex = thisWidget.ZIndex + 1
             TooltipText.LayoutOrder = thisWidget.ZIndex + 1
 
@@ -296,6 +297,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
     end)
 
+    --stylua: ignore
     Iris.WidgetConstructor("Window", {
         hasState = true,
         hasChildren = true,
@@ -760,6 +762,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local Window = thisWidget.Instance :: Frame
             local WindowButton = Window.WindowButton :: TextButton
             local TitleBar = WindowButton.TitleBar :: Frame
+            local MenuBar: Frame? = WindowButton:FindFirstChild("MenuBar")
             local ChildContainer: ScrollingFrame = WindowButton.ChildContainer
             local ResizeGrip: TextButton = WindowButton.ResizeGrip
 
@@ -786,6 +789,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             if stateIsUncollapsed then
                 TitleBar.CollapseButton.Arrow.Image = widgets.ICONS.DOWN_POINTING_TRIANGLE
+				if MenuBar then
+					MenuBar.Visible = not thisWidget.arguments.NoMenu
+				end
                 ChildContainer.Visible = true
                 if thisWidget.arguments.NoResize ~= true then
                     ResizeGrip.Visible = true
@@ -796,6 +802,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 local collapsedHeight: number = TitleBar.AbsoluteSize.Y -- Iris._config.TextSize + Iris._config.FramePadding.Y * 2
                 TitleBar.CollapseButton.Arrow.Image = widgets.ICONS.RIGHT_POINTING_TRIANGLE
 
+				if MenuBar then
+					MenuBar.Visible = false
+				end
                 ChildContainer.Visible = false
                 ResizeGrip.Visible = false
                 WindowButton.Size = UDim2.fromOffset(stateSize.X, collapsedHeight)
