@@ -222,9 +222,9 @@ return function(Iris: Types.Iris): Types.Internal
         Internal._widgetCount = 0
         table.clear(Internal._usedIDs)
 
-        if Internal.parentInstance:IsA("GuiBase2d") and math.min(Internal.parentInstance.AbsoluteSize.X, Internal.parentInstance.AbsoluteSize.Y) < 100 then
-            error("Iris Parent Instance is too small")
-        end
+        -- if Internal.parentInstance:IsA("GuiBase2d") and math.min(Internal.parentInstance.AbsoluteSize.X, Internal.parentInstance.AbsoluteSize.Y) < 100 then
+        --     error("Iris Parent Instance is too small")
+        -- end
         local compatibleParent: boolean = (Internal.parentInstance:IsA("GuiBase2d") or Internal.parentInstance:IsA("CoreGui") or Internal.parentInstance:IsA("PluginGui") or Internal.parentInstance:IsA("PlayerGui"))
         if compatibleParent == false then
             error("Iris Parent Instance cant contain GUI")

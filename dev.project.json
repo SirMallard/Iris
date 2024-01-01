@@ -71,6 +71,14 @@
                 "$path": "default.project.json"
             }
         },
+        "ServerScriptService": {
+            "IrisExamplePlugin": {
+                "$path": "src/plugin",
+                "Iris": {
+                    "$path": "default.project.json"
+                }
+            }
+        },
         "StarterPlayer": {
             "StarterPlayerScripts": {
                 "$path": "src/client"

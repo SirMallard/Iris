@@ -122,7 +122,7 @@ return function(Iris: Types.Internal)
 
     function widgets.getScreenSizeForWindow(thisWidget: Types.Widget): Vector2 -- possible parents are GuiBase2d, CoreGui, PlayerGui
         local size: Vector2
-        if thisWidget.usesScreenGUI then
+        if thisWidget.Instance:IsA("GuiBase2d") then
             size = thisWidget.Instance.AbsoluteSize
         else
             local rootParent = thisWidget.Instance.Parent

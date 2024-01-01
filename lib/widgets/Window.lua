@@ -5,6 +5,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         if Iris._rootInstance == nil then
             return
         end
+        print(Iris._rootInstance:GetFullName())
+        print(Iris._rootInstance:GetChildren())
         local PopupScreenGui = Iris._rootInstance:FindFirstChild("PopupScreenGui")
         local TooltipContainer = PopupScreenGui.TooltipContainer
         local mouseLocation: Vector2 = widgets.getMouseLocation()
@@ -12,7 +14,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         TooltipContainer.Position = UDim2.fromOffset(newPosition.X, newPosition.Y)
     end
 
-    widgets.UserInputService.InputChanged:Connect(relocateTooltips)
+    -- widgets.UserInputService.InputChanged:Connect(relocateTooltips)
 
     --stylua: ignore
     Iris.WidgetConstructor("Tooltip", {
@@ -356,7 +358,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Window.DisplayOrder = Iris._config.DisplayOrderOffset
                 Window.IgnoreGuiInset = Iris._config.IgnoreGuiInset
             else
-                Window = Instance.new("Folder")
+                Window = Instance.new("Frame")
+				Window.AnchorPoint = Vector2.new(0.5, 0.5)
+				Window.Position = UDim2.new(0.5, 0, 0.5, 0)
+				Window.Size = UDim2.new(1, 0, 1, 0)
+				Window.BackgroundTransparency = 1
             end
             Window.Name = "Iris_Window"
 
@@ -396,6 +402,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     moveDeltaCursorPosition = widgets.getMouseLocation() - thisWidget.state.position.value
                 end
             end)
+
+			local FlexContainer:  = Instance.new("")
 
             local ChildContainer: ScrollingFrame = Instance.new("ScrollingFrame")
             ChildContainer.Name = "ChildContainer"

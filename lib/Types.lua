@@ -448,7 +448,7 @@ export type Iris = {
     ]]
 
     Init: (playerInstance: BasePlayerGui?, eventConnection: (RBXScriptConnection | () -> ())?) -> Iris,
-    Connect: (callback: () -> ()) -> (),
+    Connect: (self: Iris, callback: () -> ()) -> (),
     Append: (userInstance: GuiObject) -> (),
     ForceRefresh: () -> (),
 
