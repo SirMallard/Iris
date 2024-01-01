@@ -267,6 +267,8 @@ export type Internal = {
     _version: string,
     _started: boolean,
     _cycleTick: number,
+    _thread: thread,
+    _connection: RBXScriptConnection?,
 
     -- Refresh
     _globalRefreshRequested: boolean,
@@ -287,7 +289,7 @@ export type Internal = {
     _config: Config,
 
     -- ID
-    _IDStack: { State },
+    _IDStack: { ID },
     _usedIDs: { [ID]: number },
     _pushedId: ID?,
     _nextWidgetId: ID?,
@@ -300,8 +302,10 @@ export type Internal = {
     _states: { [ID]: State },
 
     -- Callback
-    _postCycleCallbacks: {},
-    _connectedFunctions: {},
+    _postCycleCallbacks: { () -> () },
+    _connectedFunctions: { () -> () },
+    _bindToInit: { () -> () },
+    _bindToShutdown: { () -> () },
     _cycleCoroutine: thread?,
 
     --[[
@@ -448,6 +452,7 @@ export type Iris = {
     ]]
 
     Init: (playerInstance: BasePlayerGui?, eventConnection: (RBXScriptConnection | () -> ())?) -> Iris,
+    Shutdown: () -> (),
     Connect: (self: Iris, callback: () -> ()) -> (),
     Append: (userInstance: GuiObject) -> (),
     ForceRefresh: () -> (),

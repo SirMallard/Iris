@@ -3,6 +3,9 @@ local Types = require(script.Parent.Parent.Types)
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local NumNonWindowChildren: number = 0
 
+    table.insert(Iris._bindToShutdown, function()
+        NumNonWindowChildren = 0
+    end)
     --stylua: ignore
     Iris.WidgetConstructor("Root", {
         hasState = false,
@@ -25,6 +28,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 				PseudoWindowScreenGui.Position = UDim2.new(0.5, 0, 0.5, 0)
 				PseudoWindowScreenGui.Size = UDim2.new(1, 0, 1, 0)
 				PseudoWindowScreenGui.BackgroundTransparency = 1
+				PseudoWindowScreenGui.ZIndex = Iris._config.DisplayOrderOffset
             end
             PseudoWindowScreenGui.Name = "PseudoWindowScreenGui"
             PseudoWindowScreenGui.Parent = Root
@@ -41,6 +45,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 				PopupScreenGui.Position = UDim2.new(0.5, 0, 0.5, 0)
 				PopupScreenGui.Size = UDim2.new(1, 0, 1, 0)
 				PopupScreenGui.BackgroundTransparency = 1
+                PopupScreenGui.ZIndex = Iris._config.DisplayOrderOffset + 1024
             end
             PopupScreenGui.Name = "PopupScreenGui"
             PopupScreenGui.Parent = Root

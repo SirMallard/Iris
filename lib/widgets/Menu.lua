@@ -2,8 +2,14 @@ local Types = require(script.Parent.Parent.Types)
 
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local AnyMenuOpen: boolean = false
-    local ActiveMenu: Types.Widget?
+    local ActiveMenu: Types.Widget? = nil
     local MenuStack: { Types.Widget } = {}
+
+    table.insert(Iris._bindToShutdown, function()
+        AnyMenuOpen = false
+        ActiveMenu = nil
+        table.clear(MenuStack)
+    end)
 
     local function EmptyMenuStack(menuIndex: number?)
         for index = #MenuStack, menuIndex and menuIndex + 1 or 1, -1 do
@@ -60,6 +66,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     end
 
     widgets.UserInputService.InputBegan:Connect(function(inputObject: InputObject)
+        if not Iris._started then
+            return
+        end
         if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 and inputObject.UserInputType ~= Enum.UserInputType.MouseButton2 then
             return
         end

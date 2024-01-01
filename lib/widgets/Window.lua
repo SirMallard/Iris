@@ -14,7 +14,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         TooltipContainer.Position = UDim2.fromOffset(newPosition.X, newPosition.Y)
     end
 
-    -- widgets.UserInputService.InputChanged:Connect(relocateTooltips)
+    widgets.UserInputService.InputChanged:Connect(function()
+        if not Iris._started then
+            return
+        end
+        relocateTooltips()
+    end)
 
     --stylua: ignore
     Iris.WidgetConstructor("Tooltip", {
@@ -90,6 +95,19 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local anyFocusedWindow: boolean = false -- is there any focused window?
 
     local windowWidgets: { [Types.ID]: Types.Widget } = {} -- array of widget objects of type window
+
+    table.insert(Iris._bindToShutdown, function()
+        windowDisplayOrder = 0
+        dragWindow = nil
+        isDragging = false
+        resizeWindow = nil
+        isResizing = false
+        isInsideResize = false
+        isInsideWindow = false
+        focusedWindow = nil
+        anyFocusedWindow = false
+        table.clear(windowWidgets)
+    end)
 
     local function quickSwapWindows()
         -- ctrl + tab swapping functionality
@@ -179,6 +197,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             windowDisplayOrder += 1
             if thisWidget.usesScreenGUI then
                 Window.DisplayOrder = windowDisplayOrder + Iris._config.DisplayOrderOffset
+            else
+                Window.ZIndex = windowDisplayOrder + Iris._config.DisplayOrderOffset
             end
 
             if thisWidget.state.isUncollapsed.value == false then
@@ -197,6 +217,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     end
 
     widgets.UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessedEvent: boolean)
+        if not Iris._started then
+            return
+        end
         if not gameProcessedEvent and input.UserInputType == Enum.UserInputType.MouseButton1 then
             Iris.SetFocusedWindow(nil)
         end
@@ -225,12 +248,18 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     end)
 
     widgets.UserInputService.TouchTapInWorld:Connect(function(_, gameProcessedEvent: boolean)
+        if not Iris._started then
+            return
+        end
         if not gameProcessedEvent then
             Iris.SetFocusedWindow(nil)
         end
     end)
 
     widgets.UserInputService.InputChanged:Connect(function(input: InputObject)
+        if not Iris._started then
+            return
+        end
         if isDragging and dragWindow then
             local mouseLocation: Vector2
             if input.UserInputType == Enum.UserInputType.Touch then
@@ -282,6 +311,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     end)
 
     widgets.UserInputService.InputEnded:Connect(function(input, _)
+        if not Iris._started then
+            return
+        end
         if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and isDragging and dragWindow then
             local Window = dragWindow.Instance :: Frame
             local dragInstance: TextButton = Window.WindowButton
@@ -363,6 +395,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 				Window.Position = UDim2.new(0.5, 0, 0.5, 0)
 				Window.Size = UDim2.new(1, 0, 1, 0)
 				Window.BackgroundTransparency = 1
+                Window.ZIndex = Iris._config.DisplayOrderOffset
             end
             Window.Name = "Iris_Window"
 
@@ -403,7 +436,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
             end)
 
-			local FlexContainer:  = Instance.new("")
+			-- local FlexContainer:  = Instance.new("")
 
             local ChildContainer: ScrollingFrame = Instance.new("ScrollingFrame")
             ChildContainer.Name = "ChildContainer"
@@ -782,6 +815,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Window.Enabled = true
                     WindowButton.Visible = true
                 else
+					Window.Visible = true
                     WindowButton.Visible = true
                 end
                 thisWidget.lastOpenedTick = Iris._cycleTick + 1
@@ -790,6 +824,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Window.Enabled = false
                     WindowButton.Visible = false
                 else
+					Window.Visible = false
                     WindowButton.Visible = false
                 end
                 thisWidget.lastClosedTick = Iris._cycleTick + 1

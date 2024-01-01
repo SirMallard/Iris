@@ -502,9 +502,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end
 
-        widgets.UserInputService.InputChanged:Connect(updateActiveDrag)
+        widgets.UserInputService.InputChanged:Connect(function()
+            if not Iris._started then
+                return
+            end
+            updateActiveDrag()
+        end)
 
         widgets.UserInputService.InputEnded:Connect(function(inputObject: InputObject)
+            if not Iris._started then
+                return
+            end
             if inputObject.UserInputType == Enum.UserInputType.MouseButton1 and AnyActiveDrag then
                 AnyActiveDrag = false
                 ActiveDrag = nil
@@ -896,9 +904,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end
 
-        widgets.UserInputService.InputChanged:Connect(updateActiveSlider)
+        widgets.UserInputService.InputChanged:Connect(function()
+            if not Iris._started then
+                return
+            end
+            updateActiveSlider()
+        end)
 
         widgets.UserInputService.InputEnded:Connect(function(inputObject: InputObject)
+            if not Iris._started then
+                return
+            end
             if inputObject.UserInputType == Enum.UserInputType.MouseButton1 and AnyActiveSlider then
                 AnyActiveSlider = false
                 ActiveSlider = nil

@@ -132,9 +132,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
     } :: Types.WidgetClass)
 
-    local AnyOpenedCombo = false
-    local ComboOpenedTick = -1
-    local OpenedCombo
+    local AnyOpenedCombo: boolean = false
+    local ComboOpenedTick: number = -1
+    local OpenedCombo: Types.Widget? = nil
+
+    table.insert(Iris._bindToShutdown, function()
+        AnyOpenedCombo = false
+        ComboOpenedTick = -1
+        OpenedCombo = nil
+    end)
 
     local function UpdateChildContainerTransform(thisWidget: Types.Widget)
         local Iris_Combo = thisWidget.Instance :: Frame
@@ -160,10 +166,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     end
 
     widgets.UserInputService.InputBegan:Connect(function(inputObject: InputObject)
+        if not Iris._started then
+            return
+        end
         if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 and inputObject.UserInputType ~= Enum.UserInputType.MouseButton2 and inputObject.UserInputType ~= Enum.UserInputType.Touch then
             return
         end
-        if AnyOpenedCombo == false then
+        if AnyOpenedCombo == false or not OpenedCombo then
             return
         end
         if ComboOpenedTick == Iris._cycleTick then

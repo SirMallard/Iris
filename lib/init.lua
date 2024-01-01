@@ -68,20 +68,76 @@ function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSi
     Internal._generateSelectionImageObject()
 
     -- spawns the connection to call `Internal._cycle()` within.
-    task.spawn(function()
+    Internal._thread = task.spawn(function()
         if typeof(eventConnection) == "function" then
-            while true do
+            while Internal._started do
                 eventConnection()
                 Internal._cycle()
             end
         elseif eventConnection ~= nil then
-            eventConnection:Connect(function()
+            Internal._connection = eventConnection:Connect(function()
                 Internal._cycle()
             end)
         end
     end)
 
     return Iris
+end
+
+--[=[
+	@within Iris
+	@method Shutdown
+]=]
+function Iris.Shutdown()
+    assert(Internal._started == true, "Iris.Shutdown can only be called if started.")
+    Internal._started = false
+
+    if Internal._connection and Internal._connection.Connected then
+        Internal._connection:Disconnect()
+    end
+    Internal._connection = nil
+
+    if Internal._rootWidget then
+        Internal._widgets["Root"].Discard(Internal._rootWidget)
+        Internal._rootInstance = nil
+    end
+
+    if Internal.SelectionImageObject then
+        Internal.SelectionImageObject:Destroy()
+    end
+
+    table.clear(Internal._connectedFunctions)
+    table.clear(Internal._postCycleCallbacks)
+    table.clear(Internal._IDStack)
+    table.clear(Internal._usedIDs)
+    table.clear(Internal._VDOM)
+    table.clear(Internal._states)
+
+    Internal._cycleTick = 0
+    Internal._globalRefreshRequested = false
+    Internal._localRefreshActive = false
+
+    Internal._widgetCount = 0
+    Internal._stackIndex = 1
+    Internal._rootWidget = {
+        ID = "R",
+        type = "Root",
+        Instance = Internal._rootInstance,
+        ZIndex = 0,
+    } :: Types.Widget
+    Internal._lastWidget = Internal._rootWidget
+
+    -- ID
+    Internal._IDStack = { "R" }
+    Internal._pushedId = nil
+    Internal._nextWidgetId = nil
+
+    Internal._lastVDOM = Internal._generateEmptyVDOM()
+    Internal._VDOM = Internal._generateEmptyVDOM()
+
+    for _, callback: () -> () in Internal._bindToShutdown do
+        callback()
+    end
 end
 
 --[=[

@@ -52,6 +52,7 @@ return function(Iris: Types.Iris): Types.Internal
     -- Callback
     Internal._postCycleCallbacks = {}
     Internal._connectedFunctions = {} -- functions which run each Iris cycle, connected by the user
+    Internal._bindToShutdown = {}
 
     -- Error
     Internal._fullErrorTracebacks = game:GetService("RunService"):IsStudio()
@@ -64,7 +65,7 @@ return function(Iris: Types.Iris): Types.Internal
         Iris from crashing and instead stopping at the error.
     ]=]
     Internal._cycleCoroutine = coroutine.create(function()
-        while true do
+        while Internal._started do
             for _, callback: () -> string in Internal._connectedFunctions do
                 debug.profilebegin("Iris/Connection")
                 local status: boolean, _error: string = pcall(callback)
