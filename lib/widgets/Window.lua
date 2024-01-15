@@ -5,8 +5,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         if Iris._rootInstance == nil then
             return
         end
-        print(Iris._rootInstance:GetFullName())
-        print(Iris._rootInstance:GetChildren())
         local PopupScreenGui = Iris._rootInstance:FindFirstChild("PopupScreenGui")
         local TooltipContainer = PopupScreenGui.TooltipContainer
         local mouseLocation: Vector2 = widgets.getMouseLocation()
@@ -14,12 +12,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         TooltipContainer.Position = UDim2.fromOffset(newPosition.X, newPosition.Y)
     end
 
-    widgets.UserInputService.InputChanged:Connect(function()
+    local connection: RBXScriptConnection = widgets.UserInputService.InputChanged:Connect(function()
         if not Iris._started then
             return
         end
         relocateTooltips()
     end)
+    table.insert(Iris._connections, connection)
 
     --stylua: ignore
     Iris.WidgetConstructor("Tooltip", {
@@ -95,19 +94,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local anyFocusedWindow: boolean = false -- is there any focused window?
 
     local windowWidgets: { [Types.ID]: Types.Widget } = {} -- array of widget objects of type window
-
-    table.insert(Iris._bindToShutdown, function()
-        windowDisplayOrder = 0
-        dragWindow = nil
-        isDragging = false
-        resizeWindow = nil
-        isResizing = false
-        isInsideResize = false
-        isInsideWindow = false
-        focusedWindow = nil
-        anyFocusedWindow = false
-        table.clear(windowWidgets)
-    end)
 
     local function quickSwapWindows()
         -- ctrl + tab swapping functionality
@@ -216,7 +202,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
     end
 
-    widgets.UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessedEvent: boolean)
+    connection = widgets.UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessedEvent: boolean)
         if not Iris._started then
             return
         end
@@ -246,8 +232,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end
     end)
+    table.insert(Iris._connections, connection)
 
-    widgets.UserInputService.TouchTapInWorld:Connect(function(_, gameProcessedEvent: boolean)
+    connection = widgets.UserInputService.TouchTapInWorld:Connect(function(_, gameProcessedEvent: boolean)
         if not Iris._started then
             return
         end
@@ -255,12 +242,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Iris.SetFocusedWindow(nil)
         end
     end)
+    table.insert(Iris._connections, connection)
 
-    widgets.UserInputService.InputChanged:Connect(function(input: InputObject)
+    connection = widgets.UserInputService.InputChanged:Connect(function(input: InputObject)
+        print("\tCHANGE")
         if not Iris._started then
             return
         end
         if isDragging and dragWindow then
+            print("Dragging and moving!")
             local mouseLocation: Vector2
             if input.UserInputType == Enum.UserInputType.Touch then
                 local location: Vector3 = input.Position
@@ -309,8 +299,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
         lastCursorPosition = widgets.getMouseLocation()
     end)
+    table.insert(Iris._connections, connection)
 
-    widgets.UserInputService.InputEnded:Connect(function(input, _)
+    connection = widgets.UserInputService.InputEnded:Connect(function(input, _)
         if not Iris._started then
             return
         end
@@ -330,6 +321,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             quickSwapWindows()
         end
     end)
+    table.insert(Iris._connections, connection)
 
     --stylua: ignore
     Iris.WidgetConstructor("Window", {
@@ -430,6 +422,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Iris.SetFocusedWindow(thisWidget)
                 end
                 if not thisWidget.arguments.NoMove and input.UserInputType == Enum.UserInputType.MouseButton1 then
+					print("Dragging begin!")
                     dragWindow = thisWidget
                     isDragging = true
                     moveDeltaCursorPosition = widgets.getMouseLocation() - thisWidget.state.position.value

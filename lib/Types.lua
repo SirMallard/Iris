@@ -266,9 +266,9 @@ export type Internal = {
     ]]
     _version: string,
     _started: boolean,
+    _shutdown: boolean,
     _cycleTick: number,
-    _thread: thread,
-    _connection: RBXScriptConnection?,
+    _eventConnection: RBXScriptConnection?,
 
     -- Refresh
     _globalRefreshRequested: boolean,
@@ -283,6 +283,7 @@ export type Internal = {
     _lastWidget: Widget,
     SelectionImageObject: Frame,
     parentInstance: BasePlayerGui,
+    _utility: WidgetUtility,
 
     -- Config
     _rootConfig: Config,
@@ -304,8 +305,7 @@ export type Internal = {
     -- Callback
     _postCycleCallbacks: { () -> () },
     _connectedFunctions: { () -> () },
-    _bindToInit: { () -> () },
-    _bindToShutdown: { () -> () },
+    _connections: { RBXScriptConnection },
     _cycleCoroutine: thread?,
 
     --[[

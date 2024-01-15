@@ -3,10 +3,6 @@ local Types = require(script.Parent.Parent.Types)
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local tableWidgets: { [Types.ID]: Types.Widget } = {}
 
-    table.insert(Iris._bindToShutdown, function()
-        table.clear(tableWidgets)
-    end)
-
     -- reset the cell index every frame.
     table.insert(Iris._postCycleCallbacks, function()
         for _, thisWidget: Types.Widget in tableWidgets do

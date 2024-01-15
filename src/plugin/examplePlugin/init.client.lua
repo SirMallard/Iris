@@ -1,5 +1,7 @@
 local Iris = require(script.Parent.Iris)
 
+local Input = require(script.Input)
+
 local Toolbar: PluginToolbar = plugin:CreateToolbar("Iris")
 local ToggleButton: PluginToolbarButton = Toolbar:CreateButton("Toggle Iris", "Toggle Iris running in a plugin window.", "rbxasset://textures/AnimationEditor/icon_checkmark.png")
 ToggleButton.ClickableWhenViewportHidden = true
@@ -16,6 +18,8 @@ IrisWidget.Title = "Iris"
 IrisWidget.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 IrisWidget.Name = "Iris"
 
+Input.SinkFrame.Parent = IrisWidget
+
 IrisWidget:BindToClose(function()
     IrisEnabled = false
     IrisWidget.Enabled = false
@@ -25,7 +29,8 @@ end)
 ToggleButton.Click:Connect(function()
     if not Iris.Internal._started then
         Iris.Internal._rootConfig.UseScreenGUIs = false
-        Iris.Init(IrisWidget)
+        Iris.Internal._utility.UserInputService = Input
+        Iris.Init(Input.SinkFrame)
         Iris:Connect(Iris.ShowDemoWindow)
     end
     IrisEnabled = not IrisEnabled
@@ -34,9 +39,16 @@ ToggleButton.Click:Connect(function()
 end)
 
 local function shutdown()
-    if Iris.Internal._started then
-        Iris.Shutdown()
+    Iris.Shutdown()
+
+    for _, connection in Input._connections do
+        if connection.Connected then
+            connection:DisconnectAll()
+        end
     end
+
+    Input.SinkFrame:Destroy()
+
     IrisEnabled = false
     IrisWidget.Enabled = false
     ToggleButton:SetActive(false)

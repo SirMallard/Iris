@@ -502,14 +502,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end
 
-        widgets.UserInputService.InputChanged:Connect(function()
+        local connection: RBXScriptConnection = widgets.UserInputService.InputChanged:Connect(function()
             if not Iris._started then
                 return
             end
             updateActiveDrag()
         end)
+        table.insert(Iris._connections, connection)
 
-        widgets.UserInputService.InputEnded:Connect(function(inputObject: InputObject)
+        connection = widgets.UserInputService.InputEnded:Connect(function(inputObject: InputObject)
             if not Iris._started then
                 return
             end
@@ -519,6 +520,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ActiveIndex = 0
             end
         end)
+        table.insert(Iris._connections, connection)
 
         function generateDragScalar(dataType: Types.InputDataTypes, components: number, defaultValue: any)
             return {
@@ -904,14 +906,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end
 
-        widgets.UserInputService.InputChanged:Connect(function()
+        local connection: RBXScriptConnection = widgets.UserInputService.InputChanged:Connect(function()
             if not Iris._started then
                 return
             end
             updateActiveSlider()
         end)
+        table.insert(Iris._connections, connection)
 
-        widgets.UserInputService.InputEnded:Connect(function(inputObject: InputObject)
+        connection = widgets.UserInputService.InputEnded:Connect(function(inputObject: InputObject)
             if not Iris._started then
                 return
             end
@@ -922,6 +925,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ActiveDataType = ""
             end
         end)
+        table.insert(Iris._connections, connection)
 
         function generateSliderScalar(dataType: Types.InputDataTypes, components: number, defaultValue: any, ...: any)
             return {

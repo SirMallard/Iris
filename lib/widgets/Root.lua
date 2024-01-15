@@ -3,10 +3,7 @@ local Types = require(script.Parent.Parent.Types)
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local NumNonWindowChildren: number = 0
 
-    table.insert(Iris._bindToShutdown, function()
-        NumNonWindowChildren = 0
-    end)
-    --stylua: ignore
+	--stylua: ignore
     Iris.WidgetConstructor("Root", {
         hasState = false,
         hasChildren = true,

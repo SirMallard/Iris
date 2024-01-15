@@ -506,6 +506,8 @@ return function(Iris: Types.Internal)
         end,
     }
 
+    Iris._utility = widgets
+
     require(script.Root)(Iris, widgets)
     require(script.Window)(Iris, widgets)
 

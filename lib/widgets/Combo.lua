@@ -136,12 +136,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local ComboOpenedTick: number = -1
     local OpenedCombo: Types.Widget? = nil
 
-    table.insert(Iris._bindToShutdown, function()
-        AnyOpenedCombo = false
-        ComboOpenedTick = -1
-        OpenedCombo = nil
-    end)
-
     local function UpdateChildContainerTransform(thisWidget: Types.Widget)
         local Iris_Combo = thisWidget.Instance :: Frame
         local PreviewContainer = Iris_Combo.PreviewContainer :: TextButton
@@ -165,11 +159,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
     end
 
-    widgets.UserInputService.InputBegan:Connect(function(inputObject: InputObject)
+    local connection: RBXScriptConnection = widgets.UserInputService.InputBegan:Connect(function(inputObject: InputObject)
         if not Iris._started then
             return
         end
-        if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 and inputObject.UserInputType ~= Enum.UserInputType.MouseButton2 and inputObject.UserInputType ~= Enum.UserInputType.Touch then
+        if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 or inputObject.UserInputType ~= Enum.UserInputType.MouseButton2 or inputObject.UserInputType ~= Enum.UserInputType.Touch then
             return
         end
         if AnyOpenedCombo == false or not OpenedCombo then
@@ -186,6 +180,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             OpenedCombo.state.isOpened:set(false)
         end
     end)
+    table.insert(Iris._connections, connection)
 
     --stylua: ignore
     Iris.WidgetConstructor("Combo", {
