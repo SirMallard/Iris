@@ -29,33 +29,33 @@ SinkFrame.InputBegan:Connect(function(input: InputObject)
     Input.InputBegan:Fire(input, true)
 end)
 
-local connection: RBXScriptConnection = UserInputService.InputBegan:Connect(function(input: InputObject)
-    Input.KeyDown[input.KeyCode] = true
-    Input.InputBegan:Fire(input, false)
-end)
-table.insert(Input._connections, connection)
+-- local connection: RBXScriptConnection = UserInputService.InputBegan:Connect(function(input: InputObject)
+--     Input.KeyDown[input.KeyCode] = true
+--     Input.InputBegan:Fire(input, false)
+-- end)
+-- table.insert(Input._connections, connection)
 
 SinkFrame.InputEnded:Connect(function(input: InputObject)
     Input.KeyDown[input.KeyCode] = nil
     Input.InputEnded:Fire(input, true)
 end)
 
-connection = UserInputService.InputEnded:Connect(function(input: InputObject)
-    Input.KeyDown[input.KeyCode] = nil
-    Input.InputEnded:Fire(input, false)
-end)
-table.insert(Input._connections, connection)
+-- connection = UserInputService.InputEnded:Connect(function(input: InputObject)
+--     Input.KeyDown[input.KeyCode] = nil
+--     Input.InputEnded:Fire(input, false)
+-- end)
+-- table.insert(Input._connections, connection)
 
 SinkFrame.InputChanged:Connect(function(input: InputObject)
     print("SINK:")
     Input.InputChanged:Fire(input, true)
 end)
 
-connection = UserInputService.InputChanged:Connect(function(input: InputObject)
-    print("SERVICE:")
-    Input.InputChanged:Fire(input, false)
-end)
-table.insert(Input._connections, connection)
+-- connection = UserInputService.InputChanged:Connect(function(input: InputObject)
+--     print("SERVICE:")
+--     Input.InputChanged:Fire(input, false)
+-- end)
+-- table.insert(Input._connections, connection)
 
 SinkFrame.MouseMoved:Connect(function(x: number, y: number)
     Input.X = x

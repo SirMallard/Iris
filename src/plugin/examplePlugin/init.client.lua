@@ -20,6 +20,12 @@ IrisWidget.Name = "Iris"
 
 Input.SinkFrame.Parent = IrisWidget
 
+Iris.Init(Input.SinkFrame, nil, { UseScreenGUIs = false, UsePluginEnvironment = true })
+Iris.Disabled = true
+Iris.Internal._utility.UserInputService = Input
+
+Iris:Connect(Iris.ShowDemoWindow)
+
 IrisWidget:BindToClose(function()
     IrisEnabled = false
     IrisWidget.Enabled = false
@@ -27,14 +33,9 @@ IrisWidget:BindToClose(function()
 end)
 
 ToggleButton.Click:Connect(function()
-    if not Iris.Internal._started then
-        Iris.Internal._rootConfig.UseScreenGUIs = false
-        Iris.Internal._utility.UserInputService = Input
-        Iris.Init(Input.SinkFrame)
-        Iris:Connect(Iris.ShowDemoWindow)
-    end
     IrisEnabled = not IrisEnabled
     IrisWidget.Enabled = IrisEnabled
+    Iris.Disabled = not IrisEnabled
     ToggleButton:SetActive(IrisEnabled)
 end)
 

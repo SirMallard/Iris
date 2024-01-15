@@ -451,7 +451,7 @@ export type Iris = {
         -------------
     ]]
 
-    Init: (playerInstance: BasePlayerGui?, eventConnection: (RBXScriptConnection | () -> ())?) -> Iris,
+    Init: (playerInstance: BasePlayerGui?, eventConnection: (RBXScriptConnection | () -> ())?, config: { [string]: any }?) -> Iris,
     Shutdown: () -> (),
     Connect: (self: Iris, callback: () -> ()) -> (),
     Append: (userInstance: GuiObject) -> (),
@@ -601,6 +601,7 @@ export type Config = {
     DisableWidget: boolean,
     DisplayOrderOffset: number,
     ZIndexOffset: number,
+    UsePluginEnvironment: boolean,
 
     MouseDoubleClickTime: number,
     MouseDoubleClickMaxDist: number,

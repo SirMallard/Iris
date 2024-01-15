@@ -232,6 +232,8 @@ local TemplateConfig = {
         DisplayOrderOffset = 127,
         ZIndexOffset = 0,
 
+        UsePluginEnvironment = false,
+
         MouseDoubleClickTime = 0.30, -- Time for a double-click, in seconds.
         MouseDoubleClickMaxDist = 6.0, -- Distance threshold to stay in to validate a double-click, in pixels.
 
