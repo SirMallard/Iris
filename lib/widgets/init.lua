@@ -5,7 +5,7 @@ local widgets = {} :: Types.WidgetUtility
 return function(Iris: Types.Internal)
     widgets.GuiService = game:GetService("GuiService")
     widgets.RunService = game:GetService("RunService")
-    widgets.UserInputService = if Iris._config.UsePluginEnvironment then  else game:GetService("UserInputService")
+    widgets.UserInputService = nil
     widgets.ContextActionService = game:GetService("ContextActionService")
     widgets.TextService = game:GetService("TextService")
 
@@ -406,6 +406,12 @@ return function(Iris: Types.Internal)
         for _, state: Types.State in thisWidget.state do
             state.ConnectedWidgets[thisWidget.ID] = nil
         end
+    end
+
+    function widgets.registerEvent(event: string, callback: (...any) -> ())
+        table.insert(Iris._initFunctions, function()
+            table.insert(Iris._connections, widgets.UserInputService[event]:Connect(callback))
+        end)
     end
 
     widgets.EVENTS = {

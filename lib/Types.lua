@@ -247,6 +247,8 @@ export type WidgetUtility = {
     applyInputBegan: (thisWidget: Widget, thisInstance: GuiObject, callback: (input: InputObject) -> ()) -> (),
     applyInputEnded: (thisWidget: Widget, thisInstance: GuiObject, callback: (input: InputObject) -> ()) -> (),
 
+    registerEvent: (event: string, callback: (...any) -> ()) -> (),
+
     EVENTS: {
         hover: (pathToHovered: (thisWidget: Widget) -> GuiObject) -> Event,
         click: (pathToClicked: (thisWidget: Widget) -> GuiButton) -> Event,
@@ -306,6 +308,7 @@ export type Internal = {
     _postCycleCallbacks: { () -> () },
     _connectedFunctions: { () -> () },
     _connections: { RBXScriptConnection },
+    _initFunctions: { () -> () },
     _cycleCoroutine: thread?,
 
     --[[

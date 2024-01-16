@@ -1,5 +1,3 @@
-local UserInputService: UserInputService = game:GetService("UserInputService")
-
 local Signal = require(script.Parent.Signal)
 
 local Input = {}
@@ -15,6 +13,7 @@ SinkFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 SinkFrame.Position = UDim2.fromScale(0.5, 0.5)
 SinkFrame.Size = UDim2.fromScale(1, 1)
 SinkFrame.BackgroundTransparency = 1
+SinkFrame.ZIndex = 1024 ^ 2
 
 Input.SinkFrame = SinkFrame
 
@@ -29,33 +28,14 @@ SinkFrame.InputBegan:Connect(function(input: InputObject)
     Input.InputBegan:Fire(input, true)
 end)
 
--- local connection: RBXScriptConnection = UserInputService.InputBegan:Connect(function(input: InputObject)
---     Input.KeyDown[input.KeyCode] = true
---     Input.InputBegan:Fire(input, false)
--- end)
--- table.insert(Input._connections, connection)
+SinkFrame.InputChanged:Connect(function(input: InputObject)
+    Input.InputChanged:Fire(input, true)
+end)
 
 SinkFrame.InputEnded:Connect(function(input: InputObject)
     Input.KeyDown[input.KeyCode] = nil
     Input.InputEnded:Fire(input, true)
 end)
-
--- connection = UserInputService.InputEnded:Connect(function(input: InputObject)
---     Input.KeyDown[input.KeyCode] = nil
---     Input.InputEnded:Fire(input, false)
--- end)
--- table.insert(Input._connections, connection)
-
-SinkFrame.InputChanged:Connect(function(input: InputObject)
-    print("SINK:")
-    Input.InputChanged:Fire(input, true)
-end)
-
--- connection = UserInputService.InputChanged:Connect(function(input: InputObject)
---     print("SERVICE:")
---     Input.InputChanged:Fire(input, false)
--- end)
--- table.insert(Input._connections, connection)
 
 SinkFrame.MouseMoved:Connect(function(x: number, y: number)
     Input.X = x
@@ -67,7 +47,10 @@ function Input:GetMouseLocation()
 end
 
 function Input:IsKeyDown(keyCode: Enum.KeyCode)
-    return Input.KeyDown[keyCode] or false
+    if Input.KeyDown[keyCode] == true then
+        return true
+    end
+    return false
 end
 
 return Input

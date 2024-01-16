@@ -18,17 +18,22 @@ IrisWidget.Title = "Iris"
 IrisWidget.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 IrisWidget.Name = "Iris"
 
-Input.SinkFrame.Parent = IrisWidget
-
-Iris.Init(Input.SinkFrame, nil, { UseScreenGUIs = false, UsePluginEnvironment = true })
-Iris.Disabled = true
 Iris.Internal._utility.UserInputService = Input
+Iris.UpdateGlobalConfig({
+    UseScreenGUIs = false,
+    UsePluginEnvironment = true,
+})
+Iris.Disabled = true
 
+Iris.Init(IrisWidget)
 Iris:Connect(Iris.ShowDemoWindow)
+
+Input.SinkFrame.Parent = IrisWidget
 
 IrisWidget:BindToClose(function()
     IrisEnabled = false
     IrisWidget.Enabled = false
+    Iris.Disabled = true
     ToggleButton:SetActive(false)
 end)
 
@@ -40,18 +45,18 @@ ToggleButton.Click:Connect(function()
 end)
 
 local function shutdown()
+    ShutdownButton:SetActive(true)
     Iris.Shutdown()
 
     for _, connection in Input._connections do
-        if connection.Connected then
-            connection:DisconnectAll()
-        end
+        connection:DisconnectAll()
     end
 
     Input.SinkFrame:Destroy()
 
     IrisEnabled = false
     IrisWidget.Enabled = false
+    Iris.Disabled = true
     ToggleButton:SetActive(false)
     ShutdownButton:SetActive(false)
 end

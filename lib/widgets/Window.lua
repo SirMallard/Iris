@@ -12,13 +12,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         TooltipContainer.Position = UDim2.fromOffset(newPosition.X, newPosition.Y)
     end
 
-    local connection: RBXScriptConnection = widgets.UserInputService.InputChanged:Connect(function()
+    widgets.registerEvent("InputChanged", function()
         if not Iris._started then
             return
         end
         relocateTooltips()
     end)
-    table.insert(Iris._connections, connection)
 
     --stylua: ignore
     Iris.WidgetConstructor("Tooltip", {
@@ -202,11 +201,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
     end
 
-    connection = widgets.UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessedEvent: boolean)
+    widgets.registerEvent("InputBegan", function(input: InputObject, gameProcessedEvent: boolean)
         if not Iris._started then
             return
         end
-        if not gameProcessedEvent and input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 and not isInsideWindow and not isInsideResize then
             Iris.SetFocusedWindow(nil)
         end
 
@@ -214,27 +213,24 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             quickSwapWindows()
         end
 
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            if isInsideResize and not isInsideWindow and anyFocusedWindow and focusedWindow then
-                local midWindow: Vector2 = focusedWindow.state.position.value + (focusedWindow.state.size.value / 2)
-                local cursorPosition: Vector2 = widgets.getMouseLocation() - midWindow
+        if input.UserInputType == Enum.UserInputType.MouseButton1 and isInsideResize and not isInsideWindow and anyFocusedWindow and focusedWindow then
+            local midWindow: Vector2 = focusedWindow.state.position.value + (focusedWindow.state.size.value / 2)
+            local cursorPosition: Vector2 = widgets.getMouseLocation() - midWindow
 
-                -- check which axis its closest to, then check which side is closest with math.sign
-                if math.abs(cursorPosition.X) * focusedWindow.state.size.value.Y >= math.abs(cursorPosition.Y) * focusedWindow.state.size.value.X then
-                    resizeFromTopBottom = Enum.TopBottom.Center
-                    resizeFromLeftRight = if math.sign(cursorPosition.X) == -1 then Enum.LeftRight.Left else Enum.LeftRight.Right
-                else
-                    resizeFromLeftRight = Enum.LeftRight.Center
-                    resizeFromTopBottom = if math.sign(cursorPosition.Y) == -1 then Enum.TopBottom.Top else Enum.TopBottom.Bottom
-                end
-                isResizing = true
-                resizeWindow = focusedWindow
+            -- check which axis its closest to, then check which side is closest with math.sign
+            if math.abs(cursorPosition.X) * focusedWindow.state.size.value.Y >= math.abs(cursorPosition.Y) * focusedWindow.state.size.value.X then
+                resizeFromTopBottom = Enum.TopBottom.Center
+                resizeFromLeftRight = if math.sign(cursorPosition.X) == -1 then Enum.LeftRight.Left else Enum.LeftRight.Right
+            else
+                resizeFromLeftRight = Enum.LeftRight.Center
+                resizeFromTopBottom = if math.sign(cursorPosition.Y) == -1 then Enum.TopBottom.Top else Enum.TopBottom.Bottom
             end
+            isResizing = true
+            resizeWindow = focusedWindow
         end
     end)
-    table.insert(Iris._connections, connection)
 
-    connection = widgets.UserInputService.TouchTapInWorld:Connect(function(_, gameProcessedEvent: boolean)
+    widgets.registerEvent("TouchTapInWorld", function(_, gameProcessedEvent: boolean)
         if not Iris._started then
             return
         end
@@ -242,15 +238,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Iris.SetFocusedWindow(nil)
         end
     end)
-    table.insert(Iris._connections, connection)
 
-    connection = widgets.UserInputService.InputChanged:Connect(function(input: InputObject)
-        print("\tCHANGE")
+    widgets.registerEvent("InputChanged", function(input: InputObject)
         if not Iris._started then
             return
         end
         if isDragging and dragWindow then
-            print("Dragging and moving!")
             local mouseLocation: Vector2
             if input.UserInputType == Enum.UserInputType.Touch then
                 local location: Vector3 = input.Position
@@ -299,9 +292,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
         lastCursorPosition = widgets.getMouseLocation()
     end)
-    table.insert(Iris._connections, connection)
 
-    connection = widgets.UserInputService.InputEnded:Connect(function(input, _)
+    widgets.registerEvent("InputEnded", function(input, _)
         if not Iris._started then
             return
         end
@@ -321,7 +313,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             quickSwapWindows()
         end
     end)
-    table.insert(Iris._connections, connection)
 
     --stylua: ignore
     Iris.WidgetConstructor("Window", {
@@ -422,7 +413,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Iris.SetFocusedWindow(thisWidget)
                 end
                 if not thisWidget.arguments.NoMove and input.UserInputType == Enum.UserInputType.MouseButton1 then
-					print("Dragging begin!")
                     dragWindow = thisWidget
                     isDragging = true
                     moveDeltaCursorPosition = widgets.getMouseLocation() - thisWidget.state.position.value

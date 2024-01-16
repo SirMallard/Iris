@@ -54,6 +54,7 @@ return function(Iris: Types.Iris): Types.Internal
     Internal._postCycleCallbacks = {}
     Internal._connectedFunctions = {} -- functions which run each Iris cycle, connected by the user
     Internal._connections = {}
+    Internal._initFunctions = {}
 
     -- Error
     Internal._fullErrorTracebacks = game:GetService("RunService"):IsStudio()

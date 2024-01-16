@@ -59,7 +59,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         ChildContainer.Position = UDim2.fromOffset(x, y)
     end
 
-    local connection: RBXScriptConnection = widgets.UserInputService.InputBegan:Connect(function(inputObject: InputObject)
+    widgets.registerEvent("InputBegan", function(inputObject: InputObject)
         if not Iris._started then
             return
         end
@@ -91,7 +91,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             EmptyMenuStack()
         end
     end)
-    table.insert(Iris._connections, connection)
 
     --stylua: ignore
     Iris.WidgetConstructor("MenuBar", {
