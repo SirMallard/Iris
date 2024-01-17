@@ -642,14 +642,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 resizeWindow = thisWidget
             end)
 
-            local ResizeBorder: TextButton = Instance.new("TextButton")
+            local ResizeBorder: Frame = Instance.new("Frame")
             ResizeBorder.Name = "ResizeBorder"
             ResizeBorder.Size = UDim2.new(1, Iris._config.WindowResizePadding.X * 2, 1, Iris._config.WindowResizePadding.Y * 2)
             ResizeBorder.Position = UDim2.fromOffset(-Iris._config.WindowResizePadding.X, -Iris._config.WindowResizePadding.Y)
             ResizeBorder.BackgroundTransparency = 1
             ResizeBorder.BorderSizePixel = 0
-            ResizeBorder.Text = ""
-            ResizeBorder.AutoButtonColor = false
             ResizeBorder.Active = true
             ResizeBorder.Selectable = false
             ResizeBorder.ZIndex = thisWidget.ZIndex

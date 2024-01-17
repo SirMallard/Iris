@@ -5,7 +5,7 @@ local widgets = {} :: Types.WidgetUtility
 return function(Iris: Types.Internal)
     widgets.GuiService = game:GetService("GuiService")
     widgets.RunService = game:GetService("RunService")
-    widgets.UserInputService = nil
+    widgets.UserInputService = game:GetService("UserInputService")
     widgets.ContextActionService = game:GetService("ContextActionService")
     widgets.TextService = game:GetService("TextService")
 
