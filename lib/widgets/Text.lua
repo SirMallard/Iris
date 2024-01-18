@@ -36,8 +36,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             if thisWidget.arguments.Text == nil then
                 error("Iris.Text Text Argument is required", 5)
             end
-            if thisWidget.arguments.Wrapped == false then
-                Text.TextWrapped = false
+            if thisWidget.arguments.Wrapped ~= nil then
+                Text.TextWrapped = thisWidget.arguments.Wrapped
             else
                 Text.TextWrapped = Iris._config.TextWrapped
             end
@@ -46,8 +46,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             else
                 Text.TextColor3 = Iris._config.TextColor
             end
-            if thisWidget.arguments.RichText == false then
-                Text.RichText = false
+            if thisWidget.arguments.RichText ~= nil then
+                Text.RichText = thisWidget.arguments.RichText
             else
                 Text.RichText = Iris._config.RichText
             end
