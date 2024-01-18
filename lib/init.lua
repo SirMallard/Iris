@@ -47,7 +47,6 @@ Iris.Events = {}
     @within Iris
     @param parentInstance Instance | nil -- instance which Iris will place UI in. defaults to [PlayerGui] if unspecified
     @param eventConnection RBXScriptSignal | () -> {} | nil
-    @param config { [string]: any }? -- whether to override the config options on start. Important for plugins.
     @return Iris
 
     Initializes Iris and begins rendering. May only be called once.

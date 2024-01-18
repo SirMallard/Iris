@@ -3,7 +3,7 @@ local Types = require(script.Parent.Parent.Types)
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local NumNonWindowChildren: number = 0
 
-	--stylua: ignore
+    --stylua: ignore
     Iris.WidgetConstructor("Root", {
         hasState = false,
         hasChildren = true,
@@ -21,11 +21,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 PseudoWindowScreenGui.IgnoreGuiInset = Iris._config.IgnoreGuiInset
             else
                 PseudoWindowScreenGui = Instance.new("Frame")
-				PseudoWindowScreenGui.AnchorPoint = Vector2.new(0.5, 0.5)
-				PseudoWindowScreenGui.Position = UDim2.new(0.5, 0, 0.5, 0)
-				PseudoWindowScreenGui.Size = UDim2.new(1, 0, 1, 0)
-				PseudoWindowScreenGui.BackgroundTransparency = 1
-				PseudoWindowScreenGui.ZIndex = Iris._config.DisplayOrderOffset
+                PseudoWindowScreenGui.AnchorPoint = Vector2.new(0.5, 0.5)
+                PseudoWindowScreenGui.Position = UDim2.new(0.5, 0, 0.5, 0)
+                PseudoWindowScreenGui.Size = UDim2.new(1, 0, 1, 0)
+                PseudoWindowScreenGui.BackgroundTransparency = 1
+                PseudoWindowScreenGui.ZIndex = Iris._config.DisplayOrderOffset
             end
             PseudoWindowScreenGui.Name = "PseudoWindowScreenGui"
             PseudoWindowScreenGui.Parent = Root
@@ -38,34 +38,34 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 PopupScreenGui.IgnoreGuiInset = Iris._config.IgnoreGuiInset
             else
                 PopupScreenGui = Instance.new("Frame")
-				PopupScreenGui.AnchorPoint = Vector2.new(0.5, 0.5)
-				PopupScreenGui.Position = UDim2.new(0.5, 0, 0.5, 0)
-				PopupScreenGui.Size = UDim2.new(1, 0, 1, 0)
-				PopupScreenGui.BackgroundTransparency = 1
+                PopupScreenGui.AnchorPoint = Vector2.new(0.5, 0.5)
+                PopupScreenGui.Position = UDim2.new(0.5, 0, 0.5, 0)
+                PopupScreenGui.Size = UDim2.new(1, 0, 1, 0)
+                PopupScreenGui.BackgroundTransparency = 1
                 PopupScreenGui.ZIndex = Iris._config.DisplayOrderOffset + 1024
             end
             PopupScreenGui.Name = "PopupScreenGui"
             PopupScreenGui.Parent = Root
 
-			local TooltipContainer: Frame = Instance.new("Frame")
-			TooltipContainer.Name = "TooltipContainer"
-			TooltipContainer.AutomaticSize = Enum.AutomaticSize.XY
-			TooltipContainer.Size = UDim2.fromOffset(0, 0)
-			TooltipContainer.BackgroundTransparency = 1
-			TooltipContainer.BorderSizePixel = 0
+            local TooltipContainer: Frame = Instance.new("Frame")
+            TooltipContainer.Name = "TooltipContainer"
+            TooltipContainer.AutomaticSize = Enum.AutomaticSize.XY
+            TooltipContainer.Size = UDim2.fromOffset(0, 0)
+            TooltipContainer.BackgroundTransparency = 1
+            TooltipContainer.BorderSizePixel = 0
 
-			widgets.UIListLayout(TooltipContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.PopupBorderSize))
+            widgets.UIListLayout(TooltipContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.PopupBorderSize))
 
-			TooltipContainer.Parent = PopupScreenGui
+            TooltipContainer.Parent = PopupScreenGui
 
-			local MenuBarContainer: Frame = Instance.new("Frame")
-			MenuBarContainer.Name = "MenuBarContainer"
-			MenuBarContainer.AutomaticSize = Enum.AutomaticSize.Y
-			MenuBarContainer.Size = UDim2.fromScale(1, 0)
-			MenuBarContainer.BackgroundTransparency = 1
-			MenuBarContainer.BorderSizePixel = 0
+            local MenuBarContainer: Frame = Instance.new("Frame")
+            MenuBarContainer.Name = "MenuBarContainer"
+            MenuBarContainer.AutomaticSize = Enum.AutomaticSize.Y
+            MenuBarContainer.Size = UDim2.fromScale(1, 0)
+            MenuBarContainer.BackgroundTransparency = 1
+            MenuBarContainer.BorderSizePixel = 0
 
-			MenuBarContainer.Parent = PopupScreenGui
+            MenuBarContainer.Parent = PopupScreenGui
 
             local PseudoWindow: Frame = Instance.new("Frame")
             PseudoWindow.Name = "PseudoWindow"

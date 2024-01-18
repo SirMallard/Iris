@@ -386,10 +386,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Window.IgnoreGuiInset = Iris._config.IgnoreGuiInset
             else
                 Window = Instance.new("Frame")
-				Window.AnchorPoint = Vector2.new(0.5, 0.5)
-				Window.Position = UDim2.new(0.5, 0, 0.5, 0)
-				Window.Size = UDim2.new(1, 0, 1, 0)
-				Window.BackgroundTransparency = 1
+                Window.AnchorPoint = Vector2.new(0.5, 0.5)
+                Window.Position = UDim2.new(0.5, 0, 0.5, 0)
+                Window.Size = UDim2.new(1, 0, 1, 0)
+                Window.BackgroundTransparency = 1
                 Window.ZIndex = Iris._config.DisplayOrderOffset
             end
             Window.Name = "Iris_Window"
@@ -431,7 +431,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
             end)
 
-			-- local FlexContainer:  = Instance.new("")
+            -- local FlexContainer:  = Instance.new("")
 
             local ChildContainer: ScrollingFrame = Instance.new("ScrollingFrame")
             ChildContainer.Name = "ChildContainer"
@@ -808,7 +808,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Window.Enabled = true
                     WindowButton.Visible = true
                 else
-					Window.Visible = true
+                    Window.Visible = true
                     WindowButton.Visible = true
                 end
                 thisWidget.lastOpenedTick = Iris._cycleTick + 1
@@ -817,7 +817,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Window.Enabled = false
                     WindowButton.Visible = false
                 else
-					Window.Visible = false
+                    Window.Visible = false
                     WindowButton.Visible = false
                 end
                 thisWidget.lastClosedTick = Iris._cycleTick + 1
@@ -825,9 +825,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             if stateIsUncollapsed then
                 TitleBar.CollapseButton.Arrow.Image = widgets.ICONS.DOWN_POINTING_TRIANGLE
-				if MenuBar then
-					MenuBar.Visible = not thisWidget.arguments.NoMenu
-				end
+                if MenuBar then
+                    MenuBar.Visible = not thisWidget.arguments.NoMenu
+                end
                 ChildContainer.Visible = true
                 if thisWidget.arguments.NoResize ~= true then
                     ResizeGrip.Visible = true
@@ -838,9 +838,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 local collapsedHeight: number = TitleBar.AbsoluteSize.Y -- Iris._config.TextSize + Iris._config.FramePadding.Y * 2
                 TitleBar.CollapseButton.Arrow.Image = widgets.ICONS.RIGHT_POINTING_TRIANGLE
 
-				if MenuBar then
-					MenuBar.Visible = false
-				end
+                if MenuBar then
+                    MenuBar.Visible = false
+                end
                 ChildContainer.Visible = false
                 ResizeGrip.Visible = false
                 WindowButton.Size = UDim2.fromOffset(stateSize.X, collapsedHeight)
