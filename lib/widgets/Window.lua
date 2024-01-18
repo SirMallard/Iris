@@ -201,12 +201,24 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
     end
 
-    widgets.registerEvent("InputBegan", function(input: InputObject, gameProcessedEvent: boolean)
+    widgets.registerEvent("InputBegan", function(input: InputObject)
         if not Iris._started then
             return
         end
-        if input.UserInputType == Enum.UserInputType.MouseButton1 and not isInsideWindow and not isInsideResize then
-            Iris.SetFocusedWindow(nil)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            local inWindow: boolean = false
+            local position: Vector2 = widgets.UserInputService:GetMouseLocation()
+            for _, window in windowWidgets do
+                local WindowButton: TextButton = window.Instance and window.Instance.WindowButton
+                if WindowButton and widgets.isPosInsideRect(position, WindowButton.AbsolutePosition, WindowButton.AbsolutePosition + WindowButton.AbsoluteSize) then
+                    inWindow = true
+                    break
+                end
+            end
+
+            if not inWindow then
+                Iris.SetFocusedWindow(nil)
+            end
         end
 
         if input.KeyCode == Enum.KeyCode.Tab and (widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)) then

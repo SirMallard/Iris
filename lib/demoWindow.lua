@@ -962,7 +962,7 @@ return function(Iris: Types.Iris)
             return
         end
 
-        Iris.Window({
+        local window: Types.Widget = Iris.Window({
             "Iris Demo Window",
             [Iris.Args.Window.NoTitleBar] = NoTitleBar.value,
             [Iris.Args.Window.NoBackground] = NoBackground.value,
@@ -1043,5 +1043,7 @@ return function(Iris: Types.Iris)
         if showMainMenuBarWindow.value then
             mainMenuBarExample()
         end
+
+        return window
     end
 end

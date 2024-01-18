@@ -486,7 +486,7 @@ export type Iris = {
 
     TemplateConfig: { [string]: Config },
     _config: Config,
-    ShowDemoWindow: () -> (),
+    ShowDemoWindow: () -> Widget,
 }
 
 export type Config = {
@@ -604,7 +604,6 @@ export type Config = {
     DisableWidget: boolean,
     DisplayOrderOffset: number,
     ZIndexOffset: number,
-    UsePluginEnvironment: boolean,
 
     MouseDoubleClickTime: number,
     MouseDoubleClickMaxDist: number,
