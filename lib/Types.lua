@@ -247,6 +247,8 @@ export type WidgetUtility = {
     applyInputBegan: (thisWidget: Widget, thisInstance: GuiObject, callback: (input: InputObject) -> ()) -> (),
     applyInputEnded: (thisWidget: Widget, thisInstance: GuiObject, callback: (input: InputObject) -> ()) -> (),
 
+    registerEvent: (event: string, callback: (...any) -> ()) -> (),
+
     EVENTS: {
         hover: (pathToHovered: (thisWidget: Widget) -> GuiObject) -> Event,
         click: (pathToClicked: (thisWidget: Widget) -> GuiButton) -> Event,
@@ -266,7 +268,9 @@ export type Internal = {
     ]]
     _version: string,
     _started: boolean,
+    _shutdown: boolean,
     _cycleTick: number,
+    _eventConnection: RBXScriptConnection?,
 
     -- Refresh
     _globalRefreshRequested: boolean,
@@ -281,13 +285,14 @@ export type Internal = {
     _lastWidget: Widget,
     SelectionImageObject: Frame,
     parentInstance: BasePlayerGui,
+    _utility: WidgetUtility,
 
     -- Config
     _rootConfig: Config,
     _config: Config,
 
     -- ID
-    _IDStack: { State },
+    _IDStack: { ID },
     _usedIDs: { [ID]: number },
     _pushedId: ID?,
     _nextWidgetId: ID?,
@@ -300,8 +305,10 @@ export type Internal = {
     _states: { [ID]: State },
 
     -- Callback
-    _postCycleCallbacks: {},
-    _connectedFunctions: {},
+    _postCycleCallbacks: { () -> () },
+    _connectedFunctions: { () -> () },
+    _connections: { RBXScriptConnection },
+    _initFunctions: { () -> () },
     _cycleCoroutine: thread?,
 
     --[[
@@ -448,7 +455,8 @@ export type Iris = {
     ]]
 
     Init: (playerInstance: BasePlayerGui?, eventConnection: (RBXScriptConnection | () -> ())?) -> Iris,
-    Connect: (callback: () -> ()) -> (),
+    Shutdown: () -> (),
+    Connect: (self: Iris, callback: () -> ()) -> (),
     Append: (userInstance: GuiObject) -> (),
     ForceRefresh: () -> (),
 
@@ -478,7 +486,7 @@ export type Iris = {
 
     TemplateConfig: { [string]: Config },
     _config: Config,
-    ShowDemoWindow: () -> (),
+    ShowDemoWindow: () -> Widget,
 }
 
 export type Config = {

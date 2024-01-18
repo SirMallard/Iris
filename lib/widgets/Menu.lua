@@ -2,7 +2,7 @@ local Types = require(script.Parent.Parent.Types)
 
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local AnyMenuOpen: boolean = false
-    local ActiveMenu: Types.Widget?
+    local ActiveMenu: Types.Widget? = nil
     local MenuStack: { Types.Widget } = {}
 
     local function EmptyMenuStack(menuIndex: number?)
@@ -59,7 +59,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         ChildContainer.Position = UDim2.fromOffset(x, y)
     end
 
-    widgets.UserInputService.InputBegan:Connect(function(inputObject: InputObject)
+    widgets.registerEvent("InputBegan", function(inputObject: InputObject)
+        if not Iris._started then
+            return
+        end
         if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 and inputObject.UserInputType ~= Enum.UserInputType.MouseButton2 then
             return
         end

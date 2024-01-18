@@ -122,7 +122,7 @@ return function(Iris: Types.Internal)
 
     function widgets.getScreenSizeForWindow(thisWidget: Types.Widget): Vector2 -- possible parents are GuiBase2d, CoreGui, PlayerGui
         local size: Vector2
-        if thisWidget.usesScreenGUI then
+        if thisWidget.Instance:IsA("GuiBase2d") then
             size = thisWidget.Instance.AbsoluteSize
         else
             local rootParent = thisWidget.Instance.Parent
@@ -408,6 +408,12 @@ return function(Iris: Types.Internal)
         end
     end
 
+    function widgets.registerEvent(event: string, callback: (...any) -> ())
+        table.insert(Iris._initFunctions, function()
+            table.insert(Iris._connections, widgets.UserInputService[event]:Connect(callback))
+        end)
+    end
+
     widgets.EVENTS = {
         hover = function(pathToHovered: (thisWidget: Types.Widget) -> GuiObject)
             return {
@@ -505,6 +511,8 @@ return function(Iris: Types.Internal)
             }
         end,
     }
+
+    Iris._utility = widgets
 
     require(script.Root)(Iris, widgets)
     require(script.Window)(Iris, widgets)

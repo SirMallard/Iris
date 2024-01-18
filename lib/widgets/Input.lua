@@ -502,9 +502,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end
 
-        widgets.UserInputService.InputChanged:Connect(updateActiveDrag)
+        widgets.registerEvent("InputChanged", function()
+            if not Iris._started then
+                return
+            end
+            updateActiveDrag()
+        end)
 
-        widgets.UserInputService.InputEnded:Connect(function(inputObject: InputObject)
+        widgets.registerEvent("InputEnded", function(inputObject: InputObject)
+            if not Iris._started then
+                return
+            end
             if inputObject.UserInputType == Enum.UserInputType.MouseButton1 and AnyActiveDrag then
                 AnyActiveDrag = false
                 ActiveDrag = nil
@@ -896,9 +904,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end
 
-        widgets.UserInputService.InputChanged:Connect(updateActiveSlider)
+        widgets.registerEvent("InputChanged", function()
+            if not Iris._started then
+                return
+            end
+            updateActiveSlider()
+        end)
 
-        widgets.UserInputService.InputEnded:Connect(function(inputObject: InputObject)
+        widgets.registerEvent("InputEnded", function(inputObject: InputObject)
+            if not Iris._started then
+                return
+            end
             if inputObject.UserInputType == Enum.UserInputType.MouseButton1 and AnyActiveSlider then
                 AnyActiveSlider = false
                 ActiveSlider = nil
@@ -1265,101 +1281,101 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
     --stylua: ignore
     Iris.WidgetConstructor("InputText", {
-		hasState = true,
-		hasChildren = false,
-		Args = {
-			["Text"] = 1,
-			["TextHint"] = 2,
-		},
-		Events = {
-			["textChanged"] = {
-				["Init"] = function(thisWidget: Types.Widget)
-					thisWidget.lastTextchangeTick = 0
-				end,
-				["Get"] = function(thisWidget: Types.Widget)
-					return thisWidget.lastTextchangeTick == Iris._cycleTick
-				end,
-			},
-			["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
-				return thisWidget.Instance
-			end),
-		},
-		Generate = function(thisWidget: Types.Widget)
-			local InputText: Frame = Instance.new("Frame")
-			InputText.Name = "Iris_InputText"
-			InputText.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
-			InputText.BackgroundTransparency = 1
-			InputText.BorderSizePixel = 0
-			InputText.ZIndex = thisWidget.ZIndex
-			InputText.LayoutOrder = thisWidget.ZIndex
-			InputText.AutomaticSize = Enum.AutomaticSize.Y
-			widgets.UIListLayout(InputText, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+        hasState = true,
+        hasChildren = false,
+        Args = {
+            ["Text"] = 1,
+            ["TextHint"] = 2,
+        },
+        Events = {
+            ["textChanged"] = {
+                ["Init"] = function(thisWidget: Types.Widget)
+                    thisWidget.lastTextchangeTick = 0
+                end,
+                ["Get"] = function(thisWidget: Types.Widget)
+                    return thisWidget.lastTextchangeTick == Iris._cycleTick
+                end,
+            },
+            ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
+                return thisWidget.Instance
+            end),
+        },
+        Generate = function(thisWidget: Types.Widget)
+            local InputText: Frame = Instance.new("Frame")
+            InputText.Name = "Iris_InputText"
+            InputText.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+            InputText.BackgroundTransparency = 1
+            InputText.BorderSizePixel = 0
+            InputText.ZIndex = thisWidget.ZIndex
+            InputText.LayoutOrder = thisWidget.ZIndex
+            InputText.AutomaticSize = Enum.AutomaticSize.Y
+            widgets.UIListLayout(InputText, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
 
-			local InputField: TextBox = Instance.new("TextBox")
-			InputField.Name = "InputField"
-			InputField.Size = UDim2.new(1, 0, 0, 0)
-			InputField.AutomaticSize = Enum.AutomaticSize.Y
-			InputField.BackgroundColor3 = Iris._config.FrameBgColor
-			InputField.BackgroundTransparency = Iris._config.FrameBgTransparency
-			InputField.Text = ""
-			InputField.PlaceholderColor3 = Iris._config.TextDisabledColor
-			InputField.TextTruncate = Enum.TextTruncate.AtEnd
-			InputField.ClearTextOnFocus = false
-			InputField.ZIndex = thisWidget.ZIndex + 1
-			InputField.LayoutOrder = thisWidget.ZIndex + 1
-			InputField.ClipsDescendants = true
+            local InputField: TextBox = Instance.new("TextBox")
+            InputField.Name = "InputField"
+            InputField.Size = UDim2.new(1, 0, 0, 0)
+            InputField.AutomaticSize = Enum.AutomaticSize.Y
+            InputField.BackgroundColor3 = Iris._config.FrameBgColor
+            InputField.BackgroundTransparency = Iris._config.FrameBgTransparency
+            InputField.Text = ""
+            InputField.PlaceholderColor3 = Iris._config.TextDisabledColor
+            InputField.TextTruncate = Enum.TextTruncate.AtEnd
+            InputField.ClearTextOnFocus = false
+            InputField.ZIndex = thisWidget.ZIndex + 1
+            InputField.LayoutOrder = thisWidget.ZIndex + 1
+            InputField.ClipsDescendants = true
 
-			widgets.applyFrameStyle(InputField)
-			widgets.applyTextStyle(InputField)
-			widgets.UISizeConstraint(InputField, Vector2.new(1, 0)) -- prevents sizes beaking when getting too small.
-			-- InputField.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
-			-- InputField.UIPadding.PaddingRight = UDim.new(0, 0)
-			InputField.Parent = InputText
+            widgets.applyFrameStyle(InputField)
+            widgets.applyTextStyle(InputField)
+            widgets.UISizeConstraint(InputField, Vector2.new(1, 0)) -- prevents sizes beaking when getting too small.
+            -- InputField.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
+            -- InputField.UIPadding.PaddingRight = UDim.new(0, 0)
+            InputField.Parent = InputText
 
-			InputField.FocusLost:Connect(function()
-				thisWidget.state.text:set(InputField.Text)
-				thisWidget.lastTextchangeTick = Iris._cycleTick + 1
-			end)
+            InputField.FocusLost:Connect(function()
+                thisWidget.state.text:set(InputField.Text)
+                thisWidget.lastTextchangeTick = Iris._cycleTick + 1
+            end)
 
-			local frameHeight: number = Iris._config.TextSize + Iris._config.FramePadding.Y * 2
+            local frameHeight: number = Iris._config.TextSize + Iris._config.FramePadding.Y * 2
 
-			local TextLabel: TextLabel = Instance.new("TextLabel")
-			TextLabel.Name = "TextLabel"
-			TextLabel.Size = UDim2.fromOffset(0, frameHeight)
-			TextLabel.AutomaticSize = Enum.AutomaticSize.X
-			TextLabel.BackgroundTransparency = 1
-			TextLabel.BorderSizePixel = 0
-			TextLabel.ZIndex = thisWidget.ZIndex + 4
-			TextLabel.LayoutOrder = thisWidget.ZIndex + 4
+            local TextLabel: TextLabel = Instance.new("TextLabel")
+            TextLabel.Name = "TextLabel"
+            TextLabel.Size = UDim2.fromOffset(0, frameHeight)
+            TextLabel.AutomaticSize = Enum.AutomaticSize.X
+            TextLabel.BackgroundTransparency = 1
+            TextLabel.BorderSizePixel = 0
+            TextLabel.ZIndex = thisWidget.ZIndex + 4
+            TextLabel.LayoutOrder = thisWidget.ZIndex + 4
 
-			widgets.applyTextStyle(TextLabel)
+            widgets.applyTextStyle(TextLabel)
 
-			TextLabel.Parent = InputText
+            TextLabel.Parent = InputText
 
-			return InputText
-		end,
-		Update = function(thisWidget: Types.Widget)
-			local InputText = thisWidget.Instance :: Frame
-			local TextLabel: TextLabel = InputText.TextLabel
-			local InputField: TextBox = InputText.InputField
+            return InputText
+        end,
+        Update = function(thisWidget: Types.Widget)
+            local InputText = thisWidget.Instance :: Frame
+            local TextLabel: TextLabel = InputText.TextLabel
+            local InputField: TextBox = InputText.InputField
 
-			TextLabel.Text = thisWidget.arguments.Text or "Input Text"
-			InputField.PlaceholderText = thisWidget.arguments.TextHint or ""
-		end,
-		Discard = function(thisWidget: Types.Widget)
-			thisWidget.Instance:Destroy()
-			widgets.discardState(thisWidget)
-		end,
-		GenerateState = function(thisWidget: Types.Widget)
-			if thisWidget.state.text == nil then
-				thisWidget.state.text = Iris._widgetState(thisWidget, "text", "")
-			end
-		end,
-		UpdateState = function(thisWidget: Types.Widget)
-			local InputText = thisWidget.Instance :: Frame
-			local InputField: TextBox = InputText.InputField
+            TextLabel.Text = thisWidget.arguments.Text or "Input Text"
+            InputField.PlaceholderText = thisWidget.arguments.TextHint or ""
+        end,
+        Discard = function(thisWidget: Types.Widget)
+            thisWidget.Instance:Destroy()
+            widgets.discardState(thisWidget)
+        end,
+        GenerateState = function(thisWidget: Types.Widget)
+            if thisWidget.state.text == nil then
+                thisWidget.state.text = Iris._widgetState(thisWidget, "text", "")
+            end
+        end,
+        UpdateState = function(thisWidget: Types.Widget)
+            local InputText = thisWidget.Instance :: Frame
+            local InputField: TextBox = InputText.InputField
 
-			InputField.Text = thisWidget.state.text.value
-		end,
-	} :: Types.WidgetClass)
+            InputField.Text = thisWidget.state.text.value
+        end,
+    } :: Types.WidgetClass)
 end

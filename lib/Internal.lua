@@ -17,6 +17,7 @@ return function(Iris: Types.Iris): Types.Internal
     Internal._version = [[ 2.1.4 ]]
 
     Internal._started = false -- has Iris.connect been called yet
+    Internal._shutdown = false
     Internal._cycleTick = 0 -- increments for each call to Cycle, used to determine the relative age and freshness of generated widgets
 
     -- Refresh
@@ -52,6 +53,8 @@ return function(Iris: Types.Iris): Types.Internal
     -- Callback
     Internal._postCycleCallbacks = {}
     Internal._connectedFunctions = {} -- functions which run each Iris cycle, connected by the user
+    Internal._connections = {}
+    Internal._initFunctions = {}
 
     -- Error
     Internal._fullErrorTracebacks = game:GetService("RunService"):IsStudio()
@@ -64,7 +67,7 @@ return function(Iris: Types.Iris): Types.Internal
         Iris from crashing and instead stopping at the error.
     ]=]
     Internal._cycleCoroutine = coroutine.create(function()
-        while true do
+        while Internal._started do
             for _, callback: () -> string in Internal._connectedFunctions do
                 debug.profilebegin("Iris/Connection")
                 local status: boolean, _error: string = pcall(callback)
@@ -220,9 +223,9 @@ return function(Iris: Types.Iris): Types.Internal
         Internal._widgetCount = 0
         table.clear(Internal._usedIDs)
 
-        if Internal.parentInstance:IsA("GuiBase2d") and math.min(Internal.parentInstance.AbsoluteSize.X, Internal.parentInstance.AbsoluteSize.Y) < 100 then
-            error("Iris Parent Instance is too small")
-        end
+        -- if Internal.parentInstance:IsA("GuiBase2d") and math.min(Internal.parentInstance.AbsoluteSize.X, Internal.parentInstance.AbsoluteSize.Y) < 100 then
+        --     error("Iris Parent Instance is too small")
+        -- end
         local compatibleParent: boolean = (Internal.parentInstance:IsA("GuiBase2d") or Internal.parentInstance:IsA("CoreGui") or Internal.parentInstance:IsA("PluginGui") or Internal.parentInstance:IsA("PlayerGui"))
         if compatibleParent == false then
             error("Iris Parent Instance cant contain GUI")

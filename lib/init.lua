@@ -8,6 +8,7 @@ local Types = require(script.Types)
     A set of internal functions can be found in `Iris.Internal` (only use unless you understand).
 ]=]
 local Iris = {} :: Types.Iris
+
 local Internal: Types.Internal = require(script.Internal)(Iris)
 
 --[=[
@@ -51,7 +52,10 @@ Iris.Events = {}
     Initializes Iris and begins rendering. May only be called once.
     By default, Iris will create its widgets under the PlayerGui and use the Heartbeat event.
 ]=]
-function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSignal | () -> ())?): Types.Iris
+function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSignal | () -> ())?, config: { [string]: any }?): Types.Iris
+    assert(Internal._started == false, "Iris.Init can only be called once.")
+    assert(Internal._shutdown == false, "Iris.Init cannot be called once shutdown.")
+
     if parentInstance == nil then
         -- coalesce to playerGui
         parentInstance = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
@@ -61,27 +65,59 @@ function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSi
         eventConnection = game:GetService("RunService").Heartbeat
     end
     Internal.parentInstance = parentInstance :: BasePlayerGui
-    assert(Internal._started == false, "Iris.Init can only be called once.")
     Internal._started = true
 
     Internal._generateRootInstance()
     Internal._generateSelectionImageObject()
 
+    for _, callback: () -> () in Internal._initFunctions do
+        callback()
+    end
+
     -- spawns the connection to call `Internal._cycle()` within.
     task.spawn(function()
         if typeof(eventConnection) == "function" then
-            while true do
+            while Internal._started do
                 eventConnection()
                 Internal._cycle()
             end
         elseif eventConnection ~= nil then
-            eventConnection:Connect(function()
+            Internal._eventConnection = eventConnection:Connect(function()
                 Internal._cycle()
             end)
         end
     end)
 
     return Iris
+end
+
+--[=[
+    @within Iris
+    @method Shutdown
+]=]
+function Iris.Shutdown()
+    Internal._started = false
+    Internal._shutdown = true
+
+    if Internal._eventConnection then
+        Internal._eventConnection:Disconnect()
+    end
+    Internal._eventConnection = nil
+
+    if Internal._rootWidget then
+        if Internal._rootWidget.Instance then
+            Internal._widgets["Root"].Discard(Internal._rootWidget)
+        end
+        Internal._rootInstance = nil
+    end
+
+    if Internal.SelectionImageObject then
+        Internal.SelectionImageObject:Destroy()
+    end
+
+    for _, connection: RBXScriptConnection in Internal._connections do
+        connection:Disconnect()
+    end
 end
 
 --[=[
