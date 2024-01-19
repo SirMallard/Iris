@@ -1144,7 +1144,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         local min: number = thisWidget.arguments.Min and getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments) or defaultMin[dataType][index]
                         local max: number = thisWidget.arguments.Max and getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments) or defaultMax[dataType][index]
 
-                        local grabScaleSize = math.max(1 / math.floor((1 + max - min) / increment), Iris._config.GrabMinSize / SliderField.AbsoluteSize.X)
+                        local grabScaleSize: number = 1 / math.floor((1 + max - min) / increment)
+                        if grabScaleSize > 1 then
+                            print(`⚠️ {grabScaleSize} Caused by {min} {max} {increment}.`)
+                        end
 
                         GrabBar.Size = UDim2.new(grabScaleSize, 0, 1, 0)
                     end
@@ -1231,7 +1234,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     local SliderField = Input:FindFirstChild("SliderField1") :: TextButton
                     local GrabBar: Frame = SliderField.GrabBar
 
-                    local grabScaleSize = math.max(1 / math.floor(#enum:GetEnumItems()), Iris._config.GrabMinSize / SliderField.AbsoluteSize.X)
+                    local grabScaleSize: number = 1 / math.floor(#enum:GetEnumItems())
 
                     GrabBar.Size = UDim2.new(grabScaleSize, 0, 1, 0)
                 end,

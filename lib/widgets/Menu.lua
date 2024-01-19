@@ -115,35 +115,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return MenuBar
         end,
-        Update = function(thisWidget: Types.Widget)
-            local parent: Types.Widget = thisWidget.parentWidget
-            if parent.type == "Window" then
-                -- even sneakier trick to update the window the next frame.
-                local callbackIndex: number = #Iris._postCycleCallbacks + 1
-                local desiredCycleTick: number = Iris._cycleTick + 1
-                Iris._postCycleCallbacks[callbackIndex] = function()
-                    if Iris._cycleTick == desiredCycleTick then
-                        Iris._widgets["Window"].Update(parent)
-                        Iris._postCycleCallbacks[callbackIndex] = nil
-                    end
-                end
-                return
-            elseif parent.type == "Root" then
-                return
-            end
-            error("The MenuBar was not created directly under a window or root.")
-            -- we tell the window to update and add the menubar, effectively be reparenting and positioning it.
+        Update = function()
+            
         end,
         ChildAdded = function(thisWidget: Types.Widget)
             return thisWidget.Instance
         end,
         Discard = function(thisWidget: Types.Widget)
-            local Window: Types.Widget = thisWidget.parentWidget
             thisWidget.Instance:Destroy()
-            -- the window no longer needs to render the menubar.
-            if #Window.Instance:GetChildren() > 0 then
-                Iris._widgets["Window"].Update(Window)
-            end
         end,
     } :: Types.WidgetClass)
 
