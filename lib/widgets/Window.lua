@@ -209,10 +209,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             local inWindow: boolean = false
-            local position: Vector2 = widgets.UserInputService:GetMouseLocation()
+            local position: Vector2 = widgets.getMouseLocation()
             for _, window in windowWidgets do
-                local WindowButton: TextButton = window.Instance and window.Instance.WindowButton
-                if WindowButton and widgets.isPosInsideRect(position, WindowButton.AbsolutePosition, WindowButton.AbsolutePosition + WindowButton.AbsoluteSize) then
+                local ResizeBorder: TextButton = window.Instance and window.Instance.WindowButton.ResizeBorder
+                if ResizeBorder and widgets.isPosInsideRect(position, ResizeBorder.AbsolutePosition, ResizeBorder.AbsolutePosition + ResizeBorder.AbsoluteSize) then
                     inWindow = true
                     break
                 end
