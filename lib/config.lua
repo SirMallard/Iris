@@ -81,6 +81,11 @@ local TemplateConfig = {
 
         CheckMarkColor = Color3.fromRGB(66, 150, 250),
         CheckMarkTransparency = 0,
+
+        PlotHistogramColor = Color3.fromRGB(230, 179, 0),
+        PlotHistogramTransparency = 0,
+        PlotHistogramHoveredColor = Color3.fromRGB(255, 153, 0),
+        PlotHistogramHoveredTransparency = 0,
     },
     colorLight = { -- Dear, ImGui default light
         TextColor = Color3.fromRGB(0, 0, 0),
@@ -163,6 +168,11 @@ local TemplateConfig = {
 
         CheckMarkColor = Color3.fromRGB(66, 150, 250),
         CheckMarkTransparency = 0,
+
+        PlotHistogramColor = Color3.fromRGB(230, 179, 0),
+        PlotHistogramTransparency = 0,
+        PlotHistogramHoveredColor = Color3.fromRGB(255, 153, 0),
+        PlotHistogramHoveredTransparency = 0,
     },
 
     sizeDefault = { -- Dear, ImGui default

@@ -69,6 +69,7 @@ export type States = {
 
     size: State,
     position: State,
+    progress: State,
     scrollDistance: State,
 
     isChecked: State,
@@ -565,6 +566,11 @@ export type Config = {
 
     CheckMarkColor: Color3,
     CheckMarkTransparency: number,
+
+    PlotHistogramColor: Color3,
+    PlotHistogramTransparency: number,
+    PlotHistogramHoveredColor: Color3,
+    PlotHistogramHoveredTransparency: number,
 
     HoverColor: Color3,
     HoverTransparency: number,
