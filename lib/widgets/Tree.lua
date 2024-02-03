@@ -5,7 +5,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         hasState = true,
         hasChildren = true,
         Events = {
-            ["collasped"] = {
+            ["collapsed"] = {
                 ["Init"] = function(_thisWidget: Types.Widget) end,
                 ["Get"] = function(thisWidget: Types.Widget)
                     return thisWidget.lastCollapsedTick == Iris._cycleTick
