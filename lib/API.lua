@@ -1511,6 +1511,8 @@ return function(Iris: Types.Iris)
     end
     Iris.InputEnum = Iris.ComboEnum
 
+    Iris.ProgressBar = wrapper("ProgressBar")
+
     --[[
         ----------------------------------
             [SECTION] Table Widget API

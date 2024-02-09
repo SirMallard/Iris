@@ -699,7 +699,7 @@ return function(Iris: Types.Iris): Types.Internal
         local UIStroke: UIStroke = Instance.new("UIStroke")
         UIStroke.Thickness = 1
         UIStroke.Color = Internal._config.SelectionImageObjectBorderColor
-        UIStroke.Transparency = Internal._config.SelectionImageObjectBorderColor
+        UIStroke.Transparency = Internal._config.SelectionImageObjectBorderTransparency
         UIStroke.LineJoinMode = Enum.LineJoinMode.Round
         UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 

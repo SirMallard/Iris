@@ -433,6 +433,8 @@ export type Iris = {
     ComboEnum: (arguments: WidgetArguments, states: WidgetStates?, enumType: Enum) -> Widget,
     InputEnum: (arguments: WidgetArguments, states: WidgetStates?, enumType: Enum) -> Widget,
 
+    ProgressBar: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+
     -- Table Widget Api
     Table: (arguments: WidgetArguments) -> Widget,
     NextColumn: () -> (),
