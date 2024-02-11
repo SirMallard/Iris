@@ -339,7 +339,7 @@ return function(Iris: Types.Iris)
         @prop TextWrapped Iris.Text
         @within Text
         @tag Widget
-        @deprectated v2.0.0 -- Use 'Text' with the Wrapped argument or change the config.
+        @deprecated v2.0.0 -- Use 'Text' with the Wrapped argument or change the config.
 
         An alias for [Iris.Text](Text#Text) with the Wrapped argument set to true, and the text will wrap around if cut off by its parent.
 
@@ -363,7 +363,7 @@ return function(Iris: Types.Iris)
         @prop TextColored Iris.Text
         @within Text
         @tag Widget
-        @deprectated v2.0.0 -- Use 'Text' with the Color argument or change the config.
+        @deprecated v2.0.0 -- Use 'Text' with the Color argument or change the config.
         
         An alias for [Iris.Text](Text#Text) with the color set by the Color argument.
 
