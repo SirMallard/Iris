@@ -1191,7 +1191,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         local PaddedRatio: number = ((PaddedWidth / SliderWidth) * ClampedRatio) + ((1 - (PaddedWidth / SliderWidth)) / 2)
 
                         GrabBar.Position = UDim2.new(PaddedRatio, 0, 0.5, 0)
-                        print(`Slider: {thisWidget.arguments.Text} | Index: {index} | Ratio: {ClampedRatio}, {PaddedWidth}, {SliderWidth}`)
 
                         if thisWidget.state.editingText.value == index then
                             InputField.Visible = true
