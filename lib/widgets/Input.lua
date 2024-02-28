@@ -1145,9 +1145,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         local max: number = thisWidget.arguments.Max and getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments) or defaultMax[dataType][index]
 
                         local grabScaleSize: number = 1 / math.floor((1 + max - min) / increment)
-                        if grabScaleSize > 1 then
-                            print(`⚠️ {grabScaleSize} Caused by {min} {max} {increment}.`)
-                        end
 
                         GrabBar.Size = UDim2.new(grabScaleSize, 0, 1, 0)
                     end
@@ -1194,6 +1191,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         local PaddedRatio: number = ((PaddedWidth / SliderWidth) * ClampedRatio) + ((1 - (PaddedWidth / SliderWidth)) / 2)
 
                         GrabBar.Position = UDim2.new(PaddedRatio, 0, 0.5, 0)
+                        print(`Slider: {thisWidget.arguments.Text} | Index: {index} | Ratio: {ClampedRatio}, {PaddedWidth}, {SliderWidth}`)
 
                         if thisWidget.state.editingText.value == index then
                             InputField.Visible = true

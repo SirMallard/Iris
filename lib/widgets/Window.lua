@@ -209,10 +209,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             local inWindow: boolean = false
-            local position: Vector2 = widgets.UserInputService:GetMouseLocation()
+            local position: Vector2 = widgets.getMouseLocation()
             for _, window in windowWidgets do
-                local WindowButton: TextButton = window.Instance and window.Instance.WindowButton
-                if WindowButton and widgets.isPosInsideRect(position, WindowButton.AbsolutePosition, WindowButton.AbsolutePosition + WindowButton.AbsoluteSize) then
+                local ResizeBorder: TextButton = window.Instance and window.Instance.WindowButton.ResizeBorder
+                if ResizeBorder and widgets.isPosInsideRect(position, ResizeBorder.AbsolutePosition, ResizeBorder.AbsolutePosition + ResizeBorder.AbsoluteSize) then
                     inWindow = true
                     break
                 end
@@ -447,6 +447,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local ChildContainer: ScrollingFrame = Instance.new("ScrollingFrame")
             ChildContainer.Name = "ChildContainer"
+            ChildContainer.AutomaticSize = Enum.AutomaticSize.X
             ChildContainer.Size = UDim2.fromScale(1, 1)
             ChildContainer.Position = UDim2.fromOffset(0, 0)
             ChildContainer.BackgroundColor3 = Iris._config.WindowBgColor
@@ -456,7 +457,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ChildContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
             ChildContainer.ScrollBarImageTransparency = Iris._config.ScrollbarGrabTransparency
             ChildContainer.ScrollBarImageColor3 = Iris._config.ScrollbarGrabColor
-            ChildContainer.CanvasSize = UDim2.fromScale(0, 1)
+            ChildContainer.CanvasSize = UDim2.fromScale(0, 0)
             ChildContainer.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 
             ChildContainer.ZIndex = thisWidget.ZIndex + 3
@@ -718,9 +719,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local ChildContainer: ScrollingFrame = Content.ChildContainer
             local ResizeGrip: TextButton = WindowButton.ResizeGrip
 
-            local containerHeight: number = 0
-            local menuHeight: number = 0
-
             if thisWidget.arguments.NoResize ~= true then
                 ResizeGrip.Visible = true
             else
@@ -735,20 +733,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 TitleBar.Visible = false
             else
                 TitleBar.Visible = true
-                --local titlebarSize: number = widgets.calculateTextSize(thisWidget.arguments.Title or "").Y + 2 * Iris._config.FramePadding.Y
-                local titlebarSize: number = TitleBar.AbsoluteSize.Y
-                containerHeight += titlebarSize
-                menuHeight += titlebarSize
             end
             if MenuBar then
                 if thisWidget.arguments.NoMenu then
                     MenuBar.Visible = false
                 else
                     MenuBar.Visible = true
-                    containerHeight += MenuBar.AbsoluteSize.Y
                 end
-                -- we move the menu bar to the correct position.
-                MenuBar.Position = UDim2.fromOffset(0, menuHeight)
             end
             if thisWidget.arguments.NoBackground then
                 ChildContainer.BackgroundTransparency = 1
@@ -772,10 +763,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 TitleBar.CloseButton.Visible = true
                 TitleBar.Title.UIPadding.PaddingRight = UDim.new(0, TitleButtonPaddingSize)
             end
-
-            ChildContainer.Size = UDim2.new(1, 0, 1, -containerHeight)
-            ChildContainer.CanvasSize = UDim2.new(0, 0, 1, -containerHeight)
-            ChildContainer.Position = UDim2.fromOffset(0, containerHeight)
 
             Title.Text = thisWidget.arguments.Title or ""
         end,
