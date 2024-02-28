@@ -339,7 +339,7 @@ return function(Iris: Types.Iris)
         @prop TextWrapped Iris.Text
         @within Text
         @tag Widget
-        @deprectated v2.0.0 -- Use 'Text' with the Wrapped argument or change the config.
+        @deprecated v2.0.0 -- Use 'Text' with the Wrapped argument or change the config.
 
         An alias for [Iris.Text](Text#Text) with the Wrapped argument set to true, and the text will wrap around if cut off by its parent.
 
@@ -363,7 +363,7 @@ return function(Iris: Types.Iris)
         @prop TextColored Iris.Text
         @within Text
         @tag Widget
-        @deprectated v2.0.0 -- Use 'Text' with the Color argument or change the config.
+        @deprecated v2.0.0 -- Use 'Text' with the Color argument or change the config.
         
         An alias for [Iris.Text](Text#Text) with the color set by the Color argument.
 
@@ -1510,6 +1510,42 @@ return function(Iris: Types.Iris)
         return thisWidget
     end
     Iris.InputEnum = Iris.ComboEnum
+
+    --[[
+        ---------------------------------
+            [SECTION] Plot Widget API
+        ---------------------------------
+    ]]
+    --[=[
+        @class Plot
+        Plot Widget API
+    ]=]
+
+    --[=[
+        @prop ProgressBar Iris.PrograssBar
+        @within Plot
+        @tag Widget
+        @tag HasState
+
+        A progress bar line with a state value to show the current state.
+
+        ```lua
+        hasChildren = false
+        hasState = true
+        Arguments = {
+            Text: string? = "Progress Bar",
+            Format: string? = nil -- optional to override with a custom progress such as `29/54`
+        }
+        Events = {
+            hovered: () -> boolean,
+            changed: () -> boolean
+        }
+        States = {
+            progress: State<number>?
+        }
+        ```
+    ]=]
+    Iris.ProgressBar = wrapper("ProgressBar")
 
     --[[
         ----------------------------------

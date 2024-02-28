@@ -69,6 +69,7 @@ export type States = {
 
     size: State,
     position: State,
+    progress: State,
     scrollDistance: State,
 
     isChecked: State,
@@ -432,6 +433,8 @@ export type Iris = {
     ComboEnum: (arguments: WidgetArguments, states: WidgetStates?, enumType: Enum) -> Widget,
     InputEnum: (arguments: WidgetArguments, states: WidgetStates?, enumType: Enum) -> Widget,
 
+    ProgressBar: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+
     -- Table Widget Api
     Table: (arguments: WidgetArguments) -> Widget,
     NextColumn: () -> (),
@@ -565,6 +568,11 @@ export type Config = {
 
     CheckMarkColor: Color3,
     CheckMarkTransparency: number,
+
+    PlotHistogramColor: Color3,
+    PlotHistogramTransparency: number,
+    PlotHistogramHoveredColor: Color3,
+    PlotHistogramHoveredTransparency: number,
 
     HoverColor: Color3,
     HoverTransparency: number,

@@ -530,6 +530,7 @@ return function(Iris: Types.Internal)
 
     require(script.Input)(Iris, widgets)
     require(script.Combo)(Iris, widgets)
+    require(script.Plot)(Iris, widgets)
 
     require(script.Table)(Iris, widgets)
 end
