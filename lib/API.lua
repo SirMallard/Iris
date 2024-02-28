@@ -1511,6 +1511,40 @@ return function(Iris: Types.Iris)
     end
     Iris.InputEnum = Iris.ComboEnum
 
+    --[[
+        ---------------------------------
+            [SECTION] Plot Widget API
+        ---------------------------------
+    ]]
+    --[=[
+        @class Plot
+        Plot Widget API
+    ]=]
+
+    --[=[
+        @prop ProgressBar Iris.PrograssBar
+        @within Plot
+        @tag Widget
+        @tag HasState
+
+        A progress bar line with a state value to show the current state.
+
+        ```lua
+        hasChildren = false
+        hasState = true
+        Arguments = {
+            Text: string? = "Progress Bar",
+            Format: string? = nil -- optional to override with a custom progress such as `29/54`
+        }
+        Events = {
+            hovered: () -> boolean,
+            changed: () -> boolean
+        }
+        States = {
+            progress: State<number>?
+        }
+        ```
+    ]=]
     Iris.ProgressBar = wrapper("ProgressBar")
 
     --[[

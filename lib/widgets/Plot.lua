@@ -10,7 +10,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ["Text"] = 1,
                 ["Format"] = 2,
             },
-            Events = {},
+            Events = {
+                ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
+                    return thisWidget.Instance
+                end),
+                ["changed"] = {
+                    ["Init"] = function(_thisWidget: Types.Widget) end,
+                    ["Get"] = function(thisWidget: Types.Widget)
+                        return thisWidget.lastNumberChangedTick == Iris._cycleTick
+                    end,
+                },
+            },
             Generate = function(thisWidget: Types.Widget)
                 local ProgressBar: Frame = Instance.new("Frame")
                 ProgressBar.Name = "Iris_ProgressBar"
@@ -68,7 +78,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 local TextLabel: TextLabel = Instance.new("TextLabel")
                 TextLabel.Name = "TextLabel"
-                TextLabel.AnchorPoint = Vector2.new(0, 0.5)
+                TextLabel.AnchorPoint = Vector2.new(1, 0.5)
                 TextLabel.AutomaticSize = Enum.AutomaticSize.XY
                 TextLabel.BackgroundTransparency = 1
                 TextLabel.BorderSizePixel = 0
@@ -90,6 +100,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Update = function(thisWidget: Types.Widget)
                 local Progress = thisWidget.Instance :: Frame
                 local TextLabel: TextLabel = Progress.TextLabel
+                local Bar = Progress.Bar :: Frame
+                local Value: TextLabel = Bar.Value
+
+                if thisWidget.arguments.Format ~= nil and typeof(thisWidget.arguments.Format) == "string" then
+                    Value.Text = thisWidget.arguments.Format
+                end
 
                 TextLabel.Text = thisWidget.arguments.Text or "Progress Bar"
             end,
@@ -100,13 +116,24 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 local Value: TextLabel = Bar.Value
 
                 local progress: number = thisWidget.state.progress.value
+                progress = math.clamp(progress, 0, 1)
                 local totalWidth: number = Bar.AbsoluteSize.X
                 local textWidth: number = Value.AbsoluteSize.X
-                progress = math.clamp(progress, 0, 1)
+                if totalWidth * (1 - progress) < textWidth then
+                    Value.AnchorPoint = Vector2.xAxis
+                    Value.Position = UDim2.fromScale(1, 0)
+                else
+                    Value.AnchorPoint = Vector2.zero
+                    Value.Position = UDim2.new(progress, 0, 0, 0)
+                end
 
                 Progress.Size = UDim2.fromScale(progress, 0)
-                Value.Text = string.format("%d%%", progress * 100)
-                Value.Position = UDim2.fromScale(math.clamp(progress, 0, 1 - (textWidth / totalWidth)), 0)
+                if thisWidget.arguments.Format ~= nil and typeof(thisWidget.arguments.Format) == "string" then
+                    Value.Text = thisWidget.arguments.Format
+                else
+                    Value.Text = string.format("%d%%", progress * 100)
+                end
+                thisWidget.lastNumberChangedTick = Iris._cycleTick + 1
             end,
             Discard = function(thisWidget: Types.Widget)
                 thisWidget.Instance:Destroy()
