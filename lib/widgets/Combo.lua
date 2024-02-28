@@ -305,7 +305,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         ButtonHoveredTransparency = Iris._config.ButtonHoveredTransparency,
                         -- Use hovered for active
                         ButtonActiveColor = Iris._config.ButtonHoveredColor,
-                        ButtonActiveTransparency = Iris._config.ButtonHoveredColor,
+                        ButtonActiveTransparency = Iris._config.ButtonHoveredTransparency,
                     },
                 },
             })

@@ -379,7 +379,7 @@ function Iris.State(initialValue: any): Types.State
 end
 
 --[=[
-    @function State
+    @function WeakState
     @within Iris
     @param initialValue any -- The initial value for the state
 
