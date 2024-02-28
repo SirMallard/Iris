@@ -78,7 +78,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 local TextLabel: TextLabel = Instance.new("TextLabel")
                 TextLabel.Name = "TextLabel"
-                TextLabel.AnchorPoint = Vector2.new(1, 0.5)
+                TextLabel.AnchorPoint = Vector2.new(0, 0.5)
                 TextLabel.AutomaticSize = Enum.AutomaticSize.XY
                 TextLabel.BackgroundTransparency = 1
                 TextLabel.BorderSizePixel = 0
