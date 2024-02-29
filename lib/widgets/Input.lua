@@ -1148,6 +1148,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                         GrabBar.Size = UDim2.new(grabScaleSize, 0, 1, 0)
                     end
+
+                    local callbackIndex: number = #Iris._postCycleCallbacks + 1
+                    local desiredCycleTick: number = Iris._cycleTick + 1
+                    Iris._postCycleCallbacks[callbackIndex] = function()
+                        if Iris._cycleTick == desiredCycleTick then
+                            Iris._widgets[`Slider{dataType}`].UpdateState(thisWidget)
+                            Iris._postCycleCallbacks[callbackIndex] = nil
+                        end
+                    end
                 end,
                 Discard = function(thisWidget: Types.Widget)
                     thisWidget.Instance:Destroy()
