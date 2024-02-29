@@ -72,14 +72,26 @@
             }
         },
         "ServerScriptService": {
-            "IrisExamplePlugin": {
-                "$path": "src/plugin",
-                "Iris": {
-                    "$path": "default.project.json"
+            "Plugins": {
+                "$className": "Folder",
+                "IrisExamplePlugin": {
+                    "$path": "src/plugins",
+                    "Iris": {
+                        "$path": "default.project.json"
+                    },
+                    "UserInputService": {
+                        "$path": "src/libraries/UserInputService"
+                    }
                 }
             },
-            "tests": {
+            "Tests": {
                 "$path": "tests"
+            },
+            "Stories": {
+                "$path": "stories",
+                "UserInputService": {
+                    "$path": "src/libraries/UserInputService"
+                }
             }
         },
         "StarterPlayer": {

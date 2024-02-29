@@ -1,4 +1,4 @@
-local Signal = require(script.Parent.Signal)
+local Signal = require(script.Signal)
 
 local UserInputService: UserInputService = game:GetService("UserInputService")
 
