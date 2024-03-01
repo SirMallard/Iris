@@ -439,6 +439,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Content.Position = UDim2.fromScale(0.5, 0.5)
             Content.Size = UDim2.fromScale(1, 1)
             Content.BackgroundTransparency = 1
+            Content.ClipsDescendants = true
             Content.Parent = WindowButton
 
             local UIListLayout: UIListLayout = widgets.UIListLayout(Content, Enum.FillDirection.Vertical, UDim.new(0, 0))
@@ -447,7 +448,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local ChildContainer: ScrollingFrame = Instance.new("ScrollingFrame")
             ChildContainer.Name = "ChildContainer"
-            ChildContainer.AutomaticSize = Enum.AutomaticSize.X
+            ChildContainer.AutomaticSize = Enum.AutomaticSize.None
             ChildContainer.Size = UDim2.fromScale(1, 1)
             ChildContainer.Position = UDim2.fromOffset(0, 0)
             ChildContainer.BackgroundColor3 = Iris._config.WindowBgColor
