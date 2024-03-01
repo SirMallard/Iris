@@ -325,8 +325,22 @@ return function(Iris: Types.Iris)
                 Iris.PopConfig()
             Iris.End()
         end,
+
+        Plotting = function()
+            Iris.Tree({"Plotting"})
+                local curTime = time() * 15
+
+                local Progress = Iris.State(0)
+                -- formula to cycle between 0 and 100 linearly
+                local newValue = math.clamp((math.abs(curTime % 100 - 50)) - 7.5, 0, 35) / 35
+                Progress:set(newValue)
+ 
+                Iris.ProgressBar({ "Progress Bar" }, { progress = Progress })
+                Iris.ProgressBar({ "Progress Bar", `{math.floor(Progress:get() * 1753)}/1753` }, { progress = Progress })
+            Iris.End()
+        end,
     }
-    local widgetDemosOrder = { "Basic", "Tree", "CollapsingHeader", "Group", "Indent", "Input", "MultiInput", "InputText", "Tooltip", "Selectable", "Combo" }
+    local widgetDemosOrder = { "Basic", "Tree", "CollapsingHeader", "Group", "Indent", "Input", "MultiInput", "InputText", "Tooltip", "Selectable", "Combo", "Plotting"}
 
     local function recursiveTree()
         local theTree = Iris.Tree({ "Recursive Tree" })
