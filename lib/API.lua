@@ -1547,6 +1547,8 @@ return function(Iris: Types.Iris)
     ]=]
     Iris.ProgressBar = wrapper("ProgressBar")
 
+    Iris.PlotLines = wrapper("PlotLines")
+
     --[[
         ----------------------------------
             [SECTION] Table Widget API

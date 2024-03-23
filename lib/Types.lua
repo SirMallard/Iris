@@ -19,6 +19,7 @@ export type Arguments = {
     Prefix: { string },
 
     Width: number,
+    Height: number,
     VerticalAlignment: Enum.VerticalAlignment,
     Index: any,
 
@@ -99,6 +100,7 @@ export type WidgetStates = {
     size: State?,
     position: State?,
     scrollDistance: State?,
+    values: State?,
 
     isChecked: State?,
     isOpened: State?,
@@ -434,6 +436,8 @@ export type Iris = {
     InputEnum: (arguments: WidgetArguments, states: WidgetStates?, enumType: Enum) -> Widget,
 
     ProgressBar: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    PlotLines: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    PlotHistogram: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
 
     -- Table Widget Api
     Table: (arguments: WidgetArguments) -> Widget,
