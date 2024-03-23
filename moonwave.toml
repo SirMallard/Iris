@@ -21,6 +21,7 @@ classes = [
     "Drag",
     "Slider",
     "Combo",
+    "Plot",
     "Table"
 ]
 

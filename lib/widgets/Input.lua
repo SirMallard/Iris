@@ -1312,17 +1312,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Generate = function(thisWidget: Types.Widget)
             local InputText: Frame = Instance.new("Frame")
             InputText.Name = "Iris_InputText"
-            InputText.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+            InputText.AutomaticSize = Enum.AutomaticSize.Y
+            InputText.Size = UDim2.fromScale(1, 0)
             InputText.BackgroundTransparency = 1
             InputText.BorderSizePixel = 0
             InputText.ZIndex = thisWidget.ZIndex
             InputText.LayoutOrder = thisWidget.ZIndex
-            InputText.AutomaticSize = Enum.AutomaticSize.Y
             widgets.UIListLayout(InputText, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
 
             local InputField: TextBox = Instance.new("TextBox")
             InputField.Name = "InputField"
-            InputField.Size = UDim2.new(1, 0, 0, 0)
+            InputField.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
             InputField.AutomaticSize = Enum.AutomaticSize.Y
             InputField.BackgroundColor3 = Iris._config.FrameBgColor
             InputField.BackgroundTransparency = Iris._config.FrameBgTransparency

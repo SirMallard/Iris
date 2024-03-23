@@ -202,9 +202,7 @@ return function(Iris: Types.Iris)
 
         InputText = function()
             Iris.Tree({ "Input Text" })
-                Iris.PushConfig({ ContentWidth = UDim.new(0, 250) })
                 local InputText = Iris.InputText({ "Input Text Test", [Iris.Args.InputText.TextHint] = "Input Text here" })
-                Iris.PopConfig()
                 Iris.Text({ "The text is: " .. InputText.text.value })
             Iris.End()
         end,
@@ -325,8 +323,22 @@ return function(Iris: Types.Iris)
                 Iris.PopConfig()
             Iris.End()
         end,
+
+        Plotting = function()
+            Iris.Tree({"Plotting"})
+                local curTime = time() * 15
+
+                local Progress = Iris.State(0)
+                -- formula to cycle between 0 and 100 linearly
+                local newValue = math.clamp((math.abs(curTime % 100 - 50)) - 7.5, 0, 35) / 35
+                Progress:set(newValue)
+ 
+                Iris.ProgressBar({ "Progress Bar" }, { progress = Progress })
+                Iris.ProgressBar({ "Progress Bar", `{math.floor(Progress:get() * 1753)}/1753` }, { progress = Progress })
+            Iris.End()
+        end,
     }
-    local widgetDemosOrder = { "Basic", "Tree", "CollapsingHeader", "Group", "Indent", "Input", "MultiInput", "InputText", "Tooltip", "Selectable", "Combo" }
+    local widgetDemosOrder = { "Basic", "Tree", "CollapsingHeader", "Group", "Indent", "Input", "MultiInput", "InputText", "Tooltip", "Selectable", "Combo", "Plotting"}
 
     local function recursiveTree()
         local theTree = Iris.Tree({ "Recursive Tree" })
@@ -962,6 +974,7 @@ return function(Iris: Types.Iris)
             return
         end
 
+        debug.profilebegin("Iris/Demo/Window")
         local window: Types.Widget = Iris.Window({
             "Iris Demo Window",
             [Iris.Args.Window.NoTitleBar] = NoTitleBar.value,
@@ -975,57 +988,81 @@ return function(Iris: Types.Iris)
             [Iris.Args.Window.NoMenu] = NoMenu.value,
         }, { size = Iris.State(Vector2.new(600, 550)), position = Iris.State(Vector2.new(100, 25)), isOpened = showMainWindow })
 
-        mainMenuBar()
+        if window.state.isUncollapsed.value and window.state.isOpened.value then
+            debug.profilebegin("Iris/Demo/MenuBar")
+            mainMenuBar()
+            debug.profileend()
 
-        Iris.Text({ "Iris says hello. (" .. Iris.Internal._version .. ")" })
+            Iris.Text({ "Iris says hello. (" .. Iris.Internal._version .. ")" })
 
-        Iris.CollapsingHeader({ "Window Options" })
-        Iris.Table({ 3, false, false, false })
-        Iris.NextColumn()
-        Iris.Checkbox({ "NoTitleBar" }, { isChecked = NoTitleBar })
-        Iris.NextColumn()
-        Iris.Checkbox({ "NoBackground" }, { isChecked = NoBackground })
-        Iris.NextColumn()
-        Iris.Checkbox({ "NoCollapse" }, { isChecked = NoCollapse })
-        Iris.NextColumn()
-        Iris.Checkbox({ "NoClose" }, { isChecked = NoClose })
-        Iris.NextColumn()
-        Iris.Checkbox({ "NoMove" }, { isChecked = NoMove })
-        Iris.NextColumn()
-        Iris.Checkbox({ "NoScrollbar" }, { isChecked = NoScrollbar })
-        Iris.NextColumn()
-        Iris.Checkbox({ "NoResize" }, { isChecked = NoResize })
-        Iris.NextColumn()
-        Iris.Checkbox({ "NoNav" }, { isChecked = NoNav })
-        Iris.NextColumn()
-        Iris.Checkbox({ "NoMenu" }, { isChecked = NoMenu })
-        Iris.End()
-        Iris.End()
+            debug.profilebegin("Iris/Demo/Options")
+            Iris.CollapsingHeader({ "Window Options" })
+                Iris.Table({ 3, false, false, false })
+                Iris.NextColumn()
+                Iris.Checkbox({ "NoTitleBar" }, { isChecked = NoTitleBar })
+                Iris.NextColumn()
+                Iris.Checkbox({ "NoBackground" }, { isChecked = NoBackground })
+                Iris.NextColumn()
+                Iris.Checkbox({ "NoCollapse" }, { isChecked = NoCollapse })
+                Iris.NextColumn()
+                Iris.Checkbox({ "NoClose" }, { isChecked = NoClose })
+                Iris.NextColumn()
+                Iris.Checkbox({ "NoMove" }, { isChecked = NoMove })
+                Iris.NextColumn()
+                Iris.Checkbox({ "NoScrollbar" }, { isChecked = NoScrollbar })
+                Iris.NextColumn()
+                Iris.Checkbox({ "NoResize" }, { isChecked = NoResize })
+                Iris.NextColumn()
+                Iris.Checkbox({ "NoNav" }, { isChecked = NoNav })
+                Iris.NextColumn()
+                Iris.Checkbox({ "NoMenu" }, { isChecked = NoMenu })
+                Iris.End()
+            Iris.End()
+            debug.profileend()
 
-        -- stylua: ignore end
+            -- stylua: ignore end
 
-        widgetEventInteractivity()
+            debug.profilebegin("Iris/Demo/Events")
+            widgetEventInteractivity()
+            debug.profileend()
 
-        widgetStateInteractivity()
-
-        Iris.CollapsingHeader({ "Recursive Tree" })
-        recursiveTree()
-        Iris.End()
-
-        dynamicStyle()
-
-        Iris.Separator()
-
-        Iris.CollapsingHeader({ "Widgets" })
-        for _, name in widgetDemosOrder do
-            widgetDemos[name]()
+            debug.profilebegin("Iris/Demo/States")
+            widgetStateInteractivity()
+            debug.profileend()
+            
+            debug.profilebegin("Iris/Demo/Recursive")
+            Iris.CollapsingHeader({ "Recursive Tree" })
+            recursiveTree()
+            Iris.End()
+            debug.profileend()
+            
+            debug.profilebegin("Iris/Demo/Style")
+            dynamicStyle()
+            debug.profileend()
+            
+            Iris.Separator()
+            
+            debug.profilebegin("Iris/Demo/Widgets")
+            Iris.CollapsingHeader({ "Widgets" })
+            for _, name in widgetDemosOrder do
+                debug.profilebegin(`Iris/Demo/Widgets/{name}`)
+                widgetDemos[name]()
+                debug.profileend()
+            end
+            Iris.End()
+            debug.profileend()
+            
+            
+            debug.profilebegin("Iris/Demo/Tables")
+            tablesDemo()
+            debug.profileend()
+            
+            debug.profilebegin("Iris/Demo/Layout")
+            layoutDemo()
+            debug.profileend()
         end
         Iris.End()
-
-        tablesDemo()
-
-        layoutDemo()
-        Iris.End()
+        debug.profileend()
 
         if showRecursiveWindow.value then
             recursiveWindow(showRecursiveWindow)
