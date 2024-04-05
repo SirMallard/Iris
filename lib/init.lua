@@ -142,7 +142,7 @@ end
     
     Connects a function which will execute every Iris cycle. [Iris.Init] must be called before connecting.
 
-    A cycle is determined by the `eventConnection` passed to [Iris.Init] (default to Heartbeat).
+    A cycle is determined by the `eventConnection` passed to [Iris.Init] (default to [RunService.Heartbeat]).
 
     Multiple callbacks can be added to Iris from many different scripts or modules.
 ]=]
@@ -371,7 +371,7 @@ end
     @within Iris
     @param initialValue -- the initial value for the state
 
-    Constructs a new state object. Subsequent ID calls will return the same object.
+    Constructs a new [State] object. Subsequent ID calls will return the same object.
     :::info
     Iris.State allows you to create "references" to the same value while inside your UI drawing loop.
     For example:
