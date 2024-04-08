@@ -24,6 +24,8 @@ return function(Iris: Types.Iris)
         Iris.End()
         ```
 
+        ![Example window](../assets/basicWindow.png)
+
         If you do not want the code inside a window to run unless it is open then you can use the following:
         ```lua
         local window = Iris.Window({ "Many Widgets Window" })
@@ -69,10 +71,10 @@ return function(Iris: Types.Iris)
             hovered: () -> boolean -- fires when the mouse hovers over any of the window.
         }
         States = {
-            size = State<Vector2>?,
+            size = State<Vector2>? = Vector2.new(400, 300),
             position = State<Vector2>?,
-            isUncollapsed = State<boolean>?,
-            isOpened = State<boolean>?,
+            isUncollapsed = State<boolean>? = true,
+            isOpened = State<boolean>? = true,
             scrollDistance = State<number>? -- vertical scroll distance, if too short.
         }
         ```
@@ -94,6 +96,12 @@ return function(Iris: Types.Iris)
         @tag Widget
 
         Displays a text label next to the cursor
+
+        ```lua
+        Iris.Tooltip({"My custom tooltip"})
+        ```
+
+        ![Basic tooltip example](../assets/basicTooltip.png)
         
         ```lua
         hasChildren = false

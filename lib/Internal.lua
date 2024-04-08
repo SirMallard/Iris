@@ -109,7 +109,7 @@ return function(Iris: Types.Iris): Types.Internal
         ```
 
         :::caution
-        Never call ':set()` on a state when inside the the `:onChange()` callback of the same state. This will cause a continous callback.
+        Never call `:set()` on a state when inside the `:onChange()` callback of the same state. This will cause a continous callback.
 
         Never chain states together so that each state changes the value of another state in a cyclic nature. This will cause a continous callback.
         :::

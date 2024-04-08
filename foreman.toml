@@ -1,0 +1,9 @@
+# This file lists tools managed by Foreman, a cross-platform toolchain manager.
+# For more information, see https://github.com/Roblox/foreman
+
+# To add a new tool, add an entry to this table.
+[tools]
+rojo = { github = "rojo-rbx/rojo", version = "=7.4.0" }
+wally = { github = "UpliftGames/wally", version = "=0.3.2" }
+stylua = { github = "johnnymorganz/stylua", version = "=0.20.0" }
+selene = { github = "Kampfkarren/selene", version = "=0.25.0" }
