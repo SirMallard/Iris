@@ -21,6 +21,9 @@ export type Arguments = {
     Width: number,
     VerticalAlignment: Enum.VerticalAlignment,
     Index: any,
+    Image: string,
+    Size: Vector2,
+    Rect: Rect,
 
     SpanAvailWidth: boolean,
     NoIdent: boolean,
@@ -217,6 +220,7 @@ export type WidgetUtility = {
         BOTTOM_RIGHT_CORNER: string,
         CHECK_MARK: string,
         ALPHA_BACKGROUND_TEXTURE: string,
+        UNKNOWN_TEXTURE: string,
     },
 
     GuiInset: Vector2,
@@ -434,6 +438,8 @@ export type Iris = {
     InputEnum: (arguments: WidgetArguments, states: WidgetStates?, enumType: Enum) -> Widget,
 
     ProgressBar: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+
+    Image: (arguments: WidgetArguments) -> Widget,
 
     -- Table Widget Api
     Table: (arguments: WidgetArguments) -> Widget,

@@ -551,6 +551,8 @@ return function(Iris: Types.Iris)
     ]=]
     Iris.RadioButton = wrapper("RadioButton")
 
+    Iris.Image = wrapper("Image")
+
     --[[
         ---------------------------------
             [SECTION] Tree Widget API

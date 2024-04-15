@@ -16,6 +16,7 @@ return function(Iris: Types.Internal)
         BOTTOM_RIGHT_CORNER = "\u{25E2}", -- used in window resize icon in bottom right
         CHECK_MARK = "rbxasset://textures/AnimationEditor/icon_checkmark.png",
         ALPHA_BACKGROUND_TEXTURE = "rbxasset://textures/meshPartFallback.png", -- used for color4 alpha
+        UNKNOWN_TEXTURE = "rbxasset://textures/ui/GuiImagePlaceholder.png",
     }
 
     widgets.GuiInset = widgets.GuiService:GetGuiInset()
@@ -60,7 +61,7 @@ return function(Iris: Types.Internal)
 
     function widgets.extend(superClass: Types.WidgetClass, subClass: Types.WidgetClass): Types.WidgetClass
         local newClass: Types.WidgetClass = table.clone(superClass)
-        for index: string, value: any in subClass do
+        for index: string, value: any in subClass :: { [string]: any } do
             newClass[index] = value
         end
         return newClass
