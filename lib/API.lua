@@ -1408,7 +1408,7 @@ return function(Iris: Types.Iris)
         }
         Events = {
             opened: () -> boolean,
-            clsoed: () -> boolean,
+            closed: () -> boolean,
             clicked: () -> boolean,
             hovered: () -> boolean
         }
@@ -1439,7 +1439,7 @@ return function(Iris: Types.Iris)
         }
         Events = {
             opened: () -> boolean,
-            clsoed: () -> boolean,
+            closed: () -> boolean,
             clicked: () -> boolean,
             hovered: () -> boolean
         }
@@ -1488,7 +1488,7 @@ return function(Iris: Types.Iris)
         }
         Events = {
             opened: () -> boolean,
-            clsoed: () -> boolean,
+            closed: () -> boolean,
             clicked: () -> boolean,
             hovered: () -> boolean
         }
