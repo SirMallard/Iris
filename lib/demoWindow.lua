@@ -848,15 +848,15 @@ return function(Iris: Types.Iris)
                 Iris.NextRow()
                 Iris.NextColumn()
                 if i % 2 == 0 then
-                    Iris.Text({ `Row: {i},Column: 1\nExtra Line` })
+                    Iris.Text({ `Row: {i}, Column: 1\nExtra Line`, true })
                 else
-                    Iris.Text({ `Row: {i},Column: 1` })
+                    Iris.Text({ `Row: {i}, Column: 1`, true })
                 end
                 Iris.NextColumn()
                 if i % 3 == 1 then
-                    Iris.Text({ `Row: {i},Column: 2\nExtra Line` })
+                    Iris.Text({ `Row: {i}, Column: 2\nExtra Line`, true })
                 else
-                    Iris.Text({ `Row: {i},Column: 2` })
+                    Iris.Text({ `Row: {i}, Column: 2`, true })
                 end
             end
             Iris.End()
