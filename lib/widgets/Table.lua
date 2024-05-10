@@ -77,6 +77,76 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Column.LayoutOrder = zindex
                     Column.ClipsDescendants = true
 
+                    task.defer(function()
+                        debug.profilebegin("Iris/UpdateCellSizes")
+
+                        -- idk if this is the best way to do it, but it works so...
+                        local allLayoutOrders = {}
+                        for _, v in Column:GetChildren() do
+                            if v:IsA("Frame") then
+                                table.insert(allLayoutOrders, v.LayoutOrder)
+                            end
+                        end
+
+                        table.sort(allLayoutOrders)
+
+                        local cellsOnThisRow = {}
+                        
+                        for _, v in Column:GetChildren() do
+                            if not v:IsA("Frame") then
+                                continue
+                            end
+
+                            local layoutOrder = v.LayoutOrder
+                            local index = table.find(allLayoutOrders, layoutOrder)
+                            local otherColumns = Table:GetChildren()
+
+                            cellsOnThisRow[v] = {}
+                            
+                            for _, otherColumn in otherColumns do
+                                if otherColumn == Column then
+                                    continue
+                                end
+
+                                local otherColumnLayoutOrders = {}
+                                for _, v in otherColumn:GetChildren() do
+                                    if v:IsA("Frame") then
+                                        table.insert(otherColumnLayoutOrders, v.LayoutOrder)
+                                    end
+                                end
+
+                                table.sort(otherColumnLayoutOrders)
+
+                                for _, v2 in otherColumn:GetChildren() do
+                                    if not v2:IsA("Frame") then
+                                        continue
+                                    end
+
+                                    local otherLayoutOrder = v2.LayoutOrder
+                                    local otherIndex = table.find(otherColumnLayoutOrders, otherLayoutOrder)
+
+                                    if index == otherIndex then
+                                        table.insert(cellsOnThisRow[v], v2)
+                                    end
+                                end
+                            end
+                        end
+
+                        for _, v in Column:GetChildren() do
+                            if not v:IsA("Frame") then
+                                continue
+                            end
+
+                            for _, cell in cellsOnThisRow[v] do
+                                if v.AbsoluteSize.Y > cell.AbsoluteSize.Y then
+                                    cell.Size = UDim2.new(1, 0, 0, v.AbsoluteSize.Y)
+                                end
+                            end
+                        end
+
+                        debug.profileend()
+                    end)
+
                     widgets.UIListLayout(Column, Enum.FillDirection.Vertical, UDim.new(0, 0))
 
                     thisWidget.ColumnInstances[index] = Column
