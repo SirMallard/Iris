@@ -839,6 +839,31 @@ return function(Iris: Types.Iris)
             Iris.Text({ "" })
 
             Iris.SameLine()
+            Iris.Text({ "Table with varying sized components:" })
+            helpMarker("if you have elements with varying sizes, the table will automatically adjust the size of the rows")
+            Iris.End()
+
+            Iris.Table({ 2 })
+            for i = 1, 4 do
+                Iris.NextRow()
+                Iris.NextColumn()
+                if i % 2 == 0 then
+                    Iris.Text({ `Row: {i},Column: 1\nExtra Line` })
+                else
+                    Iris.Text({ `Row: {i},Column: 1` })
+                end
+                Iris.NextColumn()
+                if i % 3 == 1 then
+                    Iris.Text({ `Row: {i},Column: 2\nExtra Line` })
+                else
+                    Iris.Text({ `Row: {i},Column: 2` })
+                end
+            end
+            Iris.End()
+
+            Iris.Text({ "" })
+
+            Iris.SameLine()
             Iris.Text({ "Table using NextColumn only syntax:" })
             helpMarker("only calling Iris.NextColumn() in the inner loop, the result is identical")
             Iris.End()
