@@ -33,6 +33,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             -- reference to these is stored as an optimization
             thisWidget.ColumnInstances = {}
             thisWidget.CellInstances = {}
+            thisWidget.postCycleCallbackIDs = {}
 
             local Table: Frame = Instance.new("Frame")
             Table.Name = "Iris_Table"
@@ -78,7 +79,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Column.ClipsDescendants = true
 
                     task.defer(function()
-                        debug.profilebegin("Iris/UpdateCellSizes")
+                        debug.profilebegin("Iris/PrepareUpdateCellSizes")
 
                         -- idk if this is the best way to do it, but it works so...
                         local allLayoutOrders = {}
@@ -99,9 +100,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                             local layoutOrder = v.LayoutOrder
                             local index = table.find(allLayoutOrders, layoutOrder)
-                            local otherColumns = Table:GetChildren()
+                            local otherColumns = thisWidget.ColumnInstances
 
                             cellsOnThisRow[v] = {}
+
+                            v.Size = UDim2.new(1, 0, 0, 0)
                             
                             for _, otherColumn in otherColumns do
                                 if otherColumn == Column then
@@ -132,20 +135,36 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                             end
                         end
 
-                        for _, v in Column:GetChildren() do
-                            if not v:IsA("Frame") then
-                                continue
-                            end
-
-                            for _, cell in cellsOnThisRow[v] do
-                                if v.AbsoluteSize.Y > cell.AbsoluteSize.Y then
-                                    cell.Size = UDim2.new(1, 0, 0, v.AbsoluteSize.Y)
+                        local function UpdateCellSizes()
+                            debug.profilebegin("Iris/EarlyUpdateCellSizes")
+                            for _, v in Column:GetChildren() do
+                                if not v:IsA("Frame") then
+                                    continue
                                 end
+
+                                v.Size = UDim2.new(1, 0, 0, 0)
+    
+                                task.defer(function()
+                                    debug.profilebegin("Iris/UpdateCellSizes")
+                                    for _, cell in cellsOnThisRow[v] do
+                                        if v.AbsoluteSize.Y > cell.AbsoluteSize.Y then
+                                            cell.Size = UDim2.new(1, 0, 0, v.AbsoluteSize.Y)
+                                        end
+                                    end
+                                    debug.profileend()
+                                end)
                             end
+                            debug.profileend()
                         end
 
+                        task.defer(UpdateCellSizes)
+
+                        local id = #Iris._postCycleCallbacks + 1
+                        table.insert(thisWidget.postCycleCallbackIDs, id)
+                        Iris._postCycleCallbacks[id] = UpdateCellSizes
+
                         debug.profileend()
-                    end)
+                    end)                    
 
                     widgets.UIListLayout(Column, Enum.FillDirection.Vertical, UDim.new(0, 0))
 
@@ -184,6 +203,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Discard = function(thisWidget: Types.Widget)
             tableWidgets[thisWidget.ID] = nil
             thisWidget.Instance:Destroy()
+
+            for _, id in thisWidget.postCycleCallbackIDs do
+                Iris._postCycleCallbacks[id] = nil
+            end
         end,
         ChildAdded = function(thisWidget: Types.Widget)
             if thisWidget.RowColumnIndex == 0 then
