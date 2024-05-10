@@ -131,6 +131,7 @@ export type Widget = {
     InitialNumColumns: number,
     ColumnInstances: { Frame },
     CellInstances: { Frame },
+    postCycleCallbackIDs: { number },
 
     -- Event Props
     isHoveredEvent: boolean,
