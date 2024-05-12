@@ -781,6 +781,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 resizeWindow = nil
                 isResizing = false
             end
+
+            for _, callbackID in thisWidget.postCycleCallbackIDs do
+                Iris._postCycleCallbacks[callbackID] = nil
+            end
+
             windowWidgets[thisWidget.ID] = nil
             thisWidget.Instance:Destroy()
             widgets.discardState(thisWidget)
