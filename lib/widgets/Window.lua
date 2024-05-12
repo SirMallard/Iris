@@ -298,7 +298,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local newSize: Vector2 = fitSizeToWindowBounds(resizeWindow, intendedSize)
             local newPosition: Vector2 = fitPositionToWindowBounds(resizeWindow, intendedPosition)
 
-            Iris._windowUpdatedThisCycle = true
             resizeInstance.Size = UDim2.fromOffset(newSize.X, newSize.Y)
             resizeWindow.state.size.value = newSize
             resizeInstance.Position = UDim2.fromOffset(newPosition.X, newPosition.Y)
@@ -380,6 +379,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             thisWidget.usesScreenGUI = Iris._config.UseScreenGUIs
             windowWidgets[thisWidget.ID] = thisWidget
+            thisWidget.postCycleCallbackIDs = {}
 
             local Window
             if thisWidget.usesScreenGUI then
@@ -899,6 +899,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
             if thisWidget.state.scrollDistance == nil then
                 thisWidget.state.scrollDistance = Iris._widgetState(thisWidget, "scrollDistance", 0)
+            end
+
+            -- this.state.size:OnChange() wasn't working so I'm doing this instead
+            local id = #Iris._postCycleCallbacks + 1
+            table.insert(thisWidget.postCycleCallbackIDs, id)
+            local lastSizeValue = thisWidget.state.size.value
+            Iris._postCycleCallbacks[id] = function()
+                if lastSizeValue ~= thisWidget.state.size.value then
+                    lastSizeValue = thisWidget.state.size.value
+                    Iris._windowUpdatedThisCycle = true
+                end
             end
         end,
     } :: Types.WidgetClass)
