@@ -126,6 +126,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     for row, cellData in columnCells[mostRowsColumn] do
                         -- Compare other cells in this row
                         local cell = cellData.Cell
+                        local largestYSize = cell.AbsoluteSize.Y
+                        
+                        -- Find the largest cell in the row
                         for _, otherColumn in columnCells do
                             if otherColumn == mostRowsColumn then
                                 continue
@@ -137,11 +140,24 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                                 continue
                             end
 
-                            if otherColumn[row].Cell.AbsoluteSize.Y > cell.AbsoluteSize.Y then
-                                cell.Size = UDim2.new(1, 0, 0, otherColumn[row].Cell.AbsoluteSize.Y)
-                            else
-                                otherColumn[row].Cell.Size = UDim2.new(1, 0, 0, cell.AbsoluteSize.Y)
+                            if otherColumn[row].Cell.AbsoluteSize.Y > largestYSize then
+                                largestYSize = otherColumn[row].Cell.AbsoluteSize.Y
                             end
+                        end
+
+                        -- Set the size of all cells in this row to the largest cell in the row
+                        for _, otherColumn in columnCells do
+                            if otherColumn == mostRowsColumn then
+                                continue
+                            end
+
+                            -- edge case for when the other column has less cells than the column
+                            -- with the most rows
+                            if not otherColumn[row] then
+                                continue
+                            end
+
+                            otherColumn[row].Cell.Size = UDim2.new(1, 0, 0, largestYSize)
                         end
                     end
 
