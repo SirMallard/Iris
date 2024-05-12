@@ -34,6 +34,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             thisWidget.ColumnInstances = {}
             thisWidget.CellInstances = {}
             thisWidget.postCycleCallbackIDs = {}
+            thisWidget.CellSizeUpdateNeeded = false
 
             local Table: Frame = Instance.new("Frame")
             Table.Name = "Iris_Table"
@@ -78,99 +79,78 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Column.LayoutOrder = zindex
                     Column.ClipsDescendants = true
 
-                    task.defer(function()
-                        debug.profilebegin("Iris/PrepareUpdateCellSizes")
-
-                        -- idk if this is the best way to do it, but it works so...
-                        local allLayoutOrders = {}
-                        for _, v in Column:GetChildren() do
-                            if v:IsA("Frame") then
-                                table.insert(allLayoutOrders, v.LayoutOrder)
-                            end
-                        end
-
-                        table.sort(allLayoutOrders)
-
-                        local cellsOnThisRow = {}
-                        
-                        for _, v in Column:GetChildren() do
-                            if not v:IsA("Frame") then
-                                continue
-                            end
-
-                            local layoutOrder = v.LayoutOrder
-                            local index = table.find(allLayoutOrders, layoutOrder)
-                            local otherColumns = thisWidget.ColumnInstances
-
-                            cellsOnThisRow[v] = {}
-
-                            v.Size = UDim2.new(1, 0, 0, 0)
-                            
-                            for _, otherColumn in otherColumns do
-                                if otherColumn == Column then
-                                    continue
-                                end
-
-                                local otherColumnLayoutOrders = {}
-                                for _, v in otherColumn:GetChildren() do
-                                    if v:IsA("Frame") then
-                                        table.insert(otherColumnLayoutOrders, v.LayoutOrder)
-                                    end
-                                end
-
-                                table.sort(otherColumnLayoutOrders)
-
-                                for _, v2 in otherColumn:GetChildren() do
-                                    if not v2:IsA("Frame") then
-                                        continue
-                                    end
-
-                                    local otherLayoutOrder = v2.LayoutOrder
-                                    local otherIndex = table.find(otherColumnLayoutOrders, otherLayoutOrder)
-
-                                    if index == otherIndex then
-                                        table.insert(cellsOnThisRow[v], v2)
-                                    end
-                                end
-                            end
-                        end
-
-                        local function UpdateCellSizes()
-                            debug.profilebegin("Iris/EarlyUpdateCellSizes")
-                            for _, v in Column:GetChildren() do
-                                if not v:IsA("Frame") then
-                                    continue
-                                end
-
-                                v.Size = UDim2.new(1, 0, 0, 0)
-    
-                                task.defer(function()
-                                    debug.profilebegin("Iris/UpdateCellSizes")
-                                    for _, cell in cellsOnThisRow[v] do
-                                        if v.AbsoluteSize.Y > cell.AbsoluteSize.Y then
-                                            cell.Size = UDim2.new(1, 0, 0, v.AbsoluteSize.Y)
-                                        end
-                                    end
-                                    debug.profileend()
-                                end)
-                            end
-                            debug.profileend()
-                        end
-
-                        task.defer(UpdateCellSizes)
-
-                        local id = #Iris._postCycleCallbacks + 1
-                        table.insert(thisWidget.postCycleCallbackIDs, id)
-                        Iris._postCycleCallbacks[id] = UpdateCellSizes
-
-                        debug.profileend()
-                    end)                    
-
                     widgets.UIListLayout(Column, Enum.FillDirection.Vertical, UDim.new(0, 0))
 
                     thisWidget.ColumnInstances[index] = Column
                     Column.Parent = Table
                 end
+
+                -- Resize the table cells to match the largest cell in the row
+                local function UpdateCellSizes()
+                    if not thisWidget.CellSizeUpdateNeeded and not Iris._windowUpdatedThisCycle then
+                        return
+                    end
+
+                    thisWidget.CellSizeUpdateNeeded = false
+
+                    debug.profilebegin("Iris/UpdateCellSizes")
+
+                    local columnCells = {}
+                    local mostRowsColumn, mostRowsCount = nil, 0
+                    for _, Column in thisWidget.ColumnInstances do
+                        columnCells[Column] = {}
+                        for i, Cell in Column:GetChildren() do
+                            if Cell:IsA("Frame") then
+                                -- Reset the size of the cell to normal so it can size down if needed
+                                Cell.Size = UDim2.new(1, 0, 0, 0)
+                                table.insert(columnCells[Column], {
+                                    Cell = Cell,
+                                    LayoutOrder = Cell.LayoutOrder,
+                                })
+
+                                -- table.maxn is 15x faster than table.getn (#table)
+                                if table.maxn(columnCells[Column]) > mostRowsCount then
+                                    mostRowsColumn = Column
+                                    mostRowsCount = table.maxn(columnCells[Column])
+                                end
+                            end
+                        end
+                    end
+
+                    table.sort(columnCells, function(a, b)
+                        return a.LayoutOrder < b.LayoutOrder
+                    end)
+
+                    for row, cellData in columnCells[mostRowsColumn] do
+                        -- Compare other cells in this row
+                        local cell = cellData.Cell
+                        for _, otherColumn in columnCells do
+                            if otherColumn == mostRowsColumn then
+                                continue
+                            end
+
+                            -- edge case for when the other column has less cells than the column
+                            -- with the most rows
+                            if not otherColumn[row] then
+                                continue
+                            end
+
+                            if otherColumn[row].Cell.AbsoluteSize.Y > cell.AbsoluteSize.Y then
+                                cell.Size = UDim2.new(1, 0, 0, otherColumn[row].Cell.AbsoluteSize.Y)
+                            else
+                                otherColumn[row].Cell.Size = UDim2.new(1, 0, 0, cell.AbsoluteSize.Y)
+                            end
+                        end
+                    end
+
+                    debug.profileend()
+                end
+
+                task.defer(UpdateCellSizes)
+
+                local id = #Iris._postCycleCallbacks + 1
+                table.insert(thisWidget.postCycleCallbackIDs, id)
+                Iris._postCycleCallbacks[id] = UpdateCellSizes
             elseif thisWidget.arguments.NumColumns ~= thisWidget.InitialNumColumns then
                 -- its possible to make it so that the NumColumns can increase,
                 -- but decreasing it would interfere with child widget instances
@@ -209,6 +189,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         ChildAdded = function(thisWidget: Types.Widget)
+            thisWidget.CellSizeUpdateNeeded = true
             if thisWidget.RowColumnIndex == 0 then
                 thisWidget.RowColumnIndex = 1
             end
