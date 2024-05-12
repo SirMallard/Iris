@@ -117,9 +117,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         end
                     end
 
-                    table.sort(columnCells, function(a, b)
-                        return a.LayoutOrder < b.LayoutOrder
-                    end)
+                    for _, cells in columnCells do
+                        table.sort(cells, function(a, b)
+                            return a.LayoutOrder < b.LayoutOrder
+                        end)
+                    end
 
                     for row, cellData in columnCells[mostRowsColumn] do
                         -- Compare other cells in this row
