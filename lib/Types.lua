@@ -125,13 +125,13 @@ export type Widget = {
     usesScreenGUI: boolean,
     ButtonColors: { [string]: Color3 | number },
     ComboChildrenHeight: number,
+    postCycleCallbackIDs: { number },
 
     -- Table properties
     RowColumnIndex: number,
     InitialNumColumns: number,
     ColumnInstances: { Frame },
     CellInstances: { Frame },
-    postCycleCallbackIDs: { number },
     CellSizeUpdateNeeded: boolean,
 
     -- Event Props
