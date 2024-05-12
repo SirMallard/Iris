@@ -298,6 +298,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local newSize: Vector2 = fitSizeToWindowBounds(resizeWindow, intendedSize)
             local newPosition: Vector2 = fitPositionToWindowBounds(resizeWindow, intendedPosition)
 
+            Iris._windowUpdatedThisCycle = true
             resizeInstance.Size = UDim2.fromOffset(newSize.X, newSize.Y)
             resizeWindow.state.size.value = newSize
             resizeInstance.Position = UDim2.fromOffset(newPosition.X, newPosition.Y)

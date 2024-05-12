@@ -36,6 +36,7 @@ return function(Iris: Types.Iris): Types.Internal
         ZIndex = 0,
     }
     Internal._lastWidget = Internal._rootWidget -- widget which was most recently rendered
+    Internal._windowUpdatedThisCycle = false -- if a window was updated this cycle
 
     -- Config
     Internal._rootConfig = {} -- root style which all widgets derive from
@@ -265,6 +266,8 @@ return function(Iris: Types.Iris): Types.Internal
             Internal._stackIndex = 1
             error("Callback has too few calls to Iris.End()", 0)
         end
+
+        Internal._windowUpdatedThisCycle = false
 
         --debug.profileend()
     end

@@ -132,6 +132,7 @@ export type Widget = {
     ColumnInstances: { Frame },
     CellInstances: { Frame },
     postCycleCallbackIDs: { number },
+    CellSizeUpdateNeeded: boolean,
 
     -- Event Props
     isHoveredEvent: boolean,
@@ -288,6 +289,7 @@ export type Internal = {
     SelectionImageObject: Frame,
     parentInstance: BasePlayerGui,
     _utility: WidgetUtility,
+    _windowUpdatedThisCycle: boolean,
 
     -- Config
     _rootConfig: Config,
