@@ -219,7 +219,9 @@ export type WidgetUtility = {
         ALPHA_BACKGROUND_TEXTURE: string,
     },
 
-    GuiInset: Vector2,
+    GuiInset: Vector2?,
+    setGuiInset: () -> (Vector2),
+    getGuiInset: () -> (Vector2),
 
     findBestWindowPosForPopup: (refPos: Vector2, size: Vector2, outerMin: Vector2, outerMax: Vector2) -> Vector2,
     getScreenSizeForWindow: (thisWidget: Widget) -> Vector2,

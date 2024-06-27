@@ -504,7 +504,9 @@ return function(Iris: Types.Iris)
                 Iris.MenuItem({ "Open", Enum.KeyCode.O, Enum.ModifierKey.Ctrl })
                 Iris.MenuItem({ "Save", Enum.KeyCode.S, Enum.ModifierKey.Ctrl })
                 recursiveMenu()
-                Iris.MenuItem({ "Quit", Enum.KeyCode.Q, Enum.ModifierKey.Alt })
+                if Iris.MenuItem({ "Quit", Enum.KeyCode.Q, Enum.ModifierKey.Alt }).clicked() then
+                    showMainWindow:set(false)
+                end
             Iris.End()
             
             Iris.Menu({ "Examples" })
