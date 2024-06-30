@@ -432,7 +432,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             TextLabel.Text = thisWidget.arguments.Text
             if thisWidget.arguments.KeyCode then
-                Shortcut.Text = thisWidget.arguments.ModifierKey.Name .. " + " .. thisWidget.arguments.KeyCode.Name
+				if thisWidget.arguments.ModifierKey then
+					Shortcut.Text = thisWidget.arguments.ModifierKey.Name .. " + " .. thisWidget.arguments.KeyCode.Name
+				else
+					Shortcut.Text = thisWidget.arguments.KeyCode.Name
+				end
             end
         end,
         Discard = function(thisWidget: Types.Widget)
@@ -569,7 +573,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             TextLabel.Text = thisWidget.arguments.Text
             if thisWidget.arguments.KeyCode then
-                Shortcut.Text = thisWidget.arguments.ModifierKey.Name .. " + " .. thisWidget.arguments.KeyCode.Name
+				if thisWidget.arguments.ModifierKey then
+					Shortcut.Text = thisWidget.arguments.ModifierKey.Name .. " + " .. thisWidget.arguments.KeyCode.Name
+				else
+					Shortcut.Text = thisWidget.arguments.KeyCode.Name
+				end
             end
         end,
         UpdateState = function(thisWidget: Types.Widget)
