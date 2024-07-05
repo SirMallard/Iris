@@ -60,7 +60,7 @@ return function(Iris: Types.Internal)
 
     function widgets.extend(superClass: Types.WidgetClass, subClass: Types.WidgetClass): Types.WidgetClass
         local newClass: Types.WidgetClass = table.clone(superClass)
-        for index: string, value: any in subClass do
+        for index: unknown, value: any in subClass do
             newClass[index] = value
         end
         return newClass
