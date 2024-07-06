@@ -115,6 +115,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end
 
+        if not lowestWidget then
+            return
+        end
+
         if lowestWidget.state.isUncollapsed.value == false then
             lowestWidget.state.isUncollapsed:set(true)
         end

@@ -2,9 +2,15 @@
 
 # Overview
 
-Iris comes with the function `Iris.WidgetConstructor`, which allows you to Construct your own widgets. 
+Iris has a widget constructor method to create widgets with. Once a widget has been constructed, you can than use it like any other widget. Every widget follows a set of guidelines it must follow when constructed.
 
-For Instance, This is the call to `Iris.WidgetConstructor` for the `Iris.Text` widget:
+To construct a new widget, you can call `Iris.WidgetConstructor()` with the widget name and widget class. To then use the widget you can call `Iris.Internal._Insert()` with the widget name and then optional argument and state tables.
+
+# Documentation
+
+## Widget Construction
+
+For Instance, this is the call to `Iris.WidgetConstructor` for the `Iris.Text` widget:
 ```lua
 Iris.WidgetConstructor("Text", {
     hasState = false,
@@ -33,11 +39,11 @@ Iris.WidgetConstructor("Text", {
 })
 ```
 
-The First argument, `type: string`, specifies a name for the widget
+
+The first argument, `type: string`, specifies a name for the widget.
 
 
-The fourth argument contains the class for the widget. The methods which a widget class may have depend on the value of `hasState` and `hasChildren`.
-every widget class should specify if it hasState and hasChildren. In the instance of Iris.Text, It has no state, and it cant contain other widgets, so both are false.
+The second argument is the widget class. The methods which a widget class has depends on the value of `hasState` and `hasChildren`. Every widget class should specify if it `hasState` and `hasChildren`. The example widget, a text label, has no state, and it does not contain other widgets, so both are false. Every widget must have the following functions:
 
 | All Widgets | Widgets with State | Widgets with Children     |
 | ----------- | ------------------ | ------------------------- |
@@ -151,6 +157,14 @@ ChildAdded is called when a widget is first Initiated and is a child of the widg
 
 ### ChildDiscarded
 ChildDiscarded is called when a widget is Discarded and is a child of the widget. ChildDiscarded is optional.
+
+## Widget Usage
+
+To use this widget once it has been constructed, you can use:
+```lua
+Iris.Internal._Insert("Text", {"Sampele text"}, nil) -- "Text" argument and no state
+```
+This is the same as calling any other widget but requires the widget name as passed to `Iris.WidgetConstructor()` as the first argument.
 
 ***
 

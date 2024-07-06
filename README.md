@@ -100,3 +100,4 @@ Check out the Dear ImGuis [About the IMGUI paradigm](https://github.com/ocornut/
 ### Credits
 
 Developed By [Michael_48](https://github.com/Michael-48), [SirMallard](https://github.com/SirMallard) and [JakeyWasTaken](https://github.com/JakeyWasTaken). Inspriation and design: [Omar Cornut](https://www.miracleworld.net/), [Evaera](https://github.com/evaera), Thanks!
+<meta name="google-site-verification" content="Ito4GceH5YJJXReIhx9JMqN0YEDdKePHaylk8H3-9Oo" />
