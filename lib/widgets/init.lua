@@ -539,6 +539,7 @@ return function(Iris: Types.Internal)
     require(script.Button)(Iris, widgets)
     require(script.Checkbox)(Iris, widgets)
     require(script.RadioButton)(Iris, widgets)
+    require(script.Image)(Iris, widgets)
 
     require(script.Tree)(Iris, widgets)
 

@@ -9,6 +9,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 			["Image"] = 1,
 			["Size"] = 2,
 			["Rect"] = 3,
+            ["ResampleMode"] = 4,
 		},
 		Events = {
             ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
@@ -34,8 +35,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
 			Image.Image = thisWidget.arguments.Image or widgets.ICONS.UNKNOWN_TEXTURE
 			Image.Size = UDim2.fromOffset(thisWidget.arguments.Size.X, thisWidget.arguments.Size.Y)
-			Image.ImageRectOffset = thisWidget.arguments.Rect.Min
-			Image.ImageRectSize = Vector2.new(thisWidget.arguments.Rect.Width, thisWidget.arguments.Rect.Height)
+            if thisWidget.arguments.Rect then
+			    Image.ImageRectOffset = thisWidget.arguments.Rect.Min
+			    Image.ImageRectSize = Vector2.new(thisWidget.arguments.Rect.Width, thisWidget.arguments.Rect.Height)
+            end
+            if thisWidget.arguments.ResampleMode then
+                Image.ResampleMode = thisWidget.arguments.ResampleMode
+            end
 		end,
 		Discard = function(thisWidget: Types.Widget)
 			thisWidget.Instance:Destroy()
