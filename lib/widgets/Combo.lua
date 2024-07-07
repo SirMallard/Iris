@@ -249,6 +249,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             PreviewLabel.BorderSizePixel = 0
             PreviewLabel.ZIndex = thisWidget.ZIndex + 3
             PreviewLabel.LayoutOrder = thisWidget.ZIndex + 3
+            PreviewLabel.ClipsDescendants = true
 
             widgets.applyTextStyle(PreviewLabel)
             widgets.UIPadding(PreviewLabel, Iris._config.FramePadding)
