@@ -460,11 +460,12 @@ return function(Iris: Types.Iris): Types.Internal
         end
 
         if thisWidget.parentWidget.isDirty then
-            -- since the parent was dirty, update the ZIndex of this component by regenerating it
+            -- since the parent was dirty, update the ZIndex of this component
             -- so that items inserted in future cycles that are created before this component are correctly ordered before it
-            thisWidget.ZIndex = Internal._DiscardWidget(thisWidget)
-            thisWidget = Internal._GenNewWidget(widgetType, arguments, states, ID)
-            warn(`Regenerated {thisWidget.ID} with parent {thisWidget.parentWidget.ID} dirty. Instance {thisWidget.Instance:GetFullName()}`)
+            thisWidget.ZIndex = thisWidget.parentWidget.ZIndex + (Internal._widgetCount * 0x40) + Internal._config.ZIndexOffset
+
+            thisWidget.Instance.ZIndex = thisWidget.ZIndex
+            thisWidget.Instance.LayoutOrder = thisWidget.ZIndex
         end
 
         thisWidget.lastCycleTick = Internal._cycleTick
