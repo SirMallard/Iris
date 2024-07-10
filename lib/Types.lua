@@ -113,6 +113,7 @@ export type Widget = {
     state: States,
     lastCycleTick: number,
     trackedEvents: {},
+    isDirty: boolean,
 
     parentWidget: Widget,
     Instance: GuiObject,
@@ -220,8 +221,8 @@ export type WidgetUtility = {
     },
 
     GuiInset: Vector2?,
-    setGuiInset: () -> (Vector2),
-    getGuiInset: () -> (Vector2),
+    setGuiInset: () -> Vector2,
+    getGuiInset: () -> Vector2,
 
     findBestWindowPosForPopup: (refPos: Vector2, size: Vector2, outerMin: Vector2, outerMax: Vector2) -> Vector2,
     getScreenSizeForWindow: (thisWidget: Widget) -> Vector2,
