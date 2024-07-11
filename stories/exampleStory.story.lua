@@ -16,6 +16,10 @@ return function(parent: GuiObject)
     -- Actual Iris code here:
     Iris:Connect(Iris.ShowDemoWindow)
 
+    Iris:Connect(function()
+        Iris.Window({}, {})
+    end)
+
     return function()
         Iris.Shutdown()
 

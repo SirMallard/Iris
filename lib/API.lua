@@ -1452,7 +1452,7 @@ return function(Iris: Types.Iris)
         }
         ```
     ]=]
-    Iris.ComboArray = function(arguments: Types.WidgetArguments, states: Types.WidgetStates?, selectionArray: { any })
+    Iris.ComboArray = function<T>(arguments: Types.WidgetArguments, states: Types.WidgetStates?, selectionArray: { T })
         local defaultState
         if states == nil then
             defaultState = Iris.State(selectionArray[1])
@@ -1460,7 +1460,7 @@ return function(Iris: Types.Iris)
             defaultState = states
         end
         local thisWidget = Iris.Internal._Insert("Combo", arguments, defaultState)
-        local sharedIndex: Types.State = thisWidget.state.index
+        local sharedIndex: Types.State<T> = thisWidget.state.index
         for _, Selection in selectionArray do
             Iris.Internal._Insert("Selectable", { Selection, Selection }, { index = sharedIndex } :: Types.States)
         end
@@ -1504,7 +1504,7 @@ return function(Iris: Types.Iris)
     Iris.ComboEnum = function(arguments: Types.WidgetArguments, states: Types.WidgetStates?, enumType: Enum)
         local defaultState
         if states == nil then
-            defaultState = Iris.State(enumType[1])
+            defaultState = Iris.State(enumType:GetEnumItems()[1])
         else
             defaultState = states
         end

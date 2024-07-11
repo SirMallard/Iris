@@ -125,7 +125,7 @@ return function(Iris: Types.Iris): Types.Internal
         
         Returns the states current value.
     ]=]
-    function StateClass:get(): any -- you can also simply use .value
+    function StateClass:get<T>(): T -- you can also simply use .value
         return self.value
     end
 
@@ -135,7 +135,7 @@ return function(Iris: Types.Iris): Types.Internal
         
         Allows the caller to assign the state object a new value, and returns the new value.
     ]=]
-    function StateClass:set(newValue: any): any
+    function StateClass:set<T>(newValue: T): T
         if newValue == self.value then
             -- no need to update on no change.
             return self.value
@@ -156,7 +156,7 @@ return function(Iris: Types.Iris): Types.Internal
         
         Allows the caller to connect a callback which is called when the states value is changed.
     ]=]
-    function StateClass:onChange(callback: (newValue: any) -> ())
+    function StateClass:onChange<T>(callback: (newValue: T) -> ())
         table.insert(self.ConnectedFunctions, callback)
     end
 
@@ -507,7 +507,7 @@ return function(Iris: Types.Iris): Types.Internal
         local eventMTParent
         if thisWidgetClass.hasState then
             if states then
-                for index: string, state: Types.State in states do
+                for index: string, state: Types.State<any> in states do
                     if not (type(state) == "table" and getmetatable(state :: any) == Internal.StateClass) then
                         -- generate a new state.
                         states[index] = Internal._widgetState(thisWidget, index, state)
@@ -515,7 +515,7 @@ return function(Iris: Types.Iris): Types.Internal
                 end
 
                 thisWidget.state = states
-                for _, state: Types.State in states do
+                for _, state: Types.State<any> in states do
                     state.ConnectedWidgets[thisWidget.ID] = thisWidget
                 end
             else
@@ -599,7 +599,7 @@ return function(Iris: Types.Iris): Types.Internal
         Connects the state to the widget. If no state exists then a new one is created. Called for every state in every
         widget if the user does not provide a state.
     ]=]
-    function Internal._widgetState(thisWidget: Types.Widget, stateName: string, initialValue: any): Types.State
+    function Internal._widgetState(thisWidget: Types.Widget, stateName: string, initialValue: any): Types.State<any>
         local ID: Types.ID = thisWidget.ID .. stateName
         if Internal._states[ID] then
             Internal._states[ID].ConnectedWidgets[thisWidget.ID] = thisWidget

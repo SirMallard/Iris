@@ -49,32 +49,32 @@ export type Arguments = {
     Disabled: boolean,
 }
 
-export type State = {
-    value: any,
+export type State<T> = {
+    value: T,
     ConnectedWidgets: { [ID]: string },
-    ConnectedFunctions: { (any) -> () },
+    ConnectedFunctions: { (T) -> () },
 
-    get: (self: State) -> any,
-    set: (self: State, newValue: any) -> (),
-    onChange: (self: State, funcToConnect: (any) -> ()) -> (),
+    get: (self: State<T>) -> T,
+    set: (self: State<T>, newValue: T) -> (),
+    onChange: (self: State<T>, funcToConnect: (T) -> ()) -> (),
 }
 
 export type States = {
-    [string]: State,
-    number: State,
-    color: State,
-    transparency: State,
-    editingText: State,
-    index: State,
+    [string]: State<any>,
+    number: State<number>,
+    color: State<Color3>,
+    transparency: State<number>,
+    editingText: State<boolean>,
+    index: State<any>,
 
-    size: State,
-    position: State,
-    progress: State,
-    scrollDistance: State,
+    size: State<Vector2>,
+    position: State<Vector2>,
+    progress: State<number>,
+    scrollDistance: State<number>,
 
-    isChecked: State,
-    isOpened: State,
-    isUncollapsed: State,
+    isChecked: State<boolean>,
+    isOpened: State<boolean>,
+    isUncollapsed: State<boolean>,
 }
 
 export type Event = {
@@ -90,21 +90,21 @@ export type InputDataTypes = "Num" | "Vector2" | "Vector3" | "UDim" | "UDim2" | 
 
 export type WidgetArguments = { [number]: Argument }
 export type WidgetStates = {
-    number: State?,
-    color: State?,
-    transparency: State?,
-    editingText: State?,
-    index: State?,
+    [string]: State<any>,
+    number: State<number>?,
+    color: State<Color3>?,
+    transparency: State<number>?,
+    editingText: State<boolean>?,
+    index: State<any>?,
 
-    size: State?,
-    position: State?,
-    scrollDistance: State?,
+    size: State<Vector2>?,
+    position: State<Vector2>?,
+    progress: State<number>?,
+    scrollDistance: State<number>?,
 
-    isChecked: State?,
-    isOpened: State?,
-    isUncollapsed: State?,
-
-    [string]: State,
+    isChecked: State<boolean>?,
+    isOpened: State<boolean>?,
+    isUncollapsed: State<boolean>?,
 }
 
 export type Widget = {
@@ -179,7 +179,7 @@ export type Widget = {
     numberChanged: EventAPI,
     textChanged: EventAPI,
 
-    [string]: EventAPI & State,
+    [string]: EventAPI & State<any>,
 }
 
 export type WidgetClass = {
@@ -220,8 +220,8 @@ export type WidgetUtility = {
     },
 
     GuiInset: Vector2?,
-    setGuiInset: () -> (Vector2),
-    getGuiInset: () -> (Vector2),
+    setGuiInset: () -> Vector2,
+    getGuiInset: () -> Vector2,
 
     findBestWindowPosForPopup: (refPos: Vector2, size: Vector2, outerMin: Vector2, outerMax: Vector2) -> Vector2,
     getScreenSizeForWindow: (thisWidget: Widget) -> Vector2,
@@ -305,7 +305,7 @@ export type Internal = {
     _VDOM: { [ID]: Widget },
 
     -- State
-    _states: { [ID]: State },
+    _states: { [ID]: State<any> },
 
     -- Callback
     _postCycleCallbacks: { () -> () },
@@ -323,9 +323,9 @@ export type Internal = {
     StateClass: {
         __index: any,
 
-        get: (self: State) -> any,
-        set: (self: State, newValue: any) -> any,
-        onChange: (self: State, callback: (newValue: any) -> ()) -> (),
+        get: <T>(self: State<T>) -> any,
+        set: <T>(self: State<T>, newValue: any) -> any,
+        onChange: <T>(self: State<T>, callback: (newValue: any) -> ()) -> (),
     },
 
     --[[
@@ -343,7 +343,7 @@ export type Internal = {
     _ContinueWidget: (ID: ID, widgetType: string) -> Widget,
     _DiscardWidget: (widgetToDiscard: Widget) -> (),
 
-    _widgetState: (thisWidget: Widget, stateName: string, initialValue: any) -> State,
+    _widgetState: (thisWidget: Widget, stateName: string, initialValue: any) -> State<any>,
     _EventCall: (thisWidget: Widget, eventName: string) -> boolean,
     _GetParentWidget: () -> Widget,
     SetFocusedWindow: (thisWidget: Widget?) -> (),
@@ -359,6 +359,8 @@ export type Internal = {
     _deepCopy: (t: {}) -> {},
 }
 
+export type WidgetCall<A, S, E...> = (arguments: A, states: S, E...) -> Widget
+
 export type Iris = {
     --[[
         -----------
@@ -369,14 +371,14 @@ export type Iris = {
     End: () -> (),
 
     -- Window API
-    Window: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    Tooltip: (arguments: WidgetArguments) -> Widget,
+    Window: WidgetCall<WidgetArguments, WidgetStates>,
+    Tooltip: WidgetCall<WidgetArguments, nil>,
 
     -- Menu Widget API
     MenuBar: () -> Widget,
-    Menu: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    MenuItem: (arguments: WidgetArguments) -> Widget,
-    MenuToggle: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    Menu: WidgetCall<WidgetArguments, WidgetStates>,
+    MenuItem: WidgetCall<WidgetArguments, nil>,
+    MenuToggle: WidgetCall<WidgetArguments, WidgetStates>,
 
     -- Format Widget API
     Separator: () -> Widget,
@@ -385,60 +387,60 @@ export type Iris = {
     Group: () -> Widget,
 
     -- Text Widget API
-    Text: (arguments: WidgetArguments) -> Widget,
-    TextWrapped: (arguments: WidgetArguments) -> Widget,
-    TextColored: (arguments: WidgetArguments) -> Widget,
-    SeparatorText: (arguments: WidgetArguments) -> Widget,
-    InputText: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    Text: WidgetCall<WidgetArguments, nil>,
+    TextWrapped: WidgetCall<WidgetArguments, nil>,
+    TextColored: WidgetCall<WidgetArguments, nil>,
+    SeparatorText: WidgetCall<WidgetArguments, nil>,
+    InputText: WidgetCall<WidgetArguments, WidgetStates>,
 
     -- Basic Widget API
-    Button: (arguments: WidgetArguments) -> Widget,
-    SmallButton: (arguments: WidgetArguments) -> Widget,
-    Checkbox: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    RadioButton: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    Button: WidgetCall<WidgetArguments, nil>,
+    SmallButton: WidgetCall<WidgetArguments, nil>,
+    Checkbox: WidgetCall<WidgetArguments, WidgetStates>,
+    RadioButton: WidgetCall<WidgetArguments, WidgetStates>,
 
     -- Tree Widget API
-    Tree: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    CollapsingHeader: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    Tree: WidgetCall<WidgetArguments, WidgetStates>,
+    CollapsingHeader: WidgetCall<WidgetArguments, WidgetStates>,
 
     -- Input Widget API
-    InputNum: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    InputVector2: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    InputVector3: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    InputUDim: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    InputUDim2: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    InputRect: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    InputColor3: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    InputColor4: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    InputNum: WidgetCall<WidgetArguments, WidgetStates>,
+    InputVector2: WidgetCall<WidgetArguments, WidgetStates>,
+    InputVector3: WidgetCall<WidgetArguments, WidgetStates>,
+    InputUDim: WidgetCall<WidgetArguments, WidgetStates>,
+    InputUDim2: WidgetCall<WidgetArguments, WidgetStates>,
+    InputRect: WidgetCall<WidgetArguments, WidgetStates>,
+    InputColor3: WidgetCall<WidgetArguments, WidgetStates>,
+    InputColor4: WidgetCall<WidgetArguments, WidgetStates>,
 
     -- Drag Widget API
-    DragNum: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    DragVector2: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    DragVector3: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    DragUDim: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    DragUDim2: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    DragRect: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    DragNum: WidgetCall<WidgetArguments, WidgetStates>,
+    DragVector2: WidgetCall<WidgetArguments, WidgetStates>,
+    DragVector3: WidgetCall<WidgetArguments, WidgetStates>,
+    DragUDim: WidgetCall<WidgetArguments, WidgetStates>,
+    DragUDim2: WidgetCall<WidgetArguments, WidgetStates>,
+    DragRect: WidgetCall<WidgetArguments, WidgetStates>,
 
     -- Slider Widget API
-    SliderNum: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    SliderVector2: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    SliderVector3: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    SliderUDim: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    SliderUDim2: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    SliderRect: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    SliderEnum: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    SliderNum: WidgetCall<WidgetArguments, WidgetStates>,
+    SliderVector2: WidgetCall<WidgetArguments, WidgetStates>,
+    SliderVector3: WidgetCall<WidgetArguments, WidgetStates>,
+    SliderUDim: WidgetCall<WidgetArguments, WidgetStates>,
+    SliderUDim2: WidgetCall<WidgetArguments, WidgetStates>,
+    SliderRect: WidgetCall<WidgetArguments, WidgetStates>,
+    SliderEnum: WidgetCall<WidgetArguments, WidgetStates>,
 
     -- Combo Widget Widget API
-    Selectable: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    Combo: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
-    ComboArray: (arguments: WidgetArguments, states: WidgetStates?, selectionArray: { any }) -> Widget,
-    ComboEnum: (arguments: WidgetArguments, states: WidgetStates?, enumType: Enum) -> Widget,
-    InputEnum: (arguments: WidgetArguments, states: WidgetStates?, enumType: Enum) -> Widget,
+    Selectable: WidgetCall<WidgetArguments, WidgetStates>,
+    Combo: WidgetCall<WidgetArguments, WidgetStates>,
+    ComboArray: WidgetCall<WidgetArguments, WidgetStates, { any }>,
+    ComboEnum: WidgetCall<WidgetArguments, WidgetStates, Enum>,
+    InputEnum: WidgetCall<WidgetArguments, WidgetStates, Enum>,
 
-    ProgressBar: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+    ProgressBar: WidgetCall<WidgetArguments, WidgetStates>,
 
     -- Table Widget Api
-    Table: (arguments: WidgetArguments) -> Widget,
+    Table: WidgetCall<WidgetArguments, nil>,
     NextColumn: () -> (),
     SetColumnIndex: (columnIndex: number) -> (),
     NextRow: () -> (),
@@ -449,9 +451,9 @@ export type Iris = {
         ---------
     ]]
 
-    State: (initialValue: any) -> State,
-    WeakState: (initialValue: any) -> State,
-    ComputedState: (firstState: State, onChangeCallback: (firstState: any) -> any) -> State,
+    State: <T>(initialValue: T) -> State<T>,
+    WeakState: <T>(initialValue: T) -> T,
+    ComputedState: <T, U>(firstState: State<T>, onChangeCallback: (firstState: T) -> U) -> State<U>,
 
     --[[
         -------------
