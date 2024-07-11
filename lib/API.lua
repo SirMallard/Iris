@@ -551,8 +551,87 @@ return function(Iris: Types.Iris)
     ]=]
     Iris.RadioButton = wrapper("RadioButton")
 
+    --[[
+        ----------------------------------
+            [SECTION] Image Widget API
+        ----------------------------------
+    ]]
+
+    --[=[
+        @class Image
+        Image Widget API
+    ]=]
+
+    --[=[
+        @prop Image Iris.Image
+        @within Image
+        @tag Widget
+
+        An image widget for displaying an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image. The ScaleType and ResampleMode can also be changed to support Fit, Stretch and Crop and Pixelated or None respectively.
+
+        ```lua
+        hasChildren = false
+        hasState = false
+        Arguments = {
+            Image: string, -- the texture asset id
+            Size: UDim2,
+            Rect: Rect, -- Rect structure which is used to determine the offset or size. An empty, zeroed rect is equivalent to nil
+            ScaleType: Enum.ScaleType, -- cannot be `Enum.ScaleType.Tile` or `Enum.ScaleType.Slice`, use `Iris.TiledImage` or `Iris.ImageSliced` for these.
+            ResampleMode: Enum.ResampleMode
+        }
+        Events = {
+            hovered: () -> boolean
+        }
+        ```
+    ]=]
     Iris.Image = wrapper("Image")
+
+    --[=[
+        @prop TiledImage Iris.TiledImage
+        @within Image
+        @tag Widget
+
+        A tiled image widget for tiling images. Supports the same arguments as `Iris.Image` but also the TileSize property.
+
+        ```lua
+        hasChildren = false
+        hasState = false
+        Arguments = {
+            Image: string, -- the texture asset id
+            Size: UDim2,
+            TileSize: UDim2,
+            ResampleMode: Enum.ResampleMode
+        }
+        Events = {
+            hovered: () -> boolean
+        }
+        ```
+    ]=]
     Iris.TiledImage = wrapper("TiledImage")
+
+    --[=[
+        @prop SlicedImage Iris.SlicedImage
+        @within Image
+        @tag Widget
+
+        A sliced image widget for supporting slicing images. Supports the same arguments as `Iris.Image` but also includes the SliceCenter and SliceScale properties.
+
+        ```lua
+        hasChildren = false
+        hasState = false
+        Arguments = {
+            Image: string, -- the texture asset id
+            Size: UDim2,
+            Rect: Rect, -- Rect structure which is used to determine the offset or size. An empty, zeroed rect is equivalent to nil
+            SliceCenter: Rect, -- the slice center property
+            SliceScale: number,
+            ResampleMode: Enum.ResampleMode
+        }
+        Events = {
+            hovered: () -> boolean
+        }
+        ```
+    ]=]
     Iris.SlicedImage = wrapper("SlicedImage")
 
     --[[

@@ -45,6 +45,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 				if thisWidget.arguments.Rect then
 					Image.ImageRectOffset = thisWidget.arguments.Rect.Min
 					Image.ImageRectSize = Vector2.new(thisWidget.arguments.Rect.Width, thisWidget.arguments.Rect.Height)
+                else
+                    Image.ImageRectOffset = Vector2.zero
+                    Image.ImageRectSize = Vector2.zero
 				end
 				if thisWidget.arguments.ScaleType then
 					if thisWidget.arguments.ScaleType == Enum.ScaleType.Slice or thisWidget.arguments.ScaleType == Enum.ScaleType.Tile then
@@ -77,6 +80,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 				Image.ScaleType = Enum.ScaleType.Tile
 				if thisWidget.arguments.TileSize then
 					Image.TileSize = thisWidget.arguments.TileSize
+                else
+                    Image.TileSize = UDim2.fromScale(1, 1)
 				end
 				if thisWidget.arguments.ResampleMode then
 					Image.ResampleMode = thisWidget.arguments.ResampleMode
@@ -104,17 +109,24 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 			if thisWidget.arguments.Rect then
 				Image.ImageRectOffset = thisWidget.arguments.Rect.Min
 				Image.ImageRectSize = Vector2.new(thisWidget.arguments.Rect.Width, thisWidget.arguments.Rect.Height)
+            else
+                Image.ImageRectOffset = Vector2.zero
+                Image.ImageRectSize = Vector2.zero
 			end
 			if thisWidget.arguments.SliceCenter then
 				Image.SliceCenter = thisWidget.arguments.SliceCenter
+            else
+                Image.SliceCenter = Rect.new()
 			end
 			if thisWidget.arguments.SliceScale then
 				Image.SliceScale = thisWidget.arguments.SliceScale
+            else
+                Image.SliceScale = 1
 			end
 			if thisWidget.arguments.ResampleMode then
 				Image.ResampleMode = thisWidget.arguments.ResampleMode
 			end
 		end,
 	} :: Types.WidgetClass)
-)
+    )
 end
