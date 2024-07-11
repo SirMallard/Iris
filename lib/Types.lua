@@ -47,6 +47,10 @@ export type Arguments = {
     NoResize: boolean,
     NoMenu: boolean,
 
+    ScaleType: Enum.ScaleType,
+    TileSize: UDim2,
+    SliceCenter: Rect,
+    SliceScale: number,
     ResampleMode: Enum.ResamplerMode,
 
     KeyCode: Enum.KeyCode,
@@ -444,6 +448,8 @@ export type Iris = {
     ProgressBar: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
 
     Image: (arguments: WidgetArguments) -> Widget,
+    TiledImage: (arguments: WidgetArguments) -> Widget,
+    SlicedImage: (arguments: WidgetArguments) -> Widget,
 
     -- Table Widget Api
     Table: (arguments: WidgetArguments) -> Widget,

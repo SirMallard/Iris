@@ -9,6 +9,11 @@ function main(Iris: Types.Iris)
 
             local Icon = Iris.State(nil)
             local Size = Iris.State(Vector2.one * 100)
+            local ImageRect = Iris.State(Rect.new())
+            local ScaleType = Iris.State(Enum.ScaleType.Fit)
+            local TileSize = Iris.State(UDim2.new(1, 0, 1, 0))
+            local SliceCenter = Iris.State(Rect.new())
+            local SliceScale = Iris.State(1)
 
             Iris.Combo({ "Icon" }, { index = Icon })
             do
@@ -19,10 +24,18 @@ function main(Iris: Types.Iris)
             end
             Iris.End()
 
-            Iris.SliderVector2({ "Size" }, { number = Size })
+            Iris.SliderVector2({ "Size", 1, 0, 320 }, { number = Size })
+            Iris.SliderRect({ "Rect" }, { number = ImageRect })
+            Iris.ComboEnum({ "ScaleType" }, { index = ScaleType }, Enum.ScaleType)
 
-            Iris.Image({ Icon:get(), Size:get() })
-            Iris.Image({ Icon:get(), Size:get(), nil, Enum.ResamplerMode.Pixelated })
+            Iris.SliderUDim2({ "TileSize" }, { number = TileSize })
+            Iris.SliderRect({ "SliceCenter" }, { number = SliceCenter })
+            Iris.SliderNum({ "SliceScale", 0.1, 0, 10 }, { number = SliceScale })
+
+            Iris.Image({ Icon:get(), Size:get(), ImageRect:get(), ScaleType:get() })
+            Iris.Image({ Icon:get(), Size:get(), ImageRect:get(), ScaleType:get(), Enum.ResamplerMode.Pixelated })
+            Iris.TiledImage({ Icon:get(), Size:get(), TileSize:get() })
+            Iris.SlicedImage({ Icon:get(), Size:get(), ImageRect:get(), SliceCenter:get(), SliceScale:get() })
 
             Iris.End()
         end

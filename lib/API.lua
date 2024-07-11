@@ -552,6 +552,8 @@ return function(Iris: Types.Iris)
     Iris.RadioButton = wrapper("RadioButton")
 
     Iris.Image = wrapper("Image")
+    Iris.TiledImage = wrapper("TiledImage")
+    Iris.SlicedImage = wrapper("SlicedImage")
 
     --[[
         ---------------------------------
