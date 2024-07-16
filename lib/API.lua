@@ -567,7 +567,7 @@ return function(Iris: Types.Iris)
         @within Image
         @tag Widget
 
-        An image widget for displaying an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image. The ScaleType and ResampleMode can also be changed to support Fit, Stretch and Crop and Pixelated or None respectively.
+        An image widget for displaying an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image and the rest of the ScaleType properties.
 
         ```lua
         hasChildren = false
@@ -575,9 +575,12 @@ return function(Iris: Types.Iris)
         Arguments = {
             Image: string, -- the texture asset id
             Size: UDim2,
-            Rect: Rect, -- Rect structure which is used to determine the offset or size. An empty, zeroed rect is equivalent to nil
-            ScaleType: Enum.ScaleType, -- cannot be `Enum.ScaleType.Tile` or `Enum.ScaleType.Slice`, use `Iris.TiledImage` or `Iris.ImageSliced` for these.
-            ResampleMode: Enum.ResampleMode
+            Rect: Rect? = Rect.new(), -- Rect structure which is used to determine the offset or size. An empty, zeroed rect is equivalent to nil
+            ScaleType: Enum.ScaleType? = Enum.ScaleType.Stretch, -- used to determine whether the TileSize, SliceCenter and SliceScale arguments are used
+            ResampleMode: Enum.ResampleMode? = Enum.ResampleMode.Default,
+            TileSize: UDim2? = UDim2.fromScale(1, 1), -- only used if the ScaleType is set to Tile
+            SliceCenter: Rect? = Rect.new(), -- only used if the ScaleType is set to Slice
+            SliceScale: number? = 1 -- only used if the ScaleType is set to Slice
         }
         Events = {
             hovered: () -> boolean
@@ -587,11 +590,11 @@ return function(Iris: Types.Iris)
     Iris.Image = wrapper("Image")
 
     --[=[
-        @prop TiledImage Iris.TiledImage
+        @prop ImageButton Iris.ImageButton
         @within Image
         @tag Widget
 
-        A tiled image widget for tiling images. Supports the same arguments as `Iris.Image` but also the TileSize property.
+        An image button widget for a button as an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image, and the rest of the ScaleType properties.
 
         ```lua
         hasChildren = false
@@ -599,40 +602,23 @@ return function(Iris: Types.Iris)
         Arguments = {
             Image: string, -- the texture asset id
             Size: UDim2,
-            TileSize: UDim2,
-            ResampleMode: Enum.ResampleMode
+            Rect: Rect? = Rect.new(), -- Rect structure which is used to determine the offset or size. An empty, zeroed rect is equivalent to nil
+            ScaleType: Enum.ScaleType? = Enum.ScaleType.Stretch, -- used to determine whether the TileSize, SliceCenter and SliceScale arguments are used
+            ResampleMode: Enum.ResampleMode? = Enum.ResampleMode.Default,
+            TileSize: UDim2? = UDim2.fromScale(1, 1), -- only used if the ScaleType is set to Tile
+            SliceCenter: Rect? = Rect.new(), -- only used if the ScaleType is set to Slice
+            SliceScale: number? = 1 -- only used if the ScaleType is set to Slice
         }
         Events = {
+            clicked: () -> boolean,
+            rightClicked: () -> boolean,
+            doubleClicked: () -> boolean,
+            ctrlClicked: () -> boolean, -- when the control key is down and clicked.
             hovered: () -> boolean
         }
         ```
     ]=]
-    Iris.TiledImage = wrapper("TiledImage")
-
-    --[=[
-        @prop SlicedImage Iris.SlicedImage
-        @within Image
-        @tag Widget
-
-        A sliced image widget for supporting slicing images. Supports the same arguments as `Iris.Image` but also includes the SliceCenter and SliceScale properties.
-
-        ```lua
-        hasChildren = false
-        hasState = false
-        Arguments = {
-            Image: string, -- the texture asset id
-            Size: UDim2,
-            Rect: Rect, -- Rect structure which is used to determine the offset or size. An empty, zeroed rect is equivalent to nil
-            SliceCenter: Rect, -- the slice center property
-            SliceScale: number,
-            ResampleMode: Enum.ResampleMode
-        }
-        Events = {
-            hovered: () -> boolean
-        }
-        ```
-    ]=]
-    Iris.SlicedImage = wrapper("SlicedImage")
+    Iris.ImageButton = wrapper("ImageButton")
 
     --[[
         ---------------------------------

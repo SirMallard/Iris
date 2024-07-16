@@ -448,8 +448,7 @@ export type Iris = {
     ProgressBar: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
 
     Image: (arguments: WidgetArguments) -> Widget,
-    TiledImage: (arguments: WidgetArguments) -> Widget,
-    SlicedImage: (arguments: WidgetArguments) -> Widget,
+    ImageButton: (arguments: WidgetArguments) -> Widget,
 
     -- Table Widget Api
     Table: (arguments: WidgetArguments) -> Widget,
@@ -547,6 +546,13 @@ export type Config = {
     ButtonHoveredTransparency: number,
     ButtonActiveColor: Color3,
     ButtonActiveTransparency: number,
+
+    ImageColor: Color3,
+    ImageTransparency: number,
+    ImageHoveredColor: Color3,
+    ImageHoveredTransparency: number,
+    ImageActiveColor: Color3,
+    ImageActiveTransparency: number,
 
     SliderGrabColor: Color3,
     SliderGrabTransparency: number,

@@ -45,6 +45,13 @@ local TemplateConfig = {
         ButtonActiveColor = Color3.fromRGB(15, 135, 250),
         ButtonActiveTransparency = 0,
 
+        ImageColor = Color3.fromRGB(255, 255, 255),
+        ImageTransparency = 0,
+        ImageHoveredColor = Color3.fromRGB(255, 255, 255),
+        ImageHoveredTransparency = 0,
+        ImageActiveColor = Color3.fromRGB(255, 255, 255),
+        ImageActiveTransparency = 0,
+
         SliderGrabColor = Color3.fromRGB(66, 150, 250),
         SliderGrabTransparency = 0,
         SliderGrabActiveColor = Color3.fromRGB(117, 138, 204),
@@ -131,6 +138,13 @@ local TemplateConfig = {
         ButtonHoveredTransparency = 0,
         ButtonActiveColor = Color3.fromRGB(15, 135, 250),
         ButtonActiveTransparency = 0,
+
+        ImageColor = Color3.fromRGB(255, 255, 255),
+        ImageTransparency = 0,
+        ImageHoveredColor = Color3.fromRGB(255, 255, 255),
+        ImageHoveredTransparency = 0,
+        ImageActiveColor = Color3.fromRGB(255, 255, 255),
+        ImageActiveTransparency = 0,
 
         HeaderColor = Color3.fromRGB(66, 150, 250),
         HeaderTransparency = 0.31,
