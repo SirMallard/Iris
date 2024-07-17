@@ -1050,7 +1050,7 @@ return function(Iris: Types.Iris)
 
     --[=[
         @prop InputColor3 Iris.InputColor3
-        @within Drag
+        @within Input
         @tag Widget
         @tag HasState
         
@@ -1081,7 +1081,7 @@ return function(Iris: Types.Iris)
 
     --[=[
         @prop InputColor4 Iris.InputColor4
-        @within Drag
+        @within Input
         @tag Widget
         @tag HasState
         
