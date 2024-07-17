@@ -18,7 +18,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local Image = thisWidget.Instance :: ImageLabel
 
             Image.Image = thisWidget.arguments.Image or widgets.ICONS.UNKNOWN_TEXTURE
-            Image.Size = UDim2.fromOffset(thisWidget.arguments.Size.X, thisWidget.arguments.Size.Y)
+            Image.Size = thisWidget.arguments.Size
             if thisWidget.arguments.ScaleType then
                 Image.ScaleType = thisWidget.arguments.ScaleType
                 if thisWidget.arguments.ScaleType == Enum.ScaleType.Tile and thisWidget.arguments.TileSize then
@@ -101,15 +101,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Image.LayoutOrder = thisWidget.ZIndex
 
                 widgets.applyFrameStyle(Image, true, true)
-
-                widgets.applyInteractionHighlights(thisWidget, Image, Image, {
-                    ButtonColor = Iris._config.ImageColor,
-                    ButtonTransparency = Iris._config.ImageTransparency,
-                    ButtonHoveredColor = Iris._config.ImageHoveredColor,
-                    ButtonHoveredTransparency = Iris._config.ImageHoveredTransparency,
-                    ButtonActiveColor = Iris._config.ImageActiveColor,
-                    ButtonActiveTransparency = Iris._config.ImageActiveTransparency,
-                })
 
                 return Image
             end

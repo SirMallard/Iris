@@ -22,8 +22,13 @@ export type Arguments = {
     VerticalAlignment: Enum.VerticalAlignment,
     Index: any,
     Image: string,
-    Size: Vector2,
+    Size: UDim2,
     Rect: Rect,
+    ScaleType: Enum.ScaleType,
+    TileSize: UDim2,
+    SliceCenter: Rect,
+    SliceScale: number,
+    ResampleMode: Enum.ResamplerMode,
 
     SpanAvailWidth: boolean,
     NoIdent: boolean,
@@ -46,12 +51,6 @@ export type Arguments = {
     NoScrollbar: boolean,
     NoResize: boolean,
     NoMenu: boolean,
-
-    ScaleType: Enum.ScaleType,
-    TileSize: UDim2,
-    SliceCenter: Rect,
-    SliceScale: number,
-    ResampleMode: Enum.ResamplerMode,
 
     KeyCode: Enum.KeyCode,
     ModifierKey: Enum.ModifierKey,
@@ -549,10 +548,6 @@ export type Config = {
 
     ImageColor: Color3,
     ImageTransparency: number,
-    ImageHoveredColor: Color3,
-    ImageHoveredTransparency: number,
-    ImageActiveColor: Color3,
-    ImageActiveTransparency: number,
 
     SliderGrabColor: Color3,
     SliderGrabTransparency: number,

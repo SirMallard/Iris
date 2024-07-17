@@ -1153,7 +1153,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     local desiredCycleTick: number = Iris._cycleTick + 1
                     Iris._postCycleCallbacks[callbackIndex] = function()
                         if Iris._cycleTick == desiredCycleTick then
-                            Iris._widgets[`Slider{dataType}`].UpdateState(thisWidget)
+                            if thisWidget.lastCycleTick == Iris._cycleTick then
+                                Iris._widgets[`Slider{dataType}`].UpdateState(thisWidget)
+                            end
                             Iris._postCycleCallbacks[callbackIndex] = nil
                         end
                     end
