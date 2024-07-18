@@ -466,7 +466,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ChildContainer.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 
             ChildContainer.ZIndex = thisWidget.ZIndex + 3
-            ChildContainer.LayoutOrder = thisWidget.ZIndex + 3
+            ChildContainer.LayoutOrder = thisWidget.ZIndex + 0xFFFF
             ChildContainer.ClipsDescendants = true
 
             widgets.UIPadding(ChildContainer, Iris._config.WindowPadding)
