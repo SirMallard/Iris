@@ -99,6 +99,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Image.ImageTransparency = Iris._config.ImageTransparency
                 Image.ZIndex = thisWidget.ZIndex
                 Image.LayoutOrder = thisWidget.ZIndex
+                Image.AutoButtonColor = false
 
                 widgets.applyFrameStyle(Image, true, true)
 

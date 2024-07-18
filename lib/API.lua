@@ -560,6 +560,8 @@ return function(Iris: Types.Iris)
     --[=[
         @class Image
         Image Widget API
+
+        Provides two widgets for Images and ImageButtons, which provide the same control as a an ImageLabel instance.
     ]=]
 
     --[=[
@@ -568,6 +570,7 @@ return function(Iris: Types.Iris)
         @tag Widget
 
         An image widget for displaying an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image and the rest of the ScaleType properties.
+        Some of the arguments are only used depending on the ScaleType property, such as TileSize or Slice which will be ignored.
 
         ```lua
         hasChildren = false
@@ -595,6 +598,7 @@ return function(Iris: Types.Iris)
         @tag Widget
 
         An image button widget for a button as an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image, and the rest of the ScaleType properties.
+        Supports all of the events of a regular button.
 
         ```lua
         hasChildren = false

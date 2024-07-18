@@ -725,8 +725,6 @@ return function(Iris: Types.Iris)
                             "ButtonHovered",
                             "ButtonActive",
                             "Image",
-                            "ImageHovered",
-                            "ImageActive",
                             "SliderGrab",
                             "SliderGrabActive",
                             "Header",
