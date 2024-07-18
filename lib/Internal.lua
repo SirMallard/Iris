@@ -156,8 +156,12 @@ return function(Iris: Types.Iris): Types.Internal
         
         Allows the caller to connect a callback which is called when the states value is changed.
     ]=]
-    function StateClass:onChange(callback: (newValue: any) -> ())
-        table.insert(self.ConnectedFunctions, callback)
+    function StateClass:onChange(callback: (newValue: any) -> ()): () -> ()
+        local connectionIndex: number = #self.ConnectedFunctions + 1
+        self.ConnectedFunctions[connectionIndex] = callback
+        return function()
+            self.ConnectedFunctions[connectionIndex] = nil
+        end
     end
 
     Internal.StateClass = StateClass
