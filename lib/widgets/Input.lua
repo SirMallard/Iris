@@ -567,7 +567,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         ColorBox.Image = widgets.ICONS.ALPHA_BACKGROUND_TEXTURE
                         ColorBox.ImageTransparency = 1
 
-                        widgets.applyFrameStyle(ColorBox, true, true)
+                        widgets.applyFrameStyle(ColorBox, true)
 
                         ColorBox.Parent = Drag
                     end

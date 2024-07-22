@@ -316,48 +316,21 @@ return function(Iris: Types.Internal)
         Button.SelectionImageObject = Iris.SelectionImageObject
     end
 
-    function widgets.applyFrameStyle(thisInstance: GuiObject, forceNoPadding: boolean?, doubleyNoPadding: boolean?)
+    function widgets.applyFrameStyle(thisInstance: GuiObject, noPadding: boolean?, noCorner: boolean?)
         -- padding, border, and rounding
         -- optimized to only use what instances are needed, based on style
-        local FramePadding: Vector2 = Iris._config.FramePadding
         local FrameBorderSize: number = Iris._config.FrameBorderSize
-        local FrameBorderColor: Color3 = Iris._config.BorderColor
-        local FrameBorderTransparency: number = Iris._config.ButtonTransparency
         local FrameRounding: number = Iris._config.FrameRounding
+        thisInstance.BorderSizePixel = 0
 
-        if FrameBorderSize > 0 and FrameRounding > 0 then
-            thisInstance.BorderSizePixel = 0
-
-            local uiStroke: UIStroke = Instance.new("UIStroke")
-            uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            uiStroke.LineJoinMode = Enum.LineJoinMode.Round
-            uiStroke.Transparency = FrameBorderTransparency
-            uiStroke.Thickness = FrameBorderSize
-            uiStroke.Color = FrameBorderColor
-
+        if FrameBorderSize > 0 then
+            widgets.UIStroke(thisInstance, FrameBorderSize, Iris._config.BorderColor, Iris._config.BorderTransparency)
+        end
+        if FrameRounding > 0 and not noCorner then
             widgets.UICorner(thisInstance, FrameRounding)
-            uiStroke.Parent = thisInstance
-
-            if not forceNoPadding then
-                widgets.UIPadding(thisInstance, Iris._config.FramePadding)
-            end
-        elseif FrameBorderSize < 1 and FrameRounding > 0 then
-            thisInstance.BorderSizePixel = 0
-
-            widgets.UICorner(thisInstance, FrameRounding)
-            if not forceNoPadding then
-                widgets.UIPadding(thisInstance, Iris._config.FramePadding)
-            end
-        elseif FrameRounding < 1 then
-            thisInstance.BorderSizePixel = FrameBorderSize
-            thisInstance.BorderColor3 = FrameBorderColor
-            thisInstance.BorderMode = Enum.BorderMode.Inset
-
-            if not forceNoPadding then
-                widgets.UIPadding(thisInstance, FramePadding - Vector2.new(FrameBorderSize, FrameBorderSize))
-            elseif not doubleyNoPadding then
-                widgets.UIPadding(thisInstance, -Vector2.new(FrameBorderSize, FrameBorderSize))
-            end
+        end
+        if not noPadding then
+            widgets.UIPadding(thisInstance, Iris._config.FramePadding)
         end
     end
 

@@ -43,7 +43,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Bar.ZIndex = thisWidget.ZIndex + 1
                 Bar.LayoutOrder = thisWidget.ZIndex + 1
 
-                widgets.applyFrameStyle(Bar, true, true)
+                widgets.applyFrameStyle(Bar, true)
 
                 Bar.Parent = ProgressBar
 
