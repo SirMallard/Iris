@@ -21,6 +21,14 @@ export type Arguments = {
     Width: number,
     VerticalAlignment: Enum.VerticalAlignment,
     Index: any,
+    Image: string,
+    Size: UDim2,
+    Rect: Rect,
+    ScaleType: Enum.ScaleType,
+    TileSize: UDim2,
+    SliceCenter: Rect,
+    SliceScale: number,
+    ResampleMode: Enum.ResamplerMode,
 
     SpanAvailWidth: boolean,
     NoIdent: boolean,
@@ -218,6 +226,7 @@ export type WidgetUtility = {
         BOTTOM_RIGHT_CORNER: string,
         CHECK_MARK: string,
         ALPHA_BACKGROUND_TEXTURE: string,
+        UNKNOWN_TEXTURE: string,
     },
 
     GuiInset: Vector2?,
@@ -439,6 +448,9 @@ export type Iris = {
 
     ProgressBar: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
 
+    Image: (arguments: WidgetArguments) -> Widget,
+    ImageButton: (arguments: WidgetArguments) -> Widget,
+
     -- Table Widget Api
     Table: (arguments: WidgetArguments) -> Widget,
     NextColumn: () -> (),
@@ -536,6 +548,9 @@ export type Config = {
     ButtonActiveColor: Color3,
     ButtonActiveTransparency: number,
 
+    ImageColor: Color3,
+    ImageTransparency: number,
+
     SliderGrabColor: Color3,
     SliderGrabTransparency: number,
     SliderGrabActiveColor: Color3,
@@ -607,6 +622,7 @@ export type Config = {
     ScrollbarSize: number,
     GrabMinSize: number,
     SeparatorTextBorderSize: number,
+    ImageBorderSize: number,
 
     UseScreenGUIs: boolean,
     IgnoreGuiInset: boolean,

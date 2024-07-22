@@ -45,6 +45,9 @@ local TemplateConfig = {
         ButtonActiveColor = Color3.fromRGB(15, 135, 250),
         ButtonActiveTransparency = 0,
 
+        ImageColor = Color3.fromRGB(255, 255, 255),
+        ImageTransparency = 0,
+
         SliderGrabColor = Color3.fromRGB(66, 150, 250),
         SliderGrabTransparency = 0,
         SliderGrabActiveColor = Color3.fromRGB(117, 138, 204),
@@ -133,6 +136,9 @@ local TemplateConfig = {
         ButtonActiveColor = Color3.fromRGB(15, 135, 250),
         ButtonActiveTransparency = 0,
 
+        ImageColor = Color3.fromRGB(255, 255, 255),
+        ImageTransparency = 0,
+
         HeaderColor = Color3.fromRGB(66, 150, 250),
         HeaderTransparency = 0.31,
         HeaderHoveredColor = Color3.fromRGB(66, 150, 250),
@@ -203,6 +209,7 @@ local TemplateConfig = {
         ScrollbarSize = 7,
         GrabMinSize = 10,
         SeparatorTextBorderSize = 3,
+        ImageBorderSize = 2,
     },
     sizeClear = { -- easier to read and manuveure
         ItemWidth = UDim.new(1, 0),
@@ -231,6 +238,7 @@ local TemplateConfig = {
         ScrollbarSize = 9,
         GrabMinSize = 14,
         SeparatorTextBorderSize = 4,
+        ImageBorderSize = 4,
     },
 
     utilityDefault = {

@@ -1,5 +1,5 @@
 local Iris = require(script.Parent.Iris)
-local Input = require(script.UserInputService)
+local Input = require(script.Parent.UserInputService)
 
 -- Create the plugin toolbar, button and dockwidget for Iris to work in.
 local widgetInfo: DockWidgetPluginGuiInfo = DockWidgetPluginGuiInfo.new(Enum.InitialDockState.Float, false, false, 200, 300)

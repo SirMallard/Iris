@@ -16,6 +16,7 @@ return function(Iris: Types.Internal)
         BOTTOM_RIGHT_CORNER = "rbxasset://textures/ui/InspectMenu/gr-item-selector-triangle.png", -- used in window resize icon in bottom right
         CHECK_MARK = "rbxasset://textures/AnimationEditor/icon_checkmark.png",
         ALPHA_BACKGROUND_TEXTURE = "rbxasset://textures/meshPartFallback.png", -- used for color4 alpha
+        UNKNOWN_TEXTURE = "rbxasset://textures/ui/GuiImagePlaceholder.png",
     }
 
     widgets.IS_STUDIO = widgets.RunService:IsStudio()
@@ -552,6 +553,7 @@ return function(Iris: Types.Internal)
     require(script.Button)(Iris, widgets)
     require(script.Checkbox)(Iris, widgets)
     require(script.RadioButton)(Iris, widgets)
+    require(script.Image)(Iris, widgets)
 
     require(script.Tree)(Iris, widgets)
 

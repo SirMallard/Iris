@@ -7,6 +7,7 @@ return function(Iris: Types.Iris)
     local showStyleEditor = Iris.State(false)
     local showWindowlessDemo = Iris.State(false)
     local showMainMenuBarWindow = Iris.State(false)
+    local showDebugWindow = Iris.State(false)
 
     -- stylua: ignore start
     local function helpMarker(helpText)
@@ -51,6 +52,75 @@ return function(Iris: Types.Iris)
                 Iris.DragNum({})
                 Iris.SliderNum({})
 
+            Iris.End()
+        end,
+
+        Image = function()
+            Iris.Tree({ "Image" })
+                Iris.SeparatorText({ "Image Controls" })
+                local AssetState = Iris.State("rbxasset://textures/ui/common/robux.png")
+                local SizeState = Iris.State(UDim2.fromOffset(100, 100))
+                local RectState = Iris.State(Rect.new())
+                local ScaleTypeState = Iris.State(Enum.ScaleType.Stretch)
+                local PixelatedCheckState = Iris.State(false)
+                local PixelatedState = Iris.ComputedState(PixelatedCheckState, function(check: boolean)
+                    return check and Enum.ResamplerMode.Pixelated or Enum.ResamplerMode.Default
+                end)
+
+                local ImageColorState = Iris.State(Iris._config.ImageColor)
+                local ImageTransparencyState = Iris.State(Iris._config.ImageTransparency)
+                Iris.InputColor4({ "Image Tint" }, { color = ImageColorState, transparency = ImageTransparencyState })
+
+                Iris.PushConfig({
+                    ImageColor = ImageColorState:get(),
+                    ImageTransparency = ImageTransparencyState:get(),
+                })
+
+
+                Iris.Combo({ "Asset" }, { index = AssetState })
+                    Iris.Selectable({ "Robux Small", "rbxasset://textures/ui/common/robux.png" }, { index = AssetState })
+                    Iris.Selectable({ "Robux Large", "rbxasset://textures//ui/common/robux@3x.png" }, { index = AssetState })
+                    Iris.Selectable({ "Loading Texture", "rbxasset://textures//loading/darkLoadingTexture.png" }, { index = AssetState })
+                    Iris.Selectable({ "Hue-Saturation Gradient", "rbxasset://textures//TagEditor/huesatgradient.png" }, { index = AssetState })
+                    Iris.Selectable({ "famfamfam.png (WHY?)", "rbxasset://textures//TagEditor/famfamfam.png" }, { index = AssetState })
+                Iris.End()
+
+                Iris.SliderUDim2({ "Image Size", nil, nil, UDim2.new(1, 240, 1, 240) }, { number = SizeState })
+                Iris.SliderRect({ "Image Rect", nil, nil, Rect.new(256, 256, 256, 256) }, { number = RectState })
+                Iris.Combo({ "Scale Type"}, { index = ScaleTypeState })
+                    Iris.Selectable({ "Stretch", Enum.ScaleType.Stretch }, { index = ScaleTypeState })
+                    Iris.Selectable({ "Fit", Enum.ScaleType.Fit }, { index = ScaleTypeState })
+                    Iris.Selectable({ "Crop", Enum.ScaleType.Crop }, { index = ScaleTypeState })
+                Iris.End()
+                Iris.Checkbox({ "Pixelated" }, { isChecked = PixelatedCheckState })
+
+                Iris.Image({ AssetState:get(), SizeState:get(), RectState:get(), ScaleTypeState:get(), PixelatedState:get() })
+
+                Iris.SeparatorText({ "Tile" })
+                local TileState = Iris.State(UDim2.fromScale(1, 1))
+                Iris.SliderUDim2({ "Tile Size", nil, nil, UDim2.new(1, 240, 1, 240) }, { number = TileState })
+
+                Iris.Image({ "rbxasset://textures/grid2.png", SizeState:get(), nil, Enum.ScaleType.Tile, PixelatedState:get(), TileState:get() })
+
+                Iris.SeparatorText({ "Slice" })
+                local SliceScaleState = Iris.State(1)
+                Iris.SliderNum({ "Image Slice Scale", 0.1, 0.1, 5 }, { number = SliceScaleState })
+
+                Iris.Image({ "rbxasset://textures/ui/chatBubble_blue_notify_bkg.png", SizeState:get(), nil, Enum.ScaleType.Slice, PixelatedState:get(), nil, Rect.new(12, 12, 56, 56), 1 }, SliceScaleState:get())
+
+                Iris.SeparatorText({ "Image Button" })
+                local count = Iris.State(0)
+                Iris.SameLine()
+
+                if Iris.ImageButton({ "rbxasset://textures/AvatarCompatibilityPreviewer/add.png", UDim2.fromOffset(20, 20) }).clicked() then
+                    count:set(count.value + 1)
+                end
+
+                Iris.Text({ `Click count: {count.value}` })
+
+                Iris.PopConfig()
+                
+                Iris.End()
             Iris.End()
         end,
 
@@ -338,7 +408,7 @@ return function(Iris: Types.Iris)
             Iris.End()
         end,
     }
-    local widgetDemosOrder = { "Basic", "Tree", "CollapsingHeader", "Group", "Indent", "Input", "MultiInput", "InputText", "Tooltip", "Selectable", "Combo", "Plotting"}
+    local widgetDemosOrder = { "Basic", "Image", "Tree", "CollapsingHeader", "Group", "Indent", "Input", "MultiInput", "InputText", "Tooltip", "Selectable", "Combo", "Plotting"}
 
     local function recursiveTree()
         local theTree = Iris.Tree({ "Recursive Tree" })
@@ -473,6 +543,21 @@ return function(Iris: Types.Iris)
         Iris.End()
     end
 
+    local function debugPanel()
+        Iris.Window({ "Debug Panel" }, { isOpened = showDebugWindow })
+            
+            Iris.CollapsingHeader({ "Widgets" })
+
+                Iris.SeparatorText({ "UserInputService" })
+                Iris.Text({ `MousePosition: {Iris.Internal._utility.UserInputService:GetMouseLocation()}` })
+                Iris.Text({ `Left Control: {Iris.Internal._utility.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl)}` })
+                Iris.Text({ `Right Control: {Iris.Internal._utility.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)}` })
+
+            Iris.End()
+
+        Iris.End()
+    end
+
     local function recursiveMenu()
         -- stylua: ignore start
         if Iris.Menu({ "Recursive" }).state.isOpened.value then
@@ -518,6 +603,7 @@ return function(Iris: Types.Iris)
             Iris.Menu({ "Tools" })
                 Iris.MenuToggle({ "Runtime Info" }, { isChecked = showRuntimeInfo })
                 Iris.MenuToggle({ "Style Editor" }, { isChecked = showStyleEditor })
+                Iris.MenuToggle({ "Debug Panel" }, { isChecked = showDebugWindow })
             Iris.End()
         Iris.End()
     end
@@ -591,6 +677,7 @@ return function(Iris: Types.Iris)
                         SliderInput("SliderUDim", { "ItemWidth", nil,  UDim.new(), UDim.new(1, 200) })
                         SliderInput("SliderUDim", { "ContentWidth", nil, UDim.new(), UDim.new(1, 200) })
                         SliderInput("SliderNum", { "TextSize", 1, 4, 20 })
+                        SliderInput("SliderNum", { "ImageBorderSize", 1, 0, 12 })
                         local TitleInput = Iris.ComboEnum({ "WindowTitleAlign" }, { index = Iris.WeakState(Iris._config.WindowTitleAlign) }, Enum.LeftRight)
                         if TitleInput.closed() then
                             UpdatedConfig:get().WindowTitleAlign = TitleInput.index:get()
@@ -641,6 +728,7 @@ return function(Iris: Types.Iris)
                             "Button",
                             "ButtonHovered",
                             "ButtonActive",
+                            "Image",
                             "SliderGrab",
                             "SliderGrabActive",
                             "Header",
@@ -1071,6 +1159,9 @@ return function(Iris: Types.Iris)
         end
         if showRuntimeInfo.value then
             runtimeInfo()
+        end
+        if showDebugWindow.value then
+            debugPanel()
         end
         if showStyleEditor.value then
             styleEditor()
