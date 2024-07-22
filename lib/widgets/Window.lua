@@ -640,24 +640,23 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local ResizeButtonSize: number = Iris._config.TextSize + Iris._config.FramePadding.X
 
-            local ResizeGrip = Instance.new("TextButton")
+            local ResizeGrip = Instance.new("ImageButton")
             ResizeGrip.Name = "ResizeGrip"
             ResizeGrip.AnchorPoint = Vector2.new(1, 1)
             ResizeGrip.Size = UDim2.fromOffset(ResizeButtonSize, ResizeButtonSize)
             ResizeGrip.Position = UDim2.fromScale(1, 1)
+            ResizeGrip.Rotation = 90
             ResizeGrip.AutoButtonColor = false
             ResizeGrip.BorderSizePixel = 0
             ResizeGrip.BackgroundTransparency = 1
-            ResizeGrip.Text = widgets.ICONS.BOTTOM_RIGHT_CORNER
-            ResizeGrip.TextSize = ResizeButtonSize
-            ResizeGrip.TextColor3 = Iris._config.ButtonColor
-            ResizeGrip.TextTransparency = Iris._config.ButtonTransparency
-            ResizeGrip.LineHeight = 1.10 -- fix mild rendering issue
+            ResizeGrip.Image = widgets.ICONS.BOTTOM_RIGHT_CORNER
+            ResizeGrip.ImageColor3 = Iris._config.ButtonColor
+            ResizeGrip.ImageTransparency = Iris._config.ButtonTransparency
             ResizeGrip.Selectable = false
             ResizeGrip.ZIndex = thisWidget.ZIndex + 3
             ResizeGrip.Parent = WindowButton
 
-            widgets.applyTextInteractionHighlights(thisWidget, ResizeGrip, ResizeGrip, {
+            widgets.applyImageInteractionHighlights(thisWidget, ResizeGrip, ResizeGrip, {
                 ButtonColor = Iris._config.ButtonColor,
                 ButtonTransparency = Iris._config.ButtonTransparency,
                 ButtonHoveredColor = Iris._config.ButtonHoveredColor,

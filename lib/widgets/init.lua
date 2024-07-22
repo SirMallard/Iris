@@ -13,7 +13,7 @@ return function(Iris: Types.Internal)
         RIGHT_POINTING_TRIANGLE = "rbxasset://textures/DeveloperFramework/button_arrow_right.png",
         DOWN_POINTING_TRIANGLE = "rbxasset://textures/DeveloperFramework/button_arrow_down.png",
         MULTIPLICATION_SIGN = "rbxasset://textures/AnimationEditor/icon_close.png", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
-        BOTTOM_RIGHT_CORNER = "\u{25E2}", -- used in window resize icon in bottom right
+        BOTTOM_RIGHT_CORNER = "rbxasset://textures/ui/InspectMenu/gr-item-selector-triangle.png", -- used in window resize icon in bottom right
         CHECK_MARK = "rbxasset://textures/AnimationEditor/icon_checkmark.png",
         ALPHA_BACKGROUND_TEXTURE = "rbxasset://textures/meshPartFallback.png", -- used for color4 alpha
     }
@@ -269,6 +269,47 @@ return function(Iris: Types.Internal)
                     Highlightee[1].BackgroundColor3 = Highlightee[2].ButtonColor
                     Highlightee[1].BackgroundTransparency = Highlightee[2].ButtonTransparency
                 end
+            end
+        end)
+
+        Button.SelectionImageObject = Iris.SelectionImageObject
+    end
+
+    function widgets.applyImageInteractionHighlights(thisWidget: Types.Widget, Button: GuiButton, Highlightee: ImageButton, Colors: { [string]: any })
+        local exitedButton: boolean = false
+        widgets.applyMouseEnter(thisWidget, Button, function()
+            Highlightee.ImageColor3 = Colors.ButtonHoveredColor
+            Highlightee.ImageTransparency = Colors.ButtonHoveredTransparency
+
+            exitedButton = false
+        end)
+
+        widgets.applyMouseLeave(thisWidget, Button, function()
+            Highlightee.ImageColor3 = Colors.ButtonColor
+            Highlightee.ImageTransparency = Colors.ButtonTransparency
+
+            exitedButton = true
+        end)
+
+        widgets.applyInputBegan(thisWidget, Button, function(input: InputObject)
+            if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) then
+                return
+            end
+            Highlightee.ImageColor3 = Colors.ButtonActiveColor
+            Highlightee.ImageTransparency = Colors.ButtonActiveTransparency
+        end)
+
+        widgets.applyInputEnded(thisWidget, Button, function(input: InputObject)
+            if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) or exitedButton then
+                return
+            end
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                Highlightee.ImageColor3 = Colors.ButtonHoveredColor
+                Highlightee.ImageTransparency = Colors.ButtonHoveredTransparency
+            end
+            if input.UserInputType == Enum.UserInputType.Gamepad1 then
+                Highlightee.ImageColor3 = Colors.ButtonColor
+                Highlightee.ImageTransparency = Colors.ButtonTransparency
             end
         end)
 
