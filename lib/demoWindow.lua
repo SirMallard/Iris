@@ -326,7 +326,7 @@ return function(Iris: Types.Iris)
 
         Plotting = function()
             Iris.Tree({"Plotting"})
-                local curTime = time() * 15
+                local curTime = os.clock() * 15
 
                 local Progress = Iris.State(0)
                 -- formula to cycle between 0 and 100 linearly
