@@ -622,6 +622,7 @@ export type Config = {
     ScrollbarSize: number,
     GrabMinSize: number,
     SeparatorTextBorderSize: number,
+    ImageBorderSize: number,
 
     UseScreenGUIs: boolean,
     IgnoreGuiInset: boolean,

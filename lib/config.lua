@@ -209,6 +209,7 @@ local TemplateConfig = {
         ScrollbarSize = 7,
         GrabMinSize = 10,
         SeparatorTextBorderSize = 3,
+        ImageBorderSize = 2,
     },
     sizeClear = { -- easier to read and manuveure
         ItemWidth = UDim.new(1, 0),
@@ -237,6 +238,7 @@ local TemplateConfig = {
         ScrollbarSize = 9,
         GrabMinSize = 14,
         SeparatorTextBorderSize = 4,
+        ImageBorderSize = 4,
     },
 
     utilityDefault = {

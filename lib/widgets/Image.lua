@@ -14,34 +14,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ["SliceCenter"] = 7,
             ["SliceScale"] = 8,
         },
-        Update = function(thisWidget: Types.Widget)
-            local Image = thisWidget.Instance :: ImageLabel
-
-            Image.Image = thisWidget.arguments.Image or widgets.ICONS.UNKNOWN_TEXTURE
-            Image.Size = thisWidget.arguments.Size
-            if thisWidget.arguments.ScaleType then
-                Image.ScaleType = thisWidget.arguments.ScaleType
-                if thisWidget.arguments.ScaleType == Enum.ScaleType.Tile and thisWidget.arguments.TileSize then
-                    Image.TileSize = thisWidget.arguments.TileSize
-                elseif thisWidget.arguments.ScaleType == Enum.ScaleType.Slice then
-                    if thisWidget.arguments.SliceCenter then
-                        Image.SliceCenter = thisWidget.arguments.SliceCenter
-                    end
-                    if thisWidget.arguments.SliceScale then
-                        Image.SliceScale = thisWidget.arguments.SliceScale
-                    end
-                end
-            end
-
-            if thisWidget.arguments.Rect then
-                Image.ImageRectOffset = thisWidget.arguments.Rect.Min
-                Image.ImageRectSize = Vector2.new(thisWidget.arguments.Rect.Width, thisWidget.arguments.Rect.Height)
-            end
-
-            if thisWidget.arguments.ResampleMode then
-                Image.ResampleMode = thisWidget.arguments.ResampleMode
-            end
-        end,
         Discard = function(thisWidget: Types.Widget)
             thisWidget.Instance:Destroy()
         end,
@@ -64,9 +36,37 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Image.ZIndex = thisWidget.ZIndex
                 Image.LayoutOrder = thisWidget.ZIndex
 
-                widgets.applyFrameStyle(Image, true, true)
+                widgets.applyFrameStyle(Image, true)
 
                 return Image
+            end,
+            Update = function(thisWidget: Types.Widget)
+                local Image = thisWidget.Instance :: ImageLabel
+    
+                Image.Image = thisWidget.arguments.Image or widgets.ICONS.UNKNOWN_TEXTURE
+                Image.Size = thisWidget.arguments.Size
+                if thisWidget.arguments.ScaleType then
+                    Image.ScaleType = thisWidget.arguments.ScaleType
+                    if thisWidget.arguments.ScaleType == Enum.ScaleType.Tile and thisWidget.arguments.TileSize then
+                        Image.TileSize = thisWidget.arguments.TileSize
+                    elseif thisWidget.arguments.ScaleType == Enum.ScaleType.Slice then
+                        if thisWidget.arguments.SliceCenter then
+                            Image.SliceCenter = thisWidget.arguments.SliceCenter
+                        end
+                        if thisWidget.arguments.SliceScale then
+                            Image.SliceScale = thisWidget.arguments.SliceScale
+                        end
+                    end
+                end
+    
+                if thisWidget.arguments.Rect then
+                    Image.ImageRectOffset = thisWidget.arguments.Rect.Min
+                    Image.ImageRectSize = Vector2.new(thisWidget.arguments.Rect.Width, thisWidget.arguments.Rect.Height)
+                end
+    
+                if thisWidget.arguments.ResampleMode then
+                    Image.ResampleMode = thisWidget.arguments.ResampleMode
+                end
             end,
 		} :: Types.WidgetClass)
 	)
@@ -91,20 +91,71 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end),
             },
             Generate = function(thisWidget: Types.Widget)
-                local Image: ImageButton = Instance.new("ImageButton")
-                Image.Name = "Iris_ImageButton"
+                local Button: ImageButton = Instance.new("ImageButton")
+                Button.Name = "Iris_ImageButton"
+                Button.AutomaticSize = Enum.AutomaticSize.XY
+                Button.BackgroundColor3 = Iris._config.FrameBgColor
+                Button.BackgroundTransparency = Iris._config.FrameBgTransparency
+                Button.BorderSizePixel = 0
+                Button.Image = ""
+                Button.ImageTransparency = 1
+                Button.ZIndex = thisWidget.ZIndex
+                Button.LayoutOrder = thisWidget.ZIndex
+                Button.AutoButtonColor = false
+                
+                widgets.applyFrameStyle(Button, true)
+                widgets.UIPadding(Button, Iris._config.ImageBorderSize * Vector2.one)
+                
+                local Image: ImageLabel = Instance.new("ImageLabel")
+                Image.Name = "ImageLabel"
                 Image.BackgroundTransparency = 1
                 Image.BorderSizePixel = 0
                 Image.ImageColor3 = Iris._config.ImageColor
                 Image.ImageTransparency = Iris._config.ImageTransparency
                 Image.ZIndex = thisWidget.ZIndex
                 Image.LayoutOrder = thisWidget.ZIndex
-                Image.AutoButtonColor = false
+                Image.Parent = Button
 
-                widgets.applyFrameStyle(Image, true, true)
+                widgets.applyInteractionHighlights(thisWidget, Button, Button, {
+                    ButtonColor = Iris._config.FrameBgColor,
+                    ButtonTransparency = Iris._config.FrameBgTransparency,
+                    ButtonHoveredColor = Iris._config.FrameBgHoveredColor,
+                    ButtonHoveredTransparency = Iris._config.FrameBgHoveredTransparency,
+                    ButtonActiveColor = Iris._config.FrameBgActiveColor,
+                    ButtonActiveTransparency = Iris._config.FrameBgActiveTransparency,
+                })
 
-                return Image
-            end
+                return Button
+            end,
+            Update = function(thisWidget: Types.Widget)
+                local Button = thisWidget.Instance :: TextButton
+                local Image: ImageLabel = Button.ImageLabel
+    
+                Image.Image = thisWidget.arguments.Image or widgets.ICONS.UNKNOWN_TEXTURE
+                Image.Size = thisWidget.arguments.Size
+                if thisWidget.arguments.ScaleType then
+                    Image.ScaleType = thisWidget.arguments.ScaleType
+                    if thisWidget.arguments.ScaleType == Enum.ScaleType.Tile and thisWidget.arguments.TileSize then
+                        Image.TileSize = thisWidget.arguments.TileSize
+                    elseif thisWidget.arguments.ScaleType == Enum.ScaleType.Slice then
+                        if thisWidget.arguments.SliceCenter then
+                            Image.SliceCenter = thisWidget.arguments.SliceCenter
+                        end
+                        if thisWidget.arguments.SliceScale then
+                            Image.SliceScale = thisWidget.arguments.SliceScale
+                        end
+                    end
+                end
+    
+                if thisWidget.arguments.Rect then
+                    Image.ImageRectOffset = thisWidget.arguments.Rect.Min
+                    Image.ImageRectSize = Vector2.new(thisWidget.arguments.Rect.Width, thisWidget.arguments.Rect.Height)
+                end
+    
+                if thisWidget.arguments.ResampleMode then
+                    Image.ResampleMode = thisWidget.arguments.ResampleMode
+                end
+            end,
         } :: Types.WidgetClass)
     )
 end

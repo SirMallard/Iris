@@ -111,9 +111,11 @@ return function(Iris: Types.Iris)
                 Iris.SeparatorText({ "Image Button" })
                 local count = Iris.State(0)
                 Iris.SameLine()
-                if Iris.ImageButton({ "rbxasset://textures/ui/Keyboard/close_button_icon.png", UDim2.fromOffset(20, 20) }).clicked() then
+
+                if Iris.ImageButton({ "rbxasset://textures/AvatarCompatibilityPreviewer/add.png", UDim2.fromOffset(20, 20) }).clicked() then
                     count:set(count.value + 1)
                 end
+
                 Iris.Text({ `Click count: {count.value}` })
 
                 Iris.PopConfig()
@@ -674,6 +676,7 @@ return function(Iris: Types.Iris)
                         SliderInput("SliderUDim", { "ItemWidth", nil,  UDim.new(), UDim.new(1, 200) })
                         SliderInput("SliderUDim", { "ContentWidth", nil, UDim.new(), UDim.new(1, 200) })
                         SliderInput("SliderNum", { "TextSize", 1, 4, 20 })
+                        SliderInput("SliderNum", { "ImageBorderSize", 1, 0, 12 })
                         local TitleInput = Iris.ComboEnum({ "WindowTitleAlign" }, { index = Iris.WeakState(Iris._config.WindowTitleAlign) }, Enum.LeftRight)
                         if TitleInput.closed() then
                             UpdatedConfig:get().WindowTitleAlign = TitleInput.index:get()
