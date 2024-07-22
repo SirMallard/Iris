@@ -238,8 +238,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 local Button = Instance.new("TextButton")
                 Button.Name = "Button"
-                Button.Size = UDim2.new(1, 2 * Iris._config.FramePadding.X, 0, 0)
-                Button.Position = UDim2.fromOffset(-4, 0)
+                Button.Size = UDim2.new(1, 0, 0, 0)
                 Button.AutomaticSize = Enum.AutomaticSize.Y
                 Button.BackgroundColor3 = Iris._config.HeaderColor
                 Button.BackgroundTransparency = Iris._config.HeaderTransparency
@@ -250,8 +249,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Button.AutoButtonColor = false
                 Button.ClipsDescendants = true
 
-                widgets.UIPadding(Button, Vector2.new(2 * Iris._config.FramePadding.X, Iris._config.FramePadding.Y)) -- we add a custom padding because it extends on both sides
-                widgets.applyFrameStyle(Button, true, true)
+                widgets.UIPadding(Button, Iris._config.FramePadding) -- we add a custom padding because it extends on both sides
+                widgets.applyFrameStyle(Button, true)
                 local ButtonUIListLayout: UIListLayout = widgets.UIListLayout(Button, Enum.FillDirection.Horizontal, UDim.new(0, 2 * Iris._config.FramePadding.X))
                 ButtonUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
