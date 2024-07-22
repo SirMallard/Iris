@@ -13,7 +13,7 @@ return function(Iris: Types.Internal)
         RIGHT_POINTING_TRIANGLE = "rbxasset://textures/DeveloperFramework/button_arrow_right.png",
         DOWN_POINTING_TRIANGLE = "rbxasset://textures/DeveloperFramework/button_arrow_down.png",
         MULTIPLICATION_SIGN = "rbxasset://textures/AnimationEditor/icon_close.png", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
-        BOTTOM_RIGHT_CORNER = "\u{25E2}", -- used in window resize icon in bottom right
+        BOTTOM_RIGHT_CORNER = "rbxasset://textures/ui/InspectMenu/gr-item-selector-triangle.png", -- used in window resize icon in bottom right
         CHECK_MARK = "rbxasset://textures/AnimationEditor/icon_checkmark.png",
         ALPHA_BACKGROUND_TEXTURE = "rbxasset://textures/meshPartFallback.png", -- used for color4 alpha
         UNKNOWN_TEXTURE = "rbxasset://textures/ui/GuiImagePlaceholder.png",
@@ -276,6 +276,47 @@ return function(Iris: Types.Internal)
         Button.SelectionImageObject = Iris.SelectionImageObject
     end
 
+    function widgets.applyImageInteractionHighlights(thisWidget: Types.Widget, Button: GuiButton, Highlightee: ImageButton, Colors: { [string]: any })
+        local exitedButton: boolean = false
+        widgets.applyMouseEnter(thisWidget, Button, function()
+            Highlightee.ImageColor3 = Colors.ButtonHoveredColor
+            Highlightee.ImageTransparency = Colors.ButtonHoveredTransparency
+
+            exitedButton = false
+        end)
+
+        widgets.applyMouseLeave(thisWidget, Button, function()
+            Highlightee.ImageColor3 = Colors.ButtonColor
+            Highlightee.ImageTransparency = Colors.ButtonTransparency
+
+            exitedButton = true
+        end)
+
+        widgets.applyInputBegan(thisWidget, Button, function(input: InputObject)
+            if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) then
+                return
+            end
+            Highlightee.ImageColor3 = Colors.ButtonActiveColor
+            Highlightee.ImageTransparency = Colors.ButtonActiveTransparency
+        end)
+
+        widgets.applyInputEnded(thisWidget, Button, function(input: InputObject)
+            if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) or exitedButton then
+                return
+            end
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                Highlightee.ImageColor3 = Colors.ButtonHoveredColor
+                Highlightee.ImageTransparency = Colors.ButtonHoveredTransparency
+            end
+            if input.UserInputType == Enum.UserInputType.Gamepad1 then
+                Highlightee.ImageColor3 = Colors.ButtonColor
+                Highlightee.ImageTransparency = Colors.ButtonTransparency
+            end
+        end)
+
+        Button.SelectionImageObject = Iris.SelectionImageObject
+    end
+
     function widgets.applyTextInteractionHighlights(thisWidget: Types.Widget, Button: GuiButton, Highlightee: TextLabel & TextButton & TextBox, Colors: { [string]: any })
         local exitedButton = false
         widgets.applyMouseEnter(thisWidget, Button, function()
@@ -317,48 +358,21 @@ return function(Iris: Types.Internal)
         Button.SelectionImageObject = Iris.SelectionImageObject
     end
 
-    function widgets.applyFrameStyle(thisInstance: GuiObject, forceNoPadding: boolean?, doubleyNoPadding: boolean?)
+    function widgets.applyFrameStyle(thisInstance: GuiObject, noPadding: boolean?, noCorner: boolean?)
         -- padding, border, and rounding
         -- optimized to only use what instances are needed, based on style
-        local FramePadding: Vector2 = Iris._config.FramePadding
         local FrameBorderSize: number = Iris._config.FrameBorderSize
-        local FrameBorderColor: Color3 = Iris._config.BorderColor
-        local FrameBorderTransparency: number = Iris._config.ButtonTransparency
         local FrameRounding: number = Iris._config.FrameRounding
+        thisInstance.BorderSizePixel = 0
 
-        if FrameBorderSize > 0 and FrameRounding > 0 then
-            thisInstance.BorderSizePixel = 0
-
-            local uiStroke: UIStroke = Instance.new("UIStroke")
-            uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            uiStroke.LineJoinMode = Enum.LineJoinMode.Round
-            uiStroke.Transparency = FrameBorderTransparency
-            uiStroke.Thickness = FrameBorderSize
-            uiStroke.Color = FrameBorderColor
-
+        if FrameBorderSize > 0 then
+            widgets.UIStroke(thisInstance, FrameBorderSize, Iris._config.BorderColor, Iris._config.BorderTransparency)
+        end
+        if FrameRounding > 0 and not noCorner then
             widgets.UICorner(thisInstance, FrameRounding)
-            uiStroke.Parent = thisInstance
-
-            if not forceNoPadding then
-                widgets.UIPadding(thisInstance, Iris._config.FramePadding)
-            end
-        elseif FrameBorderSize < 1 and FrameRounding > 0 then
-            thisInstance.BorderSizePixel = 0
-
-            widgets.UICorner(thisInstance, FrameRounding)
-            if not forceNoPadding then
-                widgets.UIPadding(thisInstance, Iris._config.FramePadding)
-            end
-        elseif FrameRounding < 1 then
-            thisInstance.BorderSizePixel = FrameBorderSize
-            thisInstance.BorderColor3 = FrameBorderColor
-            thisInstance.BorderMode = Enum.BorderMode.Inset
-
-            if not forceNoPadding then
-                widgets.UIPadding(thisInstance, FramePadding - Vector2.new(FrameBorderSize, FrameBorderSize))
-            elseif not doubleyNoPadding then
-                widgets.UIPadding(thisInstance, -Vector2.new(FrameBorderSize, FrameBorderSize))
-            end
+        end
+        if not noPadding then
+            widgets.UIPadding(thisInstance, Iris._config.FramePadding)
         end
     end
 

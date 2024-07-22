@@ -136,7 +136,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Group.AutomaticSize = Enum.AutomaticSize.XY
             Group.ZIndex = thisWidget.ZIndex
             Group.LayoutOrder = thisWidget.ZIndex
-            Group.ClipsDescendants = true
+            Group.ClipsDescendants = false
 
             widgets.UIListLayout(Group, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.X))
 

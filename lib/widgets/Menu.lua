@@ -110,8 +110,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             MenuBar.LayoutOrder = thisWidget.ZIndex
             MenuBar.ClipsDescendants = true
 
-            widgets.UIPadding(MenuBar, Vector2.new(Iris._config.ItemSpacing.X, 2))
+            widgets.UIPadding(MenuBar, Vector2.new(Iris._config.WindowPadding.X, 1))
             widgets.UIListLayout(MenuBar, Enum.FillDirection.Horizontal, UDim.new()).VerticalAlignment = Enum.VerticalAlignment.Center
+            widgets.applyFrameStyle(MenuBar, true, true)
 
             return MenuBar
         end,

@@ -378,7 +378,7 @@ return function(Iris: Types.Iris)
                     Iris.Tree({ "Morning Shifts" })
                         Iris.Selectable({ "Shift at 7 AM", "7 AM" }, { index = sharedComboIndex2 })
                         Iris.Selectable({ "Shift at 11 AM", "11 AM" }, { index = sharedComboIndex2 })
-                        Iris.Selectable({ "Shist at 3 PM", "3 PM" }, { index = sharedComboIndex2 })
+                        Iris.Selectable({ "Shift at 3 PM", "3 PM" }, { index = sharedComboIndex2 })
                     Iris.End()
                     Iris.Tree({ "Night Shifts" })
                         Iris.Selectable({ "Shift at 6 PM", "6 PM" }, { index = sharedComboIndex2 })
@@ -394,7 +394,7 @@ return function(Iris: Types.Iris)
 
         Plotting = function()
             Iris.Tree({"Plotting"})
-                local curTime = time() * 15
+                local curTime = os.clock() * 15
 
                 local Progress = Iris.State(0)
                 -- formula to cycle between 0 and 100 linearly

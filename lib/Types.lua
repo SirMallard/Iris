@@ -64,7 +64,7 @@ export type State = {
 
     get: (self: State) -> any,
     set: (self: State, newValue: any) -> (),
-    onChange: (self: State, funcToConnect: (any) -> ()) -> (),
+    onChange: (self: State, funcToConnect: (any) -> ()) -> () -> (),
 }
 
 export type States = {
@@ -121,6 +121,7 @@ export type Widget = {
     state: States,
     lastCycleTick: number,
     trackedEvents: {},
+    isDirty: boolean,
 
     parentWidget: Widget,
     Instance: GuiObject,
@@ -249,8 +250,9 @@ export type WidgetUtility = {
     applyTextStyle: (thisInstance: TextLabel | TextButton | TextBox) -> (),
     applyInteractionHighlights: (thisWidget: Widget, Button: GuiButton, Highlightee: GuiObject, Colors: { [string]: any }) -> (),
     applyInteractionHighlightsWithMultiHighlightee: (thisWidget: Widget, Button: GuiButton, Highlightees: { { GuiObject | { [string]: Color3 | number } } }) -> (),
+    applyImageInteractionHighlights: (thisWidget: Widget, Button: GuiButton, Highlightee: GuiObject, Colors: { [string]: any }) -> (),
     applyTextInteractionHighlights: (thisWidget: Widget, Button: GuiButton, Highlightee: TextLabel | TextButton | TextBox, Colors: { [string]: any }) -> (),
-    applyFrameStyle: (thisInstance: GuiObject, forceNoPadding: boolean?, doubleyNoPadding: boolean?) -> (),
+    applyFrameStyle: (thisInstance: GuiObject, noPadding: boolean?, noCorner: boolean?) -> (),
 
     applyButtonClick: (thisWidget: Widget, thisInstance: GuiButton, callback: () -> ()) -> (),
     applyButtonDown: (thisWidget: Widget, thisInstance: GuiButton, callback: (x: number, y: number) -> ()) -> (),
@@ -473,7 +475,7 @@ export type Iris = {
 
     Init: (playerInstance: BasePlayerGui?, eventConnection: (RBXScriptConnection | () -> ())?) -> Iris,
     Shutdown: () -> (),
-    Connect: (self: Iris, callback: () -> ()) -> (),
+    Connect: (self: Iris, callback: () -> ()) -> () -> (),
     Append: (userInstance: GuiObject) -> (),
     ForceRefresh: () -> (),
 

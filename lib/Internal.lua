@@ -14,7 +14,7 @@ return function(Iris: Types.Iris): Types.Internal
         ---------------------------------
     ]]
 
-    Internal._version = [[ 2.2.0 ]]
+    Internal._version = [[ 2.2.1 ]]
 
     Internal._started = false -- has Iris.connect been called yet
     Internal._shutdown = false
@@ -156,8 +156,12 @@ return function(Iris: Types.Iris): Types.Internal
         
         Allows the caller to connect a callback which is called when the states value is changed.
     ]=]
-    function StateClass:onChange(callback: (newValue: any) -> ())
-        table.insert(self.ConnectedFunctions, callback)
+    function StateClass:onChange(callback: (newValue: any) -> ()): () -> ()
+        local connectionIndex: number = #self.ConnectedFunctions + 1
+        self.ConnectedFunctions[connectionIndex] = callback
+        return function()
+            self.ConnectedFunctions[connectionIndex] = nil
+        end
     end
 
     Internal.StateClass = StateClass
@@ -261,7 +265,7 @@ return function(Iris: Types.Iris): Types.Internal
         end
 
         if Internal._stackIndex ~= 1 then
-            -- has to be larger than 1 because of the check that it isint below 1 in Iris.End
+            -- has to be larger than 1 because of the check that it isnt below 1 in Iris.End
             Internal._stackIndex = 1
             error("Callback has too few calls to Iris.End()", 0)
         end
@@ -440,6 +444,14 @@ return function(Iris: Types.Iris): Types.Internal
         if thisWidget == nil then
             -- didnt find a match, generate a new widget.
             thisWidget = Internal._GenNewWidget(widgetType, arguments, states, ID)
+
+            -- all future widgets under the parent (except if the parent is the root) need to be regenerated
+            -- so that their layout is correct
+            -- see issue #58
+            local parentWidget = thisWidget.parentWidget
+            if parentWidget.ID ~= Internal._rootWidget.ID then
+                parentWidget.isDirty = true
+            end
         end
 
         if Internal._deepCompare(thisWidget.providedArguments, arguments) == false then
@@ -451,6 +463,15 @@ return function(Iris: Types.Iris): Types.Internal
             thisWidgetClass.Update(thisWidget)
         end
 
+        if thisWidget.parentWidget.isDirty then
+            -- since the parent was dirty, update the ZIndex of this component
+            -- so that items inserted in future cycles that are created before this component are correctly ordered before it
+            thisWidget.ZIndex = thisWidget.parentWidget.ZIndex + (Internal._widgetCount * 0x40) + Internal._config.ZIndexOffset
+
+            thisWidget.Instance.ZIndex = thisWidget.ZIndex
+            thisWidget.Instance.LayoutOrder = thisWidget.ZIndex
+        end
+
         thisWidget.lastCycleTick = Internal._cycleTick
         thisWidget.Disabled = Iris._config.DisableWidget
 
@@ -458,6 +479,9 @@ return function(Iris: Types.Iris): Types.Internal
             -- a parent widget, so we increase our depth.
             Internal._stackIndex += 1
             Internal._IDStack[Internal._stackIndex] = thisWidget.ID
+
+            -- if our parent is dirty, then we must be dirty so our children regenerate too
+            thisWidget.isDirty = thisWidget.parentWidget.isDirty
         end
 
         Internal._VDOM[ID] = thisWidget
@@ -492,6 +516,7 @@ return function(Iris: Types.Iris): Types.Internal
         thisWidget.type = widgetType
         thisWidget.parentWidget = Internal._VDOM[parentId]
         thisWidget.trackedEvents = {}
+        thisWidget.isDirty = false
 
         -- widgets have lots of space to ensure they are always visible.
         thisWidget.ZIndex = thisWidget.parentWidget.ZIndex + (Internal._widgetCount * 0x40) + Internal._config.ZIndexOffset
