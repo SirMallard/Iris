@@ -113,6 +113,7 @@ export type Widget = {
     state: States,
     lastCycleTick: number,
     trackedEvents: {},
+    isDirty: boolean,
 
     parentWidget: Widget,
     Instance: GuiObject,
