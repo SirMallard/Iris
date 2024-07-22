@@ -163,7 +163,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         if not Iris._started then
             return
         end
-        if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 or inputObject.UserInputType ~= Enum.UserInputType.MouseButton2 or inputObject.UserInputType ~= Enum.UserInputType.Touch then
+        if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 and inputObject.UserInputType ~= Enum.UserInputType.MouseButton2 and inputObject.UserInputType ~= Enum.UserInputType.Touch then
             return
         end
         if AnyOpenedCombo == false or not OpenedCombo then
@@ -172,6 +172,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         if ComboOpenedTick == Iris._cycleTick then
             return
         end
+
         local MouseLocation: Vector2 = widgets.getMouseLocation()
         local ChildContainer = OpenedCombo.ChildContainer
         local rectMin: Vector2 = ChildContainer.AbsolutePosition - Vector2.new(0, OpenedCombo.LabelHeight)
@@ -235,7 +236,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             PreviewContainer.LayoutOrder = thisWidget.ZIndex + 2
             PreviewContainer.AutoButtonColor = false
 
-            widgets.applyFrameStyle(PreviewContainer, true, true)
+            widgets.applyFrameStyle(PreviewContainer, true)
             widgets.UIListLayout(PreviewContainer, Enum.FillDirection.Horizontal, UDim.new(0, 0))
 
             PreviewContainer.Parent = Combo
