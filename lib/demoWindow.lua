@@ -549,6 +549,7 @@ return function(Iris: Types.Iris)
             Iris.CollapsingHeader({ "Widgets" })
 
                 Iris.SeparatorText({ "UserInputService" })
+                Iris.Text({ `MousePosition: {Iris.Internal._utility.UserInputService:GetMouseLocation()}` })
                 Iris.Text({ `Left Control: {Iris.Internal._utility.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl)}` })
                 Iris.Text({ `Right Control: {Iris.Internal._utility.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)}` })
 
