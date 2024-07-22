@@ -794,7 +794,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local Content = WindowButton.Content :: Frame
             if thisChid.type == "MenuBar" then
                 local ChildContainer: ScrollingFrame = Content.ChildContainer
-                thisChid.Instance.ZIndex = ChildContainer.ZIndex - 1
+                thisChid.Instance.ZIndex = ChildContainer.ZIndex + 1
                 thisChid.Instance.LayoutOrder = ChildContainer.LayoutOrder - 1
                 return Content
             end
