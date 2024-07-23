@@ -515,6 +515,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             TitleBar.Parent = Content
 
+            widgets.UIPadding(TitleBar, Vector2.xAxis * Iris._config.FramePadding.X)
+            widgets.UIListLayout(TitleBar, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.FramePadding.X)).VerticalAlignment = Enum.VerticalAlignment.Center
             widgets.applyInputBegan(thisWidget, TitleBar, function(input: InputObject)
                 if input.UserInputType == Enum.UserInputType.Touch then
                     if not thisWidget.arguments.NoMove then
@@ -532,7 +534,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             CollapseButton.Name = "CollapseButton"
             CollapseButton.AnchorPoint = Vector2.new(0, 0.5)
             CollapseButton.Size = UDim2.fromOffset(TitleButtonSize, TitleButtonSize)
-            CollapseButton.Position = UDim2.new(0, Iris._config.FramePadding.X + 1, 0.5, 0)
+            CollapseButton.Position = UDim2.new(0, 0, 0.5, 0)
             CollapseButton.AutomaticSize = Enum.AutomaticSize.None
             CollapseButton.BackgroundTransparency = 1
             CollapseButton.BorderSizePixel = 0
@@ -574,13 +576,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             CloseButton.Name = "CloseButton"
             CloseButton.AnchorPoint = Vector2.new(1, 0.5)
             CloseButton.Size = UDim2.fromOffset(TitleButtonSize, TitleButtonSize)
-            CloseButton.Position = UDim2.new(1, -(Iris._config.FramePadding.X + 1), 0.5, 0)
+            CloseButton.Position = UDim2.new(1, 0, 0.5, 0)
             CloseButton.AutomaticSize = Enum.AutomaticSize.None
             CloseButton.BackgroundTransparency = 1
             CloseButton.BorderSizePixel = 0
             CloseButton.Text = ""
-
-            CloseButton.ZIndex = thisWidget.ZIndex + 4
+            CloseButton.LayoutOrder = 2
             CloseButton.AutoButtonColor = false
 
             widgets.UICorner(CloseButton)
@@ -610,31 +611,27 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             CloseIcon.Image = widgets.ICONS.MULTIPLICATION_SIGN
             CloseIcon.ImageColor3 = Iris._config.TextColor
             CloseIcon.ImageTransparency = Iris._config.TextTransparency
-            CloseIcon.ZIndex = thisWidget.ZIndex + 5
             CloseIcon.Parent = CloseButton
 
             -- allowing fractional titlebar title location dosent seem useful, as opposed to Enum.LeftRight.
 
-            local titleAlign: number
-            if Iris._config.WindowTitleAlign == Enum.LeftRight.Left then
-                titleAlign = 0
-            elseif Iris._config.WindowTitleAlign == Enum.LeftRight.Center then
-                titleAlign = 0.5
-            else
-                titleAlign = 1
-            end
-
             local Title: TextLabel = Instance.new("TextLabel")
             Title.Name = "Title"
-            Title.AnchorPoint = Vector2.new(titleAlign, 0)
-            Title.Position = UDim2.fromScale(titleAlign, 0)
             Title.AutomaticSize = Enum.AutomaticSize.XY
             Title.BorderSizePixel = 0
             Title.BackgroundTransparency = 1
-            Title.ZIndex = thisWidget.ZIndex + 3
-
+            Title.LayoutOrder = 1
+            Title.ClipsDescendants = true
+            
+            widgets.UIPadding(Title, Vector2.yAxis * Iris._config.FramePadding.Y)
             widgets.applyTextStyle(Title)
-            widgets.UIPadding(Title, Iris._config.FramePadding)
+            Title.TextXAlignment = Enum.TextXAlignment[Iris._config.WindowTitleAlign.Name] :: Enum.TextXAlignment
+
+            local TitleFlexItem: UIFlexItem = Instance.new("UIFlexItem")
+            TitleFlexItem.FlexMode = Enum.UIFlexMode.Fill
+            TitleFlexItem.ItemLineAlignment = Enum.ItemLineAlignment.Center
+
+            TitleFlexItem.Parent = Title
 
             Title.Parent = TitleBar
 
@@ -752,20 +749,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
 
             -- TitleBar buttons
-            local TitleButtonPaddingSize = Iris._config.FramePadding.X + Iris._config.TextSize + Iris._config.FramePadding.X * 2
             if thisWidget.arguments.NoCollapse then
                 TitleBar.CollapseButton.Visible = false
-                TitleBar.Title.UIPadding.PaddingLeft = UDim.new(0, Iris._config.FramePadding.X)
             else
                 TitleBar.CollapseButton.Visible = true
-                TitleBar.Title.UIPadding.PaddingLeft = UDim.new(0, TitleButtonPaddingSize)
             end
             if thisWidget.arguments.NoClose then
                 TitleBar.CloseButton.Visible = false
-                TitleBar.Title.UIPadding.PaddingRight = UDim.new(0, Iris._config.FramePadding.X)
             else
                 TitleBar.CloseButton.Visible = true
-                TitleBar.Title.UIPadding.PaddingRight = UDim.new(0, TitleButtonPaddingSize)
             end
 
             Title.Text = thisWidget.arguments.Title or ""
