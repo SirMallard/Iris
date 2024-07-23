@@ -73,7 +73,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Tree.AutomaticSize = Enum.AutomaticSize.Y
                 Tree.BackgroundTransparency = 1
                 Tree.BorderSizePixel = 0
-                Tree.ZIndex = thisWidget.ZIndex
                 Tree.LayoutOrder = thisWidget.ZIndex
 
                 widgets.UIListLayout(Tree, Enum.FillDirection.Vertical, UDim.new(0, 0))
@@ -84,8 +83,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ChildContainer.AutomaticSize = Enum.AutomaticSize.Y
                 ChildContainer.BackgroundTransparency = 1
                 ChildContainer.BorderSizePixel = 0
-                ChildContainer.ZIndex = thisWidget.ZIndex + 1
-                ChildContainer.LayoutOrder = thisWidget.ZIndex + 1
+                ChildContainer.LayoutOrder = 1
                 ChildContainer.Visible = false
                 -- ChildContainer.ClipsDescendants = true
 
@@ -101,8 +99,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Header.AutomaticSize = Enum.AutomaticSize.Y
                 Header.BackgroundTransparency = 1
                 Header.BorderSizePixel = 0
-                Header.ZIndex = thisWidget.ZIndex
-                Header.LayoutOrder = thisWidget.ZIndex
                 Header.Parent = Tree
 
                 local Button: TextButton = Instance.new("TextButton")
@@ -110,8 +106,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Button.BackgroundTransparency = 1
                 Button.BorderSizePixel = 0
                 Button.Text = ""
-                Button.ZIndex = thisWidget.ZIndex
-                Button.LayoutOrder = thisWidget.ZIndex
                 Button.AutoButtonColor = false
 
                 widgets.applyInteractionHighlights(thisWidget, Button, Header, {
@@ -138,8 +132,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Arrow.ImageColor3 = Iris._config.TextColor
                 Arrow.ImageTransparency = Iris._config.TextTransparency
                 Arrow.ScaleType = Enum.ScaleType.Fit
-                Arrow.ZIndex = thisWidget.ZIndex
-                Arrow.LayoutOrder = thisWidget.ZIndex
 
                 Arrow.Parent = Button
 
@@ -149,8 +141,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 TextLabel.AutomaticSize = Enum.AutomaticSize.XY
                 TextLabel.BackgroundTransparency = 1
                 TextLabel.BorderSizePixel = 0
-                TextLabel.ZIndex = thisWidget.ZIndex
-                TextLabel.LayoutOrder = thisWidget.ZIndex
 
                 local TextPadding: UIPadding = widgets.UIPadding(TextLabel, Vector2.new(0, 0))
                 TextPadding.PaddingRight = UDim.new(0, 21)
@@ -204,7 +194,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 CollapsingHeader.AutomaticSize = Enum.AutomaticSize.Y
                 CollapsingHeader.BackgroundTransparency = 1
                 CollapsingHeader.BorderSizePixel = 0
-                CollapsingHeader.ZIndex = thisWidget.ZIndex
                 CollapsingHeader.LayoutOrder = thisWidget.ZIndex
 
                 widgets.UIListLayout(CollapsingHeader, Enum.FillDirection.Vertical, UDim.new(0, 0))
@@ -215,8 +204,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ChildContainer.AutomaticSize = Enum.AutomaticSize.Y
                 ChildContainer.BackgroundTransparency = 1
                 ChildContainer.BorderSizePixel = 0
-                ChildContainer.ZIndex = thisWidget.ZIndex + 1
-                ChildContainer.LayoutOrder = thisWidget.ZIndex + 1
+                ChildContainer.LayoutOrder = 1
                 ChildContainer.Visible = false
                 -- ChildContainer.ClipsDescendants = true
 
@@ -232,26 +220,21 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Header.AutomaticSize = Enum.AutomaticSize.Y
                 Header.BackgroundTransparency = 1
                 Header.BorderSizePixel = 0
-                Header.ZIndex = thisWidget.ZIndex
-                Header.LayoutOrder = thisWidget.ZIndex
                 Header.Parent = CollapsingHeader
 
                 local Button = Instance.new("TextButton")
                 Button.Name = "Button"
-                Button.Size = UDim2.new(1, 2 * Iris._config.FramePadding.X, 0, 0)
-                Button.Position = UDim2.fromOffset(-4, 0)
+                Button.Size = UDim2.new(1, 0, 0, 0)
                 Button.AutomaticSize = Enum.AutomaticSize.Y
                 Button.BackgroundColor3 = Iris._config.HeaderColor
                 Button.BackgroundTransparency = Iris._config.HeaderTransparency
                 Button.BorderSizePixel = 0
                 Button.Text = ""
-                Button.ZIndex = thisWidget.ZIndex
-                Button.LayoutOrder = thisWidget.ZIndex
                 Button.AutoButtonColor = false
                 Button.ClipsDescendants = true
 
-                widgets.UIPadding(Button, Vector2.new(2 * Iris._config.FramePadding.X, Iris._config.FramePadding.Y)) -- we add a custom padding because it extends on both sides
-                widgets.applyFrameStyle(Button, true, true)
+                widgets.UIPadding(Button, Iris._config.FramePadding) -- we add a custom padding because it extends on both sides
+                widgets.applyFrameStyle(Button, true)
                 local ButtonUIListLayout: UIListLayout = widgets.UIListLayout(Button, Enum.FillDirection.Horizontal, UDim.new(0, 2 * Iris._config.FramePadding.X))
                 ButtonUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
@@ -275,8 +258,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Arrow.ImageColor3 = Iris._config.TextColor
                 Arrow.ImageTransparency = Iris._config.TextTransparency
                 Arrow.ScaleType = Enum.ScaleType.Fit
-                Arrow.ZIndex = thisWidget.ZIndex
-                Arrow.LayoutOrder = thisWidget.ZIndex
 
                 Arrow.Parent = Button
 
@@ -286,8 +267,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 TextLabel.AutomaticSize = Enum.AutomaticSize.XY
                 TextLabel.BackgroundTransparency = 1
                 TextLabel.BorderSizePixel = 0
-                TextLabel.ZIndex = thisWidget.ZIndex
-                TextLabel.LayoutOrder = thisWidget.ZIndex
 
                 local TextPadding: UIPadding = widgets.UIPadding(TextLabel, Vector2.new(0, 0))
                 TextPadding.PaddingRight = UDim.new(0, 21)

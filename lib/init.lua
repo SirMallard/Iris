@@ -146,11 +146,15 @@ end
 
     Multiple callbacks can be added to Iris from many different scripts or modules.
 ]=]
-function Iris:Connect(callback: () -> ()) -- this uses method syntax for no reason.
+function Iris:Connect(callback: () -> ()): () -> () -- this uses method syntax for no reason.
     if Internal._started == false then
         warn("Iris:Connect() was called before calling Iris.Init(), the connected function will never run")
     end
-    table.insert(Internal._connectedFunctions, callback)
+    local connectionIndex: number = #Internal._connectedFunctions + 1
+    Internal._connectedFunctions[connectionIndex] = callback
+    return function()
+        Internal._connectedFunctions[connectionIndex] = nil
+    end
 end
 
 --[=[
@@ -203,6 +207,7 @@ function Iris.End()
     if Internal._stackIndex == 1 then
         error("Callback has too many calls to Iris.End()", 2)
     end
+
     Internal._IDStack[Internal._stackIndex] = nil
     Internal._stackIndex -= 1
 end

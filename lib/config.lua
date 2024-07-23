@@ -10,8 +10,8 @@ local TemplateConfig = {
         -- The Roblox window selection highlight is 67, 191, 254
         BorderActiveColor = Color3.fromRGB(160, 160, 175), -- does not exist in Dear ImGui
 
-        BorderTransparency = 0,
-        BorderActiveTransparency = 0,
+        BorderTransparency = 0.5,
+        BorderActiveTransparency = 0.3,
         -- BorderTransparency will be problematic for non UIStroke border implimentations
         -- is not implimented because of this
 
@@ -44,6 +44,9 @@ local TemplateConfig = {
         ButtonHoveredTransparency = 0,
         ButtonActiveColor = Color3.fromRGB(15, 135, 250),
         ButtonActiveTransparency = 0,
+
+        ImageColor = Color3.fromRGB(255, 255, 255),
+        ImageTransparency = 0,
 
         SliderGrabColor = Color3.fromRGB(66, 150, 250),
         SliderGrabTransparency = 0,
@@ -98,7 +101,8 @@ local TemplateConfig = {
         -- The Roblox window selection highlight is 67, 191, 254
         BorderActiveColor = Color3.fromRGB(64, 64, 64), -- does not exist in Dear ImGui
 
-        -- BorderTransparency = 0.5,
+        BorderTransparency = 0.5,
+        BorderActiveTransparency = 0.2,
         -- BorderTransparency will be problematic for non UIStroke border implimentations
         -- will not be implimented because of this
 
@@ -131,6 +135,9 @@ local TemplateConfig = {
         ButtonHoveredTransparency = 0,
         ButtonActiveColor = Color3.fromRGB(15, 135, 250),
         ButtonActiveTransparency = 0,
+
+        ImageColor = Color3.fromRGB(255, 255, 255),
+        ImageTransparency = 0,
 
         HeaderColor = Color3.fromRGB(66, 150, 250),
         HeaderTransparency = 0.31,
@@ -202,6 +209,7 @@ local TemplateConfig = {
         ScrollbarSize = 7,
         GrabMinSize = 10,
         SeparatorTextBorderSize = 3,
+        ImageBorderSize = 2,
     },
     sizeClear = { -- easier to read and manuveure
         ItemWidth = UDim.new(1, 0),
@@ -230,6 +238,7 @@ local TemplateConfig = {
         ScrollbarSize = 9,
         GrabMinSize = 14,
         SeparatorTextBorderSize = 4,
+        ImageBorderSize = 4,
     },
 
     utilityDefault = {
@@ -238,7 +247,6 @@ local TemplateConfig = {
         Parent = nil,
         RichText = false,
         TextWrapped = false,
-        DisableWidget = false, -- currently unused
         DisplayOrderOffset = 127,
         ZIndexOffset = 0,
 

@@ -27,7 +27,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ProgressBar.Size = UDim2.new(Iris._config.ItemWidth, UDim.new())
                 ProgressBar.BackgroundTransparency = 1
                 ProgressBar.AutomaticSize = Enum.AutomaticSize.Y
-                ProgressBar.ZIndex = thisWidget.ZIndex
                 ProgressBar.LayoutOrder = thisWidget.ZIndex
 
                 widgets.UIListLayout(ProgressBar, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
@@ -40,10 +39,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Bar.BorderSizePixel = 0
                 Bar.AutomaticSize = Enum.AutomaticSize.Y
                 Bar.ClipsDescendants = true
-                Bar.ZIndex = thisWidget.ZIndex + 1
-                Bar.LayoutOrder = thisWidget.ZIndex + 1
 
-                widgets.applyFrameStyle(Bar, true, true)
+                widgets.applyFrameStyle(Bar, true)
 
                 Bar.Parent = ProgressBar
 
@@ -53,8 +50,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Progress.BackgroundTransparency = Iris._config.PlotHistogramTransparency
                 Progress.BorderSizePixel = 0
                 Progress.AutomaticSize = Enum.AutomaticSize.Y
-                Progress.ZIndex = thisWidget.ZIndex + 2
-                Progress.LayoutOrder = thisWidget.ZIndex + 2
 
                 widgets.applyTextStyle(Progress)
                 widgets.UIPadding(Progress, Iris._config.FramePadding)
@@ -68,8 +63,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Value.AutomaticSize = Enum.AutomaticSize.XY
                 Value.BackgroundTransparency = 1
                 Value.BorderSizePixel = 0
-                Value.ZIndex = thisWidget.ZIndex + 3
-                Value.LayoutOrder = thisWidget.ZIndex + 3
+                Value.ZIndex = 1
 
                 widgets.applyTextStyle(Value)
                 widgets.UIPadding(Value, Iris._config.FramePadding)
@@ -82,8 +76,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 TextLabel.AutomaticSize = Enum.AutomaticSize.XY
                 TextLabel.BackgroundTransparency = 1
                 TextLabel.BorderSizePixel = 0
-                TextLabel.ZIndex = thisWidget.ZIndex + 4
-                TextLabel.LayoutOrder = thisWidget.ZIndex + 4
+                TextLabel.LayoutOrder = 1
 
                 widgets.applyTextStyle(TextLabel)
                 widgets.UIPadding(Value, Iris._config.FramePadding)

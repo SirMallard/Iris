@@ -163,7 +163,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         if not Iris._started then
             return
         end
-        if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 or inputObject.UserInputType ~= Enum.UserInputType.MouseButton2 or inputObject.UserInputType ~= Enum.UserInputType.Touch then
+        if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 and inputObject.UserInputType ~= Enum.UserInputType.MouseButton2 and inputObject.UserInputType ~= Enum.UserInputType.Touch then
             return
         end
         if AnyOpenedCombo == false or not OpenedCombo then
@@ -172,9 +172,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         if ComboOpenedTick == Iris._cycleTick then
             return
         end
+
         local MouseLocation: Vector2 = widgets.getMouseLocation()
         local ChildContainer = OpenedCombo.ChildContainer
-        local rectMin: Vector2 = ChildContainer.AbsolutePosition - Vector2.new(0, OpenedCombo.LabelHeight)
+        local rectMin: Vector2 = ChildContainer.AbsolutePosition - Vector2.yAxis * (Iris._config.TextSize + 2 * Iris._config.FramePadding.Y)
         local rectMax: Vector2 = ChildContainer.AbsolutePosition + ChildContainer.AbsoluteSize
         if not widgets.isPosInsideRect(MouseLocation, rectMin, rectMax) then
             OpenedCombo.state.isOpened:set(false)
@@ -220,7 +221,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Combo.AutomaticSize = Enum.AutomaticSize.Y
             Combo.BackgroundTransparency = 1
             Combo.BorderSizePixel = 0
-            Combo.ZIndex = thisWidget.ZIndex
             Combo.LayoutOrder = thisWidget.ZIndex
 
             widgets.UIListLayout(Combo, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.Y + 1))
@@ -232,10 +232,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             PreviewContainer.BackgroundTransparency = 1
             PreviewContainer.Text = ""
             PreviewContainer.ZIndex = thisWidget.ZIndex + 2
-            PreviewContainer.LayoutOrder = thisWidget.ZIndex + 2
             PreviewContainer.AutoButtonColor = false
 
-            widgets.applyFrameStyle(PreviewContainer, true, true)
+            widgets.applyFrameStyle(PreviewContainer, true)
             widgets.UIListLayout(PreviewContainer, Enum.FillDirection.Horizontal, UDim.new(0, 0))
 
             PreviewContainer.Parent = Combo
@@ -247,8 +246,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             PreviewLabel.BackgroundColor3 = Iris._config.FrameBgColor
             PreviewLabel.BackgroundTransparency = Iris._config.FrameBgTransparency
             PreviewLabel.BorderSizePixel = 0
-            PreviewLabel.ZIndex = thisWidget.ZIndex + 3
-            PreviewLabel.LayoutOrder = thisWidget.ZIndex + 3
             PreviewLabel.ClipsDescendants = true
 
             widgets.applyTextStyle(PreviewLabel)
@@ -263,8 +260,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             DropdownButton.BackgroundColor3 = Iris._config.ButtonColor
             DropdownButton.BackgroundTransparency = Iris._config.ButtonTransparency
             DropdownButton.Text = ""
-            DropdownButton.ZIndex = thisWidget.ZIndex + 4
-            DropdownButton.LayoutOrder = thisWidget.ZIndex + 4
 
             local padding: number = math.round(frameHeight * 0.2)
             local dropdownSize: number = frameHeight - 2 * padding
@@ -277,10 +272,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Dropdown.BorderSizePixel = 0
             Dropdown.ImageColor3 = Iris._config.TextColor
             Dropdown.ImageTransparency = Iris._config.TextTransparency
-            Dropdown.ZIndex = thisWidget.ZIndex + 5
-            Dropdown.LayoutOrder = thisWidget.ZIndex + 5
 
             Dropdown.Parent = DropdownButton
+
             DropdownButton.Parent = PreviewContainer
 
             -- for some reason ImGui Combo has no highlights for Active, only hovered.
@@ -326,8 +320,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             TextLabel.AutomaticSize = Enum.AutomaticSize.X
             TextLabel.BackgroundTransparency = 1
             TextLabel.BorderSizePixel = 0
-            TextLabel.ZIndex = thisWidget.ZIndex + 5
-            TextLabel.LayoutOrder = thisWidget.ZIndex + 5
 
             widgets.applyTextStyle(TextLabel)
 
@@ -347,8 +339,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ChildContainer.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 
             -- appear over everything else
-            ChildContainer.ZIndex = thisWidget.ZIndex + 6
-            ChildContainer.LayoutOrder = thisWidget.ZIndex + 6
             ChildContainer.ClipsDescendants = true
 
             -- Unfortunatley, ScrollingFrame does not work with UICorner
