@@ -129,6 +129,8 @@ return function(Iris: Types.Iris)
 
                     Iris.Text({ `Click count: {count.value}` })
                 end
+
+                Iris.PopConfig()
                 Iris.End()
             end
             Iris.End()

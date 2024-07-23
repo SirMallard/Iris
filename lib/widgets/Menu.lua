@@ -85,6 +85,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     break
                 end
             end
+            if isInMenu then
+                break
+            end
         end
 
         if not isInMenu then
