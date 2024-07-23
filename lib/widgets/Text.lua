@@ -22,7 +22,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Text.Size = UDim2.fromOffset(0, 0)
             Text.BackgroundTransparency = 1
             Text.BorderSizePixel = 0
-            Text.ZIndex = thisWidget.ZIndex
             Text.LayoutOrder = thisWidget.ZIndex
             Text.AutomaticSize = Enum.AutomaticSize.XY
 
@@ -78,7 +77,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             SeparatorText.BackgroundTransparency = 1
             SeparatorText.BorderSizePixel = 0
             SeparatorText.AutomaticSize = Enum.AutomaticSize.Y
-            SeparatorText.ZIndex = thisWidget.ZIndex
             SeparatorText.LayoutOrder = thisWidget.ZIndex
             SeparatorText.ClipsDescendants = true
 
@@ -92,8 +90,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             TextLabel.BackgroundTransparency = 1
             TextLabel.BorderSizePixel = 0
             TextLabel.AutomaticSize = Enum.AutomaticSize.XY
-            TextLabel.ZIndex = thisWidget.ZIndex + 1
-            TextLabel.LayoutOrder = thisWidget.ZIndex + 1
+            TextLabel.LayoutOrder = 1
 
             widgets.applyTextStyle(TextLabel)
 
@@ -106,8 +103,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Left.BackgroundTransparency = Iris._config.SeparatorTransparency
             Left.BorderSizePixel = 0
             Left.Size = UDim2.fromOffset(Iris._config.SeparatorTextPadding.X - Iris._config.ItemSpacing.X, Iris._config.SeparatorTextBorderSize)
-            Left.ZIndex = thisWidget.ZIndex
-            Left.LayoutOrder = thisWidget.ZIndex
 
             Left.Parent = SeparatorText
 
@@ -118,8 +113,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Right.BackgroundTransparency = Iris._config.SeparatorTransparency
             Right.BorderSizePixel = 0
             Right.Size = UDim2.new(1, 0, 0, Iris._config.SeparatorTextBorderSize)
-            Right.ZIndex = thisWidget.ZIndex + 2
-            Right.LayoutOrder = thisWidget.ZIndex + 2
+            Right.LayoutOrder = 2
 
             Right.Parent = SeparatorText
 

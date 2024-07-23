@@ -33,7 +33,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Image.BorderSizePixel = 0
                 Image.ImageColor3 = Iris._config.ImageColor
                 Image.ImageTransparency = Iris._config.ImageTransparency
-                Image.ZIndex = thisWidget.ZIndex
                 Image.LayoutOrder = thisWidget.ZIndex
 
                 widgets.applyFrameStyle(Image, true)
@@ -99,7 +98,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Button.BorderSizePixel = 0
                 Button.Image = ""
                 Button.ImageTransparency = 1
-                Button.ZIndex = thisWidget.ZIndex
                 Button.LayoutOrder = thisWidget.ZIndex
                 Button.AutoButtonColor = false
                 
@@ -112,8 +110,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Image.BorderSizePixel = 0
                 Image.ImageColor3 = Iris._config.ImageColor
                 Image.ImageTransparency = Iris._config.ImageTransparency
-                Image.ZIndex = thisWidget.ZIndex
-                Image.LayoutOrder = thisWidget.ZIndex
                 Image.Parent = Button
 
                 widgets.applyInteractionHighlights(thisWidget, Button, Button, {

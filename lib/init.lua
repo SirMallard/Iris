@@ -208,12 +208,6 @@ function Iris.End()
         error("Callback has too many calls to Iris.End()", 2)
     end
 
-    -- Mark the parent widget as no longer dirty
-    local parent = Internal._GetParentWidget()
-    if parent.isDirty then
-        parent.isDirty = false
-    end
-
     Internal._IDStack[Internal._stackIndex] = nil
     Internal._stackIndex -= 1
 end
