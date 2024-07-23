@@ -26,7 +26,6 @@ return function(Iris: Types.Iris): Types.Internal
 
     -- Widgets & Instances
     Internal._widgets = {}
-    Internal._widgetCount = 0 -- only used to compute ZIndex, resets to 0 for every cycle
     Internal._stackIndex = 1 -- Points to the index that IDStack is currently in, when computing cycle
     Internal._rootInstance = nil
     Internal._rootWidget = {
@@ -34,6 +33,7 @@ return function(Iris: Types.Iris): Types.Internal
         type = "Root",
         Instance = Internal._rootInstance,
         ZIndex = 0,
+        ZOffset = 0,
     }
     Internal._lastWidget = Internal._rootWidget -- widget which was most recently rendered
 
@@ -224,7 +224,6 @@ return function(Iris: Types.Iris): Types.Internal
 
         -- update counters
         Internal._cycleTick += 1
-        Internal._widgetCount = 0
         table.clear(Internal._usedIDs)
 
         -- if Internal.parentInstance:IsA("GuiBase2d") and math.min(Internal.parentInstance.AbsoluteSize.X, Internal.parentInstance.AbsoluteSize.Y) < 100 then
@@ -411,7 +410,6 @@ return function(Iris: Types.Iris): Types.Internal
 
         -- fetch the widget class which contains all the functions for the widget.
         local thisWidgetClass: Types.WidgetClass = Internal._widgets[widgetType]
-        Internal._widgetCount += 1
 
         if Internal._VDOM[ID] then
             -- widget already created once this frame, so we can append to it.
@@ -444,13 +442,20 @@ return function(Iris: Types.Iris): Types.Internal
         if thisWidget == nil then
             -- didnt find a match, generate a new widget.
             thisWidget = Internal._GenNewWidget(widgetType, arguments, states, ID)
+        end
+        local parentWidget: Types.Widget = thisWidget.parentWidget
 
-            -- all future widgets under the parent (except if the parent is the root) need to be regenerated
-            -- so that their layout is correct
-            -- see issue #58
-            local parentWidget = thisWidget.parentWidget
-            if parentWidget.ID ~= Internal._rootWidget.ID then
-                parentWidget.isDirty = true
+        if thisWidget.type ~= "Window" and thisWidget.type ~= "Tooltip" then
+            if thisWidget.ZIndex ~= parentWidget.ZOffset then
+                parentWidget.ZUpdate = true
+            end
+
+            if parentWidget.ZUpdate then
+                thisWidget.ZIndex = parentWidget.ZOffset
+                if thisWidget.Instance then
+                    thisWidget.Instance.ZIndex = thisWidget.ZIndex
+                    thisWidget.Instance.LayoutOrder = thisWidget.ZIndex
+                end
             end
         end
 
@@ -463,24 +468,15 @@ return function(Iris: Types.Iris): Types.Internal
             thisWidgetClass.Update(thisWidget)
         end
 
-        if thisWidget.parentWidget.isDirty then
-            -- since the parent was dirty, update the ZIndex of this component
-            -- so that items inserted in future cycles that are created before this component are correctly ordered before it
-            thisWidget.ZIndex = thisWidget.parentWidget.ZIndex + (Internal._widgetCount * 0x40) + Internal._config.ZIndexOffset
-
-            thisWidget.Instance.ZIndex = thisWidget.ZIndex
-            thisWidget.Instance.LayoutOrder = thisWidget.ZIndex
-        end
-
         thisWidget.lastCycleTick = Internal._cycleTick
+        parentWidget.ZOffset += 1
 
         if thisWidgetClass.hasChildren then
             -- a parent widget, so we increase our depth.
+            thisWidget.ZOffset = 0
+            thisWidget.ZUpdate = false
             Internal._stackIndex += 1
             Internal._IDStack[Internal._stackIndex] = thisWidget.ID
-
-            -- if our parent is dirty, then we must be dirty so our children regenerate too
-            thisWidget.isDirty = thisWidget.parentWidget.isDirty
         end
 
         Internal._VDOM[ID] = thisWidget
@@ -505,6 +501,7 @@ return function(Iris: Types.Iris): Types.Internal
     ]=]
     function Internal._GenNewWidget(widgetType: string, arguments: Types.Arguments, states: Types.WidgetStates?, ID: Types.ID): Types.Widget
         local parentId: Types.ID = Internal._IDStack[Internal._stackIndex]
+        local parentWidget: Types.Widget = Internal._VDOM[parentId]
         local thisWidgetClass: Types.WidgetClass = Internal._widgets[widgetType]
 
         -- widgets are just tables with properties.
@@ -513,15 +510,21 @@ return function(Iris: Types.Iris): Types.Internal
 
         thisWidget.ID = ID
         thisWidget.type = widgetType
-        thisWidget.parentWidget = Internal._VDOM[parentId]
+        thisWidget.parentWidget = parentWidget
         thisWidget.trackedEvents = {}
-        thisWidget.isDirty = false
 
         -- widgets have lots of space to ensure they are always visible.
-        thisWidget.ZIndex = thisWidget.parentWidget.ZIndex + (Internal._widgetCount * 0x40) + Internal._config.ZIndexOffset
+        thisWidget.ZIndex = parentWidget.ZOffset
 
         thisWidget.Instance = thisWidgetClass.Generate(thisWidget)
-        thisWidget.Instance.Parent = if Internal._config.Parent then Internal._config.Parent else Internal._widgets[thisWidget.parentWidget.type].ChildAdded(thisWidget.parentWidget, thisWidget)
+        -- tooltips set their parent in the generation method, so we need to udpate it here
+        parentWidget = thisWidget.parentWidget
+
+        if Internal._config.Parent then
+            thisWidget.Instance.Parent = Internal._config.Parent
+        else
+            thisWidget.Instance.Parent = Internal._widgets[parentWidget.type].ChildAdded(parentWidget, thisWidget)
+        end
 
         -- we can modify the arguments table, but keep a frozen copy to compare for user-end changes.
         thisWidget.providedArguments = arguments

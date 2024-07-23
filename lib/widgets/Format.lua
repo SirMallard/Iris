@@ -18,7 +18,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             else
                 Separator.Size = UDim2.new(1, 0, 0, 1)
             end
-            Separator.ZIndex = thisWidget.ZIndex
             Separator.LayoutOrder = thisWidget.ZIndex
 
             widgets.UIListLayout(Separator, Enum.FillDirection.Vertical, UDim.new(0, 0))
@@ -47,7 +46,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Indent.BorderSizePixel = 0
             Indent.Size = UDim2.fromScale(1, 0)
             Indent.AutomaticSize = Enum.AutomaticSize.Y
-            Indent.ZIndex = thisWidget.ZIndex
             Indent.LayoutOrder = thisWidget.ZIndex
 
             widgets.UIListLayout(Indent, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
@@ -90,7 +88,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             SameLine.BorderSizePixel = 0
             SameLine.Size = UDim2.fromScale(1, 0)
             SameLine.AutomaticSize = Enum.AutomaticSize.Y
-            SameLine.ZIndex = thisWidget.ZIndex
             SameLine.LayoutOrder = thisWidget.ZIndex
 
             widgets.UIListLayout(SameLine, Enum.FillDirection.Horizontal, UDim.new(0, 0))
@@ -130,11 +127,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Generate = function(thisWidget: Types.Widget): Frame
             local Group: Frame = Instance.new("Frame")
             Group.Name = "Iris_Group"
+            Group.AutomaticSize = Enum.AutomaticSize.XY
+            Group.Size = UDim2.fromOffset(0, 0)
             Group.BackgroundTransparency = 1
             Group.BorderSizePixel = 0
-            Group.Size = UDim2.fromOffset(0, 0)
-            Group.AutomaticSize = Enum.AutomaticSize.XY
-            Group.ZIndex = thisWidget.ZIndex
             Group.LayoutOrder = thisWidget.ZIndex
             Group.ClipsDescendants = false
 

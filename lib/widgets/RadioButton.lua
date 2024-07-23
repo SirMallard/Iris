@@ -35,21 +35,18 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Generate = function(thisWidget: Types.Widget)
             local RadioButton: TextButton = Instance.new("TextButton")
             RadioButton.Name = "Iris_RadioButton"
+            RadioButton.AutomaticSize = Enum.AutomaticSize.XY
+            RadioButton.Size = UDim2.fromOffset(0, 0)
             RadioButton.BackgroundTransparency = 1
             RadioButton.BorderSizePixel = 0
-            RadioButton.Size = UDim2.fromOffset(0, 0)
             RadioButton.Text = ""
-            RadioButton.AutomaticSize = Enum.AutomaticSize.XY
-            RadioButton.ZIndex = thisWidget.ZIndex
-            RadioButton.AutoButtonColor = false
             RadioButton.LayoutOrder = thisWidget.ZIndex
+            RadioButton.AutoButtonColor = false
 
             local buttonSize: number = Iris._config.TextSize + 2 * (Iris._config.FramePadding.Y - 1)
             local Button: Frame = Instance.new("Frame")
             Button.Name = "Button"
             Button.Size = UDim2.fromOffset(buttonSize, buttonSize)
-            Button.ZIndex = thisWidget.ZIndex + 1
-            Button.LayoutOrder = thisWidget.ZIndex + 1
             Button.Parent = RadioButton
             Button.BackgroundColor3 = Iris._config.FrameBgColor
             Button.BackgroundTransparency = Iris._config.FrameBgTransparency
@@ -60,8 +57,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Circle.Name = "Circle"
             Circle.Position = UDim2.fromOffset(Iris._config.FramePadding.Y, Iris._config.FramePadding.Y)
             Circle.Size = UDim2.fromOffset(Iris._config.TextSize - 2, Iris._config.TextSize - 2)
-            Circle.ZIndex = thisWidget.ZIndex + 1
-            Circle.LayoutOrder = thisWidget.ZIndex + 1
             Circle.Parent = Button
             Circle.BackgroundColor3 = Iris._config.CheckMarkColor
             Circle.BackgroundTransparency = Iris._config.CheckMarkTransparency
@@ -83,11 +78,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local TextLabel: TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
             widgets.applyTextStyle(TextLabel)
-            TextLabel.Position = UDim2.new(0, buttonSize + Iris._config.ItemInnerSpacing.X, 0.5, 0)
-            TextLabel.ZIndex = thisWidget.ZIndex + 1
-            TextLabel.LayoutOrder = thisWidget.ZIndex + 1
             TextLabel.AutomaticSize = Enum.AutomaticSize.XY
             TextLabel.AnchorPoint = Vector2.new(0, 0.5)
+            TextLabel.Position = UDim2.new(0, buttonSize + Iris._config.ItemInnerSpacing.X, 0.5, 0)
             TextLabel.BackgroundTransparency = 1
             TextLabel.BorderSizePixel = 0
             TextLabel.Parent = RadioButton

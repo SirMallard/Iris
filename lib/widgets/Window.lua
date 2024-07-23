@@ -47,8 +47,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             TooltipText.BackgroundTransparency = Iris._config.WindowBgTransparency
             TooltipText.BorderSizePixel = Iris._config.PopupBorderSize
             TooltipText.TextWrapped = Iris._config.TextWrapped
-            TooltipText.ZIndex = thisWidget.ZIndex + 1
-            TooltipText.LayoutOrder = thisWidget.ZIndex + 1
 
             widgets.applyTextStyle(TooltipText)
             widgets.UIStroke(TooltipText, Iris._config.WindowBorderSize, Iris._config.BorderActiveColor, Iris._config.BorderActiveTransparency)
@@ -388,6 +386,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             if thisWidget.usesScreenGUI then
                 Window = Instance.new("ScreenGui")
                 Window.ResetOnSpawn = false
+                Window.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
                 Window.DisplayOrder = Iris._config.DisplayOrderOffset
                 Window.IgnoreGuiInset = Iris._config.IgnoreGuiInset
             else
@@ -410,8 +409,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             WindowButton.AutoButtonColor = false
             WindowButton.Selectable = false
             WindowButton.SelectionImageObject = Iris.SelectionImageObject
-            WindowButton.ZIndex = thisWidget.ZIndex + 1
-            WindowButton.LayoutOrder = thisWidget.ZIndex + 1
 
             WindowButton.SelectionGroup = true
             WindowButton.SelectionBehaviorUp = Enum.SelectionBehavior.Stop
@@ -465,7 +462,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ChildContainer.CanvasSize = UDim2.fromScale(0, 0)
             ChildContainer.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 
-            ChildContainer.ZIndex = thisWidget.ZIndex + 3
             ChildContainer.LayoutOrder = thisWidget.ZIndex + 0xFFFF
             ChildContainer.ClipsDescendants = true
 
@@ -506,11 +502,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local TitleBar: Frame = Instance.new("Frame")
             TitleBar.Name = "TitleBar"
-            TitleBar.Size = UDim2.fromScale(1, 0)
             TitleBar.AutomaticSize = Enum.AutomaticSize.Y
+            TitleBar.Size = UDim2.fromScale(1, 0)
             TitleBar.BorderSizePixel = 0
-            TitleBar.ZIndex = thisWidget.ZIndex + 1
-            TitleBar.LayoutOrder = thisWidget.ZIndex + 1
             TitleBar.ClipsDescendants = true
 
             TitleBar.Parent = Content
@@ -538,7 +532,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             CollapseButton.BorderSizePixel = 0
             CollapseButton.AutoButtonColor = false
             CollapseButton.Text = ""
-            CollapseButton.ZIndex = thisWidget.ZIndex + 4
 
             widgets.UICorner(CollapseButton)
 
@@ -567,7 +560,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             CollapseArrow.Image = widgets.ICONS.MULTIPLICATION_SIGN
             CollapseArrow.ImageColor3 = Iris._config.TextColor
             CollapseArrow.ImageTransparency = Iris._config.TextTransparency
-            CollapseArrow.ZIndex = thisWidget.ZIndex + 5
             CollapseArrow.Parent = CollapseButton
 
             local CloseButton: TextButton = Instance.new("TextButton")
@@ -610,7 +602,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             CloseIcon.Image = widgets.ICONS.MULTIPLICATION_SIGN
             CloseIcon.ImageColor3 = Iris._config.TextColor
             CloseIcon.ImageTransparency = Iris._config.TextTransparency
-            CloseIcon.ZIndex = thisWidget.ZIndex + 5
             CloseIcon.Parent = CloseButton
 
             -- allowing fractional titlebar title location dosent seem useful, as opposed to Enum.LeftRight.
@@ -631,7 +622,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Title.AutomaticSize = Enum.AutomaticSize.XY
             Title.BorderSizePixel = 0
             Title.BackgroundTransparency = 1
-            Title.ZIndex = thisWidget.ZIndex + 3
 
             widgets.applyTextStyle(Title)
             widgets.UIPadding(Title, Iris._config.FramePadding)
@@ -653,7 +643,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ResizeGrip.ImageColor3 = Iris._config.ButtonColor
             ResizeGrip.ImageTransparency = Iris._config.ButtonTransparency
             ResizeGrip.Selectable = false
-            ResizeGrip.ZIndex = thisWidget.ZIndex + 3
+            ResizeGrip.ZIndex = 3
             ResizeGrip.Parent = WindowButton
 
             widgets.applyImageInteractionHighlights(thisWidget, ResizeGrip, ResizeGrip, {
@@ -684,8 +674,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ResizeBorder.BorderSizePixel = 0
             ResizeBorder.Active = true
             ResizeBorder.Selectable = false
-            ResizeBorder.ZIndex = thisWidget.ZIndex
-            ResizeBorder.LayoutOrder = thisWidget.ZIndex
             ResizeBorder.ClipsDescendants = false
             ResizeBorder.Parent = WindowButton
 
