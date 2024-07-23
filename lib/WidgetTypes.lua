@@ -1,0 +1,370 @@
+export type ID = string
+
+export type State<T> = {
+    value: T,
+    ConnectedWidgets: { [ID]: string },
+    ConnectedFunctions: { (T) -> () },
+
+    get: (self: State<T>) -> T,
+    set: (self: State<T>, newValue: T) -> (),
+    onChange: (self: State<T>, funcToConnect: (T) -> ()) -> (),
+}
+
+export type Widget = {
+    ID: ID,
+    type: string,
+    lastCycleTick: number,
+    trackedEvents: {},
+    parentWidget: ParentWidget,
+
+    arguments: {},
+    providedArguments: {},
+
+    Instance: GuiObject,
+    ZIndex: number,
+}
+
+export type ParentWidget = Widget & {
+    ChildContainer: GuiObject,
+    ZOffset: number,
+    ZUpdate: boolean,
+}
+
+export type StateWidget = Widget & {
+    state: {
+        [string]: State<any>,
+    },
+}
+
+-- Events
+
+export type Hovered = {
+    isHoveredEvent: boolean,
+    hovered: () -> boolean,
+}
+
+export type Clicked = {
+    lastClickedTick: number,
+    clicked: () -> boolean,
+}
+
+export type RightClicked = {
+    lastRightClickedTick: number,
+    rightClicked: () -> boolean,
+}
+
+export type DoubleClicked = {
+    lastClickedTime: number,
+    lastClickedPosition: Vector2,
+    lastDoubleClickedTick: number,
+    doubleClicked: () -> boolean,
+}
+
+export type CtrlClicked = {
+    lastCtrlClickedTick: number,
+    ctrlClicked: () -> boolean,
+}
+
+export type Active = {
+    active: () -> boolean,
+}
+
+export type Checked = {
+    lastCheckedTick: number,
+    checked: () -> boolean,
+}
+
+export type Unchecked = {
+    lastUncheckedTick: number,
+    unchecked: () -> boolean,
+}
+
+export type Opened = {
+    lastOpenedTick: number,
+    opened: () -> boolean,
+}
+
+export type Closed = {
+    lastClosedTick: number,
+    closed: () -> boolean,
+}
+
+export type Collapsed = {
+    lastCollapsedTick: number,
+    collapsed: () -> boolean,
+}
+
+export type Uncollapsed = {
+    lastUncollapsedTick: number,
+    uncollapsed: () -> boolean,
+}
+
+export type Selected = {
+    lastSelectedTick: number,
+    selected: () -> boolean,
+}
+
+export type Unselected = {
+    lastUnselectedTick: number,
+    unselected: () -> boolean,
+}
+
+export type Changed = {
+    lastChangedTick: number,
+    changed: () -> boolean,
+}
+
+export type NumberChanged = {
+    lastNumberChangedTick: number,
+    numberChanged: () -> boolean,
+}
+
+export type TextChanged = {
+    lastTextChangedTick: number,
+    textChanged: () -> boolean,
+}
+
+-- Window
+
+export type Root = ParentWidget
+
+export type Window = ParentWidget & {
+    usesScreenGuis: boolean,
+
+    arguments: {
+        Title: string?,
+        NoTitleBar: boolean?,
+        NoBackground: boolean?,
+        NoCollapse: boolean?,
+        NoClose: boolean?,
+        NoMove: boolean?,
+        NoScrollbar: boolean?,
+        NoResize: boolean?,
+        NoNav: boolean?,
+        NoMenu: boolean?,
+    },
+
+    state: {
+        size: State<Vector2>,
+        position: State<Vector2>,
+        isUncollapsed: State<boolean>,
+        isOpened: State<boolean>,
+        scrollDistance: State<number>,
+    },
+} & Opened & Closed & Collapsed & Uncollapsed & Hovered
+
+export type Tooltip = Widget & {
+    arguments: {
+        Text: string,
+    },
+}
+
+-- Menu
+
+export type MenuBar = ParentWidget
+
+export type Menu = ParentWidget & {
+    arguments: {
+        Text: string?,
+    },
+
+    state: {
+        isOpened: State<boolean>,
+    },
+} & Clicked & Opened & Closed & Hovered
+
+export type MenuItem = Widget & {
+    arguments: {
+        Text: string,
+        KeyCode: Enum.KeyCode?,
+        ModifierKey: Enum.ModifierKey?,
+    },
+} & Clicked & Hovered
+
+export type MenuToggle = Widget & {
+    arguments: {
+        Text: string,
+        KeyCode: Enum.KeyCode?,
+        ModifierKey: Enum.ModifierKey?,
+    },
+
+    state: {
+        isChecked: State<boolean>,
+    },
+} & Checked & Unchecked & Hovered
+
+-- Format
+
+export type Separator = Widget
+
+export type Indent = ParentWidget & {
+    arguments: {
+        Width: number?,
+    },
+}
+
+export type SameLine = ParentWidget & {
+    arguments: {
+        Width: number?,
+        VerticalAlignment: Enum.VerticalAlignment?,
+    },
+}
+
+export type Group = ParentWidget
+
+-- Text
+
+export type Text = Widget & {
+    arguments: {
+        Text: string,
+        Wrapped: boolean?,
+        Color: Color3?,
+        RichText: boolean?,
+    },
+} & Hovered
+
+export type SeparatorText = Widget & {
+    arguments: {
+        Text: string,
+    },
+} & Hovered
+
+-- Basic
+
+export type Button = Widget & {
+    arguments: {
+        Text: string?,
+    },
+} & Clicked & RightClicked & DoubleClicked & CtrlClicked & Hovered
+
+export type SmallButton = Button
+
+export type Checkbox = Widget & {
+    arguments: {
+        Text: string?,
+    },
+
+    state: {
+        isChecked: State<boolean>?,
+    },
+} & Unchecked & Checked & Hovered
+
+export type RadioButton = Widget & {
+    arguments: {
+        Text: string?,
+        Index: any,
+    },
+
+    state: {
+        index: State<any>,
+    },
+
+    active: () -> boolean,
+} & Selected & Unselected & Active & Hovered
+
+-- Tree
+
+export type Tree = ParentWidget & {
+    arguments: {
+        Text: string?,
+        SpanAvailWidth: boolean?,
+        NoIndent: boolean?,
+    },
+
+    state: {
+        isUncollapsed: State<boolean>,
+    },
+} & Collapsed & Uncollapsed & Hovered
+
+export type CollapsingHeader = ParentWidget & {
+    arguments: {
+        Text: string?,
+    },
+
+    state: {
+        isUncollapsed: State<boolean>,
+    },
+} & Collapsed & Uncollapsed & Hovered
+
+-- Input
+export type Input<T> = Widget & {
+    arguments: {
+        Text: string?,
+        Increment: T?,
+        Min: T?,
+        Max: T?,
+        Format: string? | { string }?,
+    },
+
+    state: {
+        number: State<T>,
+        editingText: State<boolean>,
+    },
+} & NumberChanged & Hovered
+
+-- Drag
+
+export type Drag<T> = Input<T>
+
+-- Slider
+
+export type Slider<T> = Input<T>
+
+-- Combo
+
+export type Selectable = Widget & {
+    arguments: {
+        Text: string?,
+        Index: any?,
+        NoClick: boolean?,
+    },
+
+    state: {
+        index: State<any>,
+    },
+} & Selected & Unselected & Clicked & RightClicked & DoubleClicked & CtrlClicked & Hovered
+
+export type Combo = ParentWidget & {
+    ButtonColors: { [string]: Color3 | number },
+    ComboChildrenHeight: number,
+
+    arguments: {
+        Text: string?,
+        NoButton: boolean?,
+        NoPreview: boolean?,
+    },
+
+    state: {
+        index: State<any>,
+        isOpened: State<boolean>,
+    },
+} & Opened & Closed & Clicked & Hovered
+
+-- Plot
+
+export type ProgressBar = Widget & {
+    arguments: {
+        Text: string?,
+        Format: string?,
+    },
+
+    state: {
+        progress: State<number>,
+    },
+} & Changed & Hovered
+
+export type Table = ParentWidget & {
+    RowColumnIndex: number,
+    InitialNumColumns: number,
+    ColumnInstances: { Frame },
+    CellInstances: { Frame },
+
+    arguments: {
+        NumColumns: number,
+        RowBg: boolean?,
+        BordersOuter: boolean?,
+        BordersInner: boolean?,
+    },
+} & Hovered
+
+return {}

@@ -274,7 +274,7 @@ return function(Iris: Types.Iris)
     Iris.Indent = wrapper("Indent")
 
     --[=[
-        @prop Sameline Iris.Sameline
+        @prop SameLine Iris.SameLine
         @within Format
         @tag Widget
         @tag HasChildren

@@ -1,4 +1,74 @@
-export type ID = string
+local WidgetTypes = require(script.Parent.WidgetTypes)
+
+export type ID = WidgetTypes.ID
+export type State<T> = WidgetTypes.State<T>
+
+export type Hovered = WidgetTypes.Hovered
+export type Clicked = WidgetTypes.Clicked
+export type RightClicked = WidgetTypes.RightClicked
+export type DoubleClicked = WidgetTypes.DoubleClicked
+export type CtrlClicked = WidgetTypes.CtrlClicked
+export type Active = WidgetTypes.Active
+export type Checked = WidgetTypes.Checked
+export type Unchecked = WidgetTypes.Unchecked
+export type Opened = WidgetTypes.Opened
+export type Closed = WidgetTypes.Closed
+export type Collapsed = WidgetTypes.Collapsed
+export type Uncollapsed = WidgetTypes.Uncollapsed
+export type Selected = WidgetTypes.Selected
+export type Unselected = WidgetTypes.Unselected
+export type Changed = WidgetTypes.Changed
+export type NumberChanged = WidgetTypes.NumberChanged
+export type TextChanged = WidgetTypes.TextChanged
+
+export type Widget = WidgetTypes.Widget
+export type ParentWidget = WidgetTypes.ParentWidget
+export type StateWidget = WidgetTypes.StateWidget
+
+export type Root = WidgetTypes.Root
+export type Window = WidgetTypes.Window
+export type Tooltip = WidgetTypes.Tooltip
+export type MenuBar = WidgetTypes.MenuBar
+export type Menu = WidgetTypes.Menu
+export type MenuItem = WidgetTypes.MenuItem
+export type MenuToggle = WidgetTypes.MenuToggle
+export type Separator = WidgetTypes.Separator
+export type Indent = WidgetTypes.Indent
+export type SameLine = WidgetTypes.SameLine
+export type Group = WidgetTypes.Group
+export type Text = WidgetTypes.Text
+export type SeparatorText = WidgetTypes.SeparatorText
+export type Button = WidgetTypes.Button
+export type SmallButton = WidgetTypes.SmallButton
+export type Checkbox = WidgetTypes.Checkbox
+export type RadioButton = WidgetTypes.RadioButton
+export type Tree = WidgetTypes.Tree
+export type CollapsingHeader = WidgetTypes.CollapsingHeader
+export type InputNum = WidgetTypes.InputNum
+export type InputVector2 = WidgetTypes.InputVector2
+export type InputVector3 = WidgetTypes.InputVector3
+export type InputUDim = WidgetTypes.InputUDim
+export type InputUDim2 = WidgetTypes.InputUDim2
+export type InputRect = WidgetTypes.InputRect
+export type InputColor3 = WidgetTypes.InputColor3
+export type InputColor4 = WidgetTypes.InputColor4
+export type InputText = WidgetTypes.InputText
+export type DragNum = WidgetTypes.DragNum
+export type DragVector2 = WidgetTypes.DragVector2
+export type DragVector3 = WidgetTypes.DragVector3
+export type DragUDim = WidgetTypes.DragUDim
+export type DragUDim2 = WidgetTypes.DragUDim2
+export type DragRect = WidgetTypes.DragRect
+export type SliderNum = WidgetTypes.SliderNum
+export type SliderVector2 = WidgetTypes.SliderVector2
+export type SliderVector3 = WidgetTypes.SliderVector3
+export type SliderUDim = WidgetTypes.SliderUDim
+export type SliderUDim2 = WidgetTypes.SliderUDim2
+export type SliderRect = WidgetTypes.SliderRect
+export type Selectable = WidgetTypes.Selectable
+export type Combo = WidgetTypes.Combo
+export type ProgressBar = WidgetTypes.ProgressBar
+export type Table = WidgetTypes.Table
 
 export type Argument = any
 export type Arguments = {
@@ -49,16 +119,6 @@ export type Arguments = {
     Disabled: boolean,
 }
 
-export type State<T> = {
-    value: T,
-    ConnectedWidgets: { [ID]: string },
-    ConnectedFunctions: { (T) -> () },
-
-    get: (self: State<T>) -> T,
-    set: (self: State<T>, newValue: T) -> (),
-    onChange: (self: State<T>, funcToConnect: (T) -> ()) -> (),
-}
-
 export type States = {
     [string]: State<any>,
     number: State<number>,
@@ -105,81 +165,6 @@ export type WidgetStates = {
     isChecked: State<boolean>?,
     isOpened: State<boolean>?,
     isUncollapsed: State<boolean>?,
-}
-
-export type Widget = {
-    ID: ID,
-    type: string,
-    state: States,
-    lastCycleTick: number,
-    trackedEvents: {},
-
-    parentWidget: Widget,
-    Instance: GuiObject,
-    ChildContainer: GuiObject,
-    Disabled: boolean,
-    arguments: Arguments,
-    providedArguments: Arguments,
-    ZIndex: number,
-
-    usesScreenGUI: boolean,
-    ButtonColors: { [string]: Color3 | number },
-    ComboChildrenHeight: number,
-
-    -- Table properties
-    RowColumnIndex: number,
-    InitialNumColumns: number,
-    ColumnInstances: { Frame },
-    CellInstances: { Frame },
-
-    -- Event Props
-    isHoveredEvent: boolean,
-
-    lastClickedTick: number,
-    lastClickedTime: number,
-    lastClickedPosition: Vector2,
-
-    lastRightClickedTick: number,
-    lastDoubleClickedTick: number,
-    lastCtrlClickedTick: number,
-
-    lastCheckedTick: number,
-    lastUncheckedTick: number,
-    lastOpenedTick: number,
-    lastClosedTick: number,
-    lastSelectedTick: number,
-    lastUnselectedTick: number,
-    lastCollapsedTick: number,
-    lastUncollapsedTick: number,
-
-    lastNumberChangedTick: number,
-    lastTextchangeTick: number,
-    lastShortcutTick: number,
-
-    -- Events
-    hovered: EventAPI,
-    clicked: EventAPI,
-    rightClicked: EventAPI,
-    ctrlClicked: EventAPI,
-    doubleClicked: EventAPI,
-
-    checked: EventAPI,
-    unchecked: EventAPI,
-    activated: EventAPI,
-    deactivated: EventAPI,
-    collapsed: EventAPI,
-    uncollapsed: EventAPI,
-    selected: EventAPI,
-    unselected: EventAPI,
-    opened: EventAPI,
-    closed: EventAPI,
-
-    active: EventAPI,
-
-    numberChanged: EventAPI,
-    textChanged: EventAPI,
-
-    [string]: EventAPI & State<any>,
 }
 
 export type WidgetClass = {
@@ -284,7 +269,7 @@ export type Internal = {
     _widgetCount: number,
     _stackIndex: number,
     _rootInstance: GuiObject?,
-    _rootWidget: Widget,
+    _rootWidget: ParentWidget,
     _lastWidget: Widget,
     SelectionImageObject: Frame,
     parentInstance: BasePlayerGui,
@@ -622,4 +607,6 @@ export type Config = {
     MouseDragThreshold: number,
 }
 
-return {}
+return {
+    Widgets = script.Parent.WidgetTypes,
+}

@@ -80,7 +80,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local isDragging: boolean = false
     local moveDeltaCursorPosition: Vector2 -- cursor offset from drag origin (top left of window)
 
-    local resizeWindow: Types.Widget? -- window being resized, may be nil
+    local resizeWindow: Types.Window? -- window being resized, may be nil
     local isResizing = false
     local isInsideResize = false -- is cursor inside of the focused window resize outer padding
     local isInsideWindow = false -- is cursor inside of the focused window
@@ -89,10 +89,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
     local lastCursorPosition: Vector2
 
-    local focusedWindow: Types.Widget? -- window with focus, may be nil
+    local focusedWindow: Types.Window? -- window with focus, may be nil
     local anyFocusedWindow: boolean = false -- is there any focused window?
 
-    local windowWidgets: { [Types.ID]: Types.Widget } = {} -- array of widget objects of type window
+    local windowWidgets: { [Types.ID]: Types.Window } = {} -- array of widget objects of type window
 
     local function quickSwapWindows()
         -- ctrl + tab swapping functionality
@@ -186,7 +186,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             WindowButton.UIStroke.Color = Iris._config.BorderActiveColor
 
             windowDisplayOrder += 1
-            if thisWidget.usesScreenGUI then
+            if thisWidget.usesScreenGuis then
                 Window.DisplayOrder = windowDisplayOrder + Iris._config.DisplayOrderOffset
             else
                 Window.ZIndex = windowDisplayOrder + Iris._config.DisplayOrderOffset
@@ -378,14 +378,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return Window.WindowButton
             end),
         },
-        Generate = function(thisWidget: Types.Widget)
+        Generate = function(thisWidget: Types.Window)
             thisWidget.parentWidget = Iris._rootWidget -- only allow root as parent
 
-            thisWidget.usesScreenGUI = Iris._config.UseScreenGUIs
+            thisWidget.usesScreenGuis = Iris._config.UseScreenGUIs
             windowWidgets[thisWidget.ID] = thisWidget
 
             local Window
-            if thisWidget.usesScreenGUI then
+            if thisWidget.usesScreenGuis then
                 Window = Instance.new("ScreenGui")
                 Window.ResetOnSpawn = false
                 Window.DisplayOrder = Iris._config.DisplayOrderOffset
@@ -714,7 +714,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return Window
         end,
-        Update = function(thisWidget: Types.Widget)
+        Update = function(thisWidget: Types.Window)
             local WindowGui = thisWidget.Instance :: GuiObject
             local WindowButton = WindowGui.WindowButton :: TextButton
             local Content = WindowButton.Content :: Frame
@@ -771,7 +771,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             Title.Text = thisWidget.arguments.Title or ""
         end,
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.Window)
             if focusedWindow == thisWidget then
                 focusedWindow = nil
                 anyFocusedWindow = false
@@ -788,7 +788,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             thisWidget.Instance:Destroy()
             widgets.discardState(thisWidget)
         end,
-        ChildAdded = function(thisWidget: Types.Widget, thisChid: Types.Widget)
+        ChildAdded = function(thisWidget: Types.Window, thisChid: Types.Widget)
             local Window = thisWidget.Instance :: Frame
             local WindowButton = Window.WindowButton :: TextButton
             local Content = WindowButton.Content :: Frame
@@ -800,7 +800,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
             return Content.ChildContainer
         end,
-        UpdateState = function(thisWidget: Types.Widget)
+        UpdateState = function(thisWidget: Types.Window)
             local stateSize: Vector2 = thisWidget.state.size.value
             local statePosition: Vector2 = thisWidget.state.position.value
             local stateIsUncollapsed: boolean = thisWidget.state.isUncollapsed.value
@@ -819,7 +819,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             WindowButton.Position = UDim2.fromOffset(statePosition.X, statePosition.Y)
 
             if stateIsOpened then
-                if thisWidget.usesScreenGUI then
+                if thisWidget.usesScreenGuis then
                     Window.Enabled = true
                     WindowButton.Visible = true
                 else
@@ -828,7 +828,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
                 thisWidget.lastOpenedTick = Iris._cycleTick + 1
             else
-                if thisWidget.usesScreenGUI then
+                if thisWidget.usesScreenGuis then
                     Window.Enabled = false
                     WindowButton.Visible = false
                 else
@@ -884,7 +884,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
             end
         end,
-        GenerateState = function(thisWidget: Types.Widget)
+        GenerateState = function(thisWidget: Types.Window)
             if thisWidget.state.size == nil then
                 thisWidget.state.size = Iris._widgetState(thisWidget, "size", Vector2.new(400, 300))
             end

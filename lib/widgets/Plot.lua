@@ -17,7 +17,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ["changed"] = {
                     ["Init"] = function(_thisWidget: Types.Widget) end,
                     ["Get"] = function(thisWidget: Types.Widget)
-                        return thisWidget.lastNumberChangedTick == Iris._cycleTick
+                        return thisWidget.lastChangedTick == Iris._cycleTick
                     end,
                 },
             },
@@ -133,7 +133,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 else
                     Value.Text = string.format("%d%%", progress * 100)
                 end
-                thisWidget.lastNumberChangedTick = Iris._cycleTick + 1
+                thisWidget.lastChangedTick = Iris._cycleTick + 1
             end,
             Discard = function(thisWidget: Types.Widget)
                 thisWidget.Instance:Destroy()

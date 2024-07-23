@@ -363,60 +363,42 @@ return function(Iris: Types.Internal)
 
     function widgets.applyButtonClick(thisWidget: Types.Widget, thisInstance: GuiButton, callback: () -> ())
         thisInstance.MouseButton1Click:Connect(function()
-            if thisWidget.Disabled then
-                return
-            end
             callback()
         end)
     end
 
     function widgets.applyButtonDown(thisWidget: Types.Widget, thisInstance: GuiButton, callback: (x: number, y: number) -> ())
         thisInstance.MouseButton1Down:Connect(function(...)
-            if thisWidget.Disabled then
-                return
-            end
             callback(...)
         end)
     end
 
     function widgets.applyMouseEnter(thisWidget: Types.Widget, thisInstance: GuiObject, callback: () -> ())
         thisInstance.MouseEnter:Connect(function(...)
-            if thisWidget.Disabled then
-                return
-            end
             callback()
         end)
     end
 
     function widgets.applyMouseLeave(thisWidget: Types.Widget, thisInstance: GuiObject, callback: () -> ())
         thisInstance.MouseLeave:Connect(function(...)
-            if thisWidget.Disabled then
-                return
-            end
             callback()
         end)
     end
 
     function widgets.applyInputBegan(thisWidget: Types.Widget, thisInstance: GuiButton, callback: (input: InputObject) -> ())
         thisInstance.InputBegan:Connect(function(...)
-            if thisWidget.Disabled then
-                return
-            end
             callback(...)
         end)
     end
 
     function widgets.applyInputEnded(thisWidget: Types.Widget, thisInstance: GuiButton, callback: (input: InputObject) -> ())
         thisInstance.InputEnded:Connect(function(...)
-            if thisWidget.Disabled then
-                return
-            end
             callback(...)
         end)
     end
 
-    function widgets.discardState(thisWidget: Types.Widget)
-        for _, state: Types.State in thisWidget.state do
+    function widgets.discardState(thisWidget: Types.StateWidget)
+        for _, state: Types.State<any> in thisWidget.state do
             state.ConnectedWidgets[thisWidget.ID] = nil
         end
     end
@@ -430,7 +412,7 @@ return function(Iris: Types.Internal)
     widgets.EVENTS = {
         hover = function(pathToHovered: (thisWidget: Types.Widget) -> GuiObject)
             return {
-                ["Init"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(thisWidget: Types.Widget & Types.Hovered)
                     local hoveredGuiObject: GuiObject = pathToHovered(thisWidget)
                     widgets.applyMouseEnter(thisWidget, hoveredGuiObject, function()
                         thisWidget.isHoveredEvent = true
@@ -440,7 +422,7 @@ return function(Iris: Types.Internal)
                     end)
                     thisWidget.isHoveredEvent = false
                 end,
-                ["Get"] = function(thisWidget: Types.Widget): boolean
+                ["Get"] = function(thisWidget: Types.Widget & Types.Hovered): boolean
                     return thisWidget.isHoveredEvent
                 end,
             }
@@ -448,7 +430,7 @@ return function(Iris: Types.Internal)
 
         click = function(pathToClicked: (thisWidget: Types.Widget) -> GuiButton)
             return {
-                ["Init"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(thisWidget: Types.Widget & Types.Clicked)
                     local clickedGuiObject: GuiButton = pathToClicked(thisWidget)
                     thisWidget.lastClickedTick = -1
 
@@ -456,7 +438,7 @@ return function(Iris: Types.Internal)
                         thisWidget.lastClickedTick = Iris._cycleTick + 1
                     end)
                 end,
-                ["Get"] = function(thisWidget: Types.Widget): boolean
+                ["Get"] = function(thisWidget: Types.Widget & Types.Clicked): boolean
                     return thisWidget.lastClickedTick == Iris._cycleTick
                 end,
             }
@@ -464,18 +446,15 @@ return function(Iris: Types.Internal)
 
         rightClick = function(pathToClicked: (thisWidget: Types.Widget) -> GuiButton)
             return {
-                ["Init"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(thisWidget: Types.Widget & Types.RightClicked)
                     local clickedGuiObject: GuiButton = pathToClicked(thisWidget)
                     thisWidget.lastRightClickedTick = -1
 
                     clickedGuiObject.MouseButton2Click:Connect(function()
-                        if thisWidget.Disabled then
-                            return
-                        end
                         thisWidget.lastRightClickedTick = Iris._cycleTick + 1
                     end)
                 end,
-                ["Get"] = function(thisWidget: Types.Widget): boolean
+                ["Get"] = function(thisWidget: Types.Widget & Types.RightClicked): boolean
                     return thisWidget.lastRightClickedTick == Iris._cycleTick
                 end,
             }
@@ -483,7 +462,7 @@ return function(Iris: Types.Internal)
 
         doubleClick = function(pathToClicked: (thisWidget: Types.Widget) -> GuiButton)
             return {
-                ["Init"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(thisWidget: Types.Widget & Types.DoubleClicked)
                     local clickedGuiObject: GuiButton = pathToClicked(thisWidget)
                     thisWidget.lastClickedTime = -1
                     thisWidget.lastClickedPosition = Vector2.zero
@@ -500,7 +479,7 @@ return function(Iris: Types.Internal)
                         end
                     end)
                 end,
-                ["Get"] = function(thisWidget: Types.Widget): boolean
+                ["Get"] = function(thisWidget: Types.Widget & Types.DoubleClicked): boolean
                     return thisWidget.lastDoubleClickedTick == Iris._cycleTick
                 end,
             }
@@ -508,7 +487,7 @@ return function(Iris: Types.Internal)
 
         ctrlClick = function(pathToClicked: (thisWidget: Types.Widget) -> GuiButton)
             return {
-                ["Init"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(thisWidget: Types.Widget & Types.CtrlClicked)
                     local clickedGuiObject: GuiButton = pathToClicked(thisWidget)
                     thisWidget.lastCtrlClickedTick = -1
 
@@ -518,7 +497,7 @@ return function(Iris: Types.Internal)
                         end
                     end)
                 end,
-                ["Get"] = function(thisWidget: Types.Widget): boolean
+                ["Get"] = function(thisWidget: Types.Widget & Types.CtrlClicked): boolean
                     return thisWidget.lastCtrlClickedTick == Iris._cycleTick
                 end,
             }

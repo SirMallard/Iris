@@ -452,7 +452,6 @@ return function(Iris: Types.Iris): Types.Internal
         end
 
         thisWidget.lastCycleTick = Internal._cycleTick
-        thisWidget.Disabled = Iris._config.DisableWidget
 
         if thisWidgetClass.hasChildren then
             -- a parent widget, so we increase our depth.
