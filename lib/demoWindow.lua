@@ -171,7 +171,7 @@ return function(Iris: Types.Iris)
                 end
                 Iris.End()
 
-                local secondHeader = Iris.State(true)
+                local secondHeader = Iris.State(false)
                 Iris.CollapsingHeader({ "Another header" }, { isUncollapsed = secondHeader })
                 do
                     if Iris.Button({ "Shhh... secret button!" }).clicked() then

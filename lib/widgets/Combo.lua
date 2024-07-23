@@ -175,7 +175,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
         local MouseLocation: Vector2 = widgets.getMouseLocation()
         local ChildContainer = OpenedCombo.ChildContainer
-        local rectMin: Vector2 = ChildContainer.AbsolutePosition - Vector2.new(0, OpenedCombo.LabelHeight)
+        local rectMin: Vector2 = ChildContainer.AbsolutePosition - Vector2.yAxis * (Iris._config.TextSize + 2 * Iris._config.FramePadding.Y)
         local rectMax: Vector2 = ChildContainer.AbsolutePosition + ChildContainer.AbsoluteSize
         if not widgets.isPosInsideRect(MouseLocation, rectMin, rectMax) then
             OpenedCombo.state.isOpened:set(false)

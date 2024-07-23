@@ -247,7 +247,6 @@ local TemplateConfig = {
         Parent = nil,
         RichText = false,
         TextWrapped = false,
-        DisableWidget = false, -- currently unused
         DisplayOrderOffset = 127,
         ZIndexOffset = 0,
 

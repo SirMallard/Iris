@@ -818,13 +818,12 @@ return function(Iris: Types.Iris): Types.Internal
         Performs a deep copy of a table so that neither table contains a shared reference.
     ]=]
     function Internal._deepCopy(t: {}): {}
-        local copy: {} = {}
+        local copy: {} = table.clone(t)
 
         for k: any, v: any in pairs(t) do
             if type(v) == "table" then
-                v = Internal._deepCopy(v)
+                copy[k] = Internal._deepCopy(v)
             end
-            copy[k] = v
         end
 
         return copy

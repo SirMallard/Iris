@@ -378,54 +378,36 @@ return function(Iris: Types.Internal)
 
     function widgets.applyButtonClick(thisWidget: Types.Widget, thisInstance: GuiButton, callback: () -> ())
         thisInstance.MouseButton1Click:Connect(function()
-            if thisWidget.Disabled then
-                return
-            end
             callback()
         end)
     end
 
     function widgets.applyButtonDown(thisWidget: Types.Widget, thisInstance: GuiButton, callback: (x: number, y: number) -> ())
         thisInstance.MouseButton1Down:Connect(function(...)
-            if thisWidget.Disabled then
-                return
-            end
             callback(...)
         end)
     end
 
     function widgets.applyMouseEnter(thisWidget: Types.Widget, thisInstance: GuiObject, callback: () -> ())
         thisInstance.MouseEnter:Connect(function(...)
-            if thisWidget.Disabled then
-                return
-            end
             callback()
         end)
     end
 
     function widgets.applyMouseLeave(thisWidget: Types.Widget, thisInstance: GuiObject, callback: () -> ())
         thisInstance.MouseLeave:Connect(function(...)
-            if thisWidget.Disabled then
-                return
-            end
             callback()
         end)
     end
 
     function widgets.applyInputBegan(thisWidget: Types.Widget, thisInstance: GuiButton, callback: (input: InputObject) -> ())
         thisInstance.InputBegan:Connect(function(...)
-            if thisWidget.Disabled then
-                return
-            end
             callback(...)
         end)
     end
 
     function widgets.applyInputEnded(thisWidget: Types.Widget, thisInstance: GuiButton, callback: (input: InputObject) -> ())
         thisInstance.InputEnded:Connect(function(...)
-            if thisWidget.Disabled then
-                return
-            end
             callback(...)
         end)
     end
@@ -484,9 +466,6 @@ return function(Iris: Types.Internal)
                     thisWidget.lastRightClickedTick = -1
 
                     clickedGuiObject.MouseButton2Click:Connect(function()
-                        if thisWidget.Disabled then
-                            return
-                        end
                         thisWidget.lastRightClickedTick = Iris._cycleTick + 1
                     end)
                 end,

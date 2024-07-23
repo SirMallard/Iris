@@ -629,7 +629,6 @@ export type Config = {
     Parent: BasePlayerGui,
     RichText: boolean,
     TextWrapped: boolean,
-    DisableWidget: boolean,
     DisplayOrderOffset: number,
     ZIndexOffset: number,
 

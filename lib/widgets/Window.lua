@@ -127,7 +127,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
     local function fitSizeToWindowBounds(thisWidget: Types.Widget, intentedSize: Vector2): Vector2
         local windowSize: Vector2 = Vector2.new(thisWidget.state.position.value.X, thisWidget.state.position.value.Y)
-        local minWindowSize: number = (Iris._config.TextSize + Iris._config.FramePadding.Y * 2) * 2
+        local minWindowSize: number = (Iris._config.TextSize + 2 * Iris._config.FramePadding.Y) * 2
         local usableSize: Vector2 = widgets.getScreenSizeForWindow(thisWidget)
         local safeAreaPadding: Vector2 = Vector2.new(Iris._config.WindowBorderSize + Iris._config.DisplaySafeAreaPadding.X, Iris._config.WindowBorderSize + Iris._config.DisplaySafeAreaPadding.Y)
 

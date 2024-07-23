@@ -1346,7 +1346,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 thisWidget.lastTextchangeTick = Iris._cycleTick + 1
             end)
 
-            local frameHeight: number = Iris._config.TextSize + Iris._config.FramePadding.Y * 2
+            local frameHeight: number = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
 
             local TextLabel: TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
