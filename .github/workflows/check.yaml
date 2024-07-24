@@ -1,0 +1,31 @@
+name: "Formatter and Linter"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: AlejandroSuero/selene-linter-action@v1.0.0
+        with:
+          version: 0.27.1
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --quiet .
+
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: JohnnyMorganz/stylua-action@v4
+        with:
+          version: 0.20.0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --check .

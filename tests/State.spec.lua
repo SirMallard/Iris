@@ -1,33 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-type Expectation = {
-    to: Expectation,
-    be: Expectation,
-    been: Expectation,
-    have: Expectation,
-    was: Expectation,
-    at: Expectation,
-
-    never: Expectation,
-
-    a: (typeName: string) -> Expectation,
-    an: (typeName: string) -> Expectation,
-    ok: () -> Expectation,
-    equal: (otherValue: any) -> Expectation,
-    throw: (message: string) -> Expectation,
-    near: (otherValue: number, limit: number?) -> Expectation,
-}
-
--- this will error and there is nothing I can do about it.
-describe = describe :: (phrase: string, callback: () -> ()) -> ()
-it = it :: (phrase: string, callback: () -> ()) -> ()
-expect = expect :: (any) -> Expectation
-
-beforeAll = beforeAll :: (callback: () -> ()) -> ()
-afterAll = afterAll :: (callback: () -> ()) -> ()
-beforeEach = beforeEach :: (callback: () -> ()) -> ()
-afterEach = afterEach :: (callback: () -> ()) -> ()
-
 return function()
     local Iris = require(ReplicatedStorage.Iris)
 
