@@ -6,14 +6,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         hasChildren = true,
         Events = {
             ["collapsed"] = {
-                ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(_thisWidget: Types.CollapsingHeader) end,
+                ["Get"] = function(thisWidget: Types.CollapsingHeader)
                     return thisWidget.lastCollapsedTick == Iris._cycleTick
                 end,
             },
             ["uncollapsed"] = {
-                ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(_thisWidget: Types.CollapsingHeader) end,
+                ["Get"] = function(thisWidget: Types.CollapsingHeader)
                     return thisWidget.lastUncollapsedTick == Iris._cycleTick
                 end,
             },
@@ -21,11 +21,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return thisWidget.Instance
             end),
         },
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.CollapsingHeader)
             thisWidget.Instance:Destroy()
             widgets.discardState(thisWidget)
         end,
-        ChildAdded = function(thisWidget: Types.Widget)
+        ChildAdded = function(thisWidget: Types.CollapsingHeader, _childWidget: Types.Widget)
             local Tree = thisWidget.Instance :: Frame
             local ChildContainer: Frame = Tree.ChildContainer
 
@@ -33,7 +33,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return ChildContainer
         end,
-        UpdateState = function(thisWidget: Types.Widget)
+        UpdateState = function(thisWidget: Types.CollapsingHeader)
             local isUncollapsed: boolean = thisWidget.state.isUncollapsed.value
             local Tree = thisWidget.Instance :: Frame
             local ChildContainer: Frame = Tree.ChildContainer
@@ -50,7 +50,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             ChildContainer.Visible = isUncollapsed
         end,
-        GenerateState = function(thisWidget: Types.Widget)
+        GenerateState = function(thisWidget: Types.CollapsingHeader)
             if thisWidget.state.isUncollapsed == nil then
                 thisWidget.state.isUncollapsed = Iris._widgetState(thisWidget, "isUncollapsed", false)
             end
@@ -66,7 +66,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ["SpanAvailWidth"] = 2,
                 ["NoIndent"] = 3,
             },
-            Generate = function(thisWidget: Types.Widget)
+            Generate = function(thisWidget: Types.Tree)
                 local Tree: Frame = Instance.new("Frame")
                 Tree.Name = "Iris_Tree"
                 Tree.Size = UDim2.new(Iris._config.ItemWidth, UDim.new(0, 0))
@@ -108,13 +108,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Button.Text = ""
                 Button.AutoButtonColor = false
 
-                widgets.applyInteractionHighlights(thisWidget, Button, Header, {
-                    ButtonColor = Color3.fromRGB(0, 0, 0),
-                    ButtonTransparency = 1,
-                    ButtonHoveredColor = Iris._config.HeaderHoveredColor,
-                    ButtonHoveredTransparency = Iris._config.HeaderHoveredTransparency,
-                    ButtonActiveColor = Iris._config.HeaderActiveColor,
-                    ButtonActiveTransparency = Iris._config.HeaderActiveTransparency,
+                widgets.applyInteractionHighlights(thisWidget, "Background", Button, Header, {
+                    Color = Color3.fromRGB(0, 0, 0),
+                    Transparency = 1,
+                    HoveredColor = Iris._config.HeaderHoveredColor,
+                    HoveredTransparency = Iris._config.HeaderHoveredTransparency,
+                    ActiveColor = Iris._config.HeaderActiveColor,
+                    ActiveTransparency = Iris._config.HeaderActiveTransparency,
                 })
 
                 local ButtonPadding: UIPadding = widgets.UIPadding(Button, Vector2.zero)
@@ -154,7 +154,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 return Tree
             end,
-            Update = function(thisWidget: Types.Widget)
+            Update = function(thisWidget: Types.Tree)
                 local Tree = thisWidget.Instance :: Frame
                 local Header = Tree.Header :: Frame
                 local Button = Header.Button :: TextButton
@@ -187,7 +187,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Args = {
                 ["Text"] = 1,
             },
-            Generate = function(thisWidget: Types.Widget)
+            Generate = function(thisWidget: Types.CollapsingHeader)
                 local CollapsingHeader: Frame = Instance.new("Frame")
                 CollapsingHeader.Name = "Iris_CollapsingHeader"
                 CollapsingHeader.Size = UDim2.new(Iris._config.ItemWidth, UDim.new(0, 0))
@@ -238,13 +238,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 local ButtonUIListLayout: UIListLayout = widgets.UIListLayout(Button, Enum.FillDirection.Horizontal, UDim.new(0, 2 * Iris._config.FramePadding.X))
                 ButtonUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
-                widgets.applyInteractionHighlights(thisWidget, Button, Button, {
-                    ButtonColor = Iris._config.HeaderColor,
-                    ButtonTransparency = Iris._config.HeaderTransparency,
-                    ButtonHoveredColor = Iris._config.HeaderHoveredColor,
-                    ButtonHoveredTransparency = Iris._config.HeaderHoveredTransparency,
-                    ButtonActiveColor = Iris._config.HeaderActiveColor,
-                    ButtonActiveTransparency = Iris._config.HeaderActiveTransparency,
+                widgets.applyInteractionHighlights(thisWidget, "Background", Button, Button, {
+                    Color = Iris._config.HeaderColor,
+                    Transparency = Iris._config.HeaderTransparency,
+                    HoveredColor = Iris._config.HeaderHoveredColor,
+                    HoveredTransparency = Iris._config.HeaderHoveredTransparency,
+                    ActiveColor = Iris._config.HeaderActiveColor,
+                    ActiveTransparency = Iris._config.HeaderActiveTransparency,
                 })
 
                 Button.Parent = Header
@@ -280,7 +280,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 return CollapsingHeader
             end,
-            Update = function(thisWidget: Types.Widget)
+            Update = function(thisWidget: Types.CollapsingHeader)
                 local Tree = thisWidget.Instance :: Frame
                 local Header = Tree.Header :: Frame
                 local Button = Header.Button :: TextButton

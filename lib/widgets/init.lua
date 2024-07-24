@@ -20,7 +20,7 @@ return function(Iris: Types.Internal)
     }
 
     widgets.IS_STUDIO = widgets.RunService:IsStudio()
-    function widgets.getTime()
+    function widgets.getTime(): number
         -- time() always returns 0 in the context of plugins
         if widgets.IS_STUDIO then
             return os.clock()
@@ -29,8 +29,8 @@ return function(Iris: Types.Internal)
         end
     end
 
-    function widgets.setGuiInset()
-        local inset = widgets.GuiService:GetGuiInset()
+    function widgets.setGuiInset(): Vector2
+        local inset: Vector2 = widgets.GuiService:GetGuiInset()
 
         -- Inset is not guaranteed to be set upon initialization.
         if inset.Magnitude > 0 then
@@ -40,7 +40,7 @@ return function(Iris: Types.Internal)
         return inset
     end
 
-    function widgets.getGuiInset()
+    function widgets.getGuiInset(): Vector2
         return widgets.GuiInset or widgets.setGuiInset()
     end
 
@@ -155,25 +155,6 @@ return function(Iris: Types.Internal)
 
     -- below uses Iris
 
-    local textParams: GetTextBoundsParams = Instance.new("GetTextBoundsParams")
-    textParams.Font = Iris._config.TextFont
-    textParams.Size = Iris._config.TextSize
-    textParams.Width = math.huge
-    function widgets.calculateTextSize(text: string, width: number?): Vector2
-        if width then
-            textParams.Width = width
-        end
-        textParams.Text = text
-
-        local size: Vector2 = widgets.TextService:GetTextBoundsAsync(textParams)
-
-        if width then
-            textParams.Width = math.huge
-        end
-
-        return size
-    end
-
     function widgets.applyTextStyle(thisInstance: TextLabel & TextButton & TextBox)
         thisInstance.FontFace = Iris._config.TextFont
         thisInstance.TextSize = Iris._config.TextSize
@@ -186,18 +167,18 @@ return function(Iris: Types.Internal)
         thisInstance.AutoLocalize = false
     end
 
-    function widgets.applyInteractionHighlights(thisWidget: Types.Widget, Button: GuiButton, Highlightee: GuiObject, Colors: { [string]: any })
+    function widgets.applyInteractionHighlights(thisWidget: Types.Widget, property: string, Button: GuiButton, Highlightee: GuiObject, Colors: { [string]: any })
         local exitedButton: boolean = false
         widgets.applyMouseEnter(thisWidget, Button, function()
-            Highlightee.BackgroundColor3 = Colors.ButtonHoveredColor
-            Highlightee.BackgroundTransparency = Colors.ButtonHoveredTransparency
+            Highlightee[property .. "Color3"] = Colors.HoveredColor
+            Highlightee[property .. "Transparency"] = Colors.HoveredTransparency
 
             exitedButton = false
         end)
 
         widgets.applyMouseLeave(thisWidget, Button, function()
-            Highlightee.BackgroundColor3 = Colors.ButtonColor
-            Highlightee.BackgroundTransparency = Colors.ButtonTransparency
+            Highlightee[property .. "Color3"] = Colors.Color
+            Highlightee[property .. "Transparency"] = Colors.Transparency
 
             exitedButton = true
         end)
@@ -206,8 +187,8 @@ return function(Iris: Types.Internal)
             if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) then
                 return
             end
-            Highlightee.BackgroundColor3 = Colors.ButtonActiveColor
-            Highlightee.BackgroundTransparency = Colors.ButtonActiveTransparency
+            Highlightee[property .. "Color3"] = Colors.ActiveColor
+            Highlightee[property .. "Transparency"] = Colors.ActiveTransparency
         end)
 
         widgets.applyInputEnded(thisWidget, Button, function(input: InputObject)
@@ -215,12 +196,12 @@ return function(Iris: Types.Internal)
                 return
             end
             if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                Highlightee.BackgroundColor3 = Colors.ButtonHoveredColor
-                Highlightee.BackgroundTransparency = Colors.ButtonHoveredTransparency
+                Highlightee[property .. "Color3"] = Colors.HoveredColor
+                Highlightee[property .. "Transparency"] = Colors.HoveredTransparency
             end
             if input.UserInputType == Enum.UserInputType.Gamepad1 then
-                Highlightee.BackgroundColor3 = Colors.ButtonColor
-                Highlightee.BackgroundTransparency = Colors.ButtonTransparency
+                Highlightee[property .. "Color3"] = Colors.Color
+                Highlightee[property .. "Transparency"] = Colors.Transparency
             end
         end)
 
@@ -231,8 +212,8 @@ return function(Iris: Types.Internal)
         local exitedButton: boolean = false
         widgets.applyMouseEnter(thisWidget, Button, function()
             for _, Highlightee in Highlightees do
-                Highlightee[1].BackgroundColor3 = Highlightee[2].ButtonHoveredColor
-                Highlightee[1].BackgroundTransparency = Highlightee[2].ButtonHoveredTransparency
+                Highlightee[1].BackgroundColor3 = Highlightee[2].HoveredColor
+                Highlightee[1].BackgroundTransparency = Highlightee[2].HoveredTransparency
 
                 exitedButton = false
             end
@@ -240,8 +221,8 @@ return function(Iris: Types.Internal)
 
         widgets.applyMouseLeave(thisWidget, Button, function()
             for _, Highlightee in Highlightees do
-                Highlightee[1].BackgroundColor3 = Highlightee[2].ButtonColor
-                Highlightee[1].BackgroundTransparency = Highlightee[2].ButtonTransparency
+                Highlightee[1].BackgroundColor3 = Highlightee[2].Color
+                Highlightee[1].BackgroundTransparency = Highlightee[2].Transparency
 
                 exitedButton = true
             end
@@ -252,8 +233,8 @@ return function(Iris: Types.Internal)
                 return
             end
             for _, Highlightee in Highlightees do
-                Highlightee[1].BackgroundColor3 = Highlightee[2].ButtonActiveColor
-                Highlightee[1].BackgroundTransparency = Highlightee[2].ButtonActiveTransparency
+                Highlightee[1].BackgroundColor3 = Highlightee[2].ActiveColor
+                Highlightee[1].BackgroundTransparency = Highlightee[2].ActiveTransparency
             end
         end)
 
@@ -263,95 +244,13 @@ return function(Iris: Types.Internal)
             end
             for _, Highlightee in Highlightees do
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    Highlightee[1].BackgroundColor3 = Highlightee[2].ButtonHoveredColor
-                    Highlightee[1].BackgroundTransparency = Highlightee[2].ButtonHoveredTransparency
+                    Highlightee[1].BackgroundColor3 = Highlightee[2].HoveredColor
+                    Highlightee[1].BackgroundTransparency = Highlightee[2].HoveredTransparency
                 end
                 if input.UserInputType == Enum.UserInputType.Gamepad1 then
-                    Highlightee[1].BackgroundColor3 = Highlightee[2].ButtonColor
-                    Highlightee[1].BackgroundTransparency = Highlightee[2].ButtonTransparency
+                    Highlightee[1].BackgroundColor3 = Highlightee[2].Color
+                    Highlightee[1].BackgroundTransparency = Highlightee[2].Transparency
                 end
-            end
-        end)
-
-        Button.SelectionImageObject = Iris.SelectionImageObject
-    end
-
-    function widgets.applyImageInteractionHighlights(thisWidget: Types.Widget, Button: GuiButton, Highlightee: ImageButton, Colors: { [string]: any })
-        local exitedButton: boolean = false
-        widgets.applyMouseEnter(thisWidget, Button, function()
-            Highlightee.ImageColor3 = Colors.ButtonHoveredColor
-            Highlightee.ImageTransparency = Colors.ButtonHoveredTransparency
-
-            exitedButton = false
-        end)
-
-        widgets.applyMouseLeave(thisWidget, Button, function()
-            Highlightee.ImageColor3 = Colors.ButtonColor
-            Highlightee.ImageTransparency = Colors.ButtonTransparency
-
-            exitedButton = true
-        end)
-
-        widgets.applyInputBegan(thisWidget, Button, function(input: InputObject)
-            if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) then
-                return
-            end
-            Highlightee.ImageColor3 = Colors.ButtonActiveColor
-            Highlightee.ImageTransparency = Colors.ButtonActiveTransparency
-        end)
-
-        widgets.applyInputEnded(thisWidget, Button, function(input: InputObject)
-            if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) or exitedButton then
-                return
-            end
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                Highlightee.ImageColor3 = Colors.ButtonHoveredColor
-                Highlightee.ImageTransparency = Colors.ButtonHoveredTransparency
-            end
-            if input.UserInputType == Enum.UserInputType.Gamepad1 then
-                Highlightee.ImageColor3 = Colors.ButtonColor
-                Highlightee.ImageTransparency = Colors.ButtonTransparency
-            end
-        end)
-
-        Button.SelectionImageObject = Iris.SelectionImageObject
-    end
-
-    function widgets.applyTextInteractionHighlights(thisWidget: Types.Widget, Button: GuiButton, Highlightee: TextLabel & TextButton & TextBox, Colors: { [string]: any })
-        local exitedButton = false
-        widgets.applyMouseEnter(thisWidget, Button, function()
-            Highlightee.TextColor3 = Colors.ButtonHoveredColor
-            Highlightee.TextTransparency = Colors.ButtonHoveredTransparency
-
-            exitedButton = false
-        end)
-
-        widgets.applyMouseLeave(thisWidget, Button, function()
-            Highlightee.TextColor3 = Colors.ButtonColor
-            Highlightee.TextTransparency = Colors.ButtonTransparency
-
-            exitedButton = true
-        end)
-
-        widgets.applyInputBegan(thisWidget, Button, function(input: InputObject)
-            if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) then
-                return
-            end
-            Highlightee.TextColor3 = Colors.ButtonActiveColor
-            Highlightee.TextTransparency = Colors.ButtonActiveTransparency
-        end)
-
-        widgets.applyInputEnded(thisWidget, Button, function(input: InputObject)
-            if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) or exitedButton then
-                return
-            end
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                Highlightee.TextColor3 = Colors.ButtonHoveredColor
-                Highlightee.TextTransparency = Colors.ButtonHoveredTransparency
-            end
-            if input.UserInputType == Enum.UserInputType.Gamepad1 then
-                Highlightee.TextColor3 = Colors.ButtonColor
-                Highlightee.TextTransparency = Colors.ButtonTransparency
             end
         end)
 

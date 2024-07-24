@@ -2,7 +2,7 @@ local Types = require(script.Parent.Types)
 
 return function(Iris: Types.Iris)
     -- basic wrapper for nearly every widget, saves space.
-    local function wrapper(name: string): (arguments: Types.WidgetArguments?, states: Types.WidgetStates?) -> Types.Widget
+    local function wrapper(name: string)
         return function(arguments: Types.WidgetArguments?, states: Types.WidgetStates?): Types.Widget
             return Iris.Internal._Insert(name, arguments, states)
         end
@@ -362,9 +362,9 @@ return function(Iris: Types.Iris)
         }
         ```
     ]=]
-    Iris.TextWrapped = function(arguments: Types.WidgetArguments): Types.Widget
+    Iris.TextWrapped = function(arguments: Types.WidgetArguments): Types.Text
         arguments[2] = true
-        return Iris.Internal._Insert("Text", arguments)
+        return Iris.Internal._Insert("Text", arguments) :: Types.Text
     end
 
     --[=[
@@ -387,10 +387,10 @@ return function(Iris: Types.Iris)
         }
         ```
     ]=]
-    Iris.TextColored = function(arguments: Types.WidgetArguments): Types.Widget
+    Iris.TextColored = function(arguments: Types.WidgetArguments): Types.Text
         arguments[3] = arguments[2]
         arguments[2] = nil
-        return Iris.Internal._Insert("Text", arguments)
+        return Iris.Internal._Insert("Text", arguments) :: Types.Text
     end
 
     --[=[
@@ -1389,7 +1389,7 @@ return function(Iris: Types.Iris)
 
     --[=[
         @private
-        @prop SliderNum Iris.SliderNum
+        @prop InputEnum Iris.InputEnum
         @within Slider
         @tag Widget
         @tag HasState
@@ -1401,7 +1401,7 @@ return function(Iris: Types.Iris)
         hasChildren = false
         hasState = true
         Arguments = {
-            Text: string? = "SliderNum",
+            Text: string? = "InputEnum",
             Increment: number? = 1,
             Min: number? = 0,
             Max: number? = 100,
@@ -1413,11 +1413,12 @@ return function(Iris: Types.Iris)
         }
         States = {
             number: State<number>?,
-            editingText: State<boolean>?
+            editingText: State<boolean>?,
+            enumItem: EnumItem
         }
         ```
     ]=]
-    -- Iris.SliderEnum = wrapper("SliderEnum")
+    Iris.InputEnum = Iris.ComboEnum
 
     --[[
         ----------------------------------
@@ -1590,7 +1591,6 @@ return function(Iris: Types.Iris)
 
         return thisWidget
     end
-    Iris.InputEnum = Iris.ComboEnum
 
     --[[
         ---------------------------------
@@ -1670,7 +1670,9 @@ return function(Iris: Types.Iris)
         then the next cell will be the first column of the next row.
     ]=]
     Iris.NextColumn = function()
-        Iris.Internal._GetParentWidget().RowColumnIndex += 1
+        local ParentWidget = Iris.Internal._GetParentWidget() :: Types.Table
+        assert(ParentWidget.type == "Table", "Iris.NextColumn can only be called within a table.")
+        ParentWidget.RowColumnIndex += 1
     end
 
     --[=[
@@ -1681,7 +1683,8 @@ return function(Iris: Types.Iris)
         In a table, directly sets the index of the column.
     ]=]
     Iris.SetColumnIndex = function(columnIndex: number)
-        local ParentWidget: Types.Widget = Iris.Internal._GetParentWidget()
+        local ParentWidget = Iris.Internal._GetParentWidget() :: Types.Table
+        assert(ParentWidget.type == "Table", "Iris.SetColumnIndex can only be called within a table.")
         assert(columnIndex >= ParentWidget.InitialNumColumns, "Iris.SetColumnIndex Argument must be in column range")
         ParentWidget.RowColumnIndex = math.floor(ParentWidget.RowColumnIndex / ParentWidget.InitialNumColumns) + (columnIndex - 1)
     end
@@ -1695,7 +1698,8 @@ return function(Iris: Types.Iris)
     ]=]
     Iris.NextRow = function()
         -- sets column Index back to 0, increments Row
-        local ParentWidget: Types.Widget = Iris.Internal._GetParentWidget()
+        local ParentWidget = Iris.Internal._GetParentWidget() :: Types.Table
+        assert(ParentWidget.type == "Table", "Iris.NextColumn can only be called within a table.")
         local InitialNumColumns: number = ParentWidget.InitialNumColumns
         local nextRow: number = math.floor((ParentWidget.RowColumnIndex + 1) / InitialNumColumns) * InitialNumColumns
         ParentWidget.RowColumnIndex = nextRow

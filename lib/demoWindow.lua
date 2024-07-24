@@ -378,7 +378,7 @@ return function(Iris: Types.Iris)
                 if Iris.InputNum({ "# of repeat", 1, 1, 50 }, { number = numRepeat }).numberChanged() then
                     dynamicText:set(string.rep("Hello ", numRepeat:get()))
                 end
-                if Iris.Checkbox({ "Show dynamic text tooltip" }).isChecked.value then
+                if Iris.Checkbox({ "Show dynamic text tooltip" }).state.isChecked.value then
                     Iris.Tooltip({ dynamicText:get() })
                 end
             end
@@ -545,7 +545,7 @@ return function(Iris: Types.Iris)
             Iris.End()
 
             Iris.PushConfig({ ItemWidth = UDim.new(1, -150) })
-            local enteredText = Iris.InputText({ "ID field" }, { text = Iris.State(runtimeInfoWindow.ID) }).text.value
+            local enteredText = Iris.InputText({ "ID field" }, { text = Iris.State(runtimeInfoWindow.ID) }).state.text.value
             Iris.PopConfig()
 
             Iris.Indent()
@@ -598,7 +598,7 @@ return function(Iris: Types.Iris)
             end
             Iris.End()
 
-            if Iris.Tree({ "Widgets" }).isUncollapsed.value then
+            if Iris.Tree({ "Widgets" }).state.isUncollapsed.value then
                 local widgetCount = 0
                 local widgetStr = ""
                 for _, v in lastVDOM do
@@ -612,7 +612,7 @@ return function(Iris: Types.Iris)
             end
             Iris.End()
 
-            if Iris.Tree({ "States" }).isUncollapsed.value then
+            if Iris.Tree({ "States" }).state.isUncollapsed.value then
                 local stateCount = 0
                 local stateStr = ""
                 for i, v in states do
@@ -922,7 +922,8 @@ return function(Iris: Types.Iris)
 
             Iris.SameLine()
             do
-                if Iris.Button({ selectedEvent:get() .. " to reveal text" })[selectedEvent:get()]() then
+                local button = Iris.Button({ selectedEvent:get() .. " to reveal text" })
+                if button[selectedEvent:get()]() then
                     showEventText:set(not showEventText:get())
                 end
                 if showEventText:get() then
@@ -1221,7 +1222,7 @@ return function(Iris: Types.Iris)
         end
 
         debug.profilebegin("Iris/Demo/Window")
-        local window: Types.Widget = Iris.Window({
+        local window = Iris.Window({
             "Iris Demo Window",
             [Iris.Args.Window.NoTitleBar] = NoTitleBar.value,
             [Iris.Args.Window.NoBackground] = NoBackground.value,

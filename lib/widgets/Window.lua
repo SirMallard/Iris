@@ -27,7 +27,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ["Text"] = 1,
         },
         Events = {},
-        Generate = function(thisWidget: Types.Widget)
+        Generate = function(thisWidget: Types.Tooltip)
             thisWidget.parentWidget = Iris._rootWidget -- only allow root as parent
 
             local Tooltip: Frame = Instance.new("Frame")
@@ -59,7 +59,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return Tooltip
         end,
-        Update = function(thisWidget: Types.Widget)
+        Update = function(thisWidget: Types.Tooltip)
             local Tooltip = thisWidget.Instance :: Frame
             local TooltipText: TextLabel = Tooltip.TooltipText
             if thisWidget.arguments.Text == nil then
@@ -68,13 +68,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             TooltipText.Text = thisWidget.arguments.Text
             relocateTooltips()
         end,
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.Tooltip)
             thisWidget.Instance:Destroy()
         end,
     } :: Types.WidgetClass)
 
     local windowDisplayOrder: number = 0 -- incremental count which is used for determining focused windows ZIndex
-    local dragWindow: Types.Widget? -- window being dragged, may be nil
+    local dragWindow: Types.Window? -- window being dragged, may be nil
     local isDragging: boolean = false
     local moveDeltaCursorPosition: Vector2 -- cursor offset from drag origin (top left of window)
 
@@ -99,9 +99,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
 
         local lowest: number = 0xFFFF
-        local lowestWidget: Types.Widget
+        local lowestWidget: Types.Window
 
-        for _, widget: Types.Widget in windowWidgets do
+        for _, widget: Types.Window in windowWidgets do
             if widget.state.isOpened.value and not widget.arguments.NoNav then
                 if widget.Instance:IsA("ScreenGui") then
                     local value: number = widget.Instance.DisplayOrder
@@ -123,7 +123,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Iris.SetFocusedWindow(lowestWidget)
     end
 
-    local function fitSizeToWindowBounds(thisWidget: Types.Widget, intentedSize: Vector2): Vector2
+    local function fitSizeToWindowBounds(thisWidget: Types.Window, intentedSize: Vector2): Vector2
         local windowSize: Vector2 = Vector2.new(thisWidget.state.position.value.X, thisWidget.state.position.value.Y)
         local minWindowSize: number = (Iris._config.TextSize + 2 * Iris._config.FramePadding.Y) * 2
         local usableSize: Vector2 = widgets.getScreenSizeForWindow(thisWidget)
@@ -133,7 +133,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         return Vector2.new(math.clamp(intentedSize.X, minWindowSize, math.max(maxWindowSize.X, minWindowSize)), math.clamp(intentedSize.Y, minWindowSize, math.max(maxWindowSize.Y, minWindowSize)))
     end
 
-    local function fitPositionToWindowBounds(thisWidget: Types.Widget, intendedPosition: Vector2): Vector2
+    local function fitPositionToWindowBounds(thisWidget: Types.Window, intendedPosition: Vector2): Vector2
         local thisWidgetInstance = thisWidget.Instance
         local usableSize: Vector2 = widgets.getScreenSizeForWindow(thisWidget)
         local safeAreaPadding: Vector2 = Vector2.new(Iris._config.WindowBorderSize + Iris._config.DisplaySafeAreaPadding.X, Iris._config.WindowBorderSize + Iris._config.DisplaySafeAreaPadding.Y)
@@ -144,7 +144,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         )
     end
 
-    Iris.SetFocusedWindow = function(thisWidget: Types.Widget?)
+    Iris.SetFocusedWindow = function(thisWidget: Types.Window?)
         if focusedWindow == thisWidget then
             return
         end
@@ -212,8 +212,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             local inWindow: boolean = false
             local position: Vector2 = widgets.getMouseLocation()
-            for _, window in windowWidgets do
-                local ResizeBorder: TextButton = window.Instance and window.Instance.WindowButton.ResizeBorder
+            for _, window: Types.Window in windowWidgets do
+                local Window = window.Instance :: Instance
+                if not Window then
+                    continue
+                end
+                local WindowButton = Window.WindowButton :: TextButton
+                local ResizeBorder: TextButton = WindowButton.ResizeBorder
                 if ResizeBorder and widgets.isPosInsideRect(position, ResizeBorder.AbsolutePosition, ResizeBorder.AbsolutePosition + ResizeBorder.AbsoluteSize) then
                     inWindow = true
                     break
@@ -320,7 +325,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             dragWindow.state.position:set(Vector2.new(dragInstance.Position.X.Offset, dragInstance.Position.Y.Offset))
         end
         if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and isResizing and resizeWindow then
-            local Window = resizeWindow.Instance :: Frame
+            local Window = resizeWindow.Instance :: Instance
             isResizing = false
             resizeWindow.state.size:set(Window.WindowButton.AbsoluteSize)
         end
@@ -348,26 +353,26 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         },
         Events = {
             ["closed"] = {
-                ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(_thisWidget: Types.Window) end,
+                ["Get"] = function(thisWidget: Types.Window)
                     return thisWidget.lastClosedTick == Iris._cycleTick
                 end,
             },
             ["opened"] = {
-                ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(_thisWidget: Types.Window) end,
+                ["Get"] = function(thisWidget: Types.Window)
                     return thisWidget.lastOpenedTick == Iris._cycleTick
                 end,
             },
             ["collapsed"] = {
-                ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(_thisWidget: Types.Window) end,
+                ["Get"] = function(thisWidget: Types.Window)
                     return thisWidget.lastCollapsedTick == Iris._cycleTick
                 end,
             },
             ["uncollapsed"] = {
-                ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(_thisWidget: Types.Window) end,
+                ["Get"] = function(thisWidget: Types.Window)
                     return thisWidget.lastUncollapsedTick == Iris._cycleTick
                 end,
             },
@@ -541,13 +546,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 thisWidget.state.isUncollapsed:set(not thisWidget.state.isUncollapsed.value)
             end)
 
-            widgets.applyInteractionHighlights(thisWidget, CollapseButton, CollapseButton, {
-                ButtonColor = Iris._config.ButtonColor,
-                ButtonTransparency = 1,
-                ButtonHoveredColor = Iris._config.ButtonHoveredColor,
-                ButtonHoveredTransparency = Iris._config.ButtonHoveredTransparency,
-                ButtonActiveColor = Iris._config.ButtonActiveColor,
-                ButtonActiveTransparency = Iris._config.ButtonActiveTransparency,
+            widgets.applyInteractionHighlights(thisWidget, "Background", CollapseButton, CollapseButton, {
+                Color = Iris._config.ButtonColor,
+                Transparency = 1,
+                HoveredColor = Iris._config.ButtonHoveredColor,
+                HoveredTransparency = Iris._config.ButtonHoveredTransparency,
+                ActiveColor = Iris._config.ButtonActiveColor,
+                ActiveTransparency = Iris._config.ButtonActiveTransparency,
             })
 
             local CollapseArrow: ImageLabel = Instance.new("ImageLabel")
@@ -581,13 +586,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 thisWidget.state.isOpened:set(false)
             end)
 
-            widgets.applyInteractionHighlights(thisWidget, CloseButton, CloseButton, {
-                ButtonColor = Iris._config.ButtonColor,
-                ButtonTransparency = 1,
-                ButtonHoveredColor = Iris._config.ButtonHoveredColor,
-                ButtonHoveredTransparency = Iris._config.ButtonHoveredTransparency,
-                ButtonActiveColor = Iris._config.ButtonActiveColor,
-                ButtonActiveTransparency = Iris._config.ButtonActiveTransparency,
+            widgets.applyInteractionHighlights(thisWidget, "Background", CloseButton, CloseButton, {
+                Color = Iris._config.ButtonColor,
+                Transparency = 1,
+                HoveredColor = Iris._config.ButtonHoveredColor,
+                HoveredTransparency = Iris._config.ButtonHoveredTransparency,
+                ActiveColor = Iris._config.ButtonActiveColor,
+                ActiveTransparency = Iris._config.ButtonActiveTransparency,
             })
 
             CloseButton.Parent = TitleBar
@@ -646,13 +651,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ResizeGrip.ZIndex = 3
             ResizeGrip.Parent = WindowButton
 
-            widgets.applyImageInteractionHighlights(thisWidget, ResizeGrip, ResizeGrip, {
-                ButtonColor = Iris._config.ButtonColor,
-                ButtonTransparency = Iris._config.ButtonTransparency,
-                ButtonHoveredColor = Iris._config.ButtonHoveredColor,
-                ButtonHoveredTransparency = Iris._config.ButtonHoveredTransparency,
-                ButtonActiveColor = Iris._config.ButtonActiveColor,
-                ButtonActiveTransparency = Iris._config.ButtonActiveTransparency,
+            widgets.applyInteractionHighlights(thisWidget, "Image", ResizeGrip, ResizeGrip, {
+                Color = Iris._config.ButtonColor,
+                Transparency = Iris._config.ButtonTransparency,
+                HoveredColor = Iris._config.ButtonHoveredColor,
+                HoveredTransparency = Iris._config.ButtonHoveredTransparency,
+                ActiveColor = Iris._config.ButtonActiveColor,
+                ActiveTransparency = Iris._config.ButtonActiveTransparency,
             })
 
             widgets.applyButtonDown(thisWidget, ResizeGrip, function()

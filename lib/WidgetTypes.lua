@@ -2,12 +2,12 @@ export type ID = string
 
 export type State<T> = {
     value: T,
-    ConnectedWidgets: { [ID]: string },
+    ConnectedWidgets: { [ID]: Widget },
     ConnectedFunctions: { (T) -> () },
 
     get: (self: State<T>) -> T,
     set: (self: State<T>, newValue: T) -> (),
-    onChange: (self: State<T>, funcToConnect: (T) -> ()) -> (),
+    onChange: (self: State<T>, funcToConnect: (T) -> ()) -> () -> (),
 }
 
 export type Widget = {
@@ -124,6 +124,8 @@ export type TextChanged = {
     textChanged: () -> boolean,
 }
 
+-- Widgets
+
 -- Window
 
 export type Root = ParentWidget
@@ -164,6 +166,8 @@ export type Tooltip = Widget & {
 export type MenuBar = ParentWidget
 
 export type Menu = ParentWidget & {
+    ButtonColors: { [string]: Color3 | number },
+
     arguments: {
         Text: string?,
     },
@@ -237,15 +241,13 @@ export type Button = Widget & {
     },
 } & Clicked & RightClicked & DoubleClicked & CtrlClicked & Hovered
 
-export type SmallButton = Button
-
 export type Checkbox = Widget & {
     arguments: {
         Text: string?,
     },
 
     state: {
-        isChecked: State<boolean>?,
+        isChecked: State<boolean>,
     },
 } & Unchecked & Checked & Hovered
 
@@ -262,19 +264,31 @@ export type RadioButton = Widget & {
     active: () -> boolean,
 } & Selected & Unselected & Active & Hovered
 
+-- Image
+
+export type Image = Widget & {
+    arguments: {
+        Image: string,
+        Size: UDim2,
+        Rect: Rect?,
+        ScaleType: Enum.ScaleType?,
+        TileSize: UDim2?,
+        SliceCenter: Rect?,
+        SliceScale: number?,
+        ResampleMode: Enum.ResamplerMode?,
+    },
+} & Hovered
+
+export type ImageButton = Image & Clicked & RightClicked & DoubleClicked & CtrlClicked
+
 -- Tree
 
-export type Tree = ParentWidget & {
+export type Tree = CollapsingHeader & {
     arguments: {
-        Text: string?,
         SpanAvailWidth: boolean?,
         NoIndent: boolean?,
     },
-
-    state: {
-        isUncollapsed: State<boolean>,
-    },
-} & Collapsed & Uncollapsed & Hovered
+}
 
 export type CollapsingHeader = ParentWidget & {
     arguments: {
@@ -288,31 +302,65 @@ export type CollapsingHeader = ParentWidget & {
 
 -- Input
 export type Input<T> = Widget & {
+    lastClickedTime: number,
+    lastClickedPosition: Vector2,
+
     arguments: {
         Text: string?,
-        Increment: T?,
-        Min: T?,
-        Max: T?,
-        Format: string? | { string }?,
+        Increment: T,
+        Min: T,
+        Max: T,
+        Format: { string },
+        Prefix: { string },
+        NoButtons: boolean?,
     },
 
     state: {
         number: State<T>,
+        editingText: State<number>,
+    },
+} & NumberChanged & Hovered
+
+export type InputColor3 = Input<{ number }> & {
+    arguments: {
+        UseFloats: boolean?,
+        UseHSV: boolean?,
+    },
+
+    state: {
+        color: State<Color3>,
         editingText: State<boolean>,
     },
 } & NumberChanged & Hovered
 
--- Drag
+export type InputColor4 = InputColor3 & {
+    state: {
+        transparency: State<number>,
+    },
+}
 
-export type Drag<T> = Input<T>
+export type InputEnum = Input<number> & {
+    state: {
+        enumItem: State<EnumItem>,
+    },
+}
 
--- Slider
+export type InputText = Widget & {
+    arguments: {
+        Text: string?,
+        TextHint: string?,
+    },
 
-export type Slider<T> = Input<T>
+    state: {
+        text: State<string>,
+    },
+} & TextChanged & Hovered
 
 -- Combo
 
 export type Selectable = Widget & {
+    ButtonColors: { [string]: Color3 | number },
+
     arguments: {
         Text: string?,
         Index: any?,
@@ -325,7 +373,6 @@ export type Selectable = Widget & {
 } & Selected & Unselected & Clicked & RightClicked & DoubleClicked & CtrlClicked & Hovered
 
 export type Combo = ParentWidget & {
-    ButtonColors: { [string]: Color3 | number },
     ComboChildrenHeight: number,
 
     arguments: {

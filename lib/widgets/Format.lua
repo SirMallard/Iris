@@ -7,7 +7,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         hasChildren = false,
         Args = {},
         Events = {},
-        Generate = function(thisWidget: Types.Widget): Frame
+        Generate = function(thisWidget: Types.Separator)
             local Separator: Frame = Instance.new("Frame")
             Separator.Name = "Iris_Separator"
             Separator.BackgroundColor3 = Iris._config.SeparatorColor
@@ -25,8 +25,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return Separator
         end,
-        Update = function(_thisWidget: Types.Widget) end,
-        Discard = function(thisWidget: Types.Widget)
+        Update = function(_thisWidget: Types.Separator) end,
+        Discard = function(thisWidget: Types.Separator)
             thisWidget.Instance:Destroy()
         end,
     } :: Types.WidgetClass)
@@ -39,7 +39,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ["Width"] = 1,
         },
         Events = {},
-        Generate = function(thisWidget: Types.Widget): Frame
+        Generate = function(thisWidget: Types.Indent)
             local Indent: Frame = Instance.new("Frame")
             Indent.Name = "Iris_Indent"
             Indent.BackgroundTransparency = 1
@@ -53,7 +53,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return Indent
         end,
-        Update = function(thisWidget: Types.Widget)
+        Update = function(thisWidget: Types.Indent)
             local Indent = thisWidget.Instance :: Frame
 
             local indentWidth: number
@@ -64,10 +64,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
             Indent.UIPadding.PaddingLeft = UDim.new(0, indentWidth)
         end,
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.Indent)
             thisWidget.Instance:Destroy()
         end,
-        ChildAdded = function(thisWidget: Types.Widget, _thisChild: Types.Widget)
+        ChildAdded = function(thisWidget: Types.Indent, _thisChild: Types.Widget)
             return thisWidget.Instance
         end,
     } :: Types.WidgetClass)
@@ -81,7 +81,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ["VerticalAlignment"] = 2,
         },
         Events = {},
-        Generate = function(thisWidget: Types.Widget): Frame
+        Generate = function(thisWidget: Types.SameLine)
             local SameLine: Frame = Instance.new("Frame")
             SameLine.Name = "Iris_SameLine"
             SameLine.BackgroundTransparency = 1
@@ -94,7 +94,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return SameLine
         end,
-        Update = function(thisWidget: Types.Widget)
+        Update = function(thisWidget: Types.SameLine)
             local Sameline = thisWidget.Instance :: Frame
             local uiListLayout: UIListLayout = Sameline.UIListLayout
             local itemWidth: number
@@ -110,10 +110,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 uiListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
             end
         end,
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.SameLine)
             thisWidget.Instance:Destroy()
         end,
-        ChildAdded = function(thisWidget: Types.Widget, _thisChild: Types.Widget)
+        ChildAdded = function(thisWidget: Types.SameLine, _thisChild: Types.Widget)
             return thisWidget.Instance
         end,
     } :: Types.WidgetClass)
@@ -124,7 +124,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         hasChildren = true,
         Args = {},
         Events = {},
-        Generate = function(thisWidget: Types.Widget): Frame
+        Generate = function(thisWidget: Types.Group)
             local Group: Frame = Instance.new("Frame")
             Group.Name = "Iris_Group"
             Group.AutomaticSize = Enum.AutomaticSize.XY
@@ -138,11 +138,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return Group
         end,
-        Update = function(_thisWidget: Types.Widget) end,
-        Discard = function(thisWidget: Types.Widget)
+        Update = function(_thisWidget: Types.Group) end,
+        Discard = function(thisWidget: Types.Group)
             thisWidget.Instance:Destroy()
         end,
-        ChildAdded = function(thisWidget: Types.Widget, _thisChild: Types.Widget)
+        ChildAdded = function(thisWidget: Types.Group, _thisChild: Types.Widget)
             return thisWidget.Instance
         end,
     } :: Types.WidgetClass)

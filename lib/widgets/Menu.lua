@@ -2,12 +2,12 @@ local Types = require(script.Parent.Parent.Types)
 
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local AnyMenuOpen: boolean = false
-    local ActiveMenu: Types.Widget? = nil
-    local MenuStack: { Types.Widget } = {}
+    local ActiveMenu: Types.Menu? = nil
+    local MenuStack: { Types.Menu } = {}
 
     local function EmptyMenuStack(menuIndex: number?)
         for index = #MenuStack, menuIndex and menuIndex + 1 or 1, -1 do
-            local widget: Types.Widget = MenuStack[index]
+            local widget: Types.Menu = MenuStack[index]
             widget.state.isOpened:set(false)
 
             widget.Instance.BackgroundColor3 = Iris._config.HeaderColor
@@ -22,7 +22,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
     end
 
-    local function UpdateChildContainerTransform(thisWidget: Types.Widget)
+    local function UpdateChildContainerTransform(thisWidget: Types.Menu)
         local submenu: boolean = thisWidget.parentWidget.type == "Menu"
 
         local Menu = thisWidget.Instance :: Frame
@@ -76,7 +76,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         -- this only checks if we clicked outside all the menus. If we clicked in any menu, then the hover function handles this.
         local isInMenu: boolean = false
         local MouseLocation: Vector2 = widgets.getMouseLocation()
-        for _, menu: Types.Widget in MenuStack do
+        for _, menu: Types.Menu in MenuStack do
             for _, container: GuiObject in { menu.ChildContainer, menu.Instance } do
                 local rectMin: Vector2 = container.AbsolutePosition
                 local rectMax: Vector2 = rectMin + container.AbsoluteSize
@@ -101,7 +101,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         hasChildren = true,
         Args = {},
         Events = {},
-        Generate = function(thisWidget: Types.Widget)
+        Generate = function(thisWidget: Types.MenuBar)
             local MenuBar: Frame = Instance.new("Frame")
             MenuBar.Name = "MenuBar"
             MenuBar.Size = UDim2.fromScale(1, 0)
@@ -121,10 +121,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Update = function()
             
         end,
-        ChildAdded = function(thisWidget: Types.Widget)
+        ChildAdded = function(thisWidget: Types.MenuBar, _childWidget: Types.Widget)
             return thisWidget.Instance
         end,
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.MenuBar)
             thisWidget.Instance:Destroy()
         end,
     } :: Types.WidgetClass)
@@ -144,27 +144,27 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return thisWidget.Instance
             end),
             ["opened"] = {
-                ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(_thisWidget: Types.Menu) end,
+                ["Get"] = function(thisWidget: Types.Menu)
                     return thisWidget.lastOpenedTick == Iris._cycleTick
                 end,
             },
             ["closed"] = {
-                ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(_thisWidget: Types.Menu) end,
+                ["Get"] = function(thisWidget: Types.Menu)
                     return thisWidget.lastClosedTick == Iris._cycleTick
                 end,
             },
         },
-        Generate = function(thisWidget: Types.Widget)
+        Generate = function(thisWidget: Types.Menu)
             local Menu: TextButton
             thisWidget.ButtonColors = {
-                ButtonColor = Iris._config.HeaderColor,
-                ButtonTransparency = 1,
-                ButtonHoveredColor = Iris._config.HeaderHoveredColor,
-                ButtonHoveredTransparency = Iris._config.HeaderHoveredTransparency,
-                ButtonActiveColor = Iris._config.HeaderHoveredColor,
-                ButtonActiveTransparency = Iris._config.HeaderHoveredTransparency,
+                Color = Iris._config.HeaderColor,
+                Transparency = 1,
+                HoveredColor = Iris._config.HeaderHoveredColor,
+                HoveredTransparency = Iris._config.HeaderHoveredTransparency,
+                ActiveColor = Iris._config.HeaderHoveredColor,
+                ActiveTransparency = Iris._config.HeaderHoveredTransparency,
             }
             if thisWidget.parentWidget.type == "Menu" then
                 -- this Menu is a sub-Menu
@@ -225,7 +225,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 widgets.applyTextStyle(Menu)
                 widgets.UIPadding(Menu, Vector2.new(Iris._config.ItemSpacing.X, Iris._config.FramePadding.Y))
             end
-            widgets.applyInteractionHighlights(thisWidget, Menu, Menu, thisWidget.ButtonColors)
+            widgets.applyInteractionHighlights(thisWidget, "Background", Menu, Menu, thisWidget.ButtonColors)
 
             widgets.applyButtonClick(thisWidget, Menu, function()
                 local openMenu: boolean = if #MenuStack <= 1 then not thisWidget.state.isOpened.value else true
@@ -244,7 +244,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end)
             widgets.applyMouseEnter(thisWidget, Menu, function()
                 if AnyMenuOpen and ActiveMenu and ActiveMenu ~= thisWidget then
-                    local parentMenu: Types.Widget = thisWidget.parentWidget
+                    local parentMenu = thisWidget.parentWidget :: Types.Menu
                     local parentIndex: number? = table.find(MenuStack, parentMenu)
 
                     EmptyMenuStack(parentIndex)
@@ -291,7 +291,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return Menu
         end,
-        Update = function(thisWidget: Types.Widget)
+        Update = function(thisWidget: Types.Menu)
             local Menu = thisWidget.Instance :: TextButton
             local TextLabel: TextLabel
             if thisWidget.parentWidget.type == "Menu" then
@@ -301,19 +301,19 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
             TextLabel.Text = thisWidget.arguments.Text or "Menu"
         end,
-        ChildAdded = function(thisWidget: Types.Widget, _thisChild: Types.Widget)
+        ChildAdded = function(thisWidget: Types.Menu, _thisChild: Types.Widget)
             UpdateChildContainerTransform(thisWidget)
             return thisWidget.ChildContainer
         end,
-        ChildDiscarded = function(thisWidget: Types.Widget, _thisChild: Types.Widget)
+        ChildDiscarded = function(thisWidget: Types.Menu, _thisChild: Types.Widget)
             UpdateChildContainerTransform(thisWidget)
         end,
-        GenerateState = function(thisWidget: Types.Widget)
+        GenerateState = function(thisWidget: Types.Menu)
             if thisWidget.state.isOpened == nil then
                 thisWidget.state.isOpened = Iris._widgetState(thisWidget, "isOpened", false)
             end
         end,
-        UpdateState = function(thisWidget: Types.Widget)
+        UpdateState = function(thisWidget: Types.Menu)
             local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
 
             if thisWidget.state.isOpened.value then
@@ -328,7 +328,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ChildContainer.Visible = false
             end
         end,
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.Menu)
             thisWidget.Instance:Destroy()
             widgets.discardState(thisWidget)
         end,
@@ -351,7 +351,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return thisWidget.Instance
             end),
         },
-        Generate = function(thisWidget: Types.Widget)
+        Generate = function(thisWidget: Types.MenuItem)
             local MenuItem: TextButton = Instance.new("TextButton")
             MenuItem.Name = "MenuItem"
             MenuItem.BackgroundTransparency = 1
@@ -366,13 +366,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             UIPadding.PaddingTop = UIPadding.PaddingTop - UDim.new(0, 1)
             widgets.UIListLayout(MenuItem, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
 
-            widgets.applyInteractionHighlights(thisWidget, MenuItem, MenuItem, {
-                ButtonColor = Iris._config.HeaderColor,
-                ButtonTransparency = 1,
-                ButtonHoveredColor = Iris._config.HeaderHoveredColor,
-                ButtonHoveredTransparency = Iris._config.HeaderHoveredTransparency,
-                ButtonActiveColor = Iris._config.HeaderHoveredColor,
-                ButtonActiveTransparency = Iris._config.HeaderHoveredTransparency,
+            widgets.applyInteractionHighlights(thisWidget, "Background", MenuItem, MenuItem, {
+                Color = Iris._config.HeaderColor,
+                Transparency = 1,
+                HoveredColor = Iris._config.HeaderHoveredColor,
+                HoveredTransparency = Iris._config.HeaderHoveredTransparency,
+                ActiveColor = Iris._config.HeaderHoveredColor,
+                ActiveTransparency = Iris._config.HeaderHoveredTransparency,
             })
 
             widgets.applyButtonClick(thisWidget, MenuItem, function()
@@ -380,7 +380,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end)
 
             widgets.applyMouseEnter(thisWidget, MenuItem, function()
-                local parentMenu: Types.Widget = thisWidget.parentWidget
+                local parentMenu = thisWidget.parentWidget :: Types.Menu
                 if AnyMenuOpen and ActiveMenu and ActiveMenu ~= parentMenu then
                     local parentIndex: number? = table.find(MenuStack, parentMenu)
 
@@ -419,7 +419,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return MenuItem
         end,
-        Update = function(thisWidget: Types.Widget)
+        Update = function(thisWidget: Types.MenuItem)
             local MenuItem = thisWidget.Instance :: TextButton
             local TextLabel: TextLabel = MenuItem.TextLabel
             local Shortcut: TextLabel = MenuItem.Shortcut
@@ -433,7 +433,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 				end
             end
         end,
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.MenuItem)
             thisWidget.Instance:Destroy()
         end,
     } :: Types.WidgetClass)
@@ -449,14 +449,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         },
         Events = {
             ["checked"] = {
-                ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget: Types.Widget): boolean
+                ["Init"] = function(_thisWidget: Types.MenuToggle) end,
+                ["Get"] = function(thisWidget: Types.MenuToggle): boolean
                     return thisWidget.lastCheckedTick == Iris._cycleTick
                 end,
             },
             ["unchecked"] = {
-                ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget: Types.Widget): boolean
+                ["Init"] = function(_thisWidget: Types.MenuToggle) end,
+                ["Get"] = function(thisWidget: Types.MenuToggle): boolean
                     return thisWidget.lastUncheckedTick == Iris._cycleTick
                 end,
             },
@@ -464,7 +464,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return thisWidget.Instance
             end),
         },
-        Generate = function(thisWidget: Types.Widget)
+        Generate = function(thisWidget: Types.MenuToggle)
             local MenuItem: TextButton = Instance.new("TextButton")
             MenuItem.Name = "MenuItem"
             MenuItem.BackgroundTransparency = 1
@@ -479,13 +479,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             UIPadding.PaddingTop = UIPadding.PaddingTop - UDim.new(0, 1)
             widgets.UIListLayout(MenuItem, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
-            widgets.applyInteractionHighlights(thisWidget, MenuItem, MenuItem, {
-                ButtonColor = Iris._config.HeaderColor,
-                ButtonTransparency = 1,
-                ButtonHoveredColor = Iris._config.HeaderHoveredColor,
-                ButtonHoveredTransparency = Iris._config.HeaderHoveredTransparency,
-                ButtonActiveColor = Iris._config.HeaderHoveredColor,
-                ButtonActiveTransparency = Iris._config.HeaderHoveredTransparency,
+            widgets.applyInteractionHighlights(thisWidget, "Background", MenuItem, MenuItem, {
+                Color = Iris._config.HeaderColor,
+                Transparency = 1,
+                HoveredColor = Iris._config.HeaderHoveredColor,
+                HoveredTransparency = Iris._config.HeaderHoveredTransparency,
+                ActiveColor = Iris._config.HeaderHoveredColor,
+                ActiveTransparency = Iris._config.HeaderHoveredTransparency,
             })
 
             widgets.applyButtonClick(thisWidget, MenuItem, function()
@@ -495,7 +495,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end)
 
             widgets.applyMouseEnter(thisWidget, MenuItem, function()
-                local parentMenu: Types.Widget = thisWidget.parentWidget
+                local parentMenu = thisWidget.parentWidget :: Types.Menu
                 if AnyMenuOpen and ActiveMenu and ActiveMenu ~= parentMenu then
                     local parentIndex: number? = table.find(MenuStack, parentMenu)
 
@@ -550,12 +550,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return MenuItem
         end,
-        GenerateState = function(thisWidget: Types.Widget)
+        GenerateState = function(thisWidget: Types.MenuToggle)
             if thisWidget.state.isChecked == nil then
                 thisWidget.state.isChecked = Iris._widgetState(thisWidget, "isChecked", false)
             end
         end,
-        Update = function(thisWidget: Types.Widget)
+        Update = function(thisWidget: Types.MenuToggle)
             local MenuItem = thisWidget.Instance :: TextButton
             local TextLabel: TextLabel = MenuItem.TextLabel
             local Shortcut: TextLabel = MenuItem.Shortcut
@@ -569,7 +569,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 				end
             end
         end,
-        UpdateState = function(thisWidget: Types.Widget)
+        UpdateState = function(thisWidget: Types.MenuToggle)
             local MenuItem = thisWidget.Instance :: TextButton
             local Icon: ImageLabel = MenuItem.Icon
 
@@ -581,7 +581,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 thisWidget.lastUncheckedTick = Iris._cycleTick + 1
             end
         end,
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.MenuToggle)
             thisWidget.Instance:Destroy()
             widgets.discardState(thisWidget)
         end,

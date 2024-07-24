@@ -10,22 +10,22 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         },
         Events = {
             ["checked"] = {
-                ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget: Types.Widget): boolean
+                ["Init"] = function(_thisWidget: Types.Checkbox) end,
+                ["Get"] = function(thisWidget: Types.Checkbox): boolean
                     return thisWidget.lastCheckedTick == Iris._cycleTick
                 end,
             },
             ["unchecked"] = {
-                ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget: Types.Widget): boolean
+                ["Init"] = function(_thisWidget: Types.Checkbox) end,
+                ["Get"] = function(thisWidget: Types.Checkbox): boolean
                     return thisWidget.lastUncheckedTick == Iris._cycleTick
                 end,
             },
-            ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget): GuiObject
+            ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
                 return thisWidget.Instance
             end),
         },
-        Generate = function(thisWidget: Types.Widget): TextButton
+        Generate = function(thisWidget: Types.Checkbox)
             local Checkbox: TextButton = Instance.new("TextButton")
             Checkbox.Name = "Iris_Checkbox"
             Checkbox.BackgroundTransparency = 1
@@ -45,13 +45,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             CheckboxBox.BackgroundTransparency = Iris._config.FrameBgTransparency
             widgets.applyFrameStyle(CheckboxBox, true)
 
-            widgets.applyInteractionHighlights(thisWidget, Checkbox, CheckboxBox, {
-                ButtonColor = Iris._config.FrameBgColor,
-                ButtonTransparency = Iris._config.FrameBgTransparency,
-                ButtonHoveredColor = Iris._config.FrameBgHoveredColor,
-                ButtonHoveredTransparency = Iris._config.FrameBgHoveredTransparency,
-                ButtonActiveColor = Iris._config.FrameBgActiveColor,
-                ButtonActiveTransparency = Iris._config.FrameBgActiveTransparency,
+            widgets.applyInteractionHighlights(thisWidget, "Background", Checkbox, CheckboxBox, {
+                Color = Iris._config.FrameBgColor,
+                Transparency = Iris._config.FrameBgTransparency,
+                HoveredColor = Iris._config.FrameBgHoveredColor,
+                HoveredTransparency = Iris._config.FrameBgHoveredTransparency,
+                ActiveColor = Iris._config.FrameBgActiveColor,
+                ActiveTransparency = Iris._config.FrameBgActiveTransparency,
             })
 
             CheckboxBox.Parent = Checkbox
@@ -88,20 +88,20 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return Checkbox
         end,
-        Update = function(thisWidget: Types.Widget)
+        Update = function(thisWidget: Types.Checkbox)
             local Checkbox = thisWidget.Instance :: TextButton
             Checkbox.TextLabel.Text = thisWidget.arguments.Text or "Checkbox"
         end,
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.Checkbox)
             thisWidget.Instance:Destroy()
             widgets.discardState(thisWidget)
         end,
-        GenerateState = function(thisWidget: Types.Widget)
+        GenerateState = function(thisWidget: Types.Checkbox)
             if thisWidget.state.isChecked == nil then
                 thisWidget.state.isChecked = Iris._widgetState(thisWidget, "checked", false)
             end
         end,
-        UpdateState = function(thisWidget: Types.Widget)
+        UpdateState = function(thisWidget: Types.Checkbox)
             local Checkbox = thisWidget.Instance :: TextButton
             local Checkmark: ImageLabel = Checkbox.Checkmark
             if thisWidget.state.isChecked.value then

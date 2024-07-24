@@ -18,6 +18,7 @@ return function(parent: GuiObject)
 
     Iris:Connect(function()
         Iris.Window({}, {})
+        Iris.End()
     end)
 
     return function()
