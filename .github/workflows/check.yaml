@@ -28,4 +28,4 @@ jobs:
         with:
           version: 0.20.0
           token: ${{ secrets.GITHUB_TOKEN }}
-          args: --check --output-format=Summary .
+          args: --check --output-format=Unified .
