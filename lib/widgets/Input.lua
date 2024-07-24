@@ -914,7 +914,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end)
 
-        function generateSliderScalar(dataType: Types.InputDataTypes, components: number, defaultValue: any, ...: any)
+        function generateSliderScalar(dataType: Types.InputDataTypes, components: number, defaultValue: any)
             return {
                 hasState = true,
                 hasChildren = false,

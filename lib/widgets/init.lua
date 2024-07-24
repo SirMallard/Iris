@@ -376,37 +376,37 @@ return function(Iris: Types.Internal)
         end
     end
 
-    function widgets.applyButtonClick(thisWidget: Types.Widget, thisInstance: GuiButton, callback: () -> ())
+    function widgets.applyButtonClick(_thisWidget: Types.Widget, thisInstance: GuiButton, callback: () -> ())
         thisInstance.MouseButton1Click:Connect(function()
             callback()
         end)
     end
 
-    function widgets.applyButtonDown(thisWidget: Types.Widget, thisInstance: GuiButton, callback: (x: number, y: number) -> ())
+    function widgets.applyButtonDown(_thisWidget: Types.Widget, thisInstance: GuiButton, callback: (x: number, y: number) -> ())
         thisInstance.MouseButton1Down:Connect(function(...)
             callback(...)
         end)
     end
 
-    function widgets.applyMouseEnter(thisWidget: Types.Widget, thisInstance: GuiObject, callback: () -> ())
+    function widgets.applyMouseEnter(_thisWidget: Types.Widget, thisInstance: GuiObject, callback: () -> ())
         thisInstance.MouseEnter:Connect(function(...)
-            callback()
+            callback(...)
         end)
     end
 
-    function widgets.applyMouseLeave(thisWidget: Types.Widget, thisInstance: GuiObject, callback: () -> ())
+    function widgets.applyMouseLeave(_thisWidget: Types.Widget, thisInstance: GuiObject, callback: () -> ())
         thisInstance.MouseLeave:Connect(function(...)
-            callback()
+            callback(...)
         end)
     end
 
-    function widgets.applyInputBegan(thisWidget: Types.Widget, thisInstance: GuiButton, callback: (input: InputObject) -> ())
+    function widgets.applyInputBegan(_thisWidget: Types.Widget, thisInstance: GuiButton, callback: (input: InputObject) -> ())
         thisInstance.InputBegan:Connect(function(...)
             callback(...)
         end)
     end
 
-    function widgets.applyInputEnded(thisWidget: Types.Widget, thisInstance: GuiButton, callback: (input: InputObject) -> ())
+    function widgets.applyInputEnded(_thisWidget: Types.Widget, thisInstance: GuiButton, callback: (input: InputObject) -> ())
         thisInstance.InputEnded:Connect(function(...)
             callback(...)
         end)
