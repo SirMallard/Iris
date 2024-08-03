@@ -266,7 +266,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Input.Size = UDim2.fromScale(1, 0)
                     Input.BackgroundTransparency = 1
                     Input.BorderSizePixel = 0
-                    Input.ZIndex = thisWidget.ZIndex
                     Input.LayoutOrder = thisWidget.ZIndex
                     Input.AutomaticSize = Enum.AutomaticSize.Y
                     widgets.UIListLayout(Input, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
@@ -290,8 +289,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     for index = 1, components do
                         local InputField: TextBox = Instance.new("TextBox")
                         InputField.Name = "InputField" .. tostring(index)
-                        InputField.ZIndex = thisWidget.ZIndex + index
-                        InputField.LayoutOrder = thisWidget.ZIndex + index
+                        InputField.LayoutOrder = index
                         if index == components then
                             InputField.Size = UDim2.new(lastComponentWidth, UDim.new())
                         else
@@ -350,8 +348,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     TextLabel.Size = UDim2.fromOffset(0, textHeight)
                     TextLabel.BackgroundTransparency = 1
                     TextLabel.BorderSizePixel = 0
-                    TextLabel.ZIndex = thisWidget.ZIndex + 7
-                    TextLabel.LayoutOrder = thisWidget.ZIndex + 7
+                    TextLabel.LayoutOrder = 7
                     TextLabel.AutomaticSize = Enum.AutomaticSize.X
 
                     widgets.applyTextStyle(TextLabel)
@@ -546,7 +543,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Drag.Size = UDim2.fromScale(1, 0)
                     Drag.BackgroundTransparency = 1
                     Drag.BorderSizePixel = 0
-                    Drag.ZIndex = thisWidget.ZIndex
                     Drag.LayoutOrder = thisWidget.ZIndex
                     Drag.AutomaticSize = Enum.AutomaticSize.Y
                     widgets.UIListLayout(Drag, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
@@ -562,8 +558,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         ColorBox.Name = "ColorBox"
                         ColorBox.BorderSizePixel = 0
                         ColorBox.Size = UDim2.fromOffset(textHeight, textHeight)
-                        ColorBox.ZIndex = thisWidget.ZIndex + 5
-                        ColorBox.LayoutOrder = thisWidget.ZIndex + 5
+                        ColorBox.LayoutOrder = 5
                         ColorBox.Image = widgets.ICONS.ALPHA_BACKGROUND_TEXTURE
                         ColorBox.ImageTransparency = 1
 
@@ -582,8 +577,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     for index = 1, components do
                         local DragField: TextButton = Instance.new("TextButton")
                         DragField.Name = "DragField" .. tostring(index)
-                        DragField.ZIndex = thisWidget.ZIndex + index
-                        DragField.LayoutOrder = thisWidget.ZIndex + index
+                        DragField.LayoutOrder = index
                         if index == components then
                             DragField.Size = UDim2.new(lastComponentWidth, UDim.new())
                         else
@@ -615,8 +609,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                         local InputField: TextBox = Instance.new("TextBox")
                         InputField.Name = "InputField"
-                        InputField.ZIndex = thisWidget.ZIndex + 5
-                        InputField.LayoutOrder = thisWidget.ZIndex + 2
                         InputField.Size = UDim2.new(1, 0, 1, 0)
                         InputField.BackgroundTransparency = 1
                         InputField.ClearTextOnFocus = false
@@ -689,8 +681,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     TextLabel.Size = UDim2.fromOffset(0, textHeight)
                     TextLabel.BackgroundTransparency = 1
                     TextLabel.BorderSizePixel = 0
-                    TextLabel.ZIndex = thisWidget.ZIndex + 5
-                    TextLabel.LayoutOrder = thisWidget.ZIndex + 5
+                    TextLabel.LayoutOrder = 6
                     TextLabel.AutomaticSize = Enum.AutomaticSize.X
 
                     widgets.applyTextStyle(TextLabel)
@@ -923,7 +914,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end)
 
-        function generateSliderScalar(dataType: Types.InputDataTypes, components: number, defaultValue: any, ...: any)
+        function generateSliderScalar(dataType: Types.InputDataTypes, components: number, defaultValue: any)
             return {
                 hasState = true,
                 hasChildren = false,
@@ -946,7 +937,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Slider.Size = UDim2.fromScale(1, 0)
                     Slider.BackgroundTransparency = 1
                     Slider.BorderSizePixel = 0
-                    Slider.ZIndex = thisWidget.ZIndex
                     Slider.LayoutOrder = thisWidget.ZIndex
                     Slider.AutomaticSize = Enum.AutomaticSize.Y
                     widgets.UIListLayout(Slider, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
@@ -963,8 +953,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     for index = 1, components do
                         local SliderField: TextButton = Instance.new("TextButton")
                         SliderField.Name = "SliderField" .. tostring(index)
-                        SliderField.ZIndex = thisWidget.ZIndex + index
-                        SliderField.LayoutOrder = thisWidget.ZIndex + index
+                        SliderField.LayoutOrder = index
                         if index == components then
                             SliderField.Size = UDim2.new(lastComponentWidth, UDim.new())
                         else
@@ -988,7 +977,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         OverlayText.Size = UDim2.fromScale(1, 1)
                         OverlayText.BackgroundTransparency = 1
                         OverlayText.BorderSizePixel = 0
-                        OverlayText.ZIndex = thisWidget.ZIndex + 10
+                        OverlayText.ZIndex = 10
                         OverlayText.ClipsDescendants = true
 
                         widgets.applyTextStyle(OverlayText)
@@ -1008,8 +997,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                         local InputField: TextBox = Instance.new("TextBox")
                         InputField.Name = "InputField"
-                        InputField.ZIndex = thisWidget.ZIndex + 5
-                        InputField.LayoutOrder = thisWidget.ZIndex + 2
                         InputField.Size = UDim2.new(1, 0, 1, 0)
                         InputField.BackgroundTransparency = 1
                         InputField.ClearTextOnFocus = false
@@ -1065,8 +1052,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                         local GrabBar: Frame = Instance.new("Frame")
                         GrabBar.Name = "GrabBar"
-                        GrabBar.ZIndex = thisWidget.ZIndex + 5
-                        GrabBar.LayoutOrder = thisWidget.ZIndex + 5
+                        GrabBar.ZIndex = 5
                         GrabBar.AnchorPoint = Vector2.new(0.5, 0.5)
                         GrabBar.Position = UDim2.new(0, 0, 0.5, 0)
                         GrabBar.BorderSizePixel = 0
@@ -1086,8 +1072,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     TextLabel.Size = UDim2.fromOffset(0, textHeight)
                     TextLabel.BackgroundTransparency = 1
                     TextLabel.BorderSizePixel = 0
-                    TextLabel.ZIndex = thisWidget.ZIndex + 5
-                    TextLabel.LayoutOrder = thisWidget.ZIndex + 5
+                    TextLabel.LayoutOrder = 5
                     TextLabel.AutomaticSize = Enum.AutomaticSize.X
 
                     widgets.applyTextStyle(TextLabel)

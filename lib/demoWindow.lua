@@ -66,7 +66,7 @@ return function(Iris: Types.Iris)
 
                 local AssetState = Iris.State("rbxasset://textures/ui/common/robux.png")
                 local SizeState = Iris.State(UDim2.fromOffset(100, 100))
-                local RectState = Iris.State(Rect.new())
+                local RectState = Iris.State(Rect.new(0, 0, 0, 0))
                 local ScaleTypeState = Iris.State(Enum.ScaleType.Stretch)
                 local PixelatedCheckState = Iris.State(false)
                 local PixelatedState = Iris.ComputedState(PixelatedCheckState, function(check: boolean)
@@ -139,7 +139,7 @@ return function(Iris: Types.Iris)
         Tree = function()
             Iris.Tree({ "Trees" })
             do
-                Iris.Tree({ "Tree using SpanAvailWidth", [Iris.Args.Tree.SpanAvailWidth] = true })
+                Iris.Tree({ "Tree using SpanAvailWidth", true })
                 do
                     helpMarker("SpanAvailWidth determines if the Tree is selectable from its entire with, or only the text area")
                 end
@@ -239,7 +239,7 @@ return function(Iris: Types.Iris)
 
                 Iris.PushConfig({ ContentWidth = UDim.new(1, -120) })
                 local InputNum = Iris.InputNum({
-                    "Input Number",
+                    [Iris.Args.InputNum.Text] = "Input Number",
                     -- [Iris.Args.InputNum.NoField] = NoField.value,
                     [Iris.Args.InputNum.NoButtons] = NoButtons.value,
                     [Iris.Args.InputNum.Min] = Min.value,
@@ -318,7 +318,7 @@ return function(Iris: Types.Iris)
         InputText = function()
             Iris.Tree({ "Input Text" })
             do
-                local InputText = Iris.InputText({ "Input Text Test", [Iris.Args.InputText.TextHint] = "Input Text here" })
+                local InputText = Iris.InputText({ "Input Text Test", "Input Text here" })
                 Iris.Text({ "The text is: " .. InputText.text.value })
             end
             Iris.End()
@@ -517,7 +517,7 @@ return function(Iris: Types.Iris)
 
             Iris.SameLine()
             do
-                Iris.InputNum({ "", [Iris.Args.InputNum.Format] = "%d Seconds", [Iris.Args.InputNum.Max] = 10 }, { number = numSecondsDisabled })
+                Iris.InputNum({ [Iris.Args.InputNum.Text] = "", [Iris.Args.InputNum.Format] = "%d Seconds", [Iris.Args.InputNum.Max] = 10 }, { number = numSecondsDisabled })
                 if Iris.Button({ "Disable" }).clicked() then
                     Iris.Disabled = true
                     task.delay(numSecondsDisabled:get(), function()
@@ -553,7 +553,7 @@ return function(Iris: Types.Iris)
                 local enteredWidget = lastVDOM[enteredText]
                 local enteredState = states[enteredText]
                 if enteredWidget then
-                    Iris.Table({ 1, [Iris.Args.Table.RowBg] = false })
+                    Iris.Table({ 1 })
                     Iris.Text({ string.format('The ID, "%s", is a widget', enteredText) })
                     Iris.NextRow()
 
@@ -576,7 +576,7 @@ return function(Iris: Types.Iris)
                     end
                     Iris.End()
                 elseif enteredState then
-                    Iris.Table({ 1, [Iris.Args.Table.RowBg] = false })
+                    Iris.Table({ 1 })
                     Iris.Text({ string.format('The ID, "%s", is a state', enteredText) })
                     Iris.NextRow()
 
@@ -1080,7 +1080,7 @@ return function(Iris: Types.Iris)
 
             Iris.Text({ "Table with Customizable Arguments" })
             Iris.Table({
-                4,
+                [Iris.Args.Table.NumColumns] = 4,
                 [Iris.Args.Table.RowBg] = TableRowBg.value,
                 [Iris.Args.Table.BordersOuter] = TableBordersOuter.value,
                 [Iris.Args.Table.BordersInner] = TableBordersInner.value,
@@ -1111,7 +1111,7 @@ return function(Iris: Types.Iris)
             Iris.End()
 
             Iris.InputNum({
-                "Number of rows",
+                [Iris.Args.InputNum.Text] = "Number of rows",
                 [Iris.Args.InputNum.Min] = 0,
                 [Iris.Args.InputNum.Max] = 100,
                 [Iris.Args.InputNum.Format] = "%d",
@@ -1222,7 +1222,7 @@ return function(Iris: Types.Iris)
 
         debug.profilebegin("Iris/Demo/Window")
         local window: Types.Widget = Iris.Window({
-            "Iris Demo Window",
+            [Iris.Args.Window.Title] = "Iris Demo Window",
             [Iris.Args.Window.NoTitleBar] = NoTitleBar.value,
             [Iris.Args.Window.NoBackground] = NoBackground.value,
             [Iris.Args.Window.NoCollapse] = NoCollapse.value,

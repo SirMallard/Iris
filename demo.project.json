@@ -1,5 +1,5 @@
 {
-    "name": "Iris",
+    "name": "IrisDemoPlace",
     "tree": {
         "$className": "DataModel",
         "Workspace": {
@@ -125,29 +125,6 @@
         "ReplicatedStorage": {
             "Iris": {
                 "$path": "default.project.json"
-            }
-        },
-        "ServerScriptService": {
-            "Plugins": {
-                "$className": "Folder",
-                "IrisExamplePlugin": {
-                    "$path": "src/plugins",
-                    "Iris": {
-                        "$path": "default.project.json"
-                    },
-                    "UserInputService": {
-                        "$path": "src/libraries/UserInputService"
-                    }
-                }
-            },
-            "Tests": {
-                "$path": "tests"
-            },
-            "Stories": {
-                "$path": "stories",
-                "UserInputService": {
-                    "$path": "src/libraries/UserInputService"
-                }
             }
         },
         "StarterPlayer": {

@@ -67,7 +67,7 @@ Iris.Events = {}
 
     Once initialized, [Iris.Connect] can be used to create a widget.
 ]=]
-function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSignal | () -> ())?, config: { [string]: any }?): Types.Iris
+function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSignal | () -> ())?): Types.Iris
     assert(Internal._started == false, "Iris.Init can only be called once.")
     assert(Internal._shutdown == false, "Iris.Init cannot be called once shutdown.")
 
@@ -206,12 +206,6 @@ end
 function Iris.End()
     if Internal._stackIndex == 1 then
         error("Callback has too many calls to Iris.End()", 2)
-    end
-
-    -- Mark the parent widget as no longer dirty
-    local parent = Internal._GetParentWidget()
-    if parent.isDirty then
-        parent.isDirty = false
     end
 
     Internal._IDStack[Internal._stackIndex] = nil

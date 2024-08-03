@@ -33,9 +33,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Checkbox.Size = UDim2.fromOffset(0, 0)
             Checkbox.Text = ""
             Checkbox.AutomaticSize = Enum.AutomaticSize.XY
-            Checkbox.ZIndex = thisWidget.ZIndex
-            Checkbox.AutoButtonColor = false
             Checkbox.LayoutOrder = thisWidget.ZIndex
+            Checkbox.AutoButtonColor = false
 
             local checkboxSize: number = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
 
@@ -44,8 +43,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             CheckboxBox.Size = UDim2.fromOffset(checkboxSize, checkboxSize)
             CheckboxBox.BackgroundColor3 = Iris._config.FrameBgColor
             CheckboxBox.BackgroundTransparency = Iris._config.FrameBgTransparency
-            CheckboxBox.ZIndex = thisWidget.ZIndex + 1
-            CheckboxBox.LayoutOrder = thisWidget.ZIndex + 1
             widgets.applyFrameStyle(CheckboxBox, true)
 
             widgets.applyInteractionHighlights(thisWidget, Checkbox, CheckboxBox, {
@@ -70,8 +67,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Checkmark.ImageColor3 = Iris._config.CheckMarkColor
             Checkmark.ImageTransparency = Iris._config.CheckMarkTransparency
             Checkmark.ScaleType = Enum.ScaleType.Fit
-            Checkmark.ZIndex = thisWidget.ZIndex + 2
-            Checkmark.LayoutOrder = thisWidget.ZIndex + 2
+            Checkmark.ZIndex = 2
 
             Checkmark.Parent = Checkbox
 
@@ -85,8 +81,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             widgets.applyTextStyle(TextLabel)
             TextLabel.AnchorPoint = Vector2.new(0, 0.5)
             TextLabel.Position = UDim2.new(0, checkboxSize + Iris._config.ItemInnerSpacing.X, 0.5, 0)
-            TextLabel.ZIndex = thisWidget.ZIndex + 1
-            TextLabel.LayoutOrder = thisWidget.ZIndex + 1
             TextLabel.AutomaticSize = Enum.AutomaticSize.XY
             TextLabel.BackgroundTransparency = 1
             TextLabel.BorderSizePixel = 0

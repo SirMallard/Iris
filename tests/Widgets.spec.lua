@@ -6,4 +6,4 @@ type TestingData = {
     },
 }
 
-return function(Iris: Types.Iris) end
+return function(_Iris: Types.Iris) end
