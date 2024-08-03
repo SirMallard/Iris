@@ -2,6 +2,7 @@ build/
 .vscode/
 
 *.rbxl
+*.rbxlx
 *.rbxm
 *.rbxmx
 *.lock
