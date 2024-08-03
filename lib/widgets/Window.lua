@@ -452,7 +452,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local ChildContainer: ScrollingFrame = Instance.new("ScrollingFrame")
             ChildContainer.Name = "ChildContainer"
-            ChildContainer.AutomaticSize = Enum.AutomaticSize.None
             ChildContainer.Size = UDim2.fromScale(1, 1)
             ChildContainer.Position = UDim2.fromOffset(0, 0)
             ChildContainer.BackgroundColor3 = Iris._config.WindowBgColor
