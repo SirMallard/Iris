@@ -136,6 +136,82 @@ return function(Iris: Types.Iris)
             Iris.End()
         end,
 
+        Selectable = function()
+            Iris.Tree({ "Selectable" })
+            do
+                local sharedIndex = Iris.State(2)
+                Iris.Selectable({ "Selectable #1", 1 }, { index = sharedIndex })
+                Iris.Selectable({ "Selectable #2", 2 }, { index = sharedIndex })
+                if Iris.Selectable({ "Double click Selectable", 3, true }, { index = sharedIndex }).doubleClicked() then
+                    sharedIndex:set(3)
+                end
+
+                Iris.Selectable({ "Impossible to select", 4, true }, { index = sharedIndex })
+                if Iris.Button({ "Select last" }).clicked() then
+                    sharedIndex:set(4)
+                end
+
+                Iris.Selectable({ "Independent Selectable" })
+            end
+            Iris.End()
+        end,
+
+        Combo = function()
+            Iris.Tree({ "Combo" })
+            do
+                Iris.PushConfig({ ContentWidth = UDim.new(1, -200) })
+                local sharedComboIndex = Iris.State("No Selection")
+
+                local NoPreview, NoButton
+                Iris.SameLine()
+                do
+                    NoPreview = Iris.Checkbox({ "No Preview" })
+                    NoButton = Iris.Checkbox({ "No Button" })
+                    if NoPreview.checked() and NoButton.isChecked.value == true then
+                        NoButton.isChecked:set(false)
+                    end
+                    if NoButton.checked() and NoPreview.isChecked.value == true then
+                        NoPreview.isChecked:set(false)
+                    end
+                end
+                Iris.End()
+
+                Iris.Combo({ "Basic Usage", NoButton.isChecked:get(), NoPreview.isChecked:get() }, { index = sharedComboIndex })
+                do
+                    Iris.Selectable({ "Select 1", "One" }, { index = sharedComboIndex })
+                    Iris.Selectable({ "Select 2", "Two" }, { index = sharedComboIndex })
+                    Iris.Selectable({ "Select 3", "Three" }, { index = sharedComboIndex })
+                end
+                Iris.End()
+
+                Iris.ComboArray({ "Using ComboArray" }, { index = "No Selection" }, { "Red", "Green", "Blue" })
+
+                local sharedComboIndex2 = Iris.State("7 AM")
+
+                Iris.Combo({ "Combo with Inner widgets" }, { index = sharedComboIndex2 })
+                do
+                    Iris.Tree({ "Morning Shifts" })
+                    do
+                        Iris.Selectable({ "Shift at 7 AM", "7 AM" }, { index = sharedComboIndex2 })
+                        Iris.Selectable({ "Shift at 11 AM", "11 AM" }, { index = sharedComboIndex2 })
+                        Iris.Selectable({ "Shift at 3 PM", "3 PM" }, { index = sharedComboIndex2 })
+                    end
+                    Iris.End()
+                    Iris.Tree({ "Night Shifts" })
+                    do
+                        Iris.Selectable({ "Shift at 6 PM", "6 PM" }, { index = sharedComboIndex2 })
+                        Iris.Selectable({ "Shift at 9 PM", "9 PM" }, { index = sharedComboIndex2 })
+                    end
+                    Iris.End()
+                end
+                Iris.End()
+
+                local ComboEnum = Iris.ComboEnum({ "Using ComboEnum" }, { index = Enum.UserInputState.Begin }, Enum.UserInputState)
+                Iris.Text({ "Selected: " .. ComboEnum.index:get().Name })
+                Iris.PopConfig()
+            end
+            Iris.End()
+        end,
         Tree = function()
             Iris.Tree({ "Trees" })
             do
@@ -386,83 +462,6 @@ return function(Iris: Types.Iris)
             Iris.PopConfig()
         end,
 
-        Selectable = function()
-            Iris.Tree({ "Selectable" })
-            do
-                local sharedIndex = Iris.State(2)
-                Iris.Selectable({ "Selectable #1", 1 }, { index = sharedIndex })
-                Iris.Selectable({ "Selectable #2", 2 }, { index = sharedIndex })
-                if Iris.Selectable({ "Double click Selectable", 3, true }, { index = sharedIndex }).doubleClicked() then
-                    sharedIndex:set(3)
-                end
-
-                Iris.Selectable({ "Impossible to select", 4, true }, { index = sharedIndex })
-                if Iris.Button({ "Select last" }).clicked() then
-                    sharedIndex:set(4)
-                end
-
-                Iris.Selectable({ "Independent Selectable" })
-            end
-            Iris.End()
-        end,
-
-        Combo = function()
-            Iris.Tree({ "Combo" })
-            do
-                Iris.PushConfig({ ContentWidth = UDim.new(1, -120) })
-                local sharedComboIndex = Iris.State("No Selection")
-
-                local NoPreview, NoButton
-                Iris.SameLine()
-                do
-                    NoPreview = Iris.Checkbox({ "No Preview" })
-                    NoButton = Iris.Checkbox({ "No Button" })
-                    if NoPreview.checked() and NoButton.isChecked.value == true then
-                        NoButton.isChecked:set(false)
-                    end
-                    if NoButton.checked() and NoPreview.isChecked.value == true then
-                        NoPreview.isChecked:set(false)
-                    end
-                end
-                Iris.End()
-
-                Iris.Combo({ "Basic Usage", NoButton.isChecked:get(), NoPreview.isChecked:get() }, { index = sharedComboIndex })
-                do
-                    Iris.Selectable({ "Select 1", "One" }, { index = sharedComboIndex })
-                    Iris.Selectable({ "Select 2", "Two" }, { index = sharedComboIndex })
-                    Iris.Selectable({ "Select 3", "Three" }, { index = sharedComboIndex })
-                end
-                Iris.End()
-
-                Iris.ComboArray({ "Using ComboArray" }, { index = "No Selection" }, { "Red", "Green", "Blue" })
-
-                local sharedComboIndex2 = Iris.State("7 AM")
-
-                Iris.Combo({ "Combo with Inner widgets" }, { index = sharedComboIndex2 })
-                do
-                    Iris.Tree({ "Morning Shifts" })
-                    do
-                        Iris.Selectable({ "Shift at 7 AM", "7 AM" }, { index = sharedComboIndex2 })
-                        Iris.Selectable({ "Shift at 11 AM", "11 AM" }, { index = sharedComboIndex2 })
-                        Iris.Selectable({ "Shift at 3 PM", "3 PM" }, { index = sharedComboIndex2 })
-                    end
-                    Iris.End()
-                    Iris.Tree({ "Night Shifts" })
-                    do
-                        Iris.Selectable({ "Shift at 6 PM", "6 PM" }, { index = sharedComboIndex2 })
-                        Iris.Selectable({ "Shift at 9 PM", "9 PM" }, { index = sharedComboIndex2 })
-                    end
-                    Iris.End()
-                end
-                Iris.End()
-
-                local ComboEnum = Iris.ComboEnum({ "Using ComboEnum" }, { index = Enum.UserInputState.Begin }, Enum.UserInputState)
-                Iris.Text({ "Selected: " .. ComboEnum.index:get().Name })
-                Iris.PopConfig()
-            end
-            Iris.End()
-        end,
-
         Plotting = function()
             Iris.Tree({ "Plotting" })
             do
@@ -479,7 +478,7 @@ return function(Iris: Types.Iris)
             Iris.End()
         end,
     }
-    local widgetDemosOrder = { "Basic", "Image", "Tree", "CollapsingHeader", "Group", "Indent", "Input", "MultiInput", "InputText", "Tooltip", "Selectable", "Combo", "Plotting" }
+    local widgetDemosOrder = { "Basic", "Image", "Selectable", "Combo", "Tree", "CollapsingHeader", "Group", "Indent", "Input", "MultiInput", "InputText", "Tooltip", "Plotting" }
 
     local function recursiveTree()
         local theTree = Iris.Tree({ "Recursive Tree" })

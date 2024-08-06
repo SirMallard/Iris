@@ -43,8 +43,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             TooltipText.Name = "TooltipText"
             TooltipText.Size = UDim2.fromOffset(0, 0)
             TooltipText.AutomaticSize = Enum.AutomaticSize.XY
-            TooltipText.BackgroundColor3 = Iris._config.WindowBgColor
-            TooltipText.BackgroundTransparency = Iris._config.WindowBgTransparency
+            TooltipText.BackgroundColor3 = Iris._config.PopupBgColor
+            TooltipText.BackgroundTransparency = Iris._config.PopupBgTransparency
             TooltipText.BorderSizePixel = Iris._config.PopupBorderSize
             TooltipText.TextWrapped = Iris._config.TextWrapped
 
@@ -199,7 +199,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 if TitleBar.Visible then
                     widgets.GuiService:Select(TitleBar)
                 else
-                    widgets.GuiService:Select(Window.ChildContainer)
+                    widgets.GuiService:Select(thisWidget.ChildContainer)
                 end
             end
         end
@@ -448,7 +448,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 
             local ChildContainer: ScrollingFrame = Instance.new("ScrollingFrame")
-            ChildContainer.Name = "ChildContainer"
+            ChildContainer.Name = "WindowContainer"
             ChildContainer.Size = UDim2.fromScale(1, 1)
             ChildContainer.Position = UDim2.fromOffset(0, 0)
             ChildContainer.BackgroundColor3 = Iris._config.WindowBgColor
@@ -697,16 +697,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
             end)
 
+            thisWidget.ChildContainer = ChildContainer
             return Window
         end,
         Update = function(thisWidget: Types.Widget)
-            local WindowGui = thisWidget.Instance :: GuiObject
-            local WindowButton = WindowGui.WindowButton :: TextButton
+            local Window = thisWidget.Instance :: GuiObject
+            local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
+            local WindowButton = Window.WindowButton :: TextButton
             local Content = WindowButton.Content :: Frame
             local TitleBar = Content.TitleBar :: Frame
             local Title: TextLabel = TitleBar.Title
             local MenuBar: Frame? = Content:FindFirstChild("MenuBar")
-            local ChildContainer: ScrollingFrame = Content.ChildContainer
             local ResizeGrip: TextButton = WindowButton.ResizeGrip
 
             if thisWidget.arguments.NoResize ~= true then
@@ -773,12 +774,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local WindowButton = Window.WindowButton :: TextButton
             local Content = WindowButton.Content :: Frame
             if thisChid.type == "MenuBar" then
-                local ChildContainer: ScrollingFrame = Content.ChildContainer
+                local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
                 thisChid.Instance.ZIndex = ChildContainer.ZIndex + 1
                 thisChid.Instance.LayoutOrder = ChildContainer.LayoutOrder - 1
                 return Content
             end
-            return Content.ChildContainer
+            return thisWidget.ChildContainer
         end,
         UpdateState = function(thisWidget: Types.Widget)
             local stateSize: Vector2 = thisWidget.state.size.value
@@ -788,11 +789,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local stateScrollDistance: number = thisWidget.state.scrollDistance.value
 
             local Window = thisWidget.Instance :: Frame
+            local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
             local WindowButton = Window.WindowButton :: TextButton
             local Content = WindowButton.Content :: Frame
             local TitleBar = Content.TitleBar :: Frame
             local MenuBar: Frame? = Content:FindFirstChild("MenuBar")
-            local ChildContainer: ScrollingFrame = Content.ChildContainer
             local ResizeGrip: TextButton = WindowButton.ResizeGrip
 
             WindowButton.Size = UDim2.fromOffset(stateSize.X, stateSize.Y)

@@ -25,9 +25,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             thisWidget.Instance:Destroy()
             widgets.discardState(thisWidget)
         end,
-        ChildAdded = function(thisWidget: Types.Widget)
-            local Tree = thisWidget.Instance :: Frame
-            local ChildContainer: Frame = Tree.ChildContainer
+        ChildAdded = function(thisWidget: Types.Widget, _otherWidget: Types.Widget)
+            local ChildContainer = thisWidget.ChildContainer :: Frame
 
             ChildContainer.Visible = thisWidget.state.isUncollapsed.value
 
@@ -36,7 +35,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         UpdateState = function(thisWidget: Types.Widget)
             local isUncollapsed: boolean = thisWidget.state.isUncollapsed.value
             local Tree = thisWidget.Instance :: Frame
-            local ChildContainer: Frame = Tree.ChildContainer
+            local ChildContainer = thisWidget.ChildContainer :: Frame
             local Header = Tree.Header :: Frame
             local Button = Header.Button :: TextButton
             local Arrow: ImageLabel = Button.Arrow
@@ -78,7 +77,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 widgets.UIListLayout(Tree, Enum.FillDirection.Vertical, UDim.new(0, 0))
 
                 local ChildContainer: Frame = Instance.new("Frame")
-                ChildContainer.Name = "ChildContainer"
+                ChildContainer.Name = "TreeContainer"
                 ChildContainer.Size = UDim2.fromScale(1, 0)
                 ChildContainer.AutomaticSize = Enum.AutomaticSize.Y
                 ChildContainer.BackgroundTransparency = 1
@@ -152,14 +151,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     thisWidget.state.isUncollapsed:set(not thisWidget.state.isUncollapsed.value)
                 end)
 
+                thisWidget.ChildContainer = ChildContainer
                 return Tree
             end,
             Update = function(thisWidget: Types.Widget)
                 local Tree = thisWidget.Instance :: Frame
+                local ChildContainer = thisWidget.ChildContainer :: Frame
                 local Header = Tree.Header :: Frame
                 local Button = Header.Button :: TextButton
                 local TextLabel: TextLabel = Button.TextLabel
-                local ChildContainer = Tree.ChildContainer :: Frame
                 local Padding: UIPadding = ChildContainer.UIPadding
 
                 TextLabel.Text = thisWidget.arguments.Text or "Tree"
@@ -199,7 +199,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 widgets.UIListLayout(CollapsingHeader, Enum.FillDirection.Vertical, UDim.new(0, 0))
 
                 local ChildContainer: Frame = Instance.new("Frame")
-                ChildContainer.Name = "ChildContainer"
+                ChildContainer.Name = "CollapsingHeaderContainer"
                 ChildContainer.Size = UDim2.fromScale(1, 0)
                 ChildContainer.AutomaticSize = Enum.AutomaticSize.Y
                 ChildContainer.BackgroundTransparency = 1
@@ -278,6 +278,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     thisWidget.state.isUncollapsed:set(not thisWidget.state.isUncollapsed.value)
                 end)
 
+                thisWidget.ChildContainer = ChildContainer
                 return CollapsingHeader
             end,
             Update = function(thisWidget: Types.Widget)
