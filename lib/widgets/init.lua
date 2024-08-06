@@ -29,23 +29,26 @@ return function(Iris: Types.Internal)
         end
     end
 
-    function widgets.setGuiInset()
-        local inset = widgets.GuiService:GetGuiInset()
+    -- acts as an offset where the absolute position of the base frame is not zero, such as IgnoreGuiInset or for stories
+    widgets.GuiOffset = Vector2.zero
+    -- the registered mouse position always ignores the topbar, so needs a separate variable offset
+    widgets.MouseOffset = if Iris._config.IgnoreGuiInset then Vector2.zero else widgets.GuiService:GetGuiInset()
 
-        -- Inset is not guaranteed to be set upon initialization.
-        if inset.Magnitude > 0 then
-            widgets.GuiInset = inset
-        end
-
-        return inset
-    end
-
-    function widgets.getGuiInset()
-        return widgets.GuiInset or widgets.setGuiInset()
-    end
+    -- the topbar inset changes updates a frame later.
+    local connection: RBXScriptConnection = widgets.GuiService:GetPropertyChangedSignal("TopbarInset"):Once(function()
+        widgets.MouseOffset = if Iris._config.IgnoreGuiInset then Vector2.zero else widgets.GuiService:GetGuiInset()
+    end)
+    -- in case the topbar doesn't change, we cancel the event.
+    task.delay(3, function()
+        connection:Disconnect()
+    end)
 
     function widgets.getMouseLocation(): Vector2
-        return widgets.UserInputService:GetMouseLocation() - widgets.getGuiInset()
+        return widgets.UserInputService:GetMouseLocation() - widgets.MouseOffset
+    end
+
+    function widgets.isPosInsideRect(pos: Vector2, rectMin: Vector2, rectMax: Vector2): boolean
+        return pos.X > rectMin.X and pos.X < rectMax.X and pos.Y > rectMin.Y and pos.Y < rectMax.Y
     end
 
     function widgets.findBestWindowPosForPopup(refPos: Vector2, size: Vector2, outerMin: Vector2, outerMax: Vector2): Vector2
@@ -68,8 +71,21 @@ return function(Iris: Types.Internal)
         return clampedPos
     end
 
-    function widgets.isPosInsideRect(pos: Vector2, rectMin: Vector2, rectMax: Vector2): boolean
-        return pos.X > rectMin.X and pos.X < rectMax.X and pos.Y > rectMin.Y and pos.Y < rectMax.Y
+    function widgets.getScreenSizeForWindow(thisWidget: Types.Widget): Vector2 -- possible parents are GuiBase2d, CoreGui, PlayerGui
+        if thisWidget.Instance:IsA("GuiBase2d") then
+            return thisWidget.Instance.AbsoluteSize
+        else
+            local rootParent = thisWidget.Instance.Parent
+            if rootParent:IsA("GuiBase2d") then
+                return rootParent.AbsoluteSize
+            else
+                if rootParent.Parent:IsA("GuiBase2d") then
+                    return rootParent.AbsoluteSize
+                else
+                    return workspace.CurrentCamera.ViewportSize
+                end
+            end
+        end
     end
 
     function widgets.extend(superClass: Types.WidgetClass, subClass: Types.WidgetClass): Types.WidgetClass
@@ -132,25 +148,6 @@ return function(Iris: Types.Internal)
         ObjectValue.Parent = Parent
 
         return ObjectValue
-    end
-
-    function widgets.getScreenSizeForWindow(thisWidget: Types.Widget): Vector2 -- possible parents are GuiBase2d, CoreGui, PlayerGui
-        local size: Vector2
-        if thisWidget.Instance:IsA("GuiBase2d") then
-            size = thisWidget.Instance.AbsoluteSize
-        else
-            local rootParent = thisWidget.Instance.Parent
-            if rootParent:IsA("GuiBase2d") then
-                size = rootParent.AbsoluteSize
-            else
-                if rootParent.Parent:IsA("GuiBase2d") then
-                    size = rootParent.AbsoluteSize
-                else
-                    size = workspace.CurrentCamera.ViewportSize
-                end
-            end
-        end
-        return size
     end
 
     -- below uses Iris

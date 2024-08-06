@@ -78,7 +78,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         local MouseLocation: Vector2 = widgets.getMouseLocation()
         for _, menu: Types.Widget in MenuStack do
             for _, container: GuiObject in { menu.ChildContainer, menu.Instance } do
-                local rectMin: Vector2 = container.AbsolutePosition
+                local rectMin: Vector2 = container.AbsolutePosition - widgets.GuiOffset
                 local rectMax: Vector2 = rectMin + container.AbsoluteSize
                 if widgets.isPosInsideRect(MouseLocation, rectMin, rectMax) then
                     isInMenu = true
@@ -256,9 +256,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end)
 
             local ChildContainer: ScrollingFrame = Instance.new("ScrollingFrame")
-            ChildContainer.Name = "ChildContainer"
-            ChildContainer.BackgroundColor3 = Iris._config.WindowBgColor
-            ChildContainer.BackgroundTransparency = Iris._config.WindowBgTransparency
+            ChildContainer.Name = "MenuContainer"
+            ChildContainer.BackgroundColor3 = Iris._config.PopupBgColor
+            ChildContainer.BackgroundTransparency = Iris._config.PopupBgTransparency
             ChildContainer.BorderSizePixel = 0
             ChildContainer.Size = UDim2.fromOffset(0, 0)
             ChildContainer.AutomaticSize = Enum.AutomaticSize.XY

@@ -1,7 +1,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Types = require(ReplicatedStorage.Iris.Types)
 
 return function(parent: GuiObject)
-    local Iris = require(ReplicatedStorage.Iris)
+    local Iris: Types.Iris = require(ReplicatedStorage.Iris)
     local Input = require(script.Parent.UserInputService)
 
     Input.SinkFrame.Parent = parent
@@ -10,6 +11,12 @@ return function(parent: GuiObject)
     Iris.UpdateGlobalConfig({
         UseScreenGUIs = false,
     })
+    Iris.Internal._utility.GuiOffset = Input.SinkFrame.AbsolutePosition
+    Iris.Internal._utility.MouseOffset = Input.SinkFrame.AbsolutePosition
+    Input.SinkFrame:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
+        Iris.Internal._utility.GuiOffset = Input.SinkFrame.AbsolutePosition
+        Iris.Internal._utility.MouseOffset = Input.SinkFrame.AbsolutePosition
+    end)
 
     Iris.Init(parent)
 

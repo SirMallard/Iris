@@ -214,7 +214,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local position: Vector2 = widgets.getMouseLocation()
             for _, window in windowWidgets do
                 local ResizeBorder: TextButton = window.Instance and window.Instance.WindowButton.ResizeBorder
-                if ResizeBorder and widgets.isPosInsideRect(position, ResizeBorder.AbsolutePosition, ResizeBorder.AbsolutePosition + ResizeBorder.AbsoluteSize) then
+                if ResizeBorder and widgets.isPosInsideRect(position, ResizeBorder.AbsolutePosition - widgets.GuiOffset, ResizeBorder.AbsolutePosition - widgets.GuiOffset + ResizeBorder.AbsoluteSize) then
                     inWindow = true
                     break
                 end

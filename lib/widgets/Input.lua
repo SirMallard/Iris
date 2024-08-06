@@ -873,7 +873,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local max: number = ActiveSlider.arguments.Max and getValueByIndex(ActiveSlider.arguments.Max, ActiveIndex, ActiveSlider.arguments) or defaultMax[ActiveDataType][ActiveIndex]
 
             local GrabWidth: number = GrabBar.AbsoluteSize.X
-            local Offset: number = widgets.getMouseLocation().X - (SliderField.AbsolutePosition.X + GrabWidth / 2)
+            local Offset: number = widgets.getMouseLocation().X - (SliderField.AbsolutePosition.X - widgets.GuiOffset.X + GrabWidth / 2)
             local Ratio: number = Offset / (SliderField.AbsoluteSize.X - GrabWidth)
             local Positions: number = math.floor((max - min) / increment)
             local newValue: number = math.clamp(math.round(Ratio * Positions) * increment + min, min, max)

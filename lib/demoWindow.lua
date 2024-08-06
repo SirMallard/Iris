@@ -634,8 +634,14 @@ return function(Iris: Types.Iris)
         do
             Iris.CollapsingHeader({ "Widgets" })
             do
+                Iris.SeparatorText({ "GuiService" })
+                Iris.Text({ `GuiOffset: {Iris.Internal._utility.GuiOffset}` })
+                Iris.Text({ `MouseOffset: {Iris.Internal._utility.MouseOffset}` })
+
                 Iris.SeparatorText({ "UserInputService" })
                 Iris.Text({ `MousePosition: {Iris.Internal._utility.UserInputService:GetMouseLocation()}` })
+                Iris.Text({ `MouseLocation: {Iris.Internal._utility.getMouseLocation()}` })
+
                 Iris.Text({ `Left Control: {Iris.Internal._utility.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl)}` })
                 Iris.Text({ `Right Control: {Iris.Internal._utility.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)}` })
             end
@@ -778,7 +784,6 @@ return function(Iris: Types.Iris)
 
                         Iris.SeparatorText({ "Config" })
                         BooleanInput({ "UseScreenGUIs" })
-                        BooleanInput({ "IgnoreGuiInset" })
                         SliderInput("DragNum", { "DisplayOrderOffset", 1, 0 })
                         SliderInput("DragNum", { "ZIndexOffset", 1, 0 })
                         SliderInput("SliderNum", { "MouseDoubleClickTime", 0.1, 0, 5 })
