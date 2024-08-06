@@ -812,6 +812,7 @@ return function(Iris: Types.Iris)
                             "Text",
                             "TextDisabled",
                             "WindowBg",
+                            "PopupBg",
                             "ScrollbarGrab",
                             "TitleBg",
                             "TitleBgActive",
