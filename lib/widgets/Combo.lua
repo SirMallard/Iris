@@ -231,7 +231,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Combo.BorderSizePixel = 0
             Combo.LayoutOrder = thisWidget.ZIndex
 
-            widgets.UIListLayout(Combo, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.Y + 1))
+            local UIListLayout: UIListLayout = widgets.UIListLayout(Combo, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+            UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
             local PreviewContainer: TextButton = Instance.new("TextButton")
             PreviewContainer.Name = "PreviewContainer"

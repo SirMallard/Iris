@@ -29,7 +29,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ProgressBar.AutomaticSize = Enum.AutomaticSize.Y
                 ProgressBar.LayoutOrder = thisWidget.ZIndex
 
-                widgets.UIListLayout(ProgressBar, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+                local UIListLayout: UIListLayout = widgets.UIListLayout(ProgressBar, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+                UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
                 local Bar: Frame = Instance.new("Frame")
                 Bar.Name = "Bar"

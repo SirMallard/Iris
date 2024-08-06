@@ -268,7 +268,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Input.BorderSizePixel = 0
                     Input.LayoutOrder = thisWidget.ZIndex
                     Input.AutomaticSize = Enum.AutomaticSize.Y
-                    widgets.UIListLayout(Input, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+                    local UIListLayout: UIListLayout = widgets.UIListLayout(Input, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+                    UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
                     -- we add plus and minus buttons if there is only one box. This can be disabled through the argument.
                     local rightPadding: number = 0
@@ -545,7 +546,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Drag.BorderSizePixel = 0
                     Drag.LayoutOrder = thisWidget.ZIndex
                     Drag.AutomaticSize = Enum.AutomaticSize.Y
-                    widgets.UIListLayout(Drag, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+                    local UIListLayout: UIListLayout = widgets.UIListLayout(Drag, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+                    UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
                     -- we add a color box if it is Color3 or Color4.
                     local rightPadding: number = 0
@@ -939,7 +941,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Slider.BorderSizePixel = 0
                     Slider.LayoutOrder = thisWidget.ZIndex
                     Slider.AutomaticSize = Enum.AutomaticSize.Y
-                    widgets.UIListLayout(Slider, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+                    local UIListLayout: UIListLayout = widgets.UIListLayout(Slider, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+                    UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
                     local textHeight: number = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
 
@@ -1303,7 +1306,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             InputText.BorderSizePixel = 0
             InputText.ZIndex = thisWidget.ZIndex
             InputText.LayoutOrder = thisWidget.ZIndex
-            widgets.UIListLayout(InputText, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+            local UIListLayout: UIListLayout = widgets.UIListLayout(InputText, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+            UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
             local InputField: TextBox = Instance.new("TextBox")
             InputField.Name = "InputField"
