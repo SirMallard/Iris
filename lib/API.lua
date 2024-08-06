@@ -426,7 +426,9 @@ return function(Iris: Types.Iris)
         hasState = true
         Arguments = {
             Text: string? = "InputText",
-            TextHint: string? = "" -- a hint to display when the text box is empty.
+            TextHint: string? = "", -- a hint to display when the text box is empty.
+            ReadOnly: boolean? = false,
+            MultiLine: boolean? = false
         }
         Events = {
             textChanged: () -> boolean, -- whenever the textbox looses focus and a change was made.

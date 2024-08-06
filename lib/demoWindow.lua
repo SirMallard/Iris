@@ -1183,6 +1183,53 @@ return function(Iris: Types.Iris)
                 Iris.PopConfig()
             end
             Iris.End()
+
+            Iris.Tree({ "Content Height" })
+            do
+                local text = Iris.State("a single line")
+                local value = Iris.State(50)
+                local index = Iris.State(Enum.Axis.X)
+                local progress = Iris.State(0)
+
+                -- formula to cycle between 0 and 100 linearly
+                local newValue = math.clamp((math.abs((os.clock() * 15) % 100 - 50)) - 7.5, 0, 35) / 35
+                progress:set(newValue)
+
+                Iris.Text({ "The Content Height is a size property that determines the minimum size of certain widgets." })
+                Iris.Text({ "By default the value is UDim.new(0, 0), so there is no minimum height." })
+                Iris.Text({ "We use Iris.PushConfig() to change this value." })
+
+                Iris.Separator()
+                Iris.SameLine()
+                do
+                    Iris.Text({ "Content Height = 0 pixels" })
+                    helpMarker("UDim.new(0, 0)")
+                end
+                Iris.End()
+
+                Iris.InputText({ "text" }, { text = text })
+                Iris.ProgressBar({ "progress" }, { progress = progress })
+                Iris.DragNum({ "number", 1, 0, 100 }, { number = value })
+                Iris.ComboEnum({ "axis" }, { index = index }, Enum.Axis)
+
+                Iris.SameLine()
+                do
+                    Iris.Text({ "Content Height = 60 pixels" })
+                    helpMarker("UDim.new(0, 60)")
+                end
+                Iris.End()
+
+                Iris.PushConfig({ ContentHeight = UDim.new(0, 60) })
+                Iris.InputText({ "text", nil, nil, true }, { text = text })
+                Iris.ProgressBar({ "progress" }, { progress = progress })
+                Iris.DragNum({ "number", 1, 0, 100 }, { number = value })
+                Iris.ComboEnum({ "axis" }, { index = index }, Enum.Axis)
+                Iris.PopConfig()
+
+                Iris.Text({ "This property can be used to force the height of a text box." })
+                Iris.Text({ "Just make sure you enable the MultiLine argument." })
+            end
+            Iris.End()
         end
         Iris.End()
     end

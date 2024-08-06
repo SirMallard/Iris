@@ -10,6 +10,8 @@ export type Arguments = {
     [string]: Argument,
     Text: string,
     TextHint: string,
+    ReadOnly: boolean,
+    MultiLine: boolean,
     Wrapped: boolean,
     Color: Color3,
     RichText: boolean,
@@ -607,6 +609,7 @@ export type Config = {
     -- Sizes
     ItemWidth: UDim,
     ContentWidth: UDim,
+    ContentHeight: UDim,
 
     WindowPadding: Vector2,
     WindowResizePadding: Vector2,

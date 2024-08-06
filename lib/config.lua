@@ -189,6 +189,7 @@ local TemplateConfig = {
     sizeDefault = { -- Dear, ImGui default
         ItemWidth = UDim.new(1, 0),
         ContentWidth = UDim.new(0.65, 0),
+        ContentHeight = UDim.new(0, 0),
 
         WindowPadding = Vector2.new(8, 8),
         WindowResizePadding = Vector2.new(6, 6),
@@ -218,6 +219,7 @@ local TemplateConfig = {
     sizeClear = { -- easier to read and manuveure
         ItemWidth = UDim.new(1, 0),
         ContentWidth = UDim.new(0.65, 0),
+        ContentHeight = UDim.new(0, 0),
 
         WindowPadding = Vector2.new(12, 8),
         WindowResizePadding = Vector2.new(8, 8),

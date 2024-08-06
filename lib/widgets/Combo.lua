@@ -251,7 +251,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local PreviewLabel: TextLabel = Instance.new("TextLabel")
             PreviewLabel.Name = "PreviewLabel"
-            PreviewLabel.Size = UDim2.new(1, 0, 0, 0)
+            PreviewLabel.Size = UDim2.new(UDim.new(1, 0), Iris._config.ContentHeight)
             PreviewLabel.AutomaticSize = Enum.AutomaticSize.Y
             PreviewLabel.BackgroundColor3 = Iris._config.FrameBgColor
             PreviewLabel.BackgroundTransparency = Iris._config.FrameBgTransparency
@@ -265,7 +265,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local DropdownButton: TextLabel = Instance.new("TextLabel")
             DropdownButton.Name = "DropdownButton"
-            DropdownButton.Size = UDim2.new(0, frameHeight, 0, frameHeight)
+            DropdownButton.Size = UDim2.new(0, frameHeight, Iris._config.ContentHeight.Scale, math.max(Iris._config.ContentHeight.Offset, frameHeight))
             DropdownButton.BorderSizePixel = 0
             DropdownButton.BackgroundColor3 = Iris._config.ButtonColor
             DropdownButton.BackgroundTransparency = Iris._config.ButtonTransparency
@@ -276,8 +276,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local Dropdown: ImageLabel = Instance.new("ImageLabel")
             Dropdown.Name = "Dropdown"
+            Dropdown.AnchorPoint = Vector2.new(0.5, 0.5)
             Dropdown.Size = UDim2.fromOffset(dropdownSize, dropdownSize)
-            Dropdown.Position = UDim2.fromOffset(padding, padding)
+            Dropdown.Position = UDim2.fromScale(0.5, 0.5)
             Dropdown.BackgroundTransparency = 1
             Dropdown.BorderSizePixel = 0
             Dropdown.ImageColor3 = Iris._config.TextColor
@@ -379,11 +380,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             if thisWidget.arguments.NoButton then
                 DropdownButton.Visible = false
-                PreviewLabel.Size = UDim2.new(1, 0, 0, 0)
+                PreviewLabel.Size = UDim2.new(UDim.new(1, 0), PreviewLabel.Size.Height)
             else
                 DropdownButton.Visible = true
                 local DropdownButtonSize = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
-                PreviewLabel.Size = UDim2.new(1, -DropdownButtonSize, 0, 0)
+                PreviewLabel.Size = UDim2.new(UDim.new(1, -DropdownButtonSize), PreviewLabel.Size.Height)
             end
 
             if thisWidget.arguments.NoPreview then
@@ -392,7 +393,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 PreviewContainer.AutomaticSize = Enum.AutomaticSize.XY
             else
                 PreviewLabel.Visible = true
-                PreviewContainer.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+                PreviewContainer.Size = UDim2.new(Iris._config.ContentWidth, Iris._config.ContentHeight)
                 PreviewContainer.AutomaticSize = Enum.AutomaticSize.Y
             end
         end,
