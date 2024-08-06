@@ -141,7 +141,6 @@ export type Widget = {
 
     -- Combo & Table properties
     ButtonColors: { [string]: Color3 | number },
-    ComboChildrenHeight: number,
 
     RowColumnIndex: number,
     InitialNumColumns: number,
@@ -530,6 +529,8 @@ export type Config = {
     WindowBgTransparency: number,
     ScrollbarGrabColor: Color3,
     ScrollbarGrabTransparency: number,
+    PopupBgColor: Color3,
+    PopupBgTransparency: number,
 
     TitleBgColor: Color3,
     TitleBgTransparency: number,

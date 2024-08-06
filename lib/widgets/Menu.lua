@@ -27,36 +27,39 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
         local Menu = thisWidget.Instance :: Frame
         local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
-        ChildContainer.Size = UDim2.fromOffset(math.max(ChildContainer.AbsoluteSize.X, Menu.AbsoluteSize.X), math.max(ChildContainer.AbsoluteSize.Y, Menu.AbsoluteSize.Y))
+        ChildContainer.Size = UDim2.fromOffset(Menu.AbsoluteSize.X, 0)
         if ChildContainer.Parent == nil then
             return
         end
 
-        local menuPosition: Vector2 = Menu.AbsolutePosition
+        local menuPosition: Vector2 = Menu.AbsolutePosition - widgets.GuiOffset
         local menuSize: Vector2 = Menu.AbsoluteSize
         local containerSize: Vector2 = ChildContainer.AbsoluteSize
         local borderSize: number = Iris._config.PopupBorderSize
         local screenSize: Vector2 = ChildContainer.Parent.AbsoluteSize
 
-        local x: number = menuPosition.X + borderSize
+        local x: number = menuPosition.X
         local y: number
+        local anchor: Vector2 = Vector2.zero
 
-        if thisWidget.parentWidget.type == "Menu" then
+        if submenu then
             if menuPosition.X + containerSize.X > screenSize.X then
-                x = menuPosition.X - borderSize - (submenu and containerSize.X or 0)
+                anchor = Vector2.xAxis
             else
-                x = menuPosition.X + borderSize + (submenu and menuSize.X or 0)
+                x = menuPosition.X + menuSize.X
             end
         end
 
         if menuPosition.Y + containerSize.Y > screenSize.Y then
             -- too low.
-            y = menuPosition.Y - borderSize - containerSize.Y + (submenu and menuSize.Y or 0)
+            y = menuPosition.Y - borderSize + (submenu and menuSize.Y or 0)
+            anchor += Vector2.yAxis
         else
             y = menuPosition.Y + borderSize + (submenu and 0 or menuSize.Y)
         end
 
         ChildContainer.Position = UDim2.fromOffset(x, y)
+        ChildContainer.AnchorPoint = anchor
     end
 
     widgets.registerEvent("InputBegan", function(inputObject: InputObject)
@@ -242,6 +245,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     end
                 end
             end)
+
             widgets.applyMouseEnter(thisWidget, Menu, function()
                 if AnyMenuOpen and ActiveMenu and ActiveMenu ~= thisWidget then
                     local parentMenu: Types.Widget = thisWidget.parentWidget
@@ -279,16 +283,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             --     widgets.UICorner(ChildContainer, Iris._config.PopupRounding)
             -- end
 
+            widgets.UIStroke(ChildContainer, Iris._config.WindowBorderSize, Iris._config.BorderColor, Iris._config.BorderTransparency)
+            widgets.UIPadding(ChildContainer, Vector2.new(2, Iris._config.WindowPadding.Y - Iris._config.ItemSpacing.Y))
+            
             local ChildContainerUIListLayout: UIListLayout = widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, 1))
             ChildContainerUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 
             local RootPopupScreenGui = Iris._rootInstance and Iris._rootInstance:FindFirstChild("PopupScreenGui") :: GuiObject
             ChildContainer.Parent = RootPopupScreenGui
+            
+            
             thisWidget.ChildContainer = ChildContainer
-
-            widgets.UIStroke(ChildContainer, Iris._config.WindowBorderSize, Iris._config.BorderColor, Iris._config.BorderTransparency)
-            widgets.UIPadding(ChildContainer, Vector2.new(2, Iris._config.WindowPadding.Y - Iris._config.ItemSpacing.Y))
-
             return Menu
         end,
         Update = function(thisWidget: Types.Widget)
