@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  create-release:
+    name: "Create Release"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1.14.0
+        with:
+          draft: true
+
+  build-files:
+    needs: ["create-release"]
+    name: "Build files"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        include:
+          - file: Iris.rbxm
+            command: rojo build -o Iris.rbxm ./default.project.json
+          - file: Iris.rbxl
+            command: rojo build -o Iris.rbxl ./demo.project.json
+          - file: Iris.zip
+            command: zip -r Iris.zip lib
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup-aftman
+        uses: ok-nick/setup-aftman@v0.4.2
+        with:
+          version: v0.3.0
+          cache: true
+
+      - name: Build file
+        run: ${{ matrix.command }}
+
+      - name: Upload file
+        uses: svenstaro/upload-release-action@2.9.0
+        with:
+          file: ${{ matrix.file }}
