@@ -14,9 +14,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Create Release
-        uses: ncipollo/release-action@v1.14.0
-        with:
-          draft: true
+        run: gh release create ${{ github.ref_name }} --draft --verify-tag --title ${{ github.ref_name }} --notes ${{ github.ref_name }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-files:
     needs: ["create-release"]
@@ -24,15 +24,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    strategy:
-      matrix:
-        include:
-          - file: Iris.rbxm
-            command: rojo build -o Iris.rbxm ./default.project.json
-          - file: Iris.rbxl
-            command: rojo build -o Iris.rbxl ./demo.project.json
-          - file: Iris.zip
-            command: zip -r Iris.zip lib
     steps:
       - uses: actions/checkout@v4
 
@@ -40,12 +31,15 @@ jobs:
         uses: ok-nick/setup-aftman@v0.4.2
         with:
           version: v0.3.0
-          cache: true
 
-      - name: Build file
-        run: ${{ matrix.command }}
+      - name: Build files
+        run: |
+          rojo build -o Iris.rbxm ./default.project.json
+          rojo build -o Iris.rbxl ./demo.project.json
+          zip -r Iris.zip lib
 
-      - name: Upload file
-        uses: svenstaro/upload-release-action@2.9.0
-        with:
-          file: ${{ matrix.file }}
+      - name: Upload files
+        run: |
+          gh release upload ${{ github.ref_name }} ./Iris.rbxm ./Iris.rbxl ./Iris.zip
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
