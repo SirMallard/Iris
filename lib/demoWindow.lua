@@ -77,11 +77,6 @@ return function(Iris: Types.Iris)
                 local ImageTransparencyState = Iris.State(Iris._config.ImageTransparency)
                 Iris.InputColor4({ "Image Tint" }, { color = ImageColorState, transparency = ImageTransparencyState })
 
-                Iris.PushConfig({
-                    ImageColor = ImageColorState:get(),
-                    ImageTransparency = ImageTransparencyState:get(),
-                })
-
                 Iris.Combo({ "Asset" }, { index = AssetState })
                 do
                     Iris.Selectable({ "Robux Small", "rbxasset://textures/ui/common/robux.png" }, { index = AssetState })
@@ -105,32 +100,51 @@ return function(Iris: Types.Iris)
                 Iris.End()
                 Iris.Checkbox({ "Pixelated" }, { isChecked = PixelatedCheckState })
 
+                Iris.PushConfig({
+                    ImageColor = ImageColorState:get(),
+                    ImageTransparency = ImageTransparencyState:get(),
+                })
                 Iris.Image({ AssetState:get(), SizeState:get(), RectState:get(), ScaleTypeState:get(), PixelatedState:get() })
+                Iris.PopConfig()
 
                 Iris.SeparatorText({ "Tile" })
-                local TileState = Iris.State(UDim2.fromScale(1, 1))
+                local TileState = Iris.State(UDim2.fromScale(0.5, 0.5))
                 Iris.SliderUDim2({ "Tile Size", nil, nil, UDim2.new(1, 240, 1, 240) }, { number = TileState })
 
+                Iris.PushConfig({
+                    ImageColor = ImageColorState:get(),
+                    ImageTransparency = ImageTransparencyState:get(),
+                })
                 Iris.Image({ "rbxasset://textures/grid2.png", SizeState:get(), nil, Enum.ScaleType.Tile, PixelatedState:get(), TileState:get() })
+                Iris.PopConfig()
 
                 Iris.SeparatorText({ "Slice" })
                 local SliceScaleState = Iris.State(1)
                 Iris.SliderNum({ "Image Slice Scale", 0.1, 0.1, 5 }, { number = SliceScaleState })
 
+                Iris.PushConfig({
+                    ImageColor = ImageColorState:get(),
+                    ImageTransparency = ImageTransparencyState:get(),
+                })
                 Iris.Image({ "rbxasset://textures/ui/chatBubble_blue_notify_bkg.png", SizeState:get(), nil, Enum.ScaleType.Slice, PixelatedState:get(), nil, Rect.new(12, 12, 56, 56), 1 }, SliceScaleState:get())
+                Iris.PopConfig()
 
                 Iris.SeparatorText({ "Image Button" })
                 local count = Iris.State(0)
+
                 Iris.SameLine()
                 do
+                    Iris.PushConfig({
+                        ImageColor = ImageColorState:get(),
+                        ImageTransparency = ImageTransparencyState:get(),
+                    })
                     if Iris.ImageButton({ "rbxasset://textures/AvatarCompatibilityPreviewer/add.png", UDim2.fromOffset(20, 20) }).clicked() then
                         count:set(count.value + 1)
                     end
+                    Iris.PopConfig()
 
                     Iris.Text({ `Click count: {count.value}` })
                 end
-
-                Iris.PopConfig()
                 Iris.End()
             end
             Iris.End()

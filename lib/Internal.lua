@@ -438,8 +438,6 @@ return function(Iris: Types.Iris): Types.Internal
             if Internal._localRefreshActive then
                 -- we are redrawing every widget.
                 Internal._DiscardWidget(lastWidget)
-                -- so we don't accidentally discard it twice
-                lastWidget.lastCycleTick = -1
                 lastWidget = nil
             end
         end
@@ -616,6 +614,9 @@ return function(Iris: Types.Iris): Types.Internal
 
         -- using the widget class discard function.
         Internal._widgets[widgetToDiscard.type].Discard(widgetToDiscard)
+
+        -- mark as discarded
+        widgetToDiscard.lastCycleTick = -1
     end
 
     --[=[
