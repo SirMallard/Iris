@@ -126,6 +126,7 @@ export type Widget = {
     lastCycleTick: number,
     trackedEvents: {},
     parentWidget: Widget,
+    UID: string,
 
     state: States,
     arguments: Arguments,

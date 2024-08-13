@@ -1,3 +1,5 @@
+local HttpService: HttpService = game:GetService("HttpService")
+
 local Types = require(script.Parent.Types)
 
 return function(Iris: Types.Iris): Types.Internal
@@ -512,6 +514,7 @@ return function(Iris: Types.Iris): Types.Internal
         thisWidget.type = widgetType
         thisWidget.parentWidget = parentWidget
         thisWidget.trackedEvents = {}
+        thisWidget.UID = HttpService:GenerateGUID(false):sub(0, 8)
 
         -- widgets have lots of space to ensure they are always visible.
         thisWidget.ZIndex = parentWidget.ZOffset
