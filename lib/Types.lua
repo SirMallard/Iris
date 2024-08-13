@@ -66,7 +66,7 @@ export type Arguments = {
 
 export type State = {
     value: any,
-    ConnectedWidgets: { [ID]: string },
+    ConnectedWidgets: { [ID]: Widget },
     ConnectedFunctions: { (any) -> () },
 
     get: (self: State) -> any,

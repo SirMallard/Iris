@@ -190,8 +190,9 @@ return function(Iris: Types.Iris): Types.Internal
         end
 
         for _, widget: Types.Widget in Internal._lastVDOM do
-            if widget.lastCycleTick ~= Internal._cycleTick then
+            if widget.lastCycleTick ~= Internal._cycleTick and (widget.lastCycleTick ~= -1) then
                 -- a widget which used to be rendered was not called last frame, so we discard it.
+                -- if the cycle tick is -1 we have already discarded it.
                 Internal._DiscardWidget(widget)
             end
         end
@@ -404,7 +405,6 @@ return function(Iris: Types.Iris): Types.Internal
         find the previous frame widget if it exists. If no widget exists, a new one is created.
     ]=]
     function Internal._Insert(widgetType: string, args: Types.WidgetArguments?, states: Types.WidgetStates?): Types.Widget
-        local thisWidget: Types.Widget
         local ID: Types.ID = Internal._getID(3)
         --debug.profilebegin(ID)
 
@@ -430,19 +430,19 @@ return function(Iris: Types.Iris): Types.Internal
         -- prevents tampering with the arguments which are used to check for changes.
         table.freeze(arguments)
 
-        if Internal._lastVDOM[ID] and widgetType == Internal._lastVDOM[ID].type then
+        local lastWidget: Types.Widget? = Internal._lastVDOM[ID]
+        if lastWidget and widgetType == lastWidget.type then
             -- found a matching widget from last frame.
             if Internal._localRefreshActive then
                 -- we are redrawing every widget.
-                Internal._DiscardWidget(Internal._lastVDOM[ID])
-            else
-                thisWidget = Internal._lastVDOM[ID]
+                Internal._DiscardWidget(lastWidget)
+                -- so we don't accidentally discard it twice
+                lastWidget.lastCycleTick = -1
+                lastWidget = nil
             end
         end
-        if thisWidget == nil then
-            -- didnt find a match, generate a new widget.
-            thisWidget = Internal._GenNewWidget(widgetType, arguments, states, ID)
-        end
+        local thisWidget: Types.Widget = if lastWidget == nil then Internal._GenNewWidget(widgetType, arguments, states, ID) else lastWidget
+
         local parentWidget: Types.Widget = thisWidget.parentWidget
 
         if thisWidget.type ~= "Window" and thisWidget.type ~= "Tooltip" then
