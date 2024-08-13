@@ -742,22 +742,28 @@ return function(Iris: Types.Iris)
                     function()
                         local UpdatedConfig = Iris.State({})
 
-                        if Iris.Button({ "Update Config" }).clicked() then
-                            Iris.UpdateGlobalConfig(UpdatedConfig:get())
-                            UpdatedConfig:set({})
+                        Iris.SameLine()
+                        do
+                            if Iris.Button({ "Update" }).clicked() then
+                                Iris.UpdateGlobalConfig(UpdatedConfig.value)
+                                UpdatedConfig:set({})
+                            end
+
+                            helpMarker("Update the global config with these changes.")
                         end
+                        Iris.End()
 
                         local function SliderInput(input: string, arguments: { any })
                             local Input = Iris[input](arguments, { number = Iris.WeakState(Iris._config[arguments[1]]) })
                             if Input.numberChanged() then
-                                UpdatedConfig:get()[arguments[1]] = Input.number:get()
+                                UpdatedConfig.value[arguments[1]] = Input.number:get()
                             end
                         end
 
                         local function BooleanInput(arguments: { any })
                             local Input = Iris.Checkbox(arguments, { isChecked = Iris.WeakState(Iris._config[arguments[1]]) })
                             if Input.checked() or Input.unchecked() then
-                                UpdatedConfig:get()[arguments[1]] = Input.isChecked:get()
+                                UpdatedConfig.value[arguments[1]] = Input.isChecked:get()
                             end
                         end
 
@@ -786,11 +792,10 @@ return function(Iris: Types.Iris)
                         SliderInput("SliderVector2", { "SeparatorTextPadding", nil, Vector2.zero, Vector2.one * 36 })
                         SliderInput("SliderUDim", { "ItemWidth", nil, UDim.new(), UDim.new(1, 200) })
                         SliderInput("SliderUDim", { "ContentWidth", nil, UDim.new(), UDim.new(1, 200) })
-                        SliderInput("SliderNum", { "TextSize", 1, 4, 20 })
                         SliderInput("SliderNum", { "ImageBorderSize", 1, 0, 12 })
                         local TitleInput = Iris.ComboEnum({ "WindowTitleAlign" }, { index = Iris.WeakState(Iris._config.WindowTitleAlign) }, Enum.LeftRight)
                         if TitleInput.closed() then
-                            UpdatedConfig:get().WindowTitleAlign = TitleInput.index:get()
+                            UpdatedConfig.value["WindowTitleAlign"] = TitleInput.index:get()
                         end
                         BooleanInput({ "RichText" })
                         BooleanInput({ "TextWrapped" })
@@ -808,25 +813,23 @@ return function(Iris: Types.Iris)
                     function()
                         local UpdatedConfig = Iris.State({})
 
-                        if Iris.Button({ "Update Config" }).clicked() then
-                            Iris.UpdateGlobalConfig(UpdatedConfig:get())
-                            UpdatedConfig:set({})
-                        end
-
-                        local color3s = { "BorderColor", "BorderActiveColor" }
-
-                        for _, vColor in color3s do
-                            local Input = Iris.InputColor3({ vColor }, { color = Iris.WeakState(Iris._config[vColor]) })
-                            if Input.numberChanged() then
-                                Iris.UpdateGlobalConfig({ [vColor] = Input.color:get() })
+                        Iris.SameLine()
+                        do
+                            if Iris.Button({ "Update" }).clicked() then
+                                Iris.UpdateGlobalConfig(UpdatedConfig.value)
+                                UpdatedConfig:set({})
                             end
+                            helpMarker("Update the global config with these changes.")
                         end
+                        Iris.End()
 
                         local color4s = {
                             "Text",
                             "TextDisabled",
                             "WindowBg",
                             "PopupBg",
+                            "Border",
+                            "BorderActive",
                             "ScrollbarGrab",
                             "TitleBg",
                             "TitleBgActive",
@@ -862,45 +865,107 @@ return function(Iris: Types.Iris)
                                 transparency = Iris.WeakState(Iris._config[vColor .. "Transparency"]),
                             })
                             if Input.numberChanged() then
-                                UpdatedConfig:get()[vColor .. "Color"] = Input.color:get()
-                                UpdatedConfig:get()[vColor .. "Transparency"] = Input.transparency:get()
+                                UpdatedConfig.value[vColor .. "Color"] = Input.color:get()
+                                UpdatedConfig.value[vColor .. "Transparency"] = Input.transparency:get()
                             end
+                        end
+                    end,
+                },
+                {
+                    "Fonts",
+                    function()
+                        local UpdatedConfig = Iris.State({})
+
+                        Iris.SameLine()
+                        do
+                            if Iris.Button({ "Update" }).clicked() then
+                                Iris.UpdateGlobalConfig(UpdatedConfig.value)
+                                UpdatedConfig:set({})
+                            end
+
+                            helpMarker("Update the global config with these changes.")
+                        end
+                        Iris.End()
+
+                        local fonts: { [string]: Font } = {
+                            ["Code (default)"] = Font.fromEnum(Enum.Font.Code),
+                            ["Ubuntu (template)"] = Font.fromEnum(Enum.Font.Ubuntu),
+                            ["Arial"] = Font.fromEnum(Enum.Font.Arial),
+                            ["Highway"] = Font.fromEnum(Enum.Font.Highway),
+                            ["Roboto"] = Font.fromEnum(Enum.Font.Roboto),
+                            ["Roboto Mono"] = Font.fromEnum(Enum.Font.RobotoMono),
+                            ["Noto Sans"] = Font.new("rbxassetid://12187370747"),
+                            ["Builder Sans"] = Font.fromEnum(Enum.Font.BuilderSans),
+                            ["Builder Mono"] = Font.new("rbxassetid://16658246179"),
+                            ["Sono"] = Font.new("rbxassetid://12187374537"),
+                        }
+
+                        Iris.Text({ `Current Font: {Iris._config.TextFont.Family} Weight: {Iris._config.TextFont.Weight} Style: {Iris._config.TextFont.Style}` })
+                        Iris.SeparatorText({ "Size" })
+
+                        local TextSize = Iris.SliderNum({ "Font Size", 1, 4, 20 }, { number = Iris.WeakState(Iris._config.TextSize) })
+                        if TextSize.numberChanged() then
+                            UpdatedConfig.value["TextSize"] = TextSize.state.number:get()
+                        end
+
+                        Iris.SeparatorText({ "Properties" })
+
+                        local TextFont = Iris.WeakState(Iris._config.TextFont.Family)
+                        local FontWeight = Iris.ComboEnum({ "Font Weight" }, { index = Iris.WeakState(Iris._config.TextFont.Weight) }, Enum.FontWeight)
+                        local FontStyle = Iris.ComboEnum({ "Font Style" }, { index = Iris.WeakState(Iris._config.TextFont.Style) }, Enum.FontStyle)
+
+                        Iris.SeparatorText({ "Fonts" })
+                        for name: string, font: Font in fonts do
+                            font = Font.new(font.Family, FontWeight.state.index.value, FontStyle.state.index.value)
+                            Iris.SameLine()
+                            do
+                                Iris.PushConfig({
+                                    TextFont = font,
+                                })
+
+                                if Iris.Selectable({ `{name} | "The quick brown fox jumps over the lazy dog."`, font.Family }, { index = TextFont }).selected() then
+                                    UpdatedConfig.value["TextFont"] = font
+                                end
+                                Iris.PopConfig()
+                            end
+                            Iris.End()
                         end
                     end,
                 },
             }
 
-            local window = Iris.Window({ "Style Editor" }, { isOpened = showStyleEditor })
+            Iris.Window({ "Style Editor" }, { isOpened = showStyleEditor })
             do
-                Iris.Text({ `Clicked close: {window.closed()}` })
                 Iris.Text({ "Customize the look of Iris in realtime." })
-                Iris.SameLine()
-                do
-                    if Iris.SmallButton({ "Light Theme" }).clicked() then
+
+                local ThemeState = Iris.State("Dark Theme")
+                if Iris.ComboArray({ "Theme" }, { index = ThemeState }, { "Dark Theme", "Light Theme" }).closed() then
+                    if ThemeState.value == "Dark Theme" then
+                        Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark)
+                    elseif ThemeState.value == "Light Theme" then
                         Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorLight)
                     end
-                    if Iris.SmallButton({ "Dark Theme" }).clicked() then
-                        Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark)
-                    end
                 end
-                Iris.End()
 
-                Iris.SameLine()
-                do
-                    if Iris.SmallButton({ "Classic Size" }).clicked() then
+                local SizeState = Iris.State("Classic Size")
+                if Iris.ComboArray({ "Size" }, { index = SizeState }, { "Classic Size", "Larger Size" }).closed() then
+                    if SizeState.value == "Classic Size" then
                         Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
-                    end
-                    if Iris.SmallButton({ "Larger Size" }).clicked() then
+                    elseif SizeState.value == "Larger Size" then
                         Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeClear)
                     end
                 end
-                Iris.End()
 
-                if Iris.SmallButton({ "Reset Everything" }).clicked() then
-                    Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark)
-                    Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
+                Iris.SameLine()
+                do
+                    if Iris.Button({ "Revert" }).clicked() then
+                        Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark)
+                        Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
+                    end
+
+                    helpMarker("Reset Iris to the default theme and size.")
                 end
-                Iris.Separator()
+                Iris.End()
 
                 Iris.SameLine()
                 do
@@ -909,6 +974,8 @@ return function(Iris: Types.Iris)
                     end
                 end
                 Iris.End()
+
+                Iris.Separator()
 
                 styleList[selectedPanel:get()][2]()
             end

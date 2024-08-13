@@ -1579,7 +1579,7 @@ return function(Iris: Types.Iris)
     Iris.ComboEnum = function(arguments: Types.WidgetArguments, states: Types.WidgetStates?, enumType: Enum)
         local defaultState
         if states == nil then
-            defaultState = Iris.State(enumType[1])
+            defaultState = Iris.State(enumType:GetEnumItems()[1])
         else
             defaultState = states
         end
