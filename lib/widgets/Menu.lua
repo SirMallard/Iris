@@ -106,7 +106,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Events = {},
         Generate = function(thisWidget: Types.Widget)
             local MenuBar: Frame = Instance.new("Frame")
-            MenuBar.Name = "MenuBar"
+            MenuBar.Name = "Iris_MenuBar"
             MenuBar.Size = UDim2.fromScale(1, 0)
             MenuBar.AutomaticSize = Enum.AutomaticSize.Y
             MenuBar.BackgroundColor3 = Iris._config.MenubarBgColor
@@ -121,7 +121,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return MenuBar
         end,
-        Update = function()
+        Update = function(_thisWidget: Types.Widget)
             
         end,
         ChildAdded = function(thisWidget: Types.Widget)

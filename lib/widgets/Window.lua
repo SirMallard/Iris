@@ -450,7 +450,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local ChildContainer: ScrollingFrame = Instance.new("ScrollingFrame")
             ChildContainer.Name = "WindowContainer"
             ChildContainer.Size = UDim2.fromScale(1, 1)
-            ChildContainer.Position = UDim2.fromOffset(0, 0)
             ChildContainer.BackgroundColor3 = Iris._config.WindowBgColor
             ChildContainer.BackgroundTransparency = Iris._config.WindowBgTransparency
             ChildContainer.BorderSizePixel = 0
@@ -509,7 +508,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             TitleBar.Parent = Content
 
             widgets.UIPadding(TitleBar, Vector2.xAxis * Iris._config.FramePadding.X)
-            widgets.UIListLayout(TitleBar, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.FramePadding.X)).VerticalAlignment = Enum.VerticalAlignment.Center
+            widgets.UIListLayout(TitleBar, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
             widgets.applyInputBegan(thisWidget, TitleBar, function(input: InputObject)
                 if input.UserInputType == Enum.UserInputType.Touch then
                     if not thisWidget.arguments.NoMove then

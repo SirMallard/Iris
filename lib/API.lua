@@ -558,7 +558,6 @@ return function(Iris: Types.Iris)
             [SECTION] Image Widget API
         ----------------------------------
     ]]
-
     --[=[
         @class Image
         Image Widget API
@@ -691,6 +690,19 @@ return function(Iris: Types.Iris)
         ```
     ]=]
     Iris.CollapsingHeader = wrapper("CollapsingHeader")
+
+    --[[
+		--------------------------------
+			[SECTION] Tab Widget API
+		--------------------------------
+	]]
+    --[=[
+		@class Tab
+		Tab Widget API
+	]=]
+
+    Iris.TabBar = wrapper("TabBar")
+    Iris.Tab = wrapper("Tab")
 
     --[[
         ----------------------------------

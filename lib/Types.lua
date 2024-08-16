@@ -262,6 +262,10 @@ export type Iris = {
     Tree: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
     CollapsingHeader: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
 
+    -- Tab Bar API
+    TabBar: () -> Widget,
+    Tab: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
+
     -- Input Widget API
     InputNum: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
     InputVector2: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
@@ -573,6 +577,13 @@ export type Config = {
     HeaderHoveredTransparency: number,
     HeaderActiveColor: Color3,
     HeaderActiveTransparency: number,
+
+    TabColor: Color3,
+    TabTransparency: number,
+    TabHoveredColor: Color3,
+    TabHoveredTransparency: number,
+    TabActiveColor: Color3,
+    TabActiveTransparency: number,
 
     SelectionImageObjectColor: Color3,
     SelectionImageObjectTransparency: number,
