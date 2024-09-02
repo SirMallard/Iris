@@ -599,13 +599,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                         DragField.Parent = Drag
 
-                        widgets.applyInteractionHighlights(thisWidget, DragField, DragField, {
-                            ButtonColor = Iris._config.FrameBgColor,
-                            ButtonTransparency = Iris._config.FrameBgTransparency,
-                            ButtonHoveredColor = Iris._config.FrameBgHoveredColor,
-                            ButtonHoveredTransparency = Iris._config.FrameBgHoveredTransparency,
-                            ButtonActiveColor = Iris._config.FrameBgActiveColor,
-                            ButtonActiveTransparency = Iris._config.FrameBgActiveTransparency,
+                        widgets.applyInteractionHighlights(thisWidget, "Background", DragField, DragField, {
+                            Color = Iris._config.FrameBgColor,
+                            Transparency = Iris._config.FrameBgTransparency,
+                            HoveredColor = Iris._config.FrameBgHoveredColor,
+                            HoveredTransparency = Iris._config.FrameBgHoveredTransparency,
+                            ActiveColor = Iris._config.FrameBgActiveColor,
+                            ActiveTransparency = Iris._config.FrameBgActiveTransparency,
                         })
 
                         local InputField: TextBox = Instance.new("TextBox")
@@ -985,13 +985,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                         OverlayText.Parent = SliderField
 
-                        widgets.applyInteractionHighlights(thisWidget, SliderField, SliderField, {
-                            ButtonColor = Iris._config.FrameBgColor,
-                            ButtonTransparency = Iris._config.FrameBgTransparency,
-                            ButtonHoveredColor = Iris._config.FrameBgHoveredColor,
-                            ButtonHoveredTransparency = Iris._config.FrameBgHoveredTransparency,
-                            ButtonActiveColor = Iris._config.FrameBgActiveColor,
-                            ButtonActiveTransparency = Iris._config.FrameBgActiveTransparency,
+                        widgets.applyInteractionHighlights(thisWidget, "Background", SliderField, SliderField, {
+                            Color = Iris._config.FrameBgColor,
+                            Transparency = Iris._config.FrameBgTransparency,
+                            HoveredColor = Iris._config.FrameBgHoveredColor,
+                            HoveredTransparency = Iris._config.FrameBgHoveredTransparency,
+                            ActiveColor = Iris._config.FrameBgActiveColor,
+                            ActiveTransparency = Iris._config.FrameBgActiveTransparency,
                         })
 
                         local InputField: TextBox = Instance.new("TextBox")

@@ -274,7 +274,7 @@ return function(Iris: Types.Iris)
     Iris.Indent = wrapper("Indent")
 
     --[=[
-        @prop Sameline Iris.Sameline
+        @prop SameLine Iris.SameLine
         @within Format
         @tag Widget
         @tag HasChildren
@@ -1389,38 +1389,6 @@ return function(Iris: Types.Iris)
     ]=]
     Iris.SliderRect = wrapper("SliderRect")
 
-    --[=[
-        @private
-        @prop SliderNum Iris.SliderNum
-        @within Slider
-        @tag Widget
-        @tag HasState
-        
-        A field which allows the user to slide a grip to enter a number within a range.
-        You can ctrl + click to directly input a number, like InputNum.
-        
-        ```lua
-        hasChildren = false
-        hasState = true
-        Arguments = {
-            Text: string? = "SliderNum",
-            Increment: number? = 1,
-            Min: number? = 0,
-            Max: number? = 100,
-            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
-        }
-        Events = {
-            numberChanged: () -> boolean,
-            hovered: () -> boolean
-        }
-        States = {
-            number: State<number>?,
-            editingText: State<boolean>?
-        }
-        ```
-    ]=]
-    -- Iris.SliderEnum = wrapper("SliderEnum")
-
     --[[
         ----------------------------------
             [SECTION] Combo Widget API
@@ -1672,7 +1640,9 @@ return function(Iris: Types.Iris)
         then the next cell will be the first column of the next row.
     ]=]
     Iris.NextColumn = function()
-        Iris.Internal._GetParentWidget().RowColumnIndex += 1
+        local parentWidget: Types.Widget = Iris.Internal._GetParentWidget()
+        assert(parentWidget.type == "Table", "Iris.NextColumn can only be called within a table.")
+        parentWidget.RowColumnIndex += 1
     end
 
     --[=[
@@ -1683,9 +1653,10 @@ return function(Iris: Types.Iris)
         In a table, directly sets the index of the column.
     ]=]
     Iris.SetColumnIndex = function(columnIndex: number)
-        local ParentWidget: Types.Widget = Iris.Internal._GetParentWidget()
-        assert(columnIndex >= ParentWidget.InitialNumColumns, "Iris.SetColumnIndex Argument must be in column range")
-        ParentWidget.RowColumnIndex = math.floor(ParentWidget.RowColumnIndex / ParentWidget.InitialNumColumns) + (columnIndex - 1)
+        local parentWidget: Types.Widget = Iris.Internal._GetParentWidget()
+        assert(parentWidget.type == "Table", "Iris.SetColumnIndex can only be called within a table.")
+        assert(columnIndex >= parentWidget.InitialNumColumns, "Iris.SetColumnIndex Argument must be in column range")
+        parentWidget.RowColumnIndex = math.floor(parentWidget.RowColumnIndex / parentWidget.InitialNumColumns) + (columnIndex - 1)
     end
 
     --[=[
@@ -1697,9 +1668,10 @@ return function(Iris: Types.Iris)
     ]=]
     Iris.NextRow = function()
         -- sets column Index back to 0, increments Row
-        local ParentWidget: Types.Widget = Iris.Internal._GetParentWidget()
-        local InitialNumColumns: number = ParentWidget.InitialNumColumns
-        local nextRow: number = math.floor((ParentWidget.RowColumnIndex + 1) / InitialNumColumns) * InitialNumColumns
-        ParentWidget.RowColumnIndex = nextRow
+        local parentWidget: Types.Widget = Iris.Internal._GetParentWidget()
+        assert(parentWidget.type == "Table", "Iris.NextColumn can only be called within a table.")
+        local InitialNumColumns: number = parentWidget.InitialNumColumns
+        local nextRow: number = math.floor((parentWidget.RowColumnIndex + 1) / InitialNumColumns) * InitialNumColumns
+        parentWidget.RowColumnIndex = nextRow
     end
 end

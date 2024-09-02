@@ -36,13 +36,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             widgets.applyFrameStyle(Button)
 
-            widgets.applyInteractionHighlights(thisWidget, Button, Button, {
-                ButtonColor = Iris._config.ButtonColor,
-                ButtonTransparency = Iris._config.ButtonTransparency,
-                ButtonHoveredColor = Iris._config.ButtonHoveredColor,
-                ButtonHoveredTransparency = Iris._config.ButtonHoveredTransparency,
-                ButtonActiveColor = Iris._config.ButtonActiveColor,
-                ButtonActiveTransparency = Iris._config.ButtonActiveTransparency,
+            widgets.applyInteractionHighlights(thisWidget, "Background", Button, Button, {
+                Color = Iris._config.ButtonColor,
+                Transparency = Iris._config.ButtonTransparency,
+                HoveredColor = Iris._config.ButtonHoveredColor,
+                HoveredTransparency = Iris._config.ButtonHoveredTransparency,
+                ActiveColor = Iris._config.ButtonActiveColor,
+                ActiveTransparency = Iris._config.ButtonActiveTransparency,
             })
 
             Button.ZIndex = thisWidget.ZIndex

@@ -162,12 +162,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Generate = function(thisWidget: Types.Widget)
             local Menu: TextButton
             thisWidget.ButtonColors = {
-                ButtonColor = Iris._config.HeaderColor,
-                ButtonTransparency = 1,
-                ButtonHoveredColor = Iris._config.HeaderHoveredColor,
-                ButtonHoveredTransparency = Iris._config.HeaderHoveredTransparency,
-                ButtonActiveColor = Iris._config.HeaderHoveredColor,
-                ButtonActiveTransparency = Iris._config.HeaderHoveredTransparency,
+                Color = Iris._config.HeaderColor,
+                Transparency = 1,
+                HoveredColor = Iris._config.HeaderHoveredColor,
+                HoveredTransparency = Iris._config.HeaderHoveredTransparency,
+                ActiveColor = Iris._config.HeaderHoveredColor,
+                ActiveTransparency = Iris._config.HeaderHoveredTransparency,
             }
             if thisWidget.parentWidget.type == "Menu" then
                 -- this Menu is a sub-Menu
@@ -228,7 +228,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 widgets.applyTextStyle(Menu)
                 widgets.UIPadding(Menu, Vector2.new(Iris._config.ItemSpacing.X, Iris._config.FramePadding.Y))
             end
-            widgets.applyInteractionHighlights(thisWidget, Menu, Menu, thisWidget.ButtonColors)
+            widgets.applyInteractionHighlights(thisWidget, "Background", Menu, Menu, thisWidget.ButtonColors)
 
             widgets.applyButtonClick(thisWidget, Menu, function()
                 local openMenu: boolean = if #MenuStack <= 1 then not thisWidget.state.isOpened.value else true
@@ -323,13 +323,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             if thisWidget.state.isOpened.value then
                 thisWidget.lastOpenedTick = Iris._cycleTick + 1
-                thisWidget.ButtonColors.ButtonTransparency = Iris._config.HeaderTransparency
+                thisWidget.ButtonColors.Transparency = Iris._config.HeaderTransparency
                 ChildContainer.Visible = true
 
                 UpdateChildContainerTransform(thisWidget)
             else
                 thisWidget.lastClosedTick = Iris._cycleTick + 1
-                thisWidget.ButtonColors.ButtonTransparency = 1
+                thisWidget.ButtonColors.Transparency = 1
                 ChildContainer.Visible = false
             end
         end,
@@ -371,13 +371,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             UIPadding.PaddingTop = UIPadding.PaddingTop - UDim.new(0, 1)
             widgets.UIListLayout(MenuItem, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
 
-            widgets.applyInteractionHighlights(thisWidget, MenuItem, MenuItem, {
-                ButtonColor = Iris._config.HeaderColor,
-                ButtonTransparency = 1,
-                ButtonHoveredColor = Iris._config.HeaderHoveredColor,
-                ButtonHoveredTransparency = Iris._config.HeaderHoveredTransparency,
-                ButtonActiveColor = Iris._config.HeaderHoveredColor,
-                ButtonActiveTransparency = Iris._config.HeaderHoveredTransparency,
+            widgets.applyInteractionHighlights(thisWidget, "Background", MenuItem, MenuItem, {
+                Color = Iris._config.HeaderColor,
+                Transparency = 1,
+                HoveredColor = Iris._config.HeaderHoveredColor,
+                HoveredTransparency = Iris._config.HeaderHoveredTransparency,
+                ActiveColor = Iris._config.HeaderHoveredColor,
+                ActiveTransparency = Iris._config.HeaderHoveredTransparency,
             })
 
             widgets.applyButtonClick(thisWidget, MenuItem, function()
@@ -484,13 +484,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             UIPadding.PaddingTop = UIPadding.PaddingTop - UDim.new(0, 1)
             widgets.UIListLayout(MenuItem, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
-            widgets.applyInteractionHighlights(thisWidget, MenuItem, MenuItem, {
-                ButtonColor = Iris._config.HeaderColor,
-                ButtonTransparency = 1,
-                ButtonHoveredColor = Iris._config.HeaderHoveredColor,
-                ButtonHoveredTransparency = Iris._config.HeaderHoveredTransparency,
-                ButtonActiveColor = Iris._config.HeaderHoveredColor,
-                ButtonActiveTransparency = Iris._config.HeaderHoveredTransparency,
+            widgets.applyInteractionHighlights(thisWidget, "Background", MenuItem, MenuItem, {
+                Color = Iris._config.HeaderColor,
+                Transparency = 1,
+                HoveredColor = Iris._config.HeaderHoveredColor,
+                HoveredTransparency = Iris._config.HeaderHoveredTransparency,
+                ActiveColor = Iris._config.HeaderHoveredColor,
+                ActiveTransparency = Iris._config.HeaderHoveredTransparency,
             })
 
             widgets.applyButtonClick(thisWidget, MenuItem, function()

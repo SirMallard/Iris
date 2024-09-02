@@ -542,13 +542,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 thisWidget.state.isUncollapsed:set(not thisWidget.state.isUncollapsed.value)
             end)
 
-            widgets.applyInteractionHighlights(thisWidget, CollapseButton, CollapseButton, {
-                ButtonColor = Iris._config.ButtonColor,
-                ButtonTransparency = 1,
-                ButtonHoveredColor = Iris._config.ButtonHoveredColor,
-                ButtonHoveredTransparency = Iris._config.ButtonHoveredTransparency,
-                ButtonActiveColor = Iris._config.ButtonActiveColor,
-                ButtonActiveTransparency = Iris._config.ButtonActiveTransparency,
+            widgets.applyInteractionHighlights(thisWidget, "Background", CollapseButton, CollapseButton, {
+                Color = Iris._config.ButtonColor,
+                Transparency = 1,
+                HoveredColor = Iris._config.ButtonHoveredColor,
+                HoveredTransparency = Iris._config.ButtonHoveredTransparency,
+                ActiveColor = Iris._config.ButtonActiveColor,
+                ActiveTransparency = Iris._config.ButtonActiveTransparency,
             })
 
             local CollapseArrow: ImageLabel = Instance.new("ImageLabel")
@@ -581,13 +581,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 thisWidget.state.isOpened:set(false)
             end)
 
-            widgets.applyInteractionHighlights(thisWidget, CloseButton, CloseButton, {
-                ButtonColor = Iris._config.ButtonColor,
-                ButtonTransparency = 1,
-                ButtonHoveredColor = Iris._config.ButtonHoveredColor,
-                ButtonHoveredTransparency = Iris._config.ButtonHoveredTransparency,
-                ButtonActiveColor = Iris._config.ButtonActiveColor,
-                ButtonActiveTransparency = Iris._config.ButtonActiveTransparency,
+            widgets.applyInteractionHighlights(thisWidget, "Background", CloseButton, CloseButton, {
+                Color = Iris._config.ButtonColor,
+                Transparency = 1,
+                HoveredColor = Iris._config.ButtonHoveredColor,
+                HoveredTransparency = Iris._config.ButtonHoveredTransparency,
+                ActiveColor = Iris._config.ButtonActiveColor,
+                ActiveTransparency = Iris._config.ButtonActiveTransparency,
             })
 
             CloseButton.Parent = TitleBar
@@ -644,13 +644,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ResizeGrip.ZIndex = 3
             ResizeGrip.Parent = WindowButton
 
-            widgets.applyImageInteractionHighlights(thisWidget, ResizeGrip, ResizeGrip, {
-                ButtonColor = Iris._config.ButtonColor,
-                ButtonTransparency = Iris._config.ButtonTransparency,
-                ButtonHoveredColor = Iris._config.ButtonHoveredColor,
-                ButtonHoveredTransparency = Iris._config.ButtonHoveredTransparency,
-                ButtonActiveColor = Iris._config.ButtonActiveColor,
-                ButtonActiveTransparency = Iris._config.ButtonActiveTransparency,
+            widgets.applyInteractionHighlights(thisWidget, "Image", ResizeGrip, ResizeGrip, {
+                Color = Iris._config.ButtonColor,
+                Transparency = Iris._config.ButtonTransparency,
+                HoveredColor = Iris._config.ButtonHoveredColor,
+                HoveredTransparency = Iris._config.ButtonHoveredTransparency,
+                ActiveColor = Iris._config.ButtonActiveColor,
+                ActiveTransparency = Iris._config.ButtonActiveTransparency,
             })
 
             widgets.applyButtonDown(thisWidget, ResizeGrip, function()

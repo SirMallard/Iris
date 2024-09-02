@@ -71,15 +71,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             widgets.UISizeConstraint(SelectableButton, Vector2.xAxis)
 
             thisWidget.ButtonColors = {
-                ButtonColor = Iris._config.HeaderColor,
-                ButtonTransparency = 1,
-                ButtonHoveredColor = Iris._config.HeaderHoveredColor,
-                ButtonHoveredTransparency = Iris._config.HeaderHoveredTransparency,
-                ButtonActiveColor = Iris._config.HeaderActiveColor,
-                ButtonActiveTransparency = Iris._config.HeaderActiveTransparency,
+                Color = Iris._config.HeaderColor,
+                Transparency = 1,
+                HoveredColor = Iris._config.HeaderHoveredColor,
+                HoveredTransparency = Iris._config.HeaderHoveredTransparency,
+                ActiveColor = Iris._config.HeaderActiveColor,
+                ActiveTransparency = Iris._config.HeaderActiveTransparency,
             }
 
-            widgets.applyInteractionHighlights(thisWidget, SelectableButton, SelectableButton, thisWidget.ButtonColors)
+            widgets.applyInteractionHighlights(thisWidget, "Background", SelectableButton, SelectableButton, thisWidget.ButtonColors)
 
             widgets.applyButtonClick(thisWidget, SelectableButton, function()
                 if thisWidget.arguments.NoClick ~= true then
@@ -116,11 +116,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local Selectable = thisWidget.Instance :: Frame
             local SelectableButton: TextButton = Selectable.SelectableButton
             if thisWidget.state.index.value == (thisWidget.arguments.Index or true) then
-                thisWidget.ButtonColors.ButtonTransparency = Iris._config.HeaderTransparency
+                thisWidget.ButtonColors.Transparency = Iris._config.HeaderTransparency
                 SelectableButton.BackgroundTransparency = Iris._config.HeaderTransparency
                 thisWidget.lastSelectedTick = Iris._cycleTick + 1
             else
-                thisWidget.ButtonColors.ButtonTransparency = 1
+                thisWidget.ButtonColors.Transparency = 1
                 SelectableButton.BackgroundTransparency = 1
                 thisWidget.lastUnselectedTick = Iris._cycleTick + 1
             end
@@ -290,28 +290,28 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             -- for some reason ImGui Combo has no highlights for Active, only hovered.
             -- so this deviates from ImGui, but its a good UX change
-            widgets.applyInteractionHighlightsWithMultiHighlightee(thisWidget, PreviewContainer, {
+            widgets.applyInteractionHighlightsWithMultiHighlightee(thisWidget, "Background", PreviewContainer, {
                 {
                     PreviewLabel,
                     {
-                        ButtonColor = Iris._config.FrameBgColor,
-                        ButtonTransparency = Iris._config.FrameBgTransparency,
-                        ButtonHoveredColor = Iris._config.FrameBgHoveredColor,
-                        ButtonHoveredTransparency = Iris._config.FrameBgHoveredTransparency,
-                        ButtonActiveColor = Iris._config.FrameBgActiveColor,
-                        ButtonActiveTransparency = Iris._config.FrameBgActiveTransparency,
+                        Color = Iris._config.FrameBgColor,
+                        Transparency = Iris._config.FrameBgTransparency,
+                        HoveredColor = Iris._config.FrameBgHoveredColor,
+                        HoveredTransparency = Iris._config.FrameBgHoveredTransparency,
+                        ActiveColor = Iris._config.FrameBgActiveColor,
+                        ActiveTransparency = Iris._config.FrameBgActiveTransparency,
                     },
                 },
                 {
                     DropdownButton,
                     {
-                        ButtonColor = Iris._config.ButtonColor,
-                        ButtonTransparency = Iris._config.ButtonTransparency,
-                        ButtonHoveredColor = Iris._config.ButtonHoveredColor,
-                        ButtonHoveredTransparency = Iris._config.ButtonHoveredTransparency,
+                        Color = Iris._config.ButtonColor,
+                        Transparency = Iris._config.ButtonTransparency,
+                        HoveredColor = Iris._config.ButtonHoveredColor,
+                        HoveredTransparency = Iris._config.ButtonHoveredTransparency,
                         -- Use hovered for active
-                        ButtonActiveColor = Iris._config.ButtonHoveredColor,
-                        ButtonActiveTransparency = Iris._config.ButtonHoveredTransparency,
+                        ActiveColor = Iris._config.ButtonHoveredColor,
+                        ActiveTransparency = Iris._config.ButtonHoveredTransparency,
                     },
                 },
             })

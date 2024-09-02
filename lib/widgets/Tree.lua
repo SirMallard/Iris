@@ -107,13 +107,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Button.Text = ""
                 Button.AutoButtonColor = false
 
-                widgets.applyInteractionHighlights(thisWidget, Button, Header, {
-                    ButtonColor = Color3.fromRGB(0, 0, 0),
-                    ButtonTransparency = 1,
-                    ButtonHoveredColor = Iris._config.HeaderHoveredColor,
-                    ButtonHoveredTransparency = Iris._config.HeaderHoveredTransparency,
-                    ButtonActiveColor = Iris._config.HeaderActiveColor,
-                    ButtonActiveTransparency = Iris._config.HeaderActiveTransparency,
+                widgets.applyInteractionHighlights(thisWidget, "Background", Button, Header, {
+                    Color = Color3.fromRGB(0, 0, 0),
+                    Transparency = 1,
+                    HoveredColor = Iris._config.HeaderHoveredColor,
+                    HoveredTransparency = Iris._config.HeaderHoveredTransparency,
+                    ActiveColor = Iris._config.HeaderActiveColor,
+                    ActiveTransparency = Iris._config.HeaderActiveTransparency,
                 })
 
                 local ButtonPadding: UIPadding = widgets.UIPadding(Button, Vector2.zero)
@@ -238,13 +238,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 local ButtonUIListLayout: UIListLayout = widgets.UIListLayout(Button, Enum.FillDirection.Horizontal, UDim.new(0, 2 * Iris._config.FramePadding.X))
                 ButtonUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
-                widgets.applyInteractionHighlights(thisWidget, Button, Button, {
-                    ButtonColor = Iris._config.HeaderColor,
-                    ButtonTransparency = Iris._config.HeaderTransparency,
-                    ButtonHoveredColor = Iris._config.HeaderHoveredColor,
-                    ButtonHoveredTransparency = Iris._config.HeaderHoveredTransparency,
-                    ButtonActiveColor = Iris._config.HeaderActiveColor,
-                    ButtonActiveTransparency = Iris._config.HeaderActiveTransparency,
+                widgets.applyInteractionHighlights(thisWidget, "Background", Button, Button, {
+                    Color = Iris._config.HeaderColor,
+                    Transparency = Iris._config.HeaderTransparency,
+                    HoveredColor = Iris._config.HeaderHoveredColor,
+                    HoveredTransparency = Iris._config.HeaderHoveredTransparency,
+                    ActiveColor = Iris._config.HeaderActiveColor,
+                    ActiveTransparency = Iris._config.HeaderActiveTransparency,
                 })
 
                 Button.Parent = Header

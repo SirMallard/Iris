@@ -51,13 +51,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             widgets.applyFrameStyle(Box, true)
             widgets.UIPadding(Box, (checkboxSize // 10) * Vector2.one)
 
-            widgets.applyInteractionHighlights(thisWidget, Checkbox, Box, {
-                ButtonColor = Iris._config.FrameBgColor,
-                ButtonTransparency = Iris._config.FrameBgTransparency,
-                ButtonHoveredColor = Iris._config.FrameBgHoveredColor,
-                ButtonHoveredTransparency = Iris._config.FrameBgHoveredTransparency,
-                ButtonActiveColor = Iris._config.FrameBgActiveColor,
-                ButtonActiveTransparency = Iris._config.FrameBgActiveTransparency,
+            widgets.applyInteractionHighlights(thisWidget, "Background", Checkbox, Box, {
+                Color = Iris._config.FrameBgColor,
+                Transparency = Iris._config.FrameBgTransparency,
+                HoveredColor = Iris._config.FrameBgHoveredColor,
+                HoveredTransparency = Iris._config.FrameBgHoveredTransparency,
+                ActiveColor = Iris._config.FrameBgActiveColor,
+                ActiveTransparency = Iris._config.FrameBgActiveTransparency,
             })
 
             Box.Parent = Checkbox
