@@ -334,7 +334,7 @@ export type Iris = {
 
     -- ID API
     PushId: (id: ID) -> (),
-    PopId: (id: ID) -> (),
+    PopId: () -> (),
     SetNextWidgetID: (id: ID) -> (),
 
     -- Config API
