@@ -124,7 +124,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Update = function()
             
         end,
-        ChildAdded = function(thisWidget: Types.MenuBar, _childWidget: Types.Widget)
+        ChildAdded = function(thisWidget: Types.MenuBar, _thisChild: Types.Widget)
             return thisWidget.Instance
         end,
         Discard = function(thisWidget: Types.MenuBar)

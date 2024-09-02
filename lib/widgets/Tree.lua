@@ -25,7 +25,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             thisWidget.Instance:Destroy()
             widgets.discardState(thisWidget)
         end,
-        ChildAdded = function(thisWidget: Types.CollapsingHeader, _childWidget: Types.Widget)
+        ChildAdded = function(thisWidget: Types.CollapsingHeader, _thisChild: Types.Widget)
             local ChildContainer: Frame = thisWidget.ChildContainer :: Frame
 
             ChildContainer.Visible = thisWidget.state.isUncollapsed.value

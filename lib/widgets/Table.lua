@@ -117,7 +117,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             tableWidgets[thisWidget.ID] = nil
             thisWidget.Instance:Destroy()
         end,
-        ChildAdded = function(thisWidget: Types.Table, _otherChild: Types.Widget)
+        ChildAdded = function(thisWidget: Types.Table, _thisChild: Types.Widget)
             if thisWidget.RowColumnIndex == 0 then
                 thisWidget.RowColumnIndex = 1
             end
