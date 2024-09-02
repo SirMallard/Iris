@@ -59,7 +59,7 @@ Iris.Events = {}
     @within Iris
     @function Init
     @param parentInstance Instance? -- where Iris will place widgets UIs under, defaulting to [PlayerGui]
-    @param eventConnection (RBXScriptSignal | () -> ())? -- the event to determine an Iris cycle, defaulting to [Heartbeat]
+    @param eventConnection (RBXScriptSignal | () -> () | false)? -- the event to determine an Iris cycle, defaulting to [Heartbeat]
     @return Iris
 
     Initializes Iris and begins rendering. Can only be called once.
@@ -69,7 +69,7 @@ Iris.Events = {}
 
     If the `eventConnection` is `false` then Iris will not create a cycle loop and the user will need to call [Internal._cycle] every frame.
 ]=]
-function Iris.Init(parentInstance: Instance?, eventConnection: (RBXScriptSignal | () -> ())?): Types.Iris
+function Iris.Init(parentInstance: Instance?, eventConnection: (RBXScriptSignal | () -> () | false)?): Types.Iris
     assert(Internal._started == false, "Iris.Init can only be called once.")
     assert(Internal._shutdown == false, "Iris.Init cannot be called once shutdown.")
 
@@ -98,7 +98,7 @@ function Iris.Init(parentInstance: Instance?, eventConnection: (RBXScriptSignal 
                 eventConnection()
                 Internal._cycle()
             end
-        elseif eventConnection ~= nil then
+        elseif eventConnection ~= nil and eventConnection ~= false then
             Internal._eventConnection = eventConnection:Connect(function()
                 Internal._cycle()
             end)
@@ -457,6 +457,156 @@ function Iris.WeakState<T>(initialValue: T): Types.State<T>
     } :: any
     setmetatable(Internal._states[ID], Internal.StateClass)
     return Internal._states[ID]
+end
+
+--[=[
+    @within Iris
+    @function VariableState<T>
+    @param variable T -- the variable to track
+    @param callback (T) -> () -- a function which sets the new variable locally
+    @return State<T>
+    @tag State
+
+    Returns a state object linked to a local variable.
+    
+    The passed variable is used to check whether the state object should update. The callback method is used to change the local variable when the state changes.
+
+    The existence of such a function is to make working with local variables easier.
+    Since Iris cannot directly manipulate the memory of the variable, like in C++, it must instead rely on the user updating it through the callback provided.
+    Additionally, because the state value is not updated when created or called we cannot return the new value back, instead we require a callback for the user to update.
+
+    ```lua
+    local myNumber = 5
+
+    local state = Iris.VariableState(myNumber, function(value)
+        myNumber = value
+    end)
+    Iris.DragNum({ "My number" }, { number = state })
+    ```
+
+    This is how Dear ImGui does the same in C++ where we can just provide the memory location to the variable which is then updated directly.
+    ```cpp
+    static int myNumber = 5;
+    ImGui::DragInt("My number", &myNumber); // Here in C++, we can directly pass the variable.
+    ```
+    
+    :::warning Update Order
+    If the variable and state value are different when calling this, the variable value takes precedence.
+
+    Therefore, if you update the state using `state.value = ...` then it will be overwritten by the variable value.
+    You must use `state:set(...)` if you want the variable to update to the state's value.
+    :::
+]=]
+function Iris.VariableState<T>(variable: T, callback: (T) -> ()): Types.State<T>
+    local ID: Types.ID = Internal._getID(2)
+    local state: Types.State<T>? = Internal._states[ID]
+
+    if state then
+        if variable ~= state.value then
+            state:set(variable)
+        end
+        return state
+    end
+
+    local newState = {
+        value = variable,
+        ConnectedWidgets = {},
+        ConnectedFunctions = {},
+    } :: Types.State<T>
+    setmetatable(newState, Internal.StateClass)
+    Internal._states[ID] = newState
+
+    newState:onChange(callback)
+
+    return newState
+end
+
+--[=[
+    @within Iris
+    @function TableState<K, V>
+    @param table { [K]: V } -- the table containing the value
+    @param key K -- the key to the value in table
+    @param callback ((newValue: V) -> false?)? -- a function called when the state is changed
+    @return State<V>
+    @tag State
+
+    Similar to Iris.VariableState but takes a table and key to modify a specific value and a callback to determine whether to update the value.
+    
+    The passed table and key are used to check the value. The callback is called when the state changes value and determines whether we update the table.
+    This is useful if we want to monitor a table value which needs to call other functions when changed.
+    
+    Since tables are pass-by-reference, we can modify the table anywhere and it will update all other instances. Therefore, we don't need a callback by default.
+    ```lua
+    local data = {
+        myNumber = 5
+    }
+
+    local state = Iris.TableState(data, "myNumber")
+    Iris.DragNum({ "My number" }, { number = state })
+    ```
+
+    Here the `data._started` should never be updated directly, only through the `toggle` function. However, we still want to monitor the value and be able to change it.
+    Therefore, we use the callback to toggle the function for us and prevent Iris from updating the table value by returning false.
+    ```lua
+    local data ={
+        _started = false
+    }
+
+    local function toggle(enabled: boolean)
+        data._started = enabled
+        if data._started then
+            start(...)
+        else
+            stop(...)
+        end
+    end
+
+    local state = Iris.TableState(data, "_started", function(stateValue: boolean)
+       toggle(stateValue)
+       return false
+    end)
+    Iris.Checkbox({ "Started" }, { isChecked = state })
+    ```
+
+    :::warning Update Order
+    If the table value and state value are different when calling this, the table value value takes precedence.
+
+    Therefore, if you update the state using `state.value = ...` then it will be overwritten by the table value.
+    You must use `state:set(...)` if you want the table value to update to the state's value.
+    :::
+]=]
+function Iris.TableState<K, V>(tab: { [K]: V }, key: K, callback: ((newValue: V) -> false?)?): Types.State<V>
+    local value: V = tab[key]
+    local ID: Types.ID = Internal._getID(2)
+    local state: Types.State<V>? = Internal._states[ID]
+
+    -- If the table values changes, then we update the state to match.
+    if state then
+        if value ~= state.value then
+            state:set(value)
+        end
+        return state
+    end
+
+    local newState = {
+        value = value,
+        ConnectedWidgets = {},
+        ConnectedFunctions = {},
+    } :: Types.State<V>
+    setmetatable(newState, Internal.StateClass)
+    Internal._states[ID] = newState
+
+    -- When a change happens to the state, we update the table value.
+    newState:onChange(function()
+        if callback ~= nil then
+            if callback(newState.value) then
+                tab[key] = newState.value
+            end
+        else
+            tab[key] = newState.value
+        end
+    end)
+    return newState
 end
 
 --[=[
