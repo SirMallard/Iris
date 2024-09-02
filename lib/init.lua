@@ -67,7 +67,7 @@ Iris.Events = {}
 
     Once initialized, [Iris.Connect] can be used to create a widget.
 ]=]
-function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSignal | () -> ())?, config: { [string]: any }?): Types.Iris
+function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSignal | () -> ())?): Types.Iris
     assert(Internal._started == false, "Iris.Init can only be called once.")
     assert(Internal._shutdown == false, "Iris.Init cannot be called once shutdown.")
 
@@ -167,7 +167,7 @@ end
     property or by the current parent widget from the stack.
 ]=]
 function Iris.Append(userInstance: GuiObject)
-    local parentWidget: Types.Widget = Internal._GetParentWidget()
+    local parentWidget: Types.ParentWidget = Internal._GetParentWidget()
     local widgetInstanceParent: GuiObject
     if Internal._config.Parent then
         widgetInstanceParent = Internal._config.Parent :: any

@@ -29,11 +29,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ProgressBar.AutomaticSize = Enum.AutomaticSize.Y
                 ProgressBar.LayoutOrder = thisWidget.ZIndex
 
-                widgets.UIListLayout(ProgressBar, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+                local UIListLayout: UIListLayout = widgets.UIListLayout(ProgressBar, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+                UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
                 local Bar: Frame = Instance.new("Frame")
                 Bar.Name = "Bar"
-                Bar.Size = UDim2.new(Iris._config.ContentWidth, UDim.new())
+                Bar.Size = UDim2.new(Iris._config.ContentWidth, Iris._config.ContentHeight)
                 Bar.BackgroundColor3 = Iris._config.FrameBgColor
                 Bar.BackgroundTransparency = Iris._config.FrameBgTransparency
                 Bar.BorderSizePixel = 0
@@ -46,10 +47,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 local Progress: TextLabel = Instance.new("TextLabel")
                 Progress.Name = "Progress"
+                Progress.AutomaticSize = Enum.AutomaticSize.Y
+                Progress.Size = UDim2.new(UDim.new(0, 0), Iris._config.ContentHeight)
                 Progress.BackgroundColor3 = Iris._config.PlotHistogramColor
                 Progress.BackgroundTransparency = Iris._config.PlotHistogramTransparency
                 Progress.BorderSizePixel = 0
-                Progress.AutomaticSize = Enum.AutomaticSize.Y
 
                 widgets.applyTextStyle(Progress)
                 widgets.UIPadding(Progress, Iris._config.FramePadding)
@@ -61,6 +63,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 local Value: TextLabel = Instance.new("TextLabel")
                 Value.Name = "Value"
                 Value.AutomaticSize = Enum.AutomaticSize.XY
+                Value.Size = UDim2.new(UDim.new(0, 0), Iris._config.ContentHeight)
                 Value.BackgroundTransparency = 1
                 Value.BorderSizePixel = 0
                 Value.ZIndex = 1
@@ -72,8 +75,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 local TextLabel: TextLabel = Instance.new("TextLabel")
                 TextLabel.Name = "TextLabel"
-                TextLabel.AnchorPoint = Vector2.new(0, 0.5)
                 TextLabel.AutomaticSize = Enum.AutomaticSize.XY
+                TextLabel.AnchorPoint = Vector2.new(0, 0.5)
                 TextLabel.BackgroundTransparency = 1
                 TextLabel.BorderSizePixel = 0
                 TextLabel.LayoutOrder = 1
@@ -120,7 +123,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Value.Position = UDim2.new(progress, 0, 0, 0)
                 end
 
-                Progress.Size = UDim2.fromScale(progress, 0)
+                Progress.Size = UDim2.new(UDim.new(progress, 0), Progress.Size.Height)
                 if thisWidget.arguments.Format ~= nil and typeof(thisWidget.arguments.Format) == "string" then
                     Value.Text = thisWidget.arguments.Format
                 else

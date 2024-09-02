@@ -84,7 +84,7 @@ return function(Iris: Types.Iris)
     --[=[
         @function SetFocusedWindow
         @within Iris
-        @param window Types.Widget -- the window to focus.
+        @param window Types.Window -- the window to focus.
 
         Sets the focused window to the window provided, which brings it to the front and makes it active.
     ]=]
@@ -426,7 +426,9 @@ return function(Iris: Types.Iris)
         hasState = true
         Arguments = {
             Text: string? = "InputText",
-            TextHint: string? = "" -- a hint to display when the text box is empty.
+            TextHint: string? = "", -- a hint to display when the text box is empty.
+            ReadOnly: boolean? = false,
+            MultiLine: boolean? = false
         }
         Events = {
             textChanged: () -> boolean, -- whenever the textbox looses focus and a change was made.
@@ -1387,39 +1389,6 @@ return function(Iris: Types.Iris)
     ]=]
     Iris.SliderRect = wrapper("SliderRect")
 
-    --[=[
-        @private
-        @prop InputEnum Iris.InputEnum
-        @within Slider
-        @tag Widget
-        @tag HasState
-        
-        A field which allows the user to slide a grip to enter a number within a range.
-        You can ctrl + click to directly input a number, like InputNum.
-        
-        ```lua
-        hasChildren = false
-        hasState = true
-        Arguments = {
-            Text: string? = "InputEnum",
-            Increment: number? = 1,
-            Min: number? = 0,
-            Max: number? = 100,
-            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
-        }
-        Events = {
-            numberChanged: () -> boolean,
-            hovered: () -> boolean
-        }
-        States = {
-            number: State<number>?,
-            editingText: State<boolean>?,
-            enumItem: EnumItem
-        }
-        ```
-    ]=]
-    Iris.InputEnum = Iris.ComboEnum
-
     --[[
         ----------------------------------
             [SECTION] Combo Widget API
@@ -1592,6 +1561,39 @@ return function(Iris: Types.Iris)
         return thisWidget
     end
 
+    --[=[
+        @private
+        @prop InputEnum Iris.InputEnum
+        @within Slider
+        @tag Widget
+        @tag HasState
+        
+        A field which allows the user to slide a grip to enter a number within a range.
+        You can ctrl + click to directly input a number, like InputNum.
+        
+        ```lua
+        hasChildren = false
+        hasState = true
+        Arguments = {
+            Text: string? = "InputEnum",
+            Increment: number? = 1,
+            Min: number? = 0,
+            Max: number? = 100,
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
+        }
+        Events = {
+            numberChanged: () -> boolean,
+            hovered: () -> boolean
+        }
+        States = {
+            number: State<number>?,
+            editingText: State<boolean>?,
+            enumItem: EnumItem
+        }
+        ```
+    ]=]
+    Iris.InputEnum = Iris.ComboEnum
+
     --[[
         ---------------------------------
             [SECTION] Plot Widget API
@@ -1670,9 +1672,9 @@ return function(Iris: Types.Iris)
         then the next cell will be the first column of the next row.
     ]=]
     Iris.NextColumn = function()
-        local ParentWidget = Iris.Internal._GetParentWidget() :: Types.Table
-        assert(ParentWidget.type == "Table", "Iris.NextColumn can only be called within a table.")
-        ParentWidget.RowColumnIndex += 1
+        local parentWidget = Iris.Internal._GetParentWidget() :: Types.Table
+        assert(parentWidget.type == "Table", "Iris.NextColumn can only be called within a table.")
+        parentWidget.RowColumnIndex += 1
     end
 
     --[=[
@@ -1683,10 +1685,10 @@ return function(Iris: Types.Iris)
         In a table, directly sets the index of the column.
     ]=]
     Iris.SetColumnIndex = function(columnIndex: number)
-        local ParentWidget = Iris.Internal._GetParentWidget() :: Types.Table
-        assert(ParentWidget.type == "Table", "Iris.SetColumnIndex can only be called within a table.")
-        assert(columnIndex >= ParentWidget.InitialNumColumns, "Iris.SetColumnIndex Argument must be in column range")
-        ParentWidget.RowColumnIndex = math.floor(ParentWidget.RowColumnIndex / ParentWidget.InitialNumColumns) + (columnIndex - 1)
+        local parentWidget = Iris.Internal._GetParentWidget() :: Types.Table
+        assert(parentWidget.type == "Table", "Iris.SetColumnIndex can only be called within a table.")
+        assert(columnIndex >= parentWidget.InitialNumColumns, "Iris.SetColumnIndex Argument must be in column range")
+        parentWidget.RowColumnIndex = math.floor(parentWidget.RowColumnIndex / parentWidget.InitialNumColumns) + (columnIndex - 1)
     end
 
     --[=[
@@ -1698,10 +1700,10 @@ return function(Iris: Types.Iris)
     ]=]
     Iris.NextRow = function()
         -- sets column Index back to 0, increments Row
-        local ParentWidget = Iris.Internal._GetParentWidget() :: Types.Table
-        assert(ParentWidget.type == "Table", "Iris.NextColumn can only be called within a table.")
-        local InitialNumColumns: number = ParentWidget.InitialNumColumns
-        local nextRow: number = math.floor((ParentWidget.RowColumnIndex + 1) / InitialNumColumns) * InitialNumColumns
-        ParentWidget.RowColumnIndex = nextRow
+        local parentWidget = Iris.Internal._GetParentWidget() :: Types.Table
+        assert(parentWidget.type == "Table", "Iris.NextColumn can only be called within a table.")
+        local InitialNumColumns: number = parentWidget.InitialNumColumns
+        local nextRow: number = math.floor((parentWidget.RowColumnIndex + 1) / InitialNumColumns) * InitialNumColumns
+        parentWidget.RowColumnIndex = nextRow
     end
 end

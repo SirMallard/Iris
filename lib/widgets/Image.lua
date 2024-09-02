@@ -112,7 +112,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Image.ImageTransparency = Iris._config.ImageTransparency
                 Image.Parent = Button
 
-                widgets.applyInteractionHighlights(thisWidget, "Background", Button, Button, {
+                widgets.applyInteractionHighlights("Background", Button, Button, {
                     Color = Iris._config.FrameBgColor,
                     Transparency = Iris._config.FrameBgTransparency,
                     HoveredColor = Iris._config.FrameBgHoveredColor,

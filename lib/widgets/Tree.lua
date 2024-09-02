@@ -26,8 +26,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             widgets.discardState(thisWidget)
         end,
         ChildAdded = function(thisWidget: Types.CollapsingHeader, _childWidget: Types.Widget)
-            local Tree = thisWidget.Instance :: Frame
-            local ChildContainer: Frame = Tree.ChildContainer
+            local ChildContainer: Frame = thisWidget.ChildContainer :: Frame
 
             ChildContainer.Visible = thisWidget.state.isUncollapsed.value
 
@@ -36,7 +35,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         UpdateState = function(thisWidget: Types.CollapsingHeader)
             local isUncollapsed: boolean = thisWidget.state.isUncollapsed.value
             local Tree = thisWidget.Instance :: Frame
-            local ChildContainer: Frame = Tree.ChildContainer
+            local ChildContainer = thisWidget.ChildContainer :: Frame
             local Header = Tree.Header :: Frame
             local Button = Header.Button :: TextButton
             local Arrow: ImageLabel = Button.Arrow
@@ -78,7 +77,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 widgets.UIListLayout(Tree, Enum.FillDirection.Vertical, UDim.new(0, 0))
 
                 local ChildContainer: Frame = Instance.new("Frame")
-                ChildContainer.Name = "ChildContainer"
+                ChildContainer.Name = "TreeContainer"
                 ChildContainer.Size = UDim2.fromScale(1, 0)
                 ChildContainer.AutomaticSize = Enum.AutomaticSize.Y
                 ChildContainer.BackgroundTransparency = 1
@@ -108,7 +107,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Button.Text = ""
                 Button.AutoButtonColor = false
 
-                widgets.applyInteractionHighlights(thisWidget, "Background", Button, Header, {
+                widgets.applyInteractionHighlights("Background", Button, Header, {
                     Color = Color3.fromRGB(0, 0, 0),
                     Transparency = 1,
                     HoveredColor = Iris._config.HeaderHoveredColor,
@@ -148,18 +147,19 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 TextLabel.Parent = Button
 
-                widgets.applyButtonClick(thisWidget, Button, function()
+                widgets.applyButtonClick(Button, function()
                     thisWidget.state.isUncollapsed:set(not thisWidget.state.isUncollapsed.value)
                 end)
 
+                thisWidget.ChildContainer = ChildContainer
                 return Tree
             end,
             Update = function(thisWidget: Types.Tree)
                 local Tree = thisWidget.Instance :: Frame
+                local ChildContainer = thisWidget.ChildContainer :: Frame
                 local Header = Tree.Header :: Frame
                 local Button = Header.Button :: TextButton
                 local TextLabel: TextLabel = Button.TextLabel
-                local ChildContainer = Tree.ChildContainer :: Frame
                 local Padding: UIPadding = ChildContainer.UIPadding
 
                 TextLabel.Text = thisWidget.arguments.Text or "Tree"
@@ -199,7 +199,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 widgets.UIListLayout(CollapsingHeader, Enum.FillDirection.Vertical, UDim.new(0, 0))
 
                 local ChildContainer: Frame = Instance.new("Frame")
-                ChildContainer.Name = "ChildContainer"
+                ChildContainer.Name = "CollapsingHeaderContainer"
                 ChildContainer.Size = UDim2.fromScale(1, 0)
                 ChildContainer.AutomaticSize = Enum.AutomaticSize.Y
                 ChildContainer.BackgroundTransparency = 1
@@ -238,7 +238,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 local ButtonUIListLayout: UIListLayout = widgets.UIListLayout(Button, Enum.FillDirection.Horizontal, UDim.new(0, 2 * Iris._config.FramePadding.X))
                 ButtonUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
-                widgets.applyInteractionHighlights(thisWidget, "Background", Button, Button, {
+                widgets.applyInteractionHighlights("Background", Button, Button, {
                     Color = Iris._config.HeaderColor,
                     Transparency = Iris._config.HeaderTransparency,
                     HoveredColor = Iris._config.HeaderHoveredColor,
@@ -274,10 +274,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 TextLabel.Parent = Button
 
-                widgets.applyButtonClick(thisWidget, Button, function()
+                widgets.applyButtonClick(Button, function()
                     thisWidget.state.isUncollapsed:set(not thisWidget.state.isUncollapsed.value)
                 end)
 
+                thisWidget.ChildContainer = ChildContainer
                 return CollapsingHeader
             end,
             Update = function(thisWidget: Types.CollapsingHeader)

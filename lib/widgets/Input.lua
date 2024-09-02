@@ -200,14 +200,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local SubButton = widgets.abstractButton.Generate(thisWidget) :: TextButton
             SubButton.Name = "SubButton"
-            SubButton.ZIndex = thisWidget.ZIndex + 5
-            SubButton.LayoutOrder = thisWidget.ZIndex + 5
+            SubButton.ZIndex = 5
+            SubButton.LayoutOrder = 5
             SubButton.TextXAlignment = Enum.TextXAlignment.Center
             SubButton.Text = "-"
             SubButton.Size = UDim2.fromOffset(Iris._config.TextSize + 2 * Iris._config.FramePadding.Y, Iris._config.TextSize)
             SubButton.Parent = parent
 
-            widgets.applyButtonClick(thisWidget, SubButton, function()
+            widgets.applyButtonClick(SubButton, function()
                 local isCtrlHeld: boolean = widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
                 local changeValue: number = (thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, 1, thisWidget.arguments :: Types.Argument) or 1) * (isCtrlHeld and 100 or 1)
                 local newValue: number = thisWidget.state.number.value - changeValue
@@ -223,14 +223,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local AddButton = widgets.abstractButton.Generate(thisWidget) :: TextButton
             AddButton.Name = "AddButton"
-            AddButton.ZIndex = thisWidget.ZIndex + 6
-            AddButton.LayoutOrder = thisWidget.ZIndex + 6
+            AddButton.ZIndex = 6
+            AddButton.LayoutOrder = 6
             AddButton.TextXAlignment = Enum.TextXAlignment.Center
             AddButton.Text = "+"
             AddButton.Size = UDim2.fromOffset(Iris._config.TextSize + 2 * Iris._config.FramePadding.Y, Iris._config.TextSize)
             AddButton.Parent = parent
 
-            widgets.applyButtonClick(thisWidget, AddButton, function()
+            widgets.applyButtonClick(AddButton, function()
                 local isCtrlHeld: boolean = widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
                 local changeValue: number = (thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, 1, thisWidget.arguments :: Types.Argument) or 1) * (isCtrlHeld and 100 or 1)
                 local newValue: number = thisWidget.state.number.value + changeValue
@@ -272,7 +272,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Input.BorderSizePixel = 0
                     Input.LayoutOrder = thisWidget.ZIndex
                     Input.AutomaticSize = Enum.AutomaticSize.Y
-                    widgets.UIListLayout(Input, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+                    local UIListLayout: UIListLayout = widgets.UIListLayout(Input, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+                    UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
                     -- we add plus and minus buttons if there is only one box. This can be disabled through the argument.
                     local rightPadding: number = 0
@@ -295,9 +296,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         InputField.Name = "InputField" .. tostring(index)
                         InputField.LayoutOrder = index
                         if index == components then
-                            InputField.Size = UDim2.new(lastComponentWidth, UDim.new())
+                            InputField.Size = UDim2.new(lastComponentWidth, Iris._config.ContentHeight)
                         else
-                            InputField.Size = UDim2.new(componentWidth, UDim.new())
+                            InputField.Size = UDim2.new(componentWidth, Iris._config.ContentHeight)
                         end
                         InputField.AutomaticSize = Enum.AutomaticSize.Y
                         InputField.BackgroundColor3 = Iris._config.FrameBgColor
@@ -349,11 +350,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                     local TextLabel: TextLabel = Instance.new("TextLabel")
                     TextLabel.Name = "TextLabel"
-                    TextLabel.Size = UDim2.fromOffset(0, textHeight)
                     TextLabel.BackgroundTransparency = 1
                     TextLabel.BorderSizePixel = 0
                     TextLabel.LayoutOrder = 7
-                    TextLabel.AutomaticSize = Enum.AutomaticSize.X
+                    TextLabel.AutomaticSize = Enum.AutomaticSize.XY
 
                     widgets.applyTextStyle(TextLabel)
 
@@ -550,7 +550,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Drag.BorderSizePixel = 0
                     Drag.LayoutOrder = thisWidget.ZIndex
                     Drag.AutomaticSize = Enum.AutomaticSize.Y
-                    widgets.UIListLayout(Drag, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+                    local UIListLayout: UIListLayout = widgets.UIListLayout(Drag, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+                    UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
                     -- we add a color box if it is Color3 or Color4.
                     local rightPadding: number = 0
@@ -584,9 +585,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         DragField.Name = "DragField" .. tostring(index)
                         DragField.LayoutOrder = index
                         if index == components then
-                            DragField.Size = UDim2.new(lastComponentWidth, UDim.new())
+                            DragField.Size = UDim2.new(lastComponentWidth, Iris._config.ContentHeight)
                         else
-                            DragField.Size = UDim2.new(componentWidth, UDim.new())
+                            DragField.Size = UDim2.new(componentWidth, Iris._config.ContentHeight)
                         end
                         DragField.AutomaticSize = Enum.AutomaticSize.Y
                         DragField.BackgroundColor3 = Iris._config.FrameBgColor
@@ -603,7 +604,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                         DragField.Parent = Drag
 
-                        widgets.applyInteractionHighlights(thisWidget, "Background", DragField, DragField, {
+                        widgets.applyInteractionHighlights("Background", DragField, DragField, {
                             Color = Iris._config.FrameBgColor,
                             Transparency = Iris._config.FrameBgTransparency,
                             HoveredColor = Iris._config.FrameBgHoveredColor,
@@ -677,18 +678,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                             thisWidget.state.editingText:set(index)
                         end)
 
-                        widgets.applyButtonDown(thisWidget, DragField, function(x: number, y: number)
+                        widgets.applyButtonDown(DragField, function(x: number, y: number)
                             DragMouseDown(thisWidget :: any, dataType, index, x, y)
                         end)
                     end
 
                     local TextLabel: TextLabel = Instance.new("TextLabel")
                     TextLabel.Name = "TextLabel"
-                    TextLabel.Size = UDim2.fromOffset(0, textHeight)
                     TextLabel.BackgroundTransparency = 1
                     TextLabel.BorderSizePixel = 0
                     TextLabel.LayoutOrder = 6
-                    TextLabel.AutomaticSize = Enum.AutomaticSize.X
+                    TextLabel.AutomaticSize = Enum.AutomaticSize.XY
 
                     widgets.applyTextStyle(TextLabel)
 
@@ -880,7 +880,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local max: number = ActiveSlider.arguments.Max and getValueByIndex(ActiveSlider.arguments.Max, ActiveIndex, ActiveSlider.arguments) or defaultMax[ActiveDataType][ActiveIndex]
 
             local GrabWidth: number = GrabBar.AbsoluteSize.X
-            local Offset: number = widgets.getMouseLocation().X - (SliderField.AbsolutePosition.X + GrabWidth / 2)
+            local Offset: number = widgets.getMouseLocation().X - (SliderField.AbsolutePosition.X - widgets.GuiOffset.X + GrabWidth / 2)
             local Ratio: number = Offset / (SliderField.AbsoluteSize.X - GrabWidth)
             local Positions: number = math.floor((max - min) / increment)
             local newValue: number = math.clamp(math.round(Ratio * Positions) * increment + min, min, max)
@@ -921,7 +921,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end)
 
-        function generateSliderScalar<T>(dataType: InputDataTypes, components: number, defaultValue: any, ...: any)
+        function generateSliderScalar<T>(dataType: InputDataTypes, components: number, defaultValue: any)
             return {
                 hasState = true,
                 hasChildren = false,
@@ -946,9 +946,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Slider.BorderSizePixel = 0
                     Slider.LayoutOrder = thisWidget.ZIndex
                     Slider.AutomaticSize = Enum.AutomaticSize.Y
-                    widgets.UIListLayout(Slider, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
-
-                    local textHeight: number = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
+                    local UIListLayout: UIListLayout = widgets.UIListLayout(Slider, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+                    UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
                     -- we divide the total area evenly between each field. This includes accounting for any additional boxes and the offset.
                     -- for the final field, we make sure it's flush by calculating the space avaiable for it. This only makes the Vector2 box
@@ -962,9 +961,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         SliderField.Name = "SliderField" .. tostring(index)
                         SliderField.LayoutOrder = index
                         if index == components then
-                            SliderField.Size = UDim2.new(lastComponentWidth, UDim.new())
+                            SliderField.Size = UDim2.new(lastComponentWidth, Iris._config.ContentHeight)
                         else
-                            SliderField.Size = UDim2.new(componentWidth, UDim.new())
+                            SliderField.Size = UDim2.new(componentWidth, Iris._config.ContentHeight)
                         end
                         SliderField.AutomaticSize = Enum.AutomaticSize.Y
                         SliderField.BackgroundColor3 = Iris._config.FrameBgColor
@@ -993,7 +992,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                         OverlayText.Parent = SliderField
 
-                        widgets.applyInteractionHighlights(thisWidget, "Background", SliderField, SliderField, {
+                        widgets.applyInteractionHighlights("Background", SliderField, SliderField, {
                             Color = Iris._config.FrameBgColor,
                             Transparency = Iris._config.FrameBgTransparency,
                             HoveredColor = Iris._config.FrameBgHoveredColor,
@@ -1053,7 +1052,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                             thisWidget.state.editingText:set(index)
                         end)
 
-                        widgets.applyButtonDown(thisWidget, SliderField, function()
+                        widgets.applyButtonDown(SliderField, function()
                             SliderMouseDown(thisWidget :: any, dataType, index)
                         end)
 
@@ -1076,11 +1075,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                     local TextLabel: TextLabel = Instance.new("TextLabel")
                     TextLabel.Name = "TextLabel"
-                    TextLabel.Size = UDim2.fromOffset(0, textHeight)
                     TextLabel.BackgroundTransparency = 1
                     TextLabel.BorderSizePixel = 0
                     TextLabel.LayoutOrder = 5
-                    TextLabel.AutomaticSize = Enum.AutomaticSize.X
+                    TextLabel.AutomaticSize = Enum.AutomaticSize.XY
 
                     widgets.applyTextStyle(TextLabel)
 
@@ -1145,7 +1143,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     local desiredCycleTick: number = Iris._cycleTick + 1
                     Iris._postCycleCallbacks[callbackIndex] = function()
                         if Iris._cycleTick >= desiredCycleTick then
-                            Iris._widgets[`Slider{dataType}`].UpdateState(thisWidget)
+                            if thisWidget.lastCycleTick ~= -1 then
+                                Iris._widgets[`Slider{dataType}`].UpdateState(thisWidget)
+                            end
                             Iris._postCycleCallbacks[callbackIndex] = nil
                         end
                     end
@@ -1280,13 +1280,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     Iris.WidgetConstructor("SliderRect", generateSliderScalar("Rect", 4, Rect.new(0, 0, 0, 0)))
     -- Iris.WidgetConstructor("SliderEnum", generateSliderScalar("Enum", 4, 0))
 
-    --stylua: ignore
+    -- stylua: ignore
     Iris.WidgetConstructor("InputText", {
         hasState = true,
         hasChildren = false,
         Args = {
             ["Text"] = 1,
             ["TextHint"] = 2,
+            ["ReadOnly"] = 3,
+            ["MultiLine"] = 4,
         },
         Events = {
             ["textChanged"] = {
@@ -1310,20 +1312,19 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             InputText.BorderSizePixel = 0
             InputText.ZIndex = thisWidget.ZIndex
             InputText.LayoutOrder = thisWidget.ZIndex
-            widgets.UIListLayout(InputText, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+            local UIListLayout: UIListLayout = widgets.UIListLayout(InputText, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+            UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
             local InputField: TextBox = Instance.new("TextBox")
             InputField.Name = "InputField"
-            InputField.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
+            InputField.Size = UDim2.new(Iris._config.ContentWidth, Iris._config.ContentHeight)
             InputField.AutomaticSize = Enum.AutomaticSize.Y
             InputField.BackgroundColor3 = Iris._config.FrameBgColor
             InputField.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputField.Text = ""
+            InputField.TextYAlignment = Enum.TextYAlignment.Top
             InputField.PlaceholderColor3 = Iris._config.TextDisabledColor
-            InputField.TextTruncate = Enum.TextTruncate.AtEnd
             InputField.ClearTextOnFocus = false
-            InputField.ZIndex = thisWidget.ZIndex + 1
-            InputField.LayoutOrder = thisWidget.ZIndex + 1
             InputField.ClipsDescendants = true
 
             widgets.applyFrameStyle(InputField)
@@ -1346,8 +1347,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             TextLabel.AutomaticSize = Enum.AutomaticSize.X
             TextLabel.BackgroundTransparency = 1
             TextLabel.BorderSizePixel = 0
-            TextLabel.ZIndex = thisWidget.ZIndex + 4
-            TextLabel.LayoutOrder = thisWidget.ZIndex + 4
+            TextLabel.LayoutOrder = 1
 
             widgets.applyTextStyle(TextLabel)
 
@@ -1362,6 +1362,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             TextLabel.Text = thisWidget.arguments.Text or "Input Text"
             InputField.PlaceholderText = thisWidget.arguments.TextHint or ""
+            InputField.TextEditable = not thisWidget.arguments.ReadOnly
+            InputField.MultiLine = thisWidget.arguments.MultiLine or false
         end,
         Discard = function(thisWidget: Types.InputText)
             thisWidget.Instance:Destroy()

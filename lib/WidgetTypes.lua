@@ -349,6 +349,8 @@ export type InputText = Widget & {
     arguments: {
         Text: string?,
         TextHint: string?,
+        ReadOnly: boolean?,
+        MultiLine: boolean?,
     },
 
     state: {

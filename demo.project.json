@@ -1,5 +1,5 @@
 {
-    "name": "Iris",
+    "name": "IrisDemoPlace",
     "tree": {
         "$className": "DataModel",
         "Workspace": {
@@ -139,9 +139,6 @@
                         "$path": "src/libraries/UserInputService"
                     }
                 }
-            },
-            "Tests": {
-                "$path": "tests"
             },
             "Stories": {
                 "$path": "stories",

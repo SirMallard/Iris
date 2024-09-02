@@ -29,23 +29,26 @@ return function(Iris: Types.Internal)
         end
     end
 
-    function widgets.setGuiInset(): Vector2
-        local inset: Vector2 = widgets.GuiService:GetGuiInset()
+    -- acts as an offset where the absolute position of the base frame is not zero, such as IgnoreGuiInset or for stories
+    widgets.GuiOffset = Vector2.zero
+    -- the registered mouse position always ignores the topbar, so needs a separate variable offset
+    widgets.MouseOffset = if Iris._config.IgnoreGuiInset then Vector2.zero else widgets.GuiService:GetGuiInset()
 
-        -- Inset is not guaranteed to be set upon initialization.
-        if inset.Magnitude > 0 then
-            widgets.GuiInset = inset
-        end
-
-        return inset
-    end
-
-    function widgets.getGuiInset(): Vector2
-        return widgets.GuiInset or widgets.setGuiInset()
-    end
+    -- the topbar inset changes updates a frame later.
+    local connection: RBXScriptConnection = widgets.GuiService:GetPropertyChangedSignal("TopbarInset"):Once(function()
+        widgets.MouseOffset = if Iris._config.IgnoreGuiInset then Vector2.zero else widgets.GuiService:GetGuiInset()
+    end)
+    -- in case the topbar doesn't change, we cancel the event.
+    task.delay(3, function()
+        connection:Disconnect()
+    end)
 
     function widgets.getMouseLocation(): Vector2
-        return widgets.UserInputService:GetMouseLocation() - widgets.getGuiInset()
+        return widgets.UserInputService:GetMouseLocation() - widgets.MouseOffset
+    end
+
+    function widgets.isPosInsideRect(pos: Vector2, rectMin: Vector2, rectMax: Vector2): boolean
+        return pos.X > rectMin.X and pos.X < rectMax.X and pos.Y > rectMin.Y and pos.Y < rectMax.Y
     end
 
     function widgets.findBestWindowPosForPopup(refPos: Vector2, size: Vector2, outerMin: Vector2, outerMax: Vector2): Vector2
@@ -68,8 +71,21 @@ return function(Iris: Types.Internal)
         return clampedPos
     end
 
-    function widgets.isPosInsideRect(pos: Vector2, rectMin: Vector2, rectMax: Vector2): boolean
-        return pos.X > rectMin.X and pos.X < rectMax.X and pos.Y > rectMin.Y and pos.Y < rectMax.Y
+    function widgets.getScreenSizeForWindow(thisWidget: Types.Widget): Vector2 -- possible parents are GuiBase2d, CoreGui, PlayerGui
+        if thisWidget.Instance:IsA("GuiBase2d") then
+            return thisWidget.Instance.AbsoluteSize
+        else
+            local rootParent = thisWidget.Instance.Parent
+            if rootParent:IsA("GuiBase2d") then
+                return rootParent.AbsoluteSize
+            else
+                if rootParent.Parent:IsA("GuiBase2d") then
+                    return rootParent.AbsoluteSize
+                else
+                    return workspace.CurrentCamera.ViewportSize
+                end
+            end
+        end
     end
 
     function widgets.extend(superClass: Types.WidgetClass, subClass: Types.WidgetClass): Types.WidgetClass
@@ -125,34 +141,6 @@ return function(Iris: Types.Internal)
         return UISizeConstraintInstance
     end
 
-    function widgets.UIReference(Parent: GuiObject, Child: GuiObject, Name: string): ObjectValue
-        local ObjectValue: ObjectValue = Instance.new("ObjectValue")
-        ObjectValue.Name = Name
-        ObjectValue.Value = Child
-        ObjectValue.Parent = Parent
-
-        return ObjectValue
-    end
-
-    function widgets.getScreenSizeForWindow(thisWidget: Types.Widget): Vector2 -- possible parents are GuiBase2d, CoreGui, PlayerGui
-        local size: Vector2
-        if thisWidget.Instance:IsA("GuiBase2d") then
-            size = thisWidget.Instance.AbsoluteSize
-        else
-            local rootParent = thisWidget.Instance.Parent
-            if rootParent:IsA("GuiBase2d") then
-                size = rootParent.AbsoluteSize
-            else
-                if rootParent.Parent:IsA("GuiBase2d") then
-                    size = rootParent.AbsoluteSize
-                else
-                    size = workspace.CurrentCamera.ViewportSize
-                end
-            end
-        end
-        return size
-    end
-
     -- below uses Iris
 
     function widgets.applyTextStyle(thisInstance: TextLabel & TextButton & TextBox)
@@ -167,89 +155,89 @@ return function(Iris: Types.Internal)
         thisInstance.AutoLocalize = false
     end
 
-    function widgets.applyInteractionHighlights(thisWidget: Types.Widget, property: string, Button: GuiButton, Highlightee: GuiObject, Colors: { [string]: any })
+    function widgets.applyInteractionHighlights(Property: string, Button: GuiButton, Highlightee: GuiObject, Colors: { [string]: any })
         local exitedButton: boolean = false
-        widgets.applyMouseEnter(thisWidget, Button, function()
-            Highlightee[property .. "Color3"] = Colors.HoveredColor
-            Highlightee[property .. "Transparency"] = Colors.HoveredTransparency
+        widgets.applyMouseEnter(Button, function()
+            Highlightee[Property .. "Color3"] = Colors.HoveredColor
+            Highlightee[Property .. "Transparency"] = Colors.HoveredTransparency
 
             exitedButton = false
         end)
 
-        widgets.applyMouseLeave(thisWidget, Button, function()
-            Highlightee[property .. "Color3"] = Colors.Color
-            Highlightee[property .. "Transparency"] = Colors.Transparency
+        widgets.applyMouseLeave(Button, function()
+            Highlightee[Property .. "Color3"] = Colors.Color
+            Highlightee[Property .. "Transparency"] = Colors.Transparency
 
             exitedButton = true
         end)
 
-        widgets.applyInputBegan(thisWidget, Button, function(input: InputObject)
+        widgets.applyInputBegan(Button, function(input: InputObject)
             if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) then
                 return
             end
-            Highlightee[property .. "Color3"] = Colors.ActiveColor
-            Highlightee[property .. "Transparency"] = Colors.ActiveTransparency
+            Highlightee[Property .. "Color3"] = Colors.ActiveColor
+            Highlightee[Property .. "Transparency"] = Colors.ActiveTransparency
         end)
 
-        widgets.applyInputEnded(thisWidget, Button, function(input: InputObject)
+        widgets.applyInputEnded(Button, function(input: InputObject)
             if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) or exitedButton then
                 return
             end
             if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                Highlightee[property .. "Color3"] = Colors.HoveredColor
-                Highlightee[property .. "Transparency"] = Colors.HoveredTransparency
+                Highlightee[Property .. "Color3"] = Colors.HoveredColor
+                Highlightee[Property .. "Transparency"] = Colors.HoveredTransparency
             end
             if input.UserInputType == Enum.UserInputType.Gamepad1 then
-                Highlightee[property .. "Color3"] = Colors.Color
-                Highlightee[property .. "Transparency"] = Colors.Transparency
+                Highlightee[Property .. "Color3"] = Colors.Color
+                Highlightee[Property .. "Transparency"] = Colors.Transparency
             end
         end)
 
         Button.SelectionImageObject = Iris.SelectionImageObject
     end
 
-    function widgets.applyInteractionHighlightsWithMultiHighlightee(thisWidget: Types.Widget, Button: GuiButton, Highlightees: { { GuiObject | { [string]: Color3 | number } } })
+    function widgets.applyInteractionHighlightsWithMultiHighlightee(Property: string, Button: GuiButton, Highlightees: { { GuiObject | { [string]: Color3 | number } } })
         local exitedButton: boolean = false
-        widgets.applyMouseEnter(thisWidget, Button, function()
+        widgets.applyMouseEnter(Button, function()
             for _, Highlightee in Highlightees do
-                Highlightee[1].BackgroundColor3 = Highlightee[2].HoveredColor
-                Highlightee[1].BackgroundTransparency = Highlightee[2].HoveredTransparency
+                Highlightee[1][Property .. "Color3"] = Highlightee[2].HoveredColor
+                Highlightee[1][Property .. "Transparency"] = Highlightee[2].HoveredTransparency
 
                 exitedButton = false
             end
         end)
 
-        widgets.applyMouseLeave(thisWidget, Button, function()
+        widgets.applyMouseLeave(Button, function()
             for _, Highlightee in Highlightees do
-                Highlightee[1].BackgroundColor3 = Highlightee[2].Color
-                Highlightee[1].BackgroundTransparency = Highlightee[2].Transparency
+                Highlightee[1][Property .. "Color3"] = Highlightee[2].Color
+                Highlightee[1][Property .. "Transparency"] = Highlightee[2].Transparency
 
                 exitedButton = true
             end
         end)
 
-        widgets.applyInputBegan(thisWidget, Button, function(input: InputObject)
+        widgets.applyInputBegan(Button, function(input: InputObject)
             if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) then
                 return
             end
             for _, Highlightee in Highlightees do
-                Highlightee[1].BackgroundColor3 = Highlightee[2].ActiveColor
-                Highlightee[1].BackgroundTransparency = Highlightee[2].ActiveTransparency
+                Highlightee[1][Property .. "Color3"] = Highlightee[2].ActiveColor
+                Highlightee[1][Property .. "Transparency"] = Highlightee[2].ActiveTransparency
             end
         end)
 
-        widgets.applyInputEnded(thisWidget, Button, function(input: InputObject)
+        widgets.applyInputEnded(Button, function(input: InputObject)
             if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) or exitedButton then
                 return
             end
             for _, Highlightee in Highlightees do
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    Highlightee[1].BackgroundColor3 = Highlightee[2].HoveredColor
-                    Highlightee[1].BackgroundTransparency = Highlightee[2].HoveredTransparency
+                    Highlightee[1][Property .. "Color3"] = Highlightee[2].HoveredColor
+                    Highlightee[1][Property .. "Transparency"] = Highlightee[2].HoveredTransparency
                 end
                 if input.UserInputType == Enum.UserInputType.Gamepad1 then
-                    Highlightee[1].BackgroundColor3 = Highlightee[2].Color
-                    Highlightee[1].BackgroundTransparency = Highlightee[2].Transparency
+                    Highlightee[1][Property .. "Color3"] = Highlightee[2].Color
+                    Highlightee[1][Property .. "Transparency"] = Highlightee[2].Transparency
                 end
             end
         end)
@@ -275,37 +263,37 @@ return function(Iris: Types.Internal)
         end
     end
 
-    function widgets.applyButtonClick(thisWidget: Types.Widget, thisInstance: GuiButton, callback: () -> ())
+    function widgets.applyButtonClick(thisInstance: GuiButton, callback: () -> ())
         thisInstance.MouseButton1Click:Connect(function()
             callback()
         end)
     end
 
-    function widgets.applyButtonDown(thisWidget: Types.Widget, thisInstance: GuiButton, callback: (x: number, y: number) -> ())
+    function widgets.applyButtonDown(thisInstance: GuiButton, callback: (x: number, y: number) -> ())
         thisInstance.MouseButton1Down:Connect(function(...)
             callback(...)
         end)
     end
 
-    function widgets.applyMouseEnter(thisWidget: Types.Widget, thisInstance: GuiObject, callback: () -> ())
+    function widgets.applyMouseEnter(thisInstance: GuiObject, callback: () -> ())
         thisInstance.MouseEnter:Connect(function(...)
-            callback()
+            callback(...)
         end)
     end
 
-    function widgets.applyMouseLeave(thisWidget: Types.Widget, thisInstance: GuiObject, callback: () -> ())
+    function widgets.applyMouseLeave(thisInstance: GuiObject, callback: () -> ())
         thisInstance.MouseLeave:Connect(function(...)
-            callback()
+            callback(...)
         end)
     end
 
-    function widgets.applyInputBegan(thisWidget: Types.Widget, thisInstance: GuiButton, callback: (input: InputObject) -> ())
+    function widgets.applyInputBegan(thisInstance: GuiButton, callback: (input: InputObject) -> ())
         thisInstance.InputBegan:Connect(function(...)
             callback(...)
         end)
     end
 
-    function widgets.applyInputEnded(thisWidget: Types.Widget, thisInstance: GuiButton, callback: (input: InputObject) -> ())
+    function widgets.applyInputEnded(thisInstance: GuiButton, callback: (input: InputObject) -> ())
         thisInstance.InputEnded:Connect(function(...)
             callback(...)
         end)
@@ -328,10 +316,10 @@ return function(Iris: Types.Internal)
             return {
                 ["Init"] = function(thisWidget: Types.Widget & Types.Hovered)
                     local hoveredGuiObject: GuiObject = pathToHovered(thisWidget)
-                    widgets.applyMouseEnter(thisWidget, hoveredGuiObject, function()
+                    widgets.applyMouseEnter(hoveredGuiObject, function()
                         thisWidget.isHoveredEvent = true
                     end)
-                    widgets.applyMouseLeave(thisWidget, hoveredGuiObject, function()
+                    widgets.applyMouseLeave(hoveredGuiObject, function()
                         thisWidget.isHoveredEvent = false
                     end)
                     thisWidget.isHoveredEvent = false
@@ -348,7 +336,7 @@ return function(Iris: Types.Internal)
                     local clickedGuiObject: GuiButton = pathToClicked(thisWidget)
                     thisWidget.lastClickedTick = -1
 
-                    widgets.applyButtonClick(thisWidget, clickedGuiObject, function()
+                    widgets.applyButtonClick(clickedGuiObject, function()
                         thisWidget.lastClickedTick = Iris._cycleTick + 1
                     end)
                 end,
@@ -382,7 +370,7 @@ return function(Iris: Types.Internal)
                     thisWidget.lastClickedPosition = Vector2.zero
                     thisWidget.lastDoubleClickedTick = -1
 
-                    widgets.applyButtonDown(thisWidget, clickedGuiObject, function(x: number, y: number)
+                    widgets.applyButtonDown(clickedGuiObject, function(x: number, y: number)
                         local currentTime: number = widgets.getTime()
                         local isTimeValid: boolean = currentTime - thisWidget.lastClickedTime < Iris._config.MouseDoubleClickTime
                         if isTimeValid and (Vector2.new(x, y) - thisWidget.lastClickedPosition).Magnitude < Iris._config.MouseDoubleClickMaxDist then
@@ -405,7 +393,7 @@ return function(Iris: Types.Internal)
                     local clickedGuiObject: GuiButton = pathToClicked(thisWidget)
                     thisWidget.lastCtrlClickedTick = -1
 
-                    widgets.applyButtonClick(thisWidget, clickedGuiObject, function()
+                    widgets.applyButtonClick(clickedGuiObject, function()
                         if widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightControl) then
                             thisWidget.lastCtrlClickedTick = Iris._cycleTick + 1
                         end

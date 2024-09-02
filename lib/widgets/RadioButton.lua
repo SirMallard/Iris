@@ -42,6 +42,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             RadioButton.Text = ""
             RadioButton.LayoutOrder = thisWidget.ZIndex
             RadioButton.AutoButtonColor = false
+            RadioButton.ZIndex = thisWidget.ZIndex
+            RadioButton.LayoutOrder = thisWidget.ZIndex
+
+            local UIListLayout: UIListLayout = widgets.UIListLayout(RadioButton, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
+            UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
             local buttonSize: number = Iris._config.TextSize + 2 * (Iris._config.FramePadding.Y - 1)
             local Button: Frame = Instance.new("Frame")
@@ -52,17 +57,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Button.BackgroundTransparency = Iris._config.FrameBgTransparency
 
             widgets.UICorner(Button)
+            widgets.UIPadding(Button, math.max(1, buttonSize // 5) * Vector2.one)
 
             local Circle: Frame = Instance.new("Frame")
             Circle.Name = "Circle"
-            Circle.Position = UDim2.fromOffset(Iris._config.FramePadding.Y, Iris._config.FramePadding.Y)
-            Circle.Size = UDim2.fromOffset(Iris._config.TextSize - 2, Iris._config.TextSize - 2)
+            Circle.Size = UDim2.fromScale(1, 1)
             Circle.Parent = Button
             Circle.BackgroundColor3 = Iris._config.CheckMarkColor
             Circle.BackgroundTransparency = Iris._config.CheckMarkTransparency
             widgets.UICorner(Circle)
 
-            widgets.applyInteractionHighlights(thisWidget, "Background", RadioButton, Button, {
+            widgets.applyInteractionHighlights("Background", RadioButton, Button, {
                 Color = Iris._config.FrameBgColor,
                 Transparency = Iris._config.FrameBgTransparency,
                 HoveredColor = Iris._config.FrameBgHoveredColor,
@@ -71,18 +76,18 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ActiveTransparency = Iris._config.FrameBgActiveTransparency,
             })
 
-            widgets.applyButtonClick(thisWidget, RadioButton, function()
+            widgets.applyButtonClick(RadioButton, function()
                 thisWidget.state.index:set(thisWidget.arguments.Index)
             end)
 
             local TextLabel: TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
-            widgets.applyTextStyle(TextLabel)
             TextLabel.AutomaticSize = Enum.AutomaticSize.XY
-            TextLabel.AnchorPoint = Vector2.new(0, 0.5)
-            TextLabel.Position = UDim2.new(0, buttonSize + Iris._config.ItemInnerSpacing.X, 0.5, 0)
             TextLabel.BackgroundTransparency = 1
             TextLabel.BorderSizePixel = 0
+            TextLabel.LayoutOrder = 1
+            
+            widgets.applyTextStyle(TextLabel)
             TextLabel.Parent = RadioButton
 
             return RadioButton
