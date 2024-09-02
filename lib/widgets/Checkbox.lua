@@ -49,7 +49,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Box.BackgroundTransparency = Iris._config.FrameBgTransparency
             
             widgets.applyFrameStyle(Box, true)
-            widgets.UIPadding(Box, (checkboxSize // 10) * Vector2.one)
+            widgets.UIPadding(Box, math.floor(checkboxSize / 10) * Vector2.one)
 
             widgets.applyInteractionHighlights("Background", Checkbox, Box, {
                 Color = Iris._config.FrameBgColor,

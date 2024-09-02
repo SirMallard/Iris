@@ -203,7 +203,7 @@ export type Internal = {
     _rootWidget: ParentWidget,
     _lastWidget: Widget,
     SelectionImageObject: Frame,
-    parentInstance: BasePlayerGui,
+    parentInstance: Instance,
     _utility: WidgetUtility,
 
     -- Config
@@ -563,7 +563,7 @@ export type Iris = {
 
     State: <T>(initialValue: T) -> State<T>,
     WeakState: <T>(initialValue: T) -> T,
-    ComputedState: <T, U>(firstState: State<T>, onChangeCallback: (firstState: T) -> U) -> State<U>,
+    ComputedState: <T, U>(firstState: State<T>, onChangeCallback: (firstValue: T) -> U) -> State<U>,
 
     --[[
         -------------
@@ -581,9 +581,9 @@ export type Iris = {
     SetFocusedWindow: (thisWidget: Window?) -> (),
 
     -- ID API
-    PushId: (id: ID) -> (),
+    PushId: (ID: ID) -> (),
     PopId: () -> (),
-    SetNextWidgetID: (id: ID) -> (),
+    SetNextWidgetID: (ID: ID) -> (),
 
     -- Config API
     UpdateGlobalConfig: (deltaStyle: { [string]: any }) -> (),

@@ -57,7 +57,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Button.BackgroundTransparency = Iris._config.FrameBgTransparency
 
             widgets.UICorner(Button)
-            widgets.UIPadding(Button, math.max(1, buttonSize // 5) * Vector2.one)
+            widgets.UIPadding(Button, math.max(1, math.floor(buttonSize / 5)) * Vector2.one)
 
             local Circle: Frame = Instance.new("Frame")
             Circle.Name = "Circle"

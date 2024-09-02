@@ -1,15 +1,27 @@
+--[=[
+    @within Iris
+    @type ID string
+]=]
 export type ID = string
 
+--[=[
+    @within State
+    @type State<T> { value: T, get: (self) -> T, set: (self, newValue: T) -> T, onChange: (self, callback: (newValue: T) -> ()) -> (), ConnectedWidgets: { [ID]: Widget }, ConnectedFunctions: { (newValue: T) -> () } }
+]=]
 export type State<T> = {
     value: T,
     ConnectedWidgets: { [ID]: Widget },
-    ConnectedFunctions: { (T) -> () },
+    ConnectedFunctions: { (newValue: T) -> () },
 
     get: (self: State<T>) -> T,
     set: (self: State<T>, newValue: T) -> (),
-    onChange: (self: State<T>, funcToConnect: (T) -> ()) -> () -> (),
+    onChange: (self: State<T>, funcToConnect: (newValue: T) -> ()) -> () -> (),
 }
 
+--[=[
+    @within Iris
+    @type Widget { ID: ID, type: string, lastCycleTick: number, parentWidget: Widget, Instance: GuiObject, ZIndex: number, arguments: { [string]: any }}
+]=]
 export type Widget = {
     ID: ID,
     type: string,

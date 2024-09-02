@@ -25,8 +25,8 @@ local Iris = {} :: Types.Iris
 local Internal: Types.Internal = require(script.Internal)(Iris)
 
 --[=[
-    @prop Disabled boolean
     @within Iris
+    @prop Disabled boolean
 
     While Iris.Disabled is true, execution of Iris and connected functions will be paused.
     The widgets are not destroyed, they are just frozen so no changes will happen to them.
@@ -34,8 +34,8 @@ local Internal: Types.Internal = require(script.Internal)(Iris)
 Iris.Disabled = false
 
 --[=[
-    @prop Args table
     @within Iris
+    @prop Args { [string]: { [string]: any } }
 
     Provides a list of every possible Argument for each type of widget to it's index.
     For instance, `Iris.Args.Window.NoResize`.
@@ -48,8 +48,8 @@ Iris.Args = {}
 
 --[=[
     @ignore
-    @prop Events table
     @within Iris
+    @prop Events table
 
     -todo: work out what this is used for.
 ]=]
@@ -57,17 +57,19 @@ Iris.Events = {}
 
 --[=[
     @within Iris
-    @param parentInstance -- where Iris will place widgets UIs under, defaulting to [PlayerGui]
-    @param eventConnection -- the event to determine an Iris cycle, defaulting to [Heartbeat]
+    @function Init
+    @param parentInstance Instance? -- where Iris will place widgets UIs under, defaulting to [PlayerGui]
+    @param eventConnection (RBXScriptSignal | () -> ())? -- the event to determine an Iris cycle, defaulting to [Heartbeat]
     @return Iris
 
-    Initializes Iris and begins rendering. May only be called once.
-
+    Initializes Iris and begins rendering. Can only be called once.
     See [Iris.Shutdown] to stop Iris, or [Iris.Disabled] to temporarily disable Iris.
 
-    Once initialized, [Iris.Connect] can be used to create a widget.
+    Once initialized, [Iris:Connect] can be used to create a widget.
+
+    If the `eventConnection` is `false` then Iris will not create a cycle loop and the user will need to call [Internal._cycle] every frame.
 ]=]
-function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSignal | () -> ())?): Types.Iris
+function Iris.Init(parentInstance: Instance?, eventConnection: (RBXScriptSignal | () -> ())?): Types.Iris
     assert(Internal._started == false, "Iris.Init can only be called once.")
     assert(Internal._shutdown == false, "Iris.Init cannot be called once shutdown.")
 
@@ -79,7 +81,7 @@ function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSi
         -- coalesce to Heartbeat
         eventConnection = game:GetService("RunService").Heartbeat
     end
-    Internal.parentInstance = parentInstance :: BasePlayerGui
+    Internal.parentInstance = parentInstance :: Instance
     Internal._started = true
 
     Internal._generateRootInstance()
@@ -108,6 +110,7 @@ end
 
 --[=[
     @within Iris
+    @function Shutdown
 
     Shuts Iris down. This can only be called once, and Iris cannot be started once shut down.
 ]=]
@@ -138,7 +141,9 @@ end
 
 --[=[
     @within Iris
-    @param callback -- the callback containg the Iris code
+    @method Connect
+    @param callback () -> () -- the callback containg the Iris code
+    @return () -> () -- call to disconnect it
     
     Connects a function which will execute every Iris cycle. [Iris.Init] must be called before connecting.
 
@@ -159,7 +164,8 @@ end
 
 --[=[
     @within Iris
-    @param userInstance -- the Roblox [Instance] to insert into Iris
+    @function Append
+    @param userInstance GuiObject -- the Roblox [Instance] to insert into Iris
 
     Inserts any Roblox [Instance] into Iris.
     
@@ -179,6 +185,7 @@ end
 
 --[=[
     @within Iris
+    @function End
 
     Marks the end of any widgets which contain children. For example:
     ```lua
@@ -220,6 +227,7 @@ end
 
 --[=[
     @within Iris
+    @function ForceRefresh
 
     Destroys and regenerates all instances used by Iris. Useful if you want to propogate state changes.
     :::caution Caution: Performance
@@ -233,7 +241,8 @@ end
 
 --[=[
     @within Iris
-    @param deltaStyle -- a table containing the changes in style ex: `{ItemWidth = UDim.new(0, 100)}`
+    @function UpdateGlobalConfig
+    @param deltaStyle { [string]: any } -- a table containing the changes in style ex: `{ItemWidth = UDim.new(0, 100)}`
 
     Customizes the configuration which **every** widget will inherit from.
 
@@ -257,7 +266,8 @@ end
 
 --[=[
     @within Iris
-    @param deltaStyle table -- a table containing the changes in style ex: `{ItemWidth = UDim.new(0, 100)}`
+    @function PushConfig
+    @param deltaStyle { [string]: any } -- a table containing the changes in style ex: `{ItemWidth = UDim.new(0, 100)}`
 
     Allows cascading of a style by allowing styles to be locally and hierarchically applied.
 
@@ -292,6 +302,7 @@ end
 
 --[=[
     @within Iris
+    @function PopConfig
 
     Ends a [Iris.PushConfig] style.
 
@@ -303,8 +314,8 @@ function Iris.PopConfig()
 end
 
 --[=[
-    @prop TemplateConfig table
     @within Iris
+    @prop TemplateConfig { [string]: { [string]: any } }
 
     TemplateConfig provides a table of default styles and configurations which you may apply to your UI.
 ]=]
@@ -322,18 +333,20 @@ Internal._globalRefreshRequested = false -- UpdatingGlobalConfig changes this to
 
 --[=[
     @within Iris
-    @param id -- custom id
+    @function PushId
+    @param id ID -- custom id
 
     Sets the id discriminator for the next widgets. Use [Iris.PopId] to remove it.
 ]=]
-function Iris.PushId(id: Types.ID)
-    assert(typeof(id) == "string", "Iris expected Iris.PushId id to PushId to be a string.")
+function Iris.PushId(ID: Types.ID)
+    assert(typeof(ID) == "string", "Iris expected Iris.PushId id to PushId to be a string.")
 
-    Internal._pushedId = tostring(id)
+    Internal._pushedId = tostring(ID)
 end
 
 --[=[
     @within Iris
+    @function PopID
 
     Removes the id discriminator set by [Iris.PushId].
 ]=]
@@ -343,7 +356,8 @@ end
 
 --[=[
     @within Iris
-    @param id -- custom id.
+    @function SetNextWidgetID
+    @param id ID -- custom id.
 
     Sets the id for the next widget. Useful for using [Iris.Append] on the same widget.
     ```lua
@@ -362,8 +376,8 @@ end
     -- both text widgets will be placed under the same window despite being called separately.
     ```
 ]=]
-function Iris.SetNextWidgetID(id: Types.ID)
-    Internal._nextWidgetId = id
+function Iris.SetNextWidgetID(ID: Types.ID)
+    Internal._nextWidgetId = ID
 end
 
 --[[
@@ -374,7 +388,10 @@ end
 
 --[=[
     @within Iris
-    @param initialValue -- the initial value for the state
+    @function State<T>
+    @param initialValue T -- the initial value for the state
+    @return State<T>
+    @tag State
 
     Constructs a new [State] object. Subsequent ID calls will return the same object.
     :::info
@@ -382,7 +399,7 @@ end
     For example:
     ```lua
     Iris:Connect(function()
-        local myNumber = 5;
+        local myNumber = 5
         myNumber = myNumber + 1
         Iris.Text({"The number is: " .. myNumber})
     end)
@@ -416,9 +433,11 @@ function Iris.State<T>(initialValue: T): Types.State<T>
 end
 
 --[=[
-    @function WeakState
     @within Iris
-    @param initialValue any -- The initial value for the state
+    @function WeakState<T>
+    @param initialValue T -- the initial value for the state
+    @return State<T>
+    @tag State
 
     Constructs a new state object, subsequent ID calls will return the same object, except all widgets connected to the state are discarded, the state reverts to the passed initialValue
 ]=]
@@ -441,11 +460,12 @@ function Iris.WeakState<T>(initialValue: T): Types.State<T>
 end
 
 --[=[
-    @function ComputedState
     @within Iris
-    @param firstState State -- State to bind to.
-    @param onChangeCallback function -- callback which should return a value transformed from the firstState value
-        
+    @function ComputedState<T, U>
+    @param firstState State<T> -- State to bind to.
+    @param onChangeCallback (firstValue: T) -> U -- callback which should return a value transformed from the firstState value
+    @return State<U>
+
     Constructs a new State object, but binds its value to the value of another State.
     :::info
     A common use case for this constructor is when a boolean State needs to be inverted:
@@ -456,7 +476,7 @@ end
     ```
     :::
 ]=]
-function Iris.ComputedState<T, U>(firstState: Types.State<T>, onChangeCallback: (firstState: T) -> U): Types.State<U>
+function Iris.ComputedState<T, U>(firstState: Types.State<T>, onChangeCallback: (firstValue: T) -> U): Types.State<U>
     local ID: Types.ID = Internal._getID(2)
 
     if Internal._states[ID] then
@@ -476,8 +496,8 @@ function Iris.ComputedState<T, U>(firstState: Types.State<T>, onChangeCallback: 
 end
 
 --[=[
-    @function ShowDemoWindow
     @within Iris
+    @function ShowDemoWindow
 
     ShowDemoWindow is a function which creates a Demonstration window. this window contains many useful utilities for coders,
     and serves as a refrence for using each part of the library. Ideally, the DemoWindow should always be available in your UI.

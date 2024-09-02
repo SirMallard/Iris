@@ -1,5 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Types = require(ReplicatedStorage.Iris.Types)
+local Types = require(ReplicatedStorage.Iris.PubTypes)
 
 return function(parent: GuiObject)
     local Iris: Types.Iris = require(ReplicatedStorage.Iris)
