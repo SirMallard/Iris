@@ -16,7 +16,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return thisWidget.Instance
             end),
         },
-        Generate = function(thisWidget: Types.Widget)
+        Generate = function(thisWidget: Types.Text)
             local Text: TextLabel = Instance.new("TextLabel")
             Text.Name = "Iris_Text"
             Text.Size = UDim2.fromOffset(0, 0)
@@ -30,7 +30,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return Text
         end,
-        Update = function(thisWidget: Types.Widget)
+        Update = function(thisWidget: Types.Text)
             local Text = thisWidget.Instance :: TextLabel
             if thisWidget.arguments.Text == nil then
                 error("Iris.Text Text Argument is required", 5)
@@ -53,7 +53,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             Text.Text = thisWidget.arguments.Text
         end,
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.Text)
             thisWidget.Instance:Destroy()
         end,
     } :: Types.WidgetClass)
@@ -70,7 +70,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return thisWidget.Instance
             end),
         },
-        Generate = function(thisWidget: Types.Widget)
+        Generate = function(thisWidget: Types.SeparatorText)
             local SeparatorText = Instance.new("Frame")
             SeparatorText.Name = "Iris_SeparatorText"
             SeparatorText.Size = UDim2.fromScale(1, 0)
@@ -119,7 +119,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return SeparatorText
         end,
-        Update = function(thisWidget: Types.Widget)
+        Update = function(thisWidget: Types.SeparatorText)
             local SeparatorText = thisWidget.Instance :: Frame
             local TextLabel: TextLabel = SeparatorText.TextLabel
             if thisWidget.arguments.Text == nil then
@@ -127,7 +127,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
             TextLabel.Text = thisWidget.arguments.Text
         end,
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.SeparatorText)
             thisWidget.Instance:Destroy()
         end,
     } :: Types.WidgetClass)

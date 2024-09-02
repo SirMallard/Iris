@@ -2,7 +2,7 @@ local Types = require(script.Parent.Types)
 
 return function(Iris: Types.Iris)
     -- basic wrapper for nearly every widget, saves space.
-    local function wrapper(name: string): (arguments: Types.WidgetArguments?, states: Types.WidgetStates?) -> Types.Widget
+    local function wrapper(name: string)
         return function(arguments: Types.WidgetArguments?, states: Types.WidgetStates?): Types.Widget
             return Iris.Internal._Insert(name, arguments, states)
         end
@@ -84,7 +84,7 @@ return function(Iris: Types.Iris)
     --[=[
         @function SetFocusedWindow
         @within Iris
-        @param window Types.Widget -- the window to focus.
+        @param window Types.Window -- the window to focus.
 
         Sets the focused window to the window provided, which brings it to the front and makes it active.
     ]=]
@@ -362,9 +362,9 @@ return function(Iris: Types.Iris)
         }
         ```
     ]=]
-    Iris.TextWrapped = function(arguments: Types.WidgetArguments): Types.Widget
+    Iris.TextWrapped = function(arguments: Types.WidgetArguments): Types.Text
         arguments[2] = true
-        return Iris.Internal._Insert("Text", arguments)
+        return Iris.Internal._Insert("Text", arguments) :: Types.Text
     end
 
     --[=[
@@ -387,10 +387,10 @@ return function(Iris: Types.Iris)
         }
         ```
     ]=]
-    Iris.TextColored = function(arguments: Types.WidgetArguments): Types.Widget
+    Iris.TextColored = function(arguments: Types.WidgetArguments): Types.Text
         arguments[3] = arguments[2]
         arguments[2] = nil
-        return Iris.Internal._Insert("Text", arguments)
+        return Iris.Internal._Insert("Text", arguments) :: Types.Text
     end
 
     --[=[
@@ -1495,7 +1495,7 @@ return function(Iris: Types.Iris)
         }
         ```
     ]=]
-    Iris.ComboArray = function(arguments: Types.WidgetArguments, states: Types.WidgetStates?, selectionArray: { any })
+    Iris.ComboArray = function<T>(arguments: Types.WidgetArguments, states: Types.WidgetStates?, selectionArray: { T })
         local defaultState
         if states == nil then
             defaultState = Iris.State(selectionArray[1])
@@ -1503,7 +1503,7 @@ return function(Iris: Types.Iris)
             defaultState = states
         end
         local thisWidget = Iris.Internal._Insert("Combo", arguments, defaultState)
-        local sharedIndex: Types.State = thisWidget.state.index
+        local sharedIndex: Types.State<T> = thisWidget.state.index
         for _, Selection in selectionArray do
             Iris.Internal._Insert("Selectable", { Selection, Selection }, { index = sharedIndex } :: Types.States)
         end
@@ -1560,6 +1560,38 @@ return function(Iris: Types.Iris)
 
         return thisWidget
     end
+
+    --[=[
+        @private
+        @prop InputEnum Iris.InputEnum
+        @within Slider
+        @tag Widget
+        @tag HasState
+        
+        A field which allows the user to slide a grip to enter a number within a range.
+        You can ctrl + click to directly input a number, like InputNum.
+        
+        ```lua
+        hasChildren = false
+        hasState = true
+        Arguments = {
+            Text: string? = "InputEnum",
+            Increment: number? = 1,
+            Min: number? = 0,
+            Max: number? = 100,
+            Format: string? | { string }? = [DYNAMIC] -- Iris will dynamically generate an approriate format.
+        }
+        Events = {
+            numberChanged: () -> boolean,
+            hovered: () -> boolean
+        }
+        States = {
+            number: State<number>?,
+            editingText: State<boolean>?,
+            enumItem: EnumItem
+        }
+        ```
+    ]=]
     Iris.InputEnum = Iris.ComboEnum
 
     --[[
@@ -1640,7 +1672,7 @@ return function(Iris: Types.Iris)
         then the next cell will be the first column of the next row.
     ]=]
     Iris.NextColumn = function()
-        local parentWidget: Types.Widget = Iris.Internal._GetParentWidget()
+        local parentWidget = Iris.Internal._GetParentWidget() :: Types.Table
         assert(parentWidget.type == "Table", "Iris.NextColumn can only be called within a table.")
         parentWidget.RowColumnIndex += 1
     end
@@ -1653,7 +1685,7 @@ return function(Iris: Types.Iris)
         In a table, directly sets the index of the column.
     ]=]
     Iris.SetColumnIndex = function(columnIndex: number)
-        local parentWidget: Types.Widget = Iris.Internal._GetParentWidget()
+        local parentWidget = Iris.Internal._GetParentWidget() :: Types.Table
         assert(parentWidget.type == "Table", "Iris.SetColumnIndex can only be called within a table.")
         assert(columnIndex >= parentWidget.InitialNumColumns, "Iris.SetColumnIndex Argument must be in column range")
         parentWidget.RowColumnIndex = math.floor(parentWidget.RowColumnIndex / parentWidget.InitialNumColumns) + (columnIndex - 1)
@@ -1668,7 +1700,7 @@ return function(Iris: Types.Iris)
     ]=]
     Iris.NextRow = function()
         -- sets column Index back to 0, increments Row
-        local parentWidget: Types.Widget = Iris.Internal._GetParentWidget()
+        local parentWidget = Iris.Internal._GetParentWidget() :: Types.Table
         assert(parentWidget.type == "Table", "Iris.NextColumn can only be called within a table.")
         local InitialNumColumns: number = parentWidget.InitialNumColumns
         local nextRow: number = math.floor((parentWidget.RowColumnIndex + 1) / InitialNumColumns) * InitialNumColumns

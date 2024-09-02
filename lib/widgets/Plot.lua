@@ -15,13 +15,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     return thisWidget.Instance
                 end),
                 ["changed"] = {
-                    ["Init"] = function(_thisWidget: Types.Widget) end,
-                    ["Get"] = function(thisWidget: Types.Widget)
-                        return thisWidget.lastNumberChangedTick == Iris._cycleTick
+                    ["Init"] = function(_thisWidget: Types.ProgressBar) end,
+                    ["Get"] = function(thisWidget: Types.ProgressBar)
+                        return thisWidget.lastChangedTick == Iris._cycleTick
                     end,
                 },
             },
-            Generate = function(thisWidget: Types.Widget)
+            Generate = function(thisWidget: Types.ProgressBar)
                 local ProgressBar: Frame = Instance.new("Frame")
                 ProgressBar.Name = "Iris_ProgressBar"
                 ProgressBar.Size = UDim2.new(Iris._config.ItemWidth, UDim.new())
@@ -88,12 +88,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 return ProgressBar
             end,
-            GenerateState = function(thisWidget: Types.Widget)
+            GenerateState = function(thisWidget: Types.ProgressBar)
                 if thisWidget.state.progress == nil then
                     thisWidget.state.progress = Iris._widgetState(thisWidget, "Progress", 0)
                 end
             end,
-            Update = function(thisWidget: Types.Widget)
+            Update = function(thisWidget: Types.ProgressBar)
                 local Progress = thisWidget.Instance :: Frame
                 local TextLabel: TextLabel = Progress.TextLabel
                 local Bar = Progress.Bar :: Frame
@@ -105,7 +105,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 TextLabel.Text = thisWidget.arguments.Text or "Progress Bar"
             end,
-            UpdateState = function(thisWidget: Types.Widget)
+            UpdateState = function(thisWidget: Types.ProgressBar)
                 local ProgressBar = thisWidget.Instance :: Frame
                 local Bar = ProgressBar.Bar :: Frame
                 local Progress: TextLabel = Bar.Progress
@@ -129,9 +129,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 else
                     Value.Text = string.format("%d%%", progress * 100)
                 end
-                thisWidget.lastNumberChangedTick = Iris._cycleTick + 1
+                thisWidget.lastChangedTick = Iris._cycleTick + 1
             end,
-            Discard = function(thisWidget: Types.Widget)
+            Discard = function(thisWidget: Types.ProgressBar)
                 thisWidget.Instance:Destroy()
                 widgets.discardState(thisWidget)
             end,

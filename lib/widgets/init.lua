@@ -20,7 +20,7 @@ return function(Iris: Types.Internal)
     }
 
     widgets.IS_STUDIO = widgets.RunService:IsStudio()
-    function widgets.getTime()
+    function widgets.getTime(): number
         -- time() always returns 0 in the context of plugins
         if widgets.IS_STUDIO then
             return os.clock()
@@ -155,23 +155,23 @@ return function(Iris: Types.Internal)
         thisInstance.AutoLocalize = false
     end
 
-    function widgets.applyInteractionHighlights(thisWidget: Types.Widget, Property: string, Button: GuiButton, Highlightee: GuiObject, Colors: { [string]: any })
+    function widgets.applyInteractionHighlights(Property: string, Button: GuiButton, Highlightee: GuiObject, Colors: { [string]: any })
         local exitedButton: boolean = false
-        widgets.applyMouseEnter(thisWidget, Button, function()
+        widgets.applyMouseEnter(Button, function()
             Highlightee[Property .. "Color3"] = Colors.HoveredColor
             Highlightee[Property .. "Transparency"] = Colors.HoveredTransparency
 
             exitedButton = false
         end)
 
-        widgets.applyMouseLeave(thisWidget, Button, function()
+        widgets.applyMouseLeave(Button, function()
             Highlightee[Property .. "Color3"] = Colors.Color
             Highlightee[Property .. "Transparency"] = Colors.Transparency
 
             exitedButton = true
         end)
 
-        widgets.applyInputBegan(thisWidget, Button, function(input: InputObject)
+        widgets.applyInputBegan(Button, function(input: InputObject)
             if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) then
                 return
             end
@@ -179,7 +179,7 @@ return function(Iris: Types.Internal)
             Highlightee[Property .. "Transparency"] = Colors.ActiveTransparency
         end)
 
-        widgets.applyInputEnded(thisWidget, Button, function(input: InputObject)
+        widgets.applyInputEnded(Button, function(input: InputObject)
             if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) or exitedButton then
                 return
             end
@@ -196,9 +196,9 @@ return function(Iris: Types.Internal)
         Button.SelectionImageObject = Iris.SelectionImageObject
     end
 
-    function widgets.applyInteractionHighlightsWithMultiHighlightee(thisWidget: Types.Widget, Property: string, Button: GuiButton, Highlightees: { { GuiObject | { [string]: Color3 | number } } })
+    function widgets.applyInteractionHighlightsWithMultiHighlightee(Property: string, Button: GuiButton, Highlightees: { { GuiObject | { [string]: Color3 | number } } })
         local exitedButton: boolean = false
-        widgets.applyMouseEnter(thisWidget, Button, function()
+        widgets.applyMouseEnter(Button, function()
             for _, Highlightee in Highlightees do
                 Highlightee[1][Property .. "Color3"] = Highlightee[2].HoveredColor
                 Highlightee[1][Property .. "Transparency"] = Highlightee[2].HoveredTransparency
@@ -207,7 +207,7 @@ return function(Iris: Types.Internal)
             end
         end)
 
-        widgets.applyMouseLeave(thisWidget, Button, function()
+        widgets.applyMouseLeave(Button, function()
             for _, Highlightee in Highlightees do
                 Highlightee[1][Property .. "Color3"] = Highlightee[2].Color
                 Highlightee[1][Property .. "Transparency"] = Highlightee[2].Transparency
@@ -216,7 +216,7 @@ return function(Iris: Types.Internal)
             end
         end)
 
-        widgets.applyInputBegan(thisWidget, Button, function(input: InputObject)
+        widgets.applyInputBegan(Button, function(input: InputObject)
             if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) then
                 return
             end
@@ -226,7 +226,7 @@ return function(Iris: Types.Internal)
             end
         end)
 
-        widgets.applyInputEnded(thisWidget, Button, function(input: InputObject)
+        widgets.applyInputEnded(Button, function(input: InputObject)
             if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) or exitedButton then
                 return
             end
@@ -263,44 +263,44 @@ return function(Iris: Types.Internal)
         end
     end
 
-    function widgets.applyButtonClick(_thisWidget: Types.Widget, thisInstance: GuiButton, callback: () -> ())
+    function widgets.applyButtonClick(thisInstance: GuiButton, callback: () -> ())
         thisInstance.MouseButton1Click:Connect(function()
             callback()
         end)
     end
 
-    function widgets.applyButtonDown(_thisWidget: Types.Widget, thisInstance: GuiButton, callback: (x: number, y: number) -> ())
+    function widgets.applyButtonDown(thisInstance: GuiButton, callback: (x: number, y: number) -> ())
         thisInstance.MouseButton1Down:Connect(function(...)
             callback(...)
         end)
     end
 
-    function widgets.applyMouseEnter(_thisWidget: Types.Widget, thisInstance: GuiObject, callback: () -> ())
+    function widgets.applyMouseEnter(thisInstance: GuiObject, callback: () -> ())
         thisInstance.MouseEnter:Connect(function(...)
             callback(...)
         end)
     end
 
-    function widgets.applyMouseLeave(_thisWidget: Types.Widget, thisInstance: GuiObject, callback: () -> ())
+    function widgets.applyMouseLeave(thisInstance: GuiObject, callback: () -> ())
         thisInstance.MouseLeave:Connect(function(...)
             callback(...)
         end)
     end
 
-    function widgets.applyInputBegan(_thisWidget: Types.Widget, thisInstance: GuiButton, callback: (input: InputObject) -> ())
+    function widgets.applyInputBegan(thisInstance: GuiButton, callback: (input: InputObject) -> ())
         thisInstance.InputBegan:Connect(function(...)
             callback(...)
         end)
     end
 
-    function widgets.applyInputEnded(_thisWidget: Types.Widget, thisInstance: GuiButton, callback: (input: InputObject) -> ())
+    function widgets.applyInputEnded(thisInstance: GuiButton, callback: (input: InputObject) -> ())
         thisInstance.InputEnded:Connect(function(...)
             callback(...)
         end)
     end
 
-    function widgets.discardState(thisWidget: Types.Widget)
-        for _, state: Types.State in thisWidget.state do
+    function widgets.discardState(thisWidget: Types.StateWidget)
+        for _, state: Types.State<any> in thisWidget.state do
             state.ConnectedWidgets[thisWidget.ID] = nil
         end
     end
@@ -314,17 +314,17 @@ return function(Iris: Types.Internal)
     widgets.EVENTS = {
         hover = function(pathToHovered: (thisWidget: Types.Widget) -> GuiObject)
             return {
-                ["Init"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(thisWidget: Types.Widget & Types.Hovered)
                     local hoveredGuiObject: GuiObject = pathToHovered(thisWidget)
-                    widgets.applyMouseEnter(thisWidget, hoveredGuiObject, function()
+                    widgets.applyMouseEnter(hoveredGuiObject, function()
                         thisWidget.isHoveredEvent = true
                     end)
-                    widgets.applyMouseLeave(thisWidget, hoveredGuiObject, function()
+                    widgets.applyMouseLeave(hoveredGuiObject, function()
                         thisWidget.isHoveredEvent = false
                     end)
                     thisWidget.isHoveredEvent = false
                 end,
-                ["Get"] = function(thisWidget: Types.Widget): boolean
+                ["Get"] = function(thisWidget: Types.Widget & Types.Hovered): boolean
                     return thisWidget.isHoveredEvent
                 end,
             }
@@ -332,15 +332,15 @@ return function(Iris: Types.Internal)
 
         click = function(pathToClicked: (thisWidget: Types.Widget) -> GuiButton)
             return {
-                ["Init"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(thisWidget: Types.Widget & Types.Clicked)
                     local clickedGuiObject: GuiButton = pathToClicked(thisWidget)
                     thisWidget.lastClickedTick = -1
 
-                    widgets.applyButtonClick(thisWidget, clickedGuiObject, function()
+                    widgets.applyButtonClick(clickedGuiObject, function()
                         thisWidget.lastClickedTick = Iris._cycleTick + 1
                     end)
                 end,
-                ["Get"] = function(thisWidget: Types.Widget): boolean
+                ["Get"] = function(thisWidget: Types.Widget & Types.Clicked): boolean
                     return thisWidget.lastClickedTick == Iris._cycleTick
                 end,
             }
@@ -348,7 +348,7 @@ return function(Iris: Types.Internal)
 
         rightClick = function(pathToClicked: (thisWidget: Types.Widget) -> GuiButton)
             return {
-                ["Init"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(thisWidget: Types.Widget & Types.RightClicked)
                     local clickedGuiObject: GuiButton = pathToClicked(thisWidget)
                     thisWidget.lastRightClickedTick = -1
 
@@ -356,7 +356,7 @@ return function(Iris: Types.Internal)
                         thisWidget.lastRightClickedTick = Iris._cycleTick + 1
                     end)
                 end,
-                ["Get"] = function(thisWidget: Types.Widget): boolean
+                ["Get"] = function(thisWidget: Types.Widget & Types.RightClicked): boolean
                     return thisWidget.lastRightClickedTick == Iris._cycleTick
                 end,
             }
@@ -364,13 +364,13 @@ return function(Iris: Types.Internal)
 
         doubleClick = function(pathToClicked: (thisWidget: Types.Widget) -> GuiButton)
             return {
-                ["Init"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(thisWidget: Types.Widget & Types.DoubleClicked)
                     local clickedGuiObject: GuiButton = pathToClicked(thisWidget)
                     thisWidget.lastClickedTime = -1
                     thisWidget.lastClickedPosition = Vector2.zero
                     thisWidget.lastDoubleClickedTick = -1
 
-                    widgets.applyButtonDown(thisWidget, clickedGuiObject, function(x: number, y: number)
+                    widgets.applyButtonDown(clickedGuiObject, function(x: number, y: number)
                         local currentTime: number = widgets.getTime()
                         local isTimeValid: boolean = currentTime - thisWidget.lastClickedTime < Iris._config.MouseDoubleClickTime
                         if isTimeValid and (Vector2.new(x, y) - thisWidget.lastClickedPosition).Magnitude < Iris._config.MouseDoubleClickMaxDist then
@@ -381,7 +381,7 @@ return function(Iris: Types.Internal)
                         end
                     end)
                 end,
-                ["Get"] = function(thisWidget: Types.Widget): boolean
+                ["Get"] = function(thisWidget: Types.Widget & Types.DoubleClicked): boolean
                     return thisWidget.lastDoubleClickedTick == Iris._cycleTick
                 end,
             }
@@ -389,17 +389,17 @@ return function(Iris: Types.Internal)
 
         ctrlClick = function(pathToClicked: (thisWidget: Types.Widget) -> GuiButton)
             return {
-                ["Init"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(thisWidget: Types.Widget & Types.CtrlClicked)
                     local clickedGuiObject: GuiButton = pathToClicked(thisWidget)
                     thisWidget.lastCtrlClickedTick = -1
 
-                    widgets.applyButtonClick(thisWidget, clickedGuiObject, function()
+                    widgets.applyButtonClick(clickedGuiObject, function()
                         if widgets.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or widgets.UserInputService:IsKeyDown(Enum.KeyCode.RightControl) then
                             thisWidget.lastCtrlClickedTick = Iris._cycleTick + 1
                         end
                     end)
                 end,
-                ["Get"] = function(thisWidget: Types.Widget): boolean
+                ["Get"] = function(thisWidget: Types.Widget & Types.CtrlClicked): boolean
                     return thisWidget.lastCtrlClickedTick == Iris._cycleTick
                 end,
             }

@@ -28,7 +28,7 @@ return function(Iris: Types.Iris)
             do
                 Iris.SeparatorText({ "Basic" })
 
-                local radioButtonState = Iris.State(1)
+                local radioButtonState: Types.State<any> = Iris.State(1)
                 Iris.Button({ "Button" })
                 Iris.SmallButton({ "SmallButton" })
                 Iris.Text({ "Text" })
@@ -468,7 +468,7 @@ return function(Iris: Types.Iris)
                 if Iris.InputNum({ "# of repeat", 1, 1, 50 }, { number = numRepeat }).numberChanged() then
                     dynamicText:set(string.rep("Hello ", numRepeat:get()))
                 end
-                if Iris.Checkbox({ "Show dynamic text tooltip" }).isChecked.value then
+                if Iris.Checkbox({ "Show dynamic text tooltip" }).state.isChecked.value then
                     Iris.Tooltip({ dynamicText:get() })
                 end
             end
@@ -558,7 +558,7 @@ return function(Iris: Types.Iris)
             Iris.End()
 
             Iris.PushConfig({ ItemWidth = UDim.new(1, -150) })
-            local enteredText = Iris.InputText({ "ID field" }, { text = Iris.State(runtimeInfoWindow.ID) }).text.value
+            local enteredText = Iris.InputText({ "ID field" }, { text = Iris.State(runtimeInfoWindow.ID) }).state.text.value
             Iris.PopConfig()
 
             Iris.Indent()
@@ -611,7 +611,7 @@ return function(Iris: Types.Iris)
             end
             Iris.End()
 
-            if Iris.Tree({ "Widgets" }).isUncollapsed.value then
+            if Iris.Tree({ "Widgets" }).state.isUncollapsed.value then
                 local widgetCount = 0
                 local widgetStr = ""
                 for _, v in lastVDOM do
@@ -625,7 +625,7 @@ return function(Iris: Types.Iris)
             end
             Iris.End()
 
-            if Iris.Tree({ "States" }).isUncollapsed.value then
+            if Iris.Tree({ "States" }).state.isUncollapsed.value then
                 local stateCount = 0
                 local stateStr = ""
                 for i, v in states do
@@ -961,6 +961,8 @@ return function(Iris: Types.Iris)
                     if Iris.Button({ "Revert" }).clicked() then
                         Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark)
                         Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
+                        ThemeState:set("Dark Theme")
+                        SizeState:set("Classic Size")
                     end
 
                     helpMarker("Reset Iris to the default theme and size.")
@@ -1008,7 +1010,8 @@ return function(Iris: Types.Iris)
 
             Iris.SameLine()
             do
-                if Iris.Button({ selectedEvent:get() .. " to reveal text" })[selectedEvent:get()]() then
+                local button = Iris.Button({ selectedEvent:get() .. " to reveal text" })
+                if button[selectedEvent:get()]() then
                     showEventText:set(not showEventText:get())
                 end
                 if showEventText:get() then
@@ -1237,7 +1240,7 @@ return function(Iris: Types.Iris)
 
                 Iris.PushConfig({ ContentWidth = UDim.new(0, 150) })
                 Iris.DragNum({ "number", 1, 0, 100 }, { number = value })
-                Iris.ComboEnum({ "axis" }, { index = index }, Enum.Axis)
+                Iris.InputEnum({ "axis" }, { index = index }, Enum.Axis)
                 Iris.PopConfig()
 
                 Iris.SameLine()
@@ -1249,7 +1252,7 @@ return function(Iris: Types.Iris)
 
                 Iris.PushConfig({ ContentWidth = UDim.new(0.5, 0) })
                 Iris.DragNum({ "number", 1, 0, 100 }, { number = value })
-                Iris.ComboEnum({ "axis" }, { index = index }, Enum.Axis)
+                Iris.InputEnum({ "axis" }, { index = index }, Enum.Axis)
                 Iris.PopConfig()
 
                 Iris.SameLine()
@@ -1338,15 +1341,15 @@ return function(Iris: Types.Iris)
 
     -- main demo window
     return function()
-        local NoTitleBar = Iris.State(false)
-        local NoBackground = Iris.State(false)
-        local NoCollapse = Iris.State(false)
-        local NoClose = Iris.State(true)
-        local NoMove = Iris.State(false)
-        local NoScrollbar = Iris.State(false)
-        local NoResize = Iris.State(false)
-        local NoNav = Iris.State(false)
-        local NoMenu = Iris.State(false)
+        local NoTitleBar: Types.State<boolean> = Iris.State(false)
+        local NoBackground: Types.State<boolean> = Iris.State(false)
+        local NoCollapse: Types.State<boolean> = Iris.State(false)
+        local NoClose: Types.State<boolean> = Iris.State(true)
+        local NoMove: Types.State<boolean> = Iris.State(false)
+        local NoScrollbar: Types.State<boolean> = Iris.State(false)
+        local NoResize: Types.State<boolean> = Iris.State(false)
+        local NoNav: Types.State<boolean> = Iris.State(false)
+        local NoMenu: Types.State<boolean> = Iris.State(false)
 
         if showMainWindow.value == false then
             Iris.Checkbox({ "Open main window" }, { isChecked = showMainWindow })
@@ -1354,7 +1357,7 @@ return function(Iris: Types.Iris)
         end
 
         debug.profilebegin("Iris/Demo/Window")
-        local window: Types.Widget = Iris.Window({
+        local window: Types.Window = Iris.Window({
             [Iris.Args.Window.Title] = "Iris Demo Window",
             [Iris.Args.Window.NoTitleBar] = NoTitleBar.value,
             [Iris.Args.Window.NoBackground] = NoBackground.value,

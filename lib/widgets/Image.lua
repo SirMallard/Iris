@@ -14,7 +14,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ["SliceCenter"] = 7,
             ["SliceScale"] = 8,
         },
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.Image)
             thisWidget.Instance:Destroy()
         end,
     } :: Types.WidgetClass
@@ -26,7 +26,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     return thisWidget.Instance
                 end),
             },
-            Generate = function(thisWidget: Types.Widget)
+            Generate = function(thisWidget: Types.Image)
                 local Image: ImageLabel = Instance.new("ImageLabel")
                 Image.Name = "Iris_Image"
                 Image.BackgroundTransparency = 1
@@ -39,7 +39,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 return Image
             end,
-            Update = function(thisWidget: Types.Widget)
+            Update = function(thisWidget: Types.Image)
                 local Image = thisWidget.Instance :: ImageLabel
     
                 Image.Image = thisWidget.arguments.Image or widgets.ICONS.UNKNOWN_TEXTURE
@@ -89,7 +89,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     return thisWidget.Instance
                 end),
             },
-            Generate = function(thisWidget: Types.Widget)
+            Generate = function(thisWidget: Types.ImageButton)
                 local Button: ImageButton = Instance.new("ImageButton")
                 Button.Name = "Iris_ImageButton"
                 Button.AutomaticSize = Enum.AutomaticSize.XY
@@ -112,7 +112,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Image.ImageTransparency = Iris._config.ImageTransparency
                 Image.Parent = Button
 
-                widgets.applyInteractionHighlights(thisWidget, "Background", Button, Button, {
+                widgets.applyInteractionHighlights("Background", Button, Button, {
                     Color = Iris._config.FrameBgColor,
                     Transparency = Iris._config.FrameBgTransparency,
                     HoveredColor = Iris._config.FrameBgHoveredColor,
@@ -123,7 +123,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 return Button
             end,
-            Update = function(thisWidget: Types.Widget)
+            Update = function(thisWidget: Types.ImageButton)
                 local Button = thisWidget.Instance :: TextButton
                 local Image: ImageLabel = Button.ImageLabel
     

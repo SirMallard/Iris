@@ -167,7 +167,7 @@ end
     property or by the current parent widget from the stack.
 ]=]
 function Iris.Append(userInstance: GuiObject)
-    local parentWidget: Types.Widget = Internal._GetParentWidget()
+    local parentWidget: Types.ParentWidget = Internal._GetParentWidget()
     local widgetInstanceParent: GuiObject
     if Internal._config.Parent then
         widgetInstanceParent = Internal._config.Parent :: any
@@ -401,7 +401,7 @@ end
     In this example, the code will work properly, and increment every frame.
     :::
 ]=]
-function Iris.State(initialValue: any): Types.State
+function Iris.State<T>(initialValue: T): Types.State<T>
     local ID: Types.ID = Internal._getID(2)
     if Internal._states[ID] then
         return Internal._states[ID]
@@ -422,7 +422,7 @@ end
 
     Constructs a new state object, subsequent ID calls will return the same object, except all widgets connected to the state are discarded, the state reverts to the passed initialValue
 ]=]
-function Iris.WeakState(initialValue: any): Types.State
+function Iris.WeakState<T>(initialValue: T): Types.State<T>
     local ID: Types.ID = Internal._getID(2)
     if Internal._states[ID] then
         if next(Internal._states[ID].ConnectedWidgets) == nil then
@@ -456,7 +456,7 @@ end
     ```
     :::
 ]=]
-function Iris.ComputedState(firstState: Types.State, onChangeCallback: (firstState: any) -> any): Types.State
+function Iris.ComputedState<T, U>(firstState: Types.State<T>, onChangeCallback: (firstState: T) -> U): Types.State<U>
     local ID: Types.ID = Internal._getID(2)
 
     if Internal._states[ID] then
@@ -466,8 +466,8 @@ function Iris.ComputedState(firstState: Types.State, onChangeCallback: (firstSta
             value = onChangeCallback(firstState.value),
             ConnectedWidgets = {},
             ConnectedFunctions = {},
-        } :: any
-        firstState:onChange(function(newValue: any)
+        } :: Types.State<U>
+        firstState:onChange(function(newValue: T)
             Internal._states[ID]:set(onChangeCallback(newValue))
         end)
         setmetatable(Internal._states[ID], Internal.StateClass)
