@@ -424,6 +424,7 @@ function Iris.State<T>(initialValue: T): Types.State<T>
         return Internal._states[ID]
     end
     Internal._states[ID] = {
+        ID = ID,
         value = initialValue,
         ConnectedWidgets = {},
         ConnectedFunctions = {},
@@ -451,6 +452,7 @@ function Iris.WeakState<T>(initialValue: T): Types.State<T>
         end
     end
     Internal._states[ID] = {
+        ID = ID,
         value = initialValue,
         ConnectedWidgets = {},
         ConnectedFunctions = {},
@@ -509,6 +511,7 @@ function Iris.VariableState<T>(variable: T, callback: (T) -> ()): Types.State<T>
     end
 
     local newState = {
+        ID = ID,
         value = variable,
         ConnectedWidgets = {},
         ConnectedFunctions = {},
@@ -589,6 +592,7 @@ function Iris.TableState<K, V>(tab: { [K]: V }, key: K, callback: ((newValue: V)
     end
 
     local newState = {
+        ID = ID,
         value = value,
         ConnectedWidgets = {},
         ConnectedFunctions = {},
@@ -633,6 +637,7 @@ function Iris.ComputedState<T, U>(firstState: Types.State<T>, onChangeCallback: 
         return Internal._states[ID]
     else
         Internal._states[ID] = {
+            ID = ID,
             value = onChangeCallback(firstState.value),
             ConnectedWidgets = {},
             ConnectedFunctions = {},

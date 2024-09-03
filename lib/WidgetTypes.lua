@@ -6,9 +6,10 @@ export type ID = string
 
 --[=[
     @within State
-    @type State<T> { value: T, get: (self) -> T, set: (self, newValue: T) -> T, onChange: (self, callback: (newValue: T) -> ()) -> (), ConnectedWidgets: { [ID]: Widget }, ConnectedFunctions: { (newValue: T) -> () } }
+    @type State<T> { ID: ID, value: T, get: (self) -> T, set: (self, newValue: T) -> T, onChange: (self, callback: (newValue: T) -> ()) -> (), ConnectedWidgets: { [ID]: Widget }, ConnectedFunctions: { (newValue: T) -> () } }
 ]=]
 export type State<T> = {
+    ID: ID,
     value: T,
     ConnectedWidgets: { [ID]: Widget },
     ConnectedFunctions: { (newValue: T) -> () },

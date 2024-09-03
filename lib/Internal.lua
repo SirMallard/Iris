@@ -647,6 +647,7 @@ return function(Iris: Types.Iris): Types.Internal
             return Internal._states[ID]
         else
             Internal._states[ID] = {
+                ID = ID,
                 value = initialValue,
                 ConnectedWidgets = { [thisWidget.ID] = thisWidget },
                 ConnectedFunctions = {},
