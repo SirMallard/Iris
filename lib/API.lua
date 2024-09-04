@@ -286,7 +286,8 @@ return function(Iris: Types.Iris)
         hasState = false
         Arguments = {
             Width: number? = Iris._config.ItemSpacing.X, -- horizontal spacing between child widgets.
-            VerticalAlignment: Enum.VerticalAlignment? = Enum.VerticalAlignment.Center -- how widgets are aligned to the widget.
+            VerticalAlignment: Enum.VerticalAlignment? = Enum.VerticalAlignment.Center -- how widgets vertically to each other.
+            HorizontalAlignment: Enum.HorizontalAlignment? = Enum.HorizontalAlignment.Center -- how widgets are horizontally.
         }
         ```
     ]=]
@@ -463,6 +464,7 @@ return function(Iris: Types.Iris)
         hasState = false
         Arguments = {
             Text: string,
+            Size: UDim2? = 0,
         }
         Events = {
             clicked: () -> boolean,
@@ -487,6 +489,7 @@ return function(Iris: Types.Iris)
         hasState = false
         Arguments = {
             Text: string,
+            Size: UDim2? = 0,
         }
         Events = {
             clicked: () -> boolean,

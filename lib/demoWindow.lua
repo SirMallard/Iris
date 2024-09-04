@@ -9,7 +9,7 @@ return function(Iris: Types.Iris)
     local showMainMenuBarWindow = Iris.State(false)
     local showDebugWindow = Iris.State(false)
 
-    local function helpMarker(helpText)
+    local function helpMarker(helpText: string)
         Iris.PushConfig({ TextColor = Iris._config.TextDisabledColor })
         local text = Iris.Text({ "(?)" })
         Iris.PopConfig()
@@ -19,6 +19,15 @@ return function(Iris: Types.Iris)
             Iris.Tooltip({ helpText })
         end
         Iris.PopConfig()
+    end
+
+    local function textAndHelpMarker(text: string, helpText: string)
+        Iris.SameLine()
+        do
+            Iris.Text({ text })
+            helpMarker(helpText)
+        end
+        Iris.End()
     end
 
     -- shows each widgets functionality
@@ -226,6 +235,7 @@ return function(Iris: Types.Iris)
             end
             Iris.End()
         end,
+
         Tree = function()
             Iris.Tree({ "Trees" })
             do
@@ -1213,6 +1223,97 @@ return function(Iris: Types.Iris)
     local function layoutDemo()
         Iris.CollapsingHeader({ "Widget Layout" })
         do
+            Iris.Tree({ "Widget Alignment" })
+            do
+                Iris.Text({ "Iris.SameLine has optional argument supporting horizontal and vertical alignments." })
+                Iris.Text({ "This allows widgets to be place anywhere on the line." })
+                Iris.Separator()
+
+                Iris.SameLine()
+                do
+                    Iris.Text({ "By default child widgets will be aligned to the left." })
+                    helpMarker('Iris.SameLine()\n\tIris.Button({ "Button A" })\n\tIris.Button({ "Button B" })\nIris.End()')
+                end
+                Iris.End()
+
+                Iris.SameLine()
+                do
+                    Iris.Button({ "Button A" })
+                    Iris.Button({ "Button B" })
+                end
+                Iris.End()
+
+                Iris.SameLine()
+                do
+                    Iris.Text({ "But can be aligned to the center." })
+                    helpMarker('Iris.SameLine({ nil, nil, Enum.HorizontalAlignment.Center })\n\tIris.Button({ "Button A" })\n\tIris.Button({ "Button B" })\nIris.End()')
+                end
+                Iris.End()
+
+                Iris.SameLine({ nil, nil, Enum.HorizontalAlignment.Center })
+                do
+                    Iris.Button({ "Button A" })
+                    Iris.Button({ "Button B" })
+                end
+                Iris.End()
+
+                Iris.SameLine()
+                do
+                    Iris.Text({ "Or right." })
+                    helpMarker('Iris.SameLine({ nil, nil, Enum.HorizontalAlignment.Right })\n\tIris.Button({ "Button A" })\n\tIris.Button({ "Button B" })\nIris.End()')
+                end
+                Iris.End()
+
+                Iris.SameLine({ nil, nil, Enum.HorizontalAlignment.Right })
+                do
+                    Iris.Button({ "Button A" })
+                    Iris.Button({ "Button B" })
+                end
+                Iris.End()
+
+                Iris.Separator()
+
+                Iris.SameLine()
+                do
+                    Iris.Text({ "You can also specify the padding." })
+                    helpMarker('Iris.SameLine({ 0, nil, Enum.HorizontalAlignment.Center })\n\tIris.Button({ "Button A" })\n\tIris.Button({ "Button B" })\nIris.End()')
+                end
+                Iris.End()
+
+                Iris.SameLine({ 0, nil, Enum.HorizontalAlignment.Center })
+                do
+                    Iris.Button({ "Button A" })
+                    Iris.Button({ "Button B" })
+                end
+                Iris.End()
+            end
+            Iris.End()
+
+            Iris.Tree({ "Widget Sizing" })
+            do
+                Iris.Text({ "Nearly all widgets are the minimum size of the content." })
+                Iris.Text({ "For example, text and button widgets will be the size of the text labels." })
+                Iris.Text({ "Some widgets, such as the Image and Button have Size arguments will will set the size of them." })
+                Iris.Separator()
+
+                textAndHelpMarker("The button takes up the full screen-width.", 'Iris.Button({ "Button", UDim2.fromScale(1, 0) })')
+                Iris.Button({ "Button", UDim2.fromScale(1, 0) })
+                textAndHelpMarker("The button takes up half the screen-width.", 'Iris.Button({ "Button", UDim2.fromScale(0.5, 0) })')
+                Iris.Button({ "Button", UDim2.fromScale(0.5, 0) })
+
+                textAndHelpMarker("Combining with SameLine, the buttons can fill the screen width.", "The button will still be larger that the text size.")
+                local num = Iris.State(2)
+                Iris.SliderNum({ "Number of Buttons", 1, 1, 8 }, { number = num })
+                Iris.SameLine({ 0, nil, Enum.HorizontalAlignment.Center })
+                do
+                    for i = 1, num.value do
+                        Iris.Button({ `Button {i}`, UDim2.fromScale(1 / num.value, 0) })
+                    end
+                end
+                Iris.End()
+            end
+            Iris.End()
+
             Iris.Tree({ "Content Width" })
             do
                 local value = Iris.State(50)
