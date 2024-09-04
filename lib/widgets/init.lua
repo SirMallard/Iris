@@ -149,6 +149,7 @@ return function(Iris: Types.Internal)
         thisInstance.TextColor3 = Iris._config.TextColor
         thisInstance.TextTransparency = Iris._config.TextTransparency
         thisInstance.TextXAlignment = Enum.TextXAlignment.Left
+        thisInstance.TextYAlignment = Enum.TextYAlignment.Center
         thisInstance.RichText = Iris._config.RichText
         thisInstance.TextWrapped = Iris._config.TextWrapped
 

@@ -252,6 +252,7 @@ export type SeparatorText = Widget & {
 export type Button = Widget & {
     arguments: {
         Text: string?,
+        Size: UDim2?,
     },
 } & Clicked & RightClicked & DoubleClicked & CtrlClicked & Hovered
 

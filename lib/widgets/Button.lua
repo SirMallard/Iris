@@ -6,6 +6,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         hasChildren = false,
         Args = {
             ["Text"] = 1,
+            ["Size"] = 2,
         },
         Events = {
             ["clicked"] = widgets.EVENTS.click(function(thisWidget: Types.Widget)
@@ -30,9 +31,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Button.BackgroundColor3 = Iris._config.ButtonColor
             Button.BackgroundTransparency = Iris._config.ButtonTransparency
             Button.AutoButtonColor = false
+            Button.AutomaticSize = Enum.AutomaticSize.XY
 
             widgets.applyTextStyle(Button)
-            Button.AutomaticSize = Enum.AutomaticSize.XY
+            Button.TextXAlignment = Enum.TextXAlignment.Center
 
             widgets.applyFrameStyle(Button)
 
@@ -53,6 +55,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Update = function(thisWidget: Types.Button)
             local Button = thisWidget.Instance :: TextButton
             Button.Text = thisWidget.arguments.Text or "Button"
+            Button.Size = thisWidget.arguments.Size or UDim2.fromOffset(0, 0)
         end,
         Discard = function(thisWidget: Types.Button)
             thisWidget.Instance:Destroy()
