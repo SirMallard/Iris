@@ -79,6 +79,7 @@ export type Arguments = {
 
     Width: number,
     VerticalAlignment: Enum.VerticalAlignment,
+    HorizontalAlignment: Enum.HorizontalAlignment,
     Index: any,
     Image: string,
     Size: UDim2,

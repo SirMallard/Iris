@@ -79,6 +79,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Args = {
             ["Width"] = 1,
             ["VerticalAlignment"] = 2,
+            ["HorizontalAlignment"] = 3,
         },
         Events = {},
         Generate = function(thisWidget: Types.SameLine)
@@ -107,7 +108,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             if thisWidget.arguments.VerticalAlignment then
                 uiListLayout.VerticalAlignment = thisWidget.arguments.VerticalAlignment
             else
-                uiListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+                uiListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+            end
+            if thisWidget.arguments.HorizontalAlignment then
+                uiListLayout.HorizontalAlignment = thisWidget.arguments.HorizontalAlignment
+            else
+                uiListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
             end
         end,
         Discard = function(thisWidget: Types.SameLine)

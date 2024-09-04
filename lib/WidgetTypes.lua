@@ -224,6 +224,7 @@ export type SameLine = ParentWidget & {
     arguments: {
         Width: number?,
         VerticalAlignment: Enum.VerticalAlignment?,
+        HorizontalAlignment: Enum.HorizontalAlignment?,
     },
 }
 
