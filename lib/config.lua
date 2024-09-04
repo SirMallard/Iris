@@ -5,18 +5,20 @@ local TemplateConfig = {
         TextDisabledColor = Color3.fromRGB(128, 128, 128),
         TextDisabledTransparency = 0,
 
-        BorderColor = Color3.fromRGB(110, 110, 125),
         -- Dear ImGui uses 110, 110, 125
         -- The Roblox window selection highlight is 67, 191, 254
+        BorderColor = Color3.fromRGB(110, 110, 125),
         BorderActiveColor = Color3.fromRGB(160, 160, 175), -- does not exist in Dear ImGui
 
-        BorderTransparency = 0,
-        BorderActiveTransparency = 0,
         -- BorderTransparency will be problematic for non UIStroke border implimentations
         -- is not implimented because of this
+        BorderTransparency = 0.5,
+        BorderActiveTransparency = 0.3,
 
         WindowBgColor = Color3.fromRGB(15, 15, 15),
-        WindowBgTransparency = 0.072,
+        WindowBgTransparency = 0.06,
+        PopupBgColor = Color3.fromRGB(20, 20, 20),
+        PopupBgTransparency = 0.06,
 
         ScrollbarGrabColor = Color3.fromRGB(128, 128, 128),
         ScrollbarGrabTransparency = 0,
@@ -44,6 +46,9 @@ local TemplateConfig = {
         ButtonHoveredTransparency = 0,
         ButtonActiveColor = Color3.fromRGB(15, 135, 250),
         ButtonActiveTransparency = 0,
+
+        ImageColor = Color3.fromRGB(255, 255, 255),
+        ImageTransparency = 0,
 
         SliderGrabColor = Color3.fromRGB(66, 150, 250),
         SliderGrabTransparency = 0,
@@ -93,17 +98,20 @@ local TemplateConfig = {
         TextDisabledColor = Color3.fromRGB(153, 153, 153),
         TextDisabledTransparency = 0,
 
-        BorderColor = Color3.fromRGB(64, 64, 64),
         -- Dear ImGui uses 0, 0, 0, 77
         -- The Roblox window selection highlight is 67, 191, 254
+        BorderColor = Color3.fromRGB(64, 64, 64),
         BorderActiveColor = Color3.fromRGB(64, 64, 64), -- does not exist in Dear ImGui
 
-        -- BorderTransparency = 0.5,
         -- BorderTransparency will be problematic for non UIStroke border implimentations
         -- will not be implimented because of this
+        BorderTransparency = 0.5,
+        BorderActiveTransparency = 0.2,
 
         WindowBgColor = Color3.fromRGB(240, 240, 240),
         WindowBgTransparency = 0,
+        PopupBgColor = Color3.fromRGB(255, 255, 255),
+        PopupBgTransparency = 0.02,
 
         TitleBgColor = Color3.fromRGB(245, 245, 245),
         TitleBgTransparency = 0,
@@ -131,6 +139,9 @@ local TemplateConfig = {
         ButtonHoveredTransparency = 0,
         ButtonActiveColor = Color3.fromRGB(15, 135, 250),
         ButtonActiveTransparency = 0,
+
+        ImageColor = Color3.fromRGB(255, 255, 255),
+        ImageTransparency = 0,
 
         HeaderColor = Color3.fromRGB(66, 150, 250),
         HeaderTransparency = 0.31,
@@ -178,6 +189,7 @@ local TemplateConfig = {
     sizeDefault = { -- Dear, ImGui default
         ItemWidth = UDim.new(1, 0),
         ContentWidth = UDim.new(0.65, 0),
+        ContentHeight = UDim.new(0, 0),
 
         WindowPadding = Vector2.new(8, 8),
         WindowResizePadding = Vector2.new(6, 6),
@@ -202,10 +214,12 @@ local TemplateConfig = {
         ScrollbarSize = 7,
         GrabMinSize = 10,
         SeparatorTextBorderSize = 3,
+        ImageBorderSize = 2,
     },
     sizeClear = { -- easier to read and manuveure
         ItemWidth = UDim.new(1, 0),
         ContentWidth = UDim.new(0.65, 0),
+        ContentHeight = UDim.new(0, 0),
 
         WindowPadding = Vector2.new(12, 8),
         WindowResizePadding = Vector2.new(8, 8),
@@ -230,6 +244,7 @@ local TemplateConfig = {
         ScrollbarSize = 9,
         GrabMinSize = 14,
         SeparatorTextBorderSize = 4,
+        ImageBorderSize = 4,
     },
 
     utilityDefault = {
@@ -238,7 +253,6 @@ local TemplateConfig = {
         Parent = nil,
         RichText = false,
         TextWrapped = false,
-        DisableWidget = false, -- currently unused
         DisplayOrderOffset = 127,
         ZIndexOffset = 0,
 

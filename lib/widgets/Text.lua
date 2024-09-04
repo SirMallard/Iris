@@ -16,13 +16,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return thisWidget.Instance
             end),
         },
-        Generate = function(thisWidget: Types.Widget)
+        Generate = function(thisWidget: Types.Text)
             local Text: TextLabel = Instance.new("TextLabel")
             Text.Name = "Iris_Text"
             Text.Size = UDim2.fromOffset(0, 0)
             Text.BackgroundTransparency = 1
             Text.BorderSizePixel = 0
-            Text.ZIndex = thisWidget.ZIndex
             Text.LayoutOrder = thisWidget.ZIndex
             Text.AutomaticSize = Enum.AutomaticSize.XY
 
@@ -31,7 +30,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return Text
         end,
-        Update = function(thisWidget: Types.Widget)
+        Update = function(thisWidget: Types.Text)
             local Text = thisWidget.Instance :: TextLabel
             if thisWidget.arguments.Text == nil then
                 error("Iris.Text Text Argument is required", 5)
@@ -54,7 +53,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             Text.Text = thisWidget.arguments.Text
         end,
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.Text)
             thisWidget.Instance:Destroy()
         end,
     } :: Types.WidgetClass)
@@ -71,14 +70,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return thisWidget.Instance
             end),
         },
-        Generate = function(thisWidget: Types.Widget)
+        Generate = function(thisWidget: Types.SeparatorText)
             local SeparatorText = Instance.new("Frame")
             SeparatorText.Name = "Iris_SeparatorText"
             SeparatorText.Size = UDim2.fromScale(1, 0)
             SeparatorText.BackgroundTransparency = 1
             SeparatorText.BorderSizePixel = 0
             SeparatorText.AutomaticSize = Enum.AutomaticSize.Y
-            SeparatorText.ZIndex = thisWidget.ZIndex
             SeparatorText.LayoutOrder = thisWidget.ZIndex
             SeparatorText.ClipsDescendants = true
 
@@ -92,8 +90,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             TextLabel.BackgroundTransparency = 1
             TextLabel.BorderSizePixel = 0
             TextLabel.AutomaticSize = Enum.AutomaticSize.XY
-            TextLabel.ZIndex = thisWidget.ZIndex + 1
-            TextLabel.LayoutOrder = thisWidget.ZIndex + 1
+            TextLabel.LayoutOrder = 1
 
             widgets.applyTextStyle(TextLabel)
 
@@ -106,8 +103,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Left.BackgroundTransparency = Iris._config.SeparatorTransparency
             Left.BorderSizePixel = 0
             Left.Size = UDim2.fromOffset(Iris._config.SeparatorTextPadding.X - Iris._config.ItemSpacing.X, Iris._config.SeparatorTextBorderSize)
-            Left.ZIndex = thisWidget.ZIndex
-            Left.LayoutOrder = thisWidget.ZIndex
 
             Left.Parent = SeparatorText
 
@@ -118,14 +113,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Right.BackgroundTransparency = Iris._config.SeparatorTransparency
             Right.BorderSizePixel = 0
             Right.Size = UDim2.new(1, 0, 0, Iris._config.SeparatorTextBorderSize)
-            Right.ZIndex = thisWidget.ZIndex + 2
-            Right.LayoutOrder = thisWidget.ZIndex + 2
+            Right.LayoutOrder = 2
 
             Right.Parent = SeparatorText
 
             return SeparatorText
         end,
-        Update = function(thisWidget: Types.Widget)
+        Update = function(thisWidget: Types.SeparatorText)
             local SeparatorText = thisWidget.Instance :: Frame
             local TextLabel: TextLabel = SeparatorText.TextLabel
             if thisWidget.arguments.Text == nil then
@@ -133,7 +127,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
             TextLabel.Text = thisWidget.arguments.Text
         end,
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.SeparatorText)
             thisWidget.Instance:Destroy()
         end,
     } :: Types.WidgetClass)

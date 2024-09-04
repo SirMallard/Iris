@@ -1,33 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-type Expectation = {
-    to: Expectation,
-    be: Expectation,
-    been: Expectation,
-    have: Expectation,
-    was: Expectation,
-    at: Expectation,
-
-    never: Expectation,
-
-    a: (typeName: string) -> Expectation,
-    an: (typeName: string) -> Expectation,
-    ok: () -> Expectation,
-    equal: (otherValue: any) -> Expectation,
-    throw: (message: string) -> Expectation,
-    near: (otherValue: number, limit: number?) -> Expectation,
-}
-
--- this will error and there is nothing I can do about it.
-describe = describe :: (phrase: string, callback: () -> ()) -> ()
-it = it :: (phrase: string, callback: () -> ()) -> ()
-expect = expect :: (any) -> Expectation
-
-beforeAll = beforeAll :: (callback: () -> ()) -> ()
-afterAll = afterAll :: (callback: () -> ()) -> ()
-beforeEach = beforeEach :: (callback: () -> ()) -> ()
-afterEach = afterEach :: (callback: () -> ()) -> ()
-
 return function()
     local Iris = require(ReplicatedStorage.Iris)
 
@@ -38,6 +10,10 @@ return function()
     end)
 
     describe("State", function()
+        it("Should be a state", function()
+            expect(state).to.be.a("table")
+            expect(state.ID).to.be.a("string")
+        end)
         it("SHOULD contain nil", function()
             expect(state:get()).to.equal(nil)
             expect(state.value).to.equal(nil)
@@ -71,6 +47,21 @@ return function()
             end)
             state:set(10)
             expect(otherState:get()).to.equal(20)
+        end)
+        it("SHOULD disconnect a function", function()
+            local number: number = 0
+            local disconnect: () -> () = state:onChange(function(value: number)
+                number = value
+            end)
+            expect(disconnect).to.be.a("function")
+            expect(#state.ConnectedFunctions).to.equal(1)
+            expect(number).to.be.equal(0)
+            state:set(1)
+            expect(number).to.be.equal(1)
+            expect(disconnect()).to.equal(nil)
+            expect(#state.ConnectedFunctions).to.equal(0)
+            state:set(2)
+            expect(number).to.equal(1)
         end)
     end)
 end

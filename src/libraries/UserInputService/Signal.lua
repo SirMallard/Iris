@@ -88,10 +88,10 @@ end
 
 -- Make Connection strict
 setmetatable(Connection, {
-    __index = function(tb, key)
+    __index = function(_, key)
         error(("Attempt to get Connection::%s (not a valid member)"):format(tostring(key)), 2)
     end,
-    __newindex = function(tb, key, value)
+    __newindex = function(_, key, _)
         error(("Attempt to set Connection::%s (not a valid member)"):format(tostring(key)), 2)
     end,
 })
@@ -169,10 +169,10 @@ end
 
 -- Make signal strict
 setmetatable(Signal, {
-    __index = function(tb, key)
+    __index = function(_, key)
         error(("Attempt to get Signal::%s (not a valid member)"):format(tostring(key)), 2)
     end,
-    __newindex = function(tb, key, value)
+    __newindex = function(_, key, _)
         error(("Attempt to set Signal::%s (not a valid member)"):format(tostring(key)), 2)
     end,
 })

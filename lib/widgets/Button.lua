@@ -6,6 +6,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         hasChildren = false,
         Args = {
             ["Text"] = 1,
+            ["Size"] = 2,
         },
         Events = {
             ["clicked"] = widgets.EVENTS.click(function(thisWidget: Types.Widget)
@@ -24,25 +25,26 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return thisWidget.Instance
             end),
         },
-        Generate = function(thisWidget: Types.Widget): TextButton
+        Generate = function(thisWidget: Types.Button)
             local Button: TextButton = Instance.new("TextButton")
             Button.Size = UDim2.fromOffset(0, 0)
             Button.BackgroundColor3 = Iris._config.ButtonColor
             Button.BackgroundTransparency = Iris._config.ButtonTransparency
             Button.AutoButtonColor = false
+            Button.AutomaticSize = Enum.AutomaticSize.XY
 
             widgets.applyTextStyle(Button)
-            Button.AutomaticSize = Enum.AutomaticSize.XY
+            Button.TextXAlignment = Enum.TextXAlignment.Center
 
             widgets.applyFrameStyle(Button)
 
-            widgets.applyInteractionHighlights(thisWidget, Button, Button, {
-                ButtonColor = Iris._config.ButtonColor,
-                ButtonTransparency = Iris._config.ButtonTransparency,
-                ButtonHoveredColor = Iris._config.ButtonHoveredColor,
-                ButtonHoveredTransparency = Iris._config.ButtonHoveredTransparency,
-                ButtonActiveColor = Iris._config.ButtonActiveColor,
-                ButtonActiveTransparency = Iris._config.ButtonActiveTransparency,
+            widgets.applyInteractionHighlights("Background", Button, Button, {
+                Color = Iris._config.ButtonColor,
+                Transparency = Iris._config.ButtonTransparency,
+                HoveredColor = Iris._config.ButtonHoveredColor,
+                HoveredTransparency = Iris._config.ButtonHoveredTransparency,
+                ActiveColor = Iris._config.ButtonActiveColor,
+                ActiveTransparency = Iris._config.ButtonActiveTransparency,
             })
 
             Button.ZIndex = thisWidget.ZIndex
@@ -50,11 +52,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return Button
         end,
-        Update = function(thisWidget: Types.Widget)
+        Update = function(thisWidget: Types.Button)
             local Button = thisWidget.Instance :: TextButton
             Button.Text = thisWidget.arguments.Text or "Button"
+            Button.Size = thisWidget.arguments.Size or UDim2.fromOffset(0, 0)
         end,
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.Button)
             thisWidget.Instance:Destroy()
         end,
     } :: Types.WidgetClass
@@ -62,7 +65,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
     --stylua: ignore
     Iris.WidgetConstructor("Button", widgets.extend(abstractButton, {
-            Generate = function(thisWidget: Types.Widget): TextButton
+            Generate = function(thisWidget: Types.Button)
                 local Button: TextButton = abstractButton.Generate(thisWidget)
                 Button.Name = "Iris_Button"
 
@@ -73,7 +76,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
     --stylua: ignore
     Iris.WidgetConstructor("SmallButton", widgets.extend(abstractButton, {
-            Generate = function(thisWidget: Types.Widget): TextButton
+            Generate = function(thisWidget: Types.Button)
                 local SmallButton = abstractButton.Generate(thisWidget) :: TextButton
                 SmallButton.Name = "Iris_SmallButton"
 

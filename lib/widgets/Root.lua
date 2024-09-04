@@ -9,7 +9,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         hasChildren = true,
         Args = {},
         Events = {},
-        Generate = function(_thisWidget: Types.Widget)
+        Generate = function(_thisWidget: Types.Root)
             local Root: Folder = Instance.new("Folder")
             Root.Name = "Iris_Root"
 
@@ -17,6 +17,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             if Iris._config.UseScreenGUIs then
                 PseudoWindowScreenGui = Instance.new("ScreenGui")
                 PseudoWindowScreenGui.ResetOnSpawn = false
+                PseudoWindowScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
                 PseudoWindowScreenGui.DisplayOrder = Iris._config.DisplayOrderOffset
                 PseudoWindowScreenGui.IgnoreGuiInset = Iris._config.IgnoreGuiInset
             else
@@ -34,6 +35,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             if Iris._config.UseScreenGUIs then
                 PopupScreenGui = Instance.new("ScreenGui")
                 PopupScreenGui.ResetOnSpawn = false
+                PopupScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
                 PopupScreenGui.DisplayOrder = Iris._config.DisplayOrderOffset + 1024 -- room for 1024 regular windows before overlap
                 PopupScreenGui.IgnoreGuiInset = Iris._config.IgnoreGuiInset
             else
@@ -93,7 +95,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return Root
         end,
-        Update = function(thisWidget: Types.Widget)
+        Update = function(thisWidget: Types.Root)
             if NumNonWindowChildren > 0 then
                 local Root = thisWidget.Instance :: any
                 local PseudoWindowScreenGui = Root.PseudoWindowScreenGui :: any
@@ -101,18 +103,18 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 PseudoWindow.Visible = true
             end
         end,
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.Root)
             NumNonWindowChildren = 0
             thisWidget.Instance:Destroy()
         end,
-        ChildAdded = function(thisWidget: Types.Widget, childWidget: Types.Widget)
+        ChildAdded = function(thisWidget: Types.Root, thisChild: Types.Widget)
             local Root = thisWidget.Instance :: any
 
-            if childWidget.type == "Window" then
+            if thisChild.type == "Window" then
                 return thisWidget.Instance
-            elseif childWidget.type == "Tooltip" then
+            elseif thisChild.type == "Tooltip" then
                 return Root.PopupScreenGui.TooltipContainer
-            elseif childWidget.type == "MenuBar" then
+            elseif thisChild.type == "MenuBar" then
                 return Root.PopupScreenGui.MenuBarContainer
             else
                 local PseudoWindowScreenGui = Root.PseudoWindowScreenGui :: any
@@ -124,8 +126,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return PseudoWindow
             end
         end,
-        ChildDiscarded = function(thisWidget: Types.Widget, childWidget: Types.Widget)
-            if childWidget.type ~= "Window" and childWidget.type ~= "Tooltip" and childWidget.type ~= "MenuBar" then
+        ChildDiscarded = function(thisWidget: Types.Root, thisChild: Types.Widget)
+            if thisChild.type ~= "Window" and thisChild.type ~= "Tooltip" and thisChild.type ~= "MenuBar" then
                 NumNonWindowChildren -= 1
                 if NumNonWindowChildren == 0 then
                     local Root = thisWidget.Instance :: any
