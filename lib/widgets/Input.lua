@@ -309,7 +309,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                         widgets.applyFrameStyle(InputField)
                         widgets.applyTextStyle(InputField)
-                        widgets.UISizeConstraint(InputField, Vector2.new(1, 0))
+                        widgets.UISizeConstraint(InputField, Vector2.xAxis)
 
                         InputField.Parent = Input
 
@@ -598,7 +598,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                         widgets.applyFrameStyle(DragField)
                         widgets.applyTextStyle(DragField)
-                        widgets.UISizeConstraint(DragField, Vector2.new(1, 0))
+                        widgets.UISizeConstraint(DragField, Vector2.xAxis)
 
                         DragField.TextXAlignment = Enum.TextXAlignment.Center
 
@@ -974,7 +974,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                         widgets.applyFrameStyle(SliderField)
                         widgets.applyTextStyle(SliderField)
-                        widgets.UISizeConstraint(SliderField, Vector2.new(1, 0))
+                        widgets.UISizeConstraint(SliderField, Vector2.xAxis)
 
                         SliderField.Parent = Slider
 
@@ -1329,7 +1329,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             widgets.applyFrameStyle(InputField)
             widgets.applyTextStyle(InputField)
-            widgets.UISizeConstraint(InputField, Vector2.new(1, 0)) -- prevents sizes beaking when getting too small.
+            widgets.UISizeConstraint(InputField, Vector2.xAxis) -- prevents sizes beaking when getting too small.
             -- InputField.UIPadding.PaddingLeft = UDim.new(0, Iris._config.ItemInnerSpacing.X)
             -- InputField.UIPadding.PaddingRight = UDim.new(0, 0)
             InputField.Parent = InputText

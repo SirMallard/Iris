@@ -513,7 +513,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             TitleBar.Parent = Content
 
-            widgets.UIPadding(TitleBar, Vector2.xAxis * Iris._config.FramePadding.X)
+            widgets.UIPadding(TitleBar, Vector2.new(Iris._config.FramePadding.X))
             widgets.UIListLayout(TitleBar, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.FramePadding.X)).VerticalAlignment = Enum.VerticalAlignment.Center
             widgets.applyInputBegan(TitleBar, function(input: InputObject)
                 if input.UserInputType == Enum.UserInputType.Touch then
@@ -619,7 +619,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Title.LayoutOrder = 1
             Title.ClipsDescendants = true
             
-            widgets.UIPadding(Title, Vector2.yAxis * Iris._config.FramePadding.Y)
+            widgets.UIPadding(Title, Vector2.new(0, Iris._config.FramePadding.Y))
             widgets.applyTextStyle(Title)
             Title.TextXAlignment = Enum.TextXAlignment[Iris._config.WindowTitleAlign.Name] :: Enum.TextXAlignment
 
@@ -635,7 +635,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local ResizeGrip = Instance.new("ImageButton")
             ResizeGrip.Name = "ResizeGrip"
-            ResizeGrip.AnchorPoint = Vector2.new(1, 1)
+            ResizeGrip.AnchorPoint = Vector2.one
             ResizeGrip.Size = UDim2.fromOffset(ResizeButtonSize, ResizeButtonSize)
             ResizeGrip.Position = UDim2.fromScale(1, 1)
             ResizeGrip.Rotation = 90

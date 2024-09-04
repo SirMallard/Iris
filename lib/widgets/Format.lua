@@ -49,7 +49,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Indent.LayoutOrder = thisWidget.ZIndex
 
             widgets.UIListLayout(Indent, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
-            widgets.UIPadding(Indent, Vector2.new(0, 0))
+            widgets.UIPadding(Indent, Vector2.zero)
 
             return Indent
         end,

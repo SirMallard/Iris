@@ -64,7 +64,7 @@ return function(Iris: Types.Internal)
             end
         else
             -- placed to the right
-            refPos += Vector2.new(CURSOR_OFFSET_DIST, 0)
+            refPos += Vector2.new(CURSOR_OFFSET_DIST)
         end
 
         local clampedPos: Vector2 = Vector2.new(math.max(math.min(refPos.X + size.X, outerMax.X) - size.X, outerMin.X), math.max(math.min(refPos.Y + size.Y, outerMax.Y) - size.Y, outerMin.Y))

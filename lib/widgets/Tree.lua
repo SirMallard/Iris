@@ -87,7 +87,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 -- ChildContainer.ClipsDescendants = true
 
                 widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
-                local ChildContainerPadding: UIPadding = widgets.UIPadding(ChildContainer, Vector2.new(0, 0))
+                local ChildContainerPadding: UIPadding = widgets.UIPadding(ChildContainer, Vector2.zero)
                 ChildContainerPadding.PaddingTop = UDim.new(0, Iris._config.ItemSpacing.Y)
 
                 ChildContainer.Parent = Tree
@@ -141,7 +141,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 TextLabel.BackgroundTransparency = 1
                 TextLabel.BorderSizePixel = 0
 
-                local TextPadding: UIPadding = widgets.UIPadding(TextLabel, Vector2.new(0, 0))
+                local TextPadding: UIPadding = widgets.UIPadding(TextLabel, Vector2.zero)
                 TextPadding.PaddingRight = UDim.new(0, 21)
                 widgets.applyTextStyle(TextLabel)
 
@@ -209,7 +209,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 -- ChildContainer.ClipsDescendants = true
 
                 widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
-                local ChildContainerPadding: UIPadding = widgets.UIPadding(ChildContainer, Vector2.new(0, 0))
+                local ChildContainerPadding: UIPadding = widgets.UIPadding(ChildContainer, Vector2.zero)
                 ChildContainerPadding.PaddingTop = UDim.new(0, Iris._config.ItemSpacing.Y)
 
                 ChildContainer.Parent = CollapsingHeader
@@ -268,7 +268,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 TextLabel.BackgroundTransparency = 1
                 TextLabel.BorderSizePixel = 0
 
-                local TextPadding: UIPadding = widgets.UIPadding(TextLabel, Vector2.new(0, 0))
+                local TextPadding: UIPadding = widgets.UIPadding(TextLabel, Vector2.zero)
                 TextPadding.PaddingRight = UDim.new(0, 21)
                 widgets.applyTextStyle(TextLabel)
 

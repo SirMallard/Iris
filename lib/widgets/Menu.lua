@@ -188,7 +188,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 local TextLabel: TextLabel = Instance.new("TextLabel")
                 TextLabel.Name = "TextLabel"
-                TextLabel.AnchorPoint = Vector2.new(0, 0)
                 TextLabel.BackgroundTransparency = 1
                 TextLabel.BorderSizePixel = 0
                 TextLabel.AutomaticSize = Enum.AutomaticSize.XY
@@ -397,7 +396,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local TextLabel: TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
-            TextLabel.AnchorPoint = Vector2.new(0, 0)
             TextLabel.BackgroundTransparency = 1
             TextLabel.BorderSizePixel = 0
             TextLabel.AutomaticSize = Enum.AutomaticSize.XY
@@ -408,7 +406,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local Shortcut: TextLabel = Instance.new("TextLabel")
             Shortcut.Name = "Shortcut"
-            Shortcut.AnchorPoint = Vector2.new(0, 0)
             Shortcut.BackgroundTransparency = 1
             Shortcut.BorderSizePixel = 0
             Shortcut.LayoutOrder = 1
@@ -512,7 +509,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local TextLabel: TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
-            TextLabel.AnchorPoint = Vector2.new(0, 0)
             TextLabel.BackgroundTransparency = 1
             TextLabel.BorderSizePixel = 0
             TextLabel.AutomaticSize = Enum.AutomaticSize.XY
@@ -523,7 +519,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local Shortcut: TextLabel = Instance.new("TextLabel")
             Shortcut.Name = "Shortcut"
-            Shortcut.AnchorPoint = Vector2.new(0, 0)
             Shortcut.BackgroundTransparency = 1
             Shortcut.BorderSizePixel = 0
             Shortcut.LayoutOrder = 1

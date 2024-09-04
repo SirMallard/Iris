@@ -245,7 +245,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             widgets.applyFrameStyle(PreviewContainer, true)
             widgets.UIListLayout(PreviewContainer, Enum.FillDirection.Horizontal, UDim.new(0, 0))
-            widgets.UISizeConstraint(PreviewContainer, Vector2.xAxis * (frameHeight + 1))
+            widgets.UISizeConstraint(PreviewContainer, Vector2.new(frameHeight + 1))
 
             PreviewContainer.Parent = Combo
 
@@ -358,7 +358,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             widgets.UIStroke(ChildContainer, Iris._config.WindowBorderSize, Iris._config.BorderColor, Iris._config.BorderTransparency)
             widgets.UIPadding(ChildContainer, Vector2.new(2, Iris._config.WindowPadding.Y))
-            widgets.UISizeConstraint(ChildContainer, 100 * Vector2.xAxis)
+            widgets.UISizeConstraint(ChildContainer, Vector2.new(100))
 
             local ChildContainerUIListLayout: UIListLayout = widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
             ChildContainerUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top

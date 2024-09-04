@@ -102,7 +102,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Button.AutoButtonColor = false
                 
                 widgets.applyFrameStyle(Button, true)
-                widgets.UIPadding(Button, Iris._config.ImageBorderSize * Vector2.one)
+                widgets.UIPadding(Button, Vector2.new(Iris._config.ImageBorderSize, Iris._config.ImageBorderSize))
                 
                 local Image: ImageLabel = Instance.new("ImageLabel")
                 Image.Name = "ImageLabel"
