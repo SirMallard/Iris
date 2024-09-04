@@ -1634,6 +1634,7 @@ return function(Iris: Types.Iris)
     Iris.ProgressBar = wrapper("ProgressBar")
 
     Iris.PlotLines = wrapper("PlotLines")
+    Iris.PlotHistogram = wrapper("PlotHistogram")
 
     --[[
         ----------------------------------

@@ -271,20 +271,30 @@ return function(Iris: Types.Internal)
     end
 
     function widgets.applyButtonDown(thisInstance: GuiButton, callback: (x: number, y: number) -> ())
-        thisInstance.MouseButton1Down:Connect(function(...)
-            callback(...)
+        thisInstance.MouseButton1Down:Connect(function(x: number, y: number)
+            local position: Vector2 = Vector2.new(x, y) - widgets.MouseOffset
+            callback(position.X, position.Y)
         end)
     end
 
-    function widgets.applyMouseEnter(thisInstance: GuiObject, callback: () -> ())
-        thisInstance.MouseEnter:Connect(function(...)
-            callback(...)
+    function widgets.applyMouseEnter(thisInstance: GuiObject, callback: (x: number, y: number) -> ())
+        thisInstance.MouseEnter:Connect(function(x: number, y: number)
+            local position: Vector2 = Vector2.new(x, y) - widgets.MouseOffset
+            callback(position.X, position.Y)
         end)
     end
 
-    function widgets.applyMouseLeave(thisInstance: GuiObject, callback: () -> ())
-        thisInstance.MouseLeave:Connect(function(...)
-            callback(...)
+    function widgets.applyMouseMoved(thisInstance: GuiObject, callback: (x: number, y: number) -> ())
+        thisInstance.MouseMoved:Connect(function(x: number, y: number)
+            local position: Vector2 = Vector2.new(x, y) - widgets.MouseOffset
+            callback(position.X, position.Y)
+        end)
+    end
+
+    function widgets.applyMouseLeave(thisInstance: GuiObject, callback: (x: number, y: number) -> ())
+        thisInstance.MouseLeave:Connect(function(x: number, y: number)
+            local position: Vector2 = Vector2.new(x, y) - widgets.MouseOffset
+            callback(position.X, position.Y)
         end)
     end
 

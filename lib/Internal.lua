@@ -134,6 +134,7 @@ return function(Iris: Types.Iris): Types.Internal
         @within State
         @method set<T>
         @param newValue T
+        @param force boolean? -- force an update to all connections
         @return T
         
         Allows the caller to assign the state object a new value, and returns the new value.

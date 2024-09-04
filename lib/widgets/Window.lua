@@ -36,8 +36,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Tooltip.AutomaticSize = Enum.AutomaticSize.Y
             Tooltip.BorderSizePixel = 0
             Tooltip.BackgroundTransparency = 1
-            Tooltip.ZIndex = thisWidget.ZIndex + 1
-            Tooltip.LayoutOrder = thisWidget.ZIndex + 1
+            Tooltip.ZIndex = 1
 
             local TooltipText: TextLabel = Instance.new("TextLabel")
             TooltipText.Name = "TooltipText"
@@ -45,11 +44,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             TooltipText.AutomaticSize = Enum.AutomaticSize.XY
             TooltipText.BackgroundColor3 = Iris._config.PopupBgColor
             TooltipText.BackgroundTransparency = Iris._config.PopupBgTransparency
-            TooltipText.BorderSizePixel = Iris._config.PopupBorderSize
             TooltipText.TextWrapped = Iris._config.TextWrapped
 
             widgets.applyTextStyle(TooltipText)
-            widgets.UIStroke(TooltipText, Iris._config.WindowBorderSize, Iris._config.BorderActiveColor, Iris._config.BorderActiveTransparency)
+            widgets.UIStroke(TooltipText, Iris._config.PopupBorderSize, Iris._config.BorderActiveColor, Iris._config.BorderActiveTransparency)
             widgets.UIPadding(TooltipText, Iris._config.WindowPadding)
             if Iris._config.PopupRounding > 0 then
                 widgets.UICorner(TooltipText, Iris._config.PopupRounding)

@@ -390,8 +390,6 @@ export type Selectable = Widget & {
 } & Selected & Unselected & Clicked & RightClicked & DoubleClicked & CtrlClicked & Hovered
 
 export type Combo = ParentWidget & {
-    ComboChildrenHeight: number,
-
     arguments: {
         Text: string?,
         NoButton: boolean?,
@@ -416,6 +414,38 @@ export type ProgressBar = Widget & {
         progress: State<number>,
     },
 } & Changed & Hovered
+
+export type PlotLines = Widget & {
+    arguments: {
+        Text: string,
+        Min: number,
+        Max: number,
+        Height: number,
+        TextOverlay: string,
+    },
+
+    state: {
+        values: State<{ number }>,
+    },
+}
+
+export type PlotHistogram = Widget & {
+    Blocks: { Frame },
+    HoveredBlock: Frame | false,
+    Tooltip: TextLabel,
+
+    arguments: {
+        Text: string,
+        Min: number,
+        Max: number,
+        Height: number,
+        TextOverlay: string,
+    },
+
+    state: {
+        values: State<{ number }>,
+    },
+}
 
 export type Table = ParentWidget & {
     RowColumnIndex: number,

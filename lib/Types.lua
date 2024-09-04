@@ -53,6 +53,8 @@ export type InputText = WidgetTypes.InputText
 export type Selectable = WidgetTypes.Selectable
 export type Combo = WidgetTypes.Combo
 export type ProgressBar = WidgetTypes.ProgressBar
+export type PlotLines = WidgetTypes.PlotLines
+export type PlotHistogram = WidgetTypes.PlotHistogram
 export type Table = WidgetTypes.Table
 
 export type InputDataType = number | Vector2 | Vector3 | UDim | UDim2 | Color3 | Rect | { number }
@@ -62,6 +64,7 @@ export type Arguments = {
     [string]: Argument,
     Text: string,
     TextHint: string,
+    TextOverlay: string,
     ReadOnly: boolean,
     MultiLine: boolean,
     Wrapped: boolean,
@@ -320,8 +323,9 @@ export type WidgetUtility = {
 
     applyButtonClick: (thisInstance: GuiButton, callback: () -> ()) -> (),
     applyButtonDown: (thisInstance: GuiButton, callback: (x: number, y: number) -> ()) -> (),
-    applyMouseEnter: (thisInstance: GuiObject, callback: () -> ()) -> (),
-    applyMouseLeave: (thisInstance: GuiObject, callback: () -> ()) -> (),
+    applyMouseEnter: (thisInstance: GuiObject, callback: (x: number, y: number) -> ()) -> (),
+    applyMouseMoved: (thisInstance: GuiObject, callback: (x: number, y: number) -> ()) -> (),
+    applyMouseLeave: (thisInstance: GuiObject, callback: (x: number, y: number) -> ()) -> (),
     applyInputBegan: (thisInstance: GuiObject, callback: (input: InputObject) -> ()) -> (),
     applyInputEnded: (thisInstance: GuiObject, callback: (input: InputObject) -> ()) -> (),
 
@@ -420,6 +424,10 @@ export type Config = {
     CheckMarkColor: Color3,
     CheckMarkTransparency: number,
 
+    PlotLinesColor: Color3,
+    PlotLinesTransparency: number,
+    PlotLinesHoveredColor: Color3,
+    PlotLinesHoveredTransparency: number,
     PlotHistogramColor: Color3,
     PlotHistogramTransparency: number,
     PlotHistogramHoveredColor: Color3,
@@ -548,6 +556,8 @@ export type Iris = {
     InputEnum: WidgetCall<Combo, WidgetArguments, WidgetStates?, Enum>,
 
     ProgressBar: WidgetCall<ProgressBar, WidgetArguments, WidgetStates?>,
+    PlotLines: WidgetCall<PlotLines, WidgetArguments, WidgetStates?>,
+    PlotHistogram: WidgetCall<PlotHistogram, WidgetArguments, WidgetStates?>,
 
     Image: WidgetCall<Image, WidgetArguments, nil>,
     ImageButton: WidgetCall<ImageButton, WidgetArguments, nil>,
