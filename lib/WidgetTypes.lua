@@ -15,7 +15,7 @@ export type State<T> = {
     ConnectedFunctions: { (newValue: T) -> () },
 
     get: (self: State<T>) -> T,
-    set: (self: State<T>, newValue: T) -> (),
+    set: (self: State<T>, newValue: T, force: true?) -> (),
     onChange: (self: State<T>, funcToConnect: (newValue: T) -> ()) -> () -> (),
 }
 
@@ -439,6 +439,7 @@ export type PlotHistogram = Widget & {
         Min: number,
         Max: number,
         Height: number,
+        BaseLine: number,
         TextOverlay: string,
     },
 

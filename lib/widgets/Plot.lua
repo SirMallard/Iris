@@ -321,7 +321,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ["Min"] = 2,
             ["Max"] = 3,
             ["Height"] = 4,
-            ["TextOverlay"] = 5,
+            ["BaseLine"] = 5,
+            ["TextOverlay"] = 6,
         },
         Events = {},
         Generate = function(thisWidget: Types.PlotHistogram)
@@ -331,6 +332,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             PlotHistogram.Size = UDim2.fromScale(1, 0)
             PlotHistogram.BackgroundTransparency = 1
             PlotHistogram.BorderSizePixel = 0
+            PlotHistogram.ZIndex = thisWidget.ZIndex
+            PlotHistogram.LayoutOrder = thisWidget.ZIndex
 
             local UIListLayout: UIListLayout = widgets.UIListLayout(PlotHistogram, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
             UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
@@ -443,14 +446,16 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local min: number = thisWidget.arguments.Min
             local max: number = thisWidget.arguments.Max
+            local baseline: number = thisWidget.arguments.BaseLine or 0
 
             if min == nil or max == nil then
-                for value: number in values do
+                for _, value: number in values do
                     min = math.min(min or value, value)
                     max = math.max(max or value, value)
                 end
             end
 
+            -- add or remove blocks depending on how many are needed
             if numBlocks < count then
                 for index = numBlocks + 1, count do
                     table.insert(thisWidget.Blocks, createBlock(Plot, index))                    
@@ -465,20 +470,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
             
             local range: number = max - min
-            local signed: boolean = max > 0 and min < 0
             local width: UDim = UDim.new(1 / count, -1)
             for index = 1, count do
-                if signed then
-                    if values[index] >= 0 then
-                        thisWidget.Blocks[index].Position = UDim2.fromScale((index - 1) / count, (max - values[index]) / range)
-                        thisWidget.Blocks[index].Size = UDim2.new(width, UDim.new(values[index] / range))
-                    else
-                        thisWidget.Blocks[index].Position = UDim2.fromScale((index - 1) / count, (max) / range)
-                        thisWidget.Blocks[index].Size = UDim2.new(width, UDim.new(-values[index] / range))
-                    end
+                local num: number = values[index]
+                if num >= 0 then
+                    thisWidget.Blocks[index].Size = UDim2.new(width, UDim.new((num - baseline) / range))
+                    thisWidget.Blocks[index].Position = UDim2.fromScale((index - 1) / count, (max - num) / range)
                 else
-                    thisWidget.Blocks[index].Position = UDim2.fromScale((index - 1) / count, (max - values[index]) / range)
-                    thisWidget.Blocks[index].Size = UDim2.new(width, UDim.new(values[index] - min / range))
+                    thisWidget.Blocks[index].Size = UDim2.new(width, UDim.new((baseline - num) / range))
+                    thisWidget.Blocks[index].Position = UDim2.fromScale((index - 1) / count, (max - baseline) / range)
                 end
             end
 

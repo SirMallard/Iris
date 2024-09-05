@@ -79,6 +79,7 @@ export type Arguments = {
     UseHSV: boolean,
     UseHex: boolean,
     Prefix: { string },
+    BaseLine: number,
 
     Width: number,
     Height: number,
