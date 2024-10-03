@@ -9,7 +9,7 @@ return function(Iris: Types.Iris)
     local showMainMenuBarWindow = Iris.State(false)
     local showDebugWindow = Iris.State(false)
 
-    local function helpMarker(helpText)
+    local function helpMarker(helpText: string)
         Iris.PushConfig({ TextColor = Iris._config.TextDisabledColor })
         local text = Iris.Text({ "(?)" })
         Iris.PopConfig()
@@ -21,6 +21,15 @@ return function(Iris: Types.Iris)
         Iris.PopConfig()
     end
 
+    local function textAndHelpMarker(text: string, helpText: string)
+        Iris.SameLine()
+        do
+            Iris.Text({ text })
+            helpMarker(helpText)
+        end
+        Iris.End()
+    end
+
     -- shows each widgets functionality
     local widgetDemos = {
         Basic = function()
@@ -28,7 +37,7 @@ return function(Iris: Types.Iris)
             do
                 Iris.SeparatorText({ "Basic" })
 
-                local radioButtonState = Iris.State(1)
+                local radioButtonState: Types.State<any> = Iris.State(1)
                 Iris.Button({ "Button" })
                 Iris.SmallButton({ "SmallButton" })
                 Iris.Text({ "Text" })
@@ -226,6 +235,7 @@ return function(Iris: Types.Iris)
             end
             Iris.End()
         end,
+
         Tree = function()
             Iris.Tree({ "Trees" })
             do
@@ -468,7 +478,7 @@ return function(Iris: Types.Iris)
                 if Iris.InputNum({ "# of repeat", 1, 1, 50 }, { number = numRepeat }).numberChanged() then
                     dynamicText:set(string.rep("Hello ", numRepeat:get()))
                 end
-                if Iris.Checkbox({ "Show dynamic text tooltip" }).isChecked.value then
+                if Iris.Checkbox({ "Show dynamic text tooltip" }).state.isChecked.value then
                     Iris.Tooltip({ dynamicText:get() })
                 end
             end
@@ -558,7 +568,7 @@ return function(Iris: Types.Iris)
             Iris.End()
 
             Iris.PushConfig({ ItemWidth = UDim.new(1, -150) })
-            local enteredText = Iris.InputText({ "ID field" }, { text = Iris.State(runtimeInfoWindow.ID) }).text.value
+            local enteredText = Iris.InputText({ "ID field" }, { text = Iris.State(runtimeInfoWindow.ID) }).state.text.value
             Iris.PopConfig()
 
             Iris.Indent()
@@ -611,7 +621,7 @@ return function(Iris: Types.Iris)
             end
             Iris.End()
 
-            if Iris.Tree({ "Widgets" }).isUncollapsed.value then
+            if Iris.Tree({ "Widgets" }).state.isUncollapsed.value then
                 local widgetCount = 0
                 local widgetStr = ""
                 for _, v in lastVDOM do
@@ -625,7 +635,7 @@ return function(Iris: Types.Iris)
             end
             Iris.End()
 
-            if Iris.Tree({ "States" }).isUncollapsed.value then
+            if Iris.Tree({ "States" }).state.isUncollapsed.value then
                 local stateCount = 0
                 local stateStr = ""
                 for i, v in states do
@@ -768,12 +778,12 @@ return function(Iris: Types.Iris)
                         end
 
                         Iris.SeparatorText({ "Main" })
-                        SliderInput("SliderVector2", { "WindowPadding", nil, Vector2.zero, Vector2.one * 20 })
-                        SliderInput("SliderVector2", { "WindowResizePadding", nil, Vector2.zero, Vector2.one * 20 })
-                        SliderInput("SliderVector2", { "FramePadding", nil, Vector2.zero, Vector2.one * 20 })
-                        SliderInput("SliderVector2", { "ItemSpacing", nil, Vector2.zero, Vector2.one * 20 })
-                        SliderInput("SliderVector2", { "ItemInnerSpacing", nil, Vector2.zero, Vector2.one * 20 })
-                        SliderInput("SliderVector2", { "CellPadding", nil, Vector2.zero, Vector2.one * 20 })
+                        SliderInput("SliderVector2", { "WindowPadding", nil, Vector2.zero, Vector2.new(20, 20) })
+                        SliderInput("SliderVector2", { "WindowResizePadding", nil, Vector2.zero, Vector2.new(20, 20) })
+                        SliderInput("SliderVector2", { "FramePadding", nil, Vector2.zero, Vector2.new(20, 20) })
+                        SliderInput("SliderVector2", { "ItemSpacing", nil, Vector2.zero, Vector2.new(20, 20) })
+                        SliderInput("SliderVector2", { "ItemInnerSpacing", nil, Vector2.zero, Vector2.new(20, 20) })
+                        SliderInput("SliderVector2", { "CellPadding", nil, Vector2.zero, Vector2.new(20, 20) })
                         SliderInput("SliderNum", { "IndentSpacing", 1, 0, 36 })
                         SliderInput("SliderNum", { "ScrollbarSize", 1, 0, 20 })
                         SliderInput("SliderNum", { "GrabMinSize", 1, 0, 20 })
@@ -788,8 +798,8 @@ return function(Iris: Types.Iris)
                         SliderInput("SliderNum", { "PopupRounding", 1, 0, 12 })
 
                         Iris.SeparatorText({ "Widgets" })
-                        SliderInput("SliderVector2", { "DisplaySafeAreaPadding", nil, Vector2.zero, Vector2.one * 20 })
-                        SliderInput("SliderVector2", { "SeparatorTextPadding", nil, Vector2.zero, Vector2.one * 36 })
+                        SliderInput("SliderVector2", { "DisplaySafeAreaPadding", nil, Vector2.zero, Vector2.new(20, 20) })
+                        SliderInput("SliderVector2", { "SeparatorTextPadding", nil, Vector2.zero, Vector2.new(36, 36) })
                         SliderInput("SliderUDim", { "ItemWidth", nil, UDim.new(), UDim.new(1, 200) })
                         SliderInput("SliderUDim", { "ContentWidth", nil, UDim.new(), UDim.new(1, 200) })
                         SliderInput("SliderNum", { "ImageBorderSize", 1, 0, 12 })
@@ -961,6 +971,8 @@ return function(Iris: Types.Iris)
                     if Iris.Button({ "Revert" }).clicked() then
                         Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark)
                         Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
+                        ThemeState:set("Dark Theme")
+                        SizeState:set("Classic Size")
                     end
 
                     helpMarker("Reset Iris to the default theme and size.")
@@ -1008,7 +1020,8 @@ return function(Iris: Types.Iris)
 
             Iris.SameLine()
             do
-                if Iris.Button({ selectedEvent:get() .. " to reveal text" })[selectedEvent:get()]() then
+                local button = Iris.Button({ selectedEvent:get() .. " to reveal text" })
+                if button[selectedEvent:get()]() then
                     showEventText:set(not showEventText:get())
                 end
                 if showEventText:get() then
@@ -1210,6 +1223,97 @@ return function(Iris: Types.Iris)
     local function layoutDemo()
         Iris.CollapsingHeader({ "Widget Layout" })
         do
+            Iris.Tree({ "Widget Alignment" })
+            do
+                Iris.Text({ "Iris.SameLine has optional argument supporting horizontal and vertical alignments." })
+                Iris.Text({ "This allows widgets to be place anywhere on the line." })
+                Iris.Separator()
+
+                Iris.SameLine()
+                do
+                    Iris.Text({ "By default child widgets will be aligned to the left." })
+                    helpMarker('Iris.SameLine()\n\tIris.Button({ "Button A" })\n\tIris.Button({ "Button B" })\nIris.End()')
+                end
+                Iris.End()
+
+                Iris.SameLine()
+                do
+                    Iris.Button({ "Button A" })
+                    Iris.Button({ "Button B" })
+                end
+                Iris.End()
+
+                Iris.SameLine()
+                do
+                    Iris.Text({ "But can be aligned to the center." })
+                    helpMarker('Iris.SameLine({ nil, nil, Enum.HorizontalAlignment.Center })\n\tIris.Button({ "Button A" })\n\tIris.Button({ "Button B" })\nIris.End()')
+                end
+                Iris.End()
+
+                Iris.SameLine({ nil, nil, Enum.HorizontalAlignment.Center })
+                do
+                    Iris.Button({ "Button A" })
+                    Iris.Button({ "Button B" })
+                end
+                Iris.End()
+
+                Iris.SameLine()
+                do
+                    Iris.Text({ "Or right." })
+                    helpMarker('Iris.SameLine({ nil, nil, Enum.HorizontalAlignment.Right })\n\tIris.Button({ "Button A" })\n\tIris.Button({ "Button B" })\nIris.End()')
+                end
+                Iris.End()
+
+                Iris.SameLine({ nil, nil, Enum.HorizontalAlignment.Right })
+                do
+                    Iris.Button({ "Button A" })
+                    Iris.Button({ "Button B" })
+                end
+                Iris.End()
+
+                Iris.Separator()
+
+                Iris.SameLine()
+                do
+                    Iris.Text({ "You can also specify the padding." })
+                    helpMarker('Iris.SameLine({ 0, nil, Enum.HorizontalAlignment.Center })\n\tIris.Button({ "Button A" })\n\tIris.Button({ "Button B" })\nIris.End()')
+                end
+                Iris.End()
+
+                Iris.SameLine({ 0, nil, Enum.HorizontalAlignment.Center })
+                do
+                    Iris.Button({ "Button A" })
+                    Iris.Button({ "Button B" })
+                end
+                Iris.End()
+            end
+            Iris.End()
+
+            Iris.Tree({ "Widget Sizing" })
+            do
+                Iris.Text({ "Nearly all widgets are the minimum size of the content." })
+                Iris.Text({ "For example, text and button widgets will be the size of the text labels." })
+                Iris.Text({ "Some widgets, such as the Image and Button have Size arguments will will set the size of them." })
+                Iris.Separator()
+
+                textAndHelpMarker("The button takes up the full screen-width.", 'Iris.Button({ "Button", UDim2.fromScale(1, 0) })')
+                Iris.Button({ "Button", UDim2.fromScale(1, 0) })
+                textAndHelpMarker("The button takes up half the screen-width.", 'Iris.Button({ "Button", UDim2.fromScale(0.5, 0) })')
+                Iris.Button({ "Button", UDim2.fromScale(0.5, 0) })
+
+                textAndHelpMarker("Combining with SameLine, the buttons can fill the screen width.", "The button will still be larger that the text size.")
+                local num = Iris.State(2)
+                Iris.SliderNum({ "Number of Buttons", 1, 1, 8 }, { number = num })
+                Iris.SameLine({ 0, nil, Enum.HorizontalAlignment.Center })
+                do
+                    for i = 1, num.value do
+                        Iris.Button({ `Button {i}`, UDim2.fromScale(1 / num.value, 0) })
+                    end
+                end
+                Iris.End()
+            end
+            Iris.End()
+
             Iris.Tree({ "Content Width" })
             do
                 local value = Iris.State(50)
@@ -1237,7 +1341,7 @@ return function(Iris: Types.Iris)
 
                 Iris.PushConfig({ ContentWidth = UDim.new(0, 150) })
                 Iris.DragNum({ "number", 1, 0, 100 }, { number = value })
-                Iris.ComboEnum({ "axis" }, { index = index }, Enum.Axis)
+                Iris.InputEnum({ "axis" }, { index = index }, Enum.Axis)
                 Iris.PopConfig()
 
                 Iris.SameLine()
@@ -1249,7 +1353,7 @@ return function(Iris: Types.Iris)
 
                 Iris.PushConfig({ ContentWidth = UDim.new(0.5, 0) })
                 Iris.DragNum({ "number", 1, 0, 100 }, { number = value })
-                Iris.ComboEnum({ "axis" }, { index = index }, Enum.Axis)
+                Iris.InputEnum({ "axis" }, { index = index }, Enum.Axis)
                 Iris.PopConfig()
 
                 Iris.SameLine()
@@ -1338,15 +1442,15 @@ return function(Iris: Types.Iris)
 
     -- main demo window
     return function()
-        local NoTitleBar = Iris.State(false)
-        local NoBackground = Iris.State(false)
-        local NoCollapse = Iris.State(false)
-        local NoClose = Iris.State(true)
-        local NoMove = Iris.State(false)
-        local NoScrollbar = Iris.State(false)
-        local NoResize = Iris.State(false)
-        local NoNav = Iris.State(false)
-        local NoMenu = Iris.State(false)
+        local NoTitleBar: Types.State<boolean> = Iris.State(false)
+        local NoBackground: Types.State<boolean> = Iris.State(false)
+        local NoCollapse: Types.State<boolean> = Iris.State(false)
+        local NoClose: Types.State<boolean> = Iris.State(true)
+        local NoMove: Types.State<boolean> = Iris.State(false)
+        local NoScrollbar: Types.State<boolean> = Iris.State(false)
+        local NoResize: Types.State<boolean> = Iris.State(false)
+        local NoNav: Types.State<boolean> = Iris.State(false)
+        local NoMenu: Types.State<boolean> = Iris.State(false)
 
         if showMainWindow.value == false then
             Iris.Checkbox({ "Open main window" }, { isChecked = showMainWindow })
@@ -1354,7 +1458,7 @@ return function(Iris: Types.Iris)
         end
 
         debug.profilebegin("Iris/Demo/Window")
-        local window: Types.Widget = Iris.Window({
+        local window: Types.Window = Iris.Window({
             [Iris.Args.Window.Title] = "Iris Demo Window",
             [Iris.Args.Window.NoTitleBar] = NoTitleBar.value,
             [Iris.Args.Window.NoBackground] = NoBackground.value,

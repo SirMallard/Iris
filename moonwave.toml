@@ -1,9 +1,15 @@
 gitSourceBranch = "main"
 changelog = true
 
+# navbar
+[[navbar.items]]
+href = "https://discord.gg/Qm3JNyEc32"
+label = "Discord"
+position = "right"
+
 # api docs ordering
 [[classOrder]]
-classes = ["Iris"]
+classes = ["Iris", "State"]
 
 [[classOrder]]
 section = "Widgets"
@@ -24,10 +30,12 @@ classes = [
 ]
 
 [[classOrder]]
-classes = ["State", "Internal"]
+classes = ["Internal"]
 
 [docusaurus]
 onBrokenMarkdownLinks = "warn"
+[docusarus.themeConfig.prism]
+additionalLangues = ["lua", "luau", "cpp"]
 
 [footer]
 style = "dark"

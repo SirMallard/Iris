@@ -3,11 +3,11 @@ local Types = require(script.Parent.Parent.Types)
 -- Tables need an overhaul.
 
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
-    local tableWidgets: { [Types.ID]: Types.Widget } = {}
+    local tableWidgets: { [Types.ID]: Types.Table } = {}
 
     -- reset the cell index every frame.
     table.insert(Iris._postCycleCallbacks, function()
-        for _, thisWidget: Types.Widget in tableWidgets do
+        for _, thisWidget: Types.Table in tableWidgets do
             thisWidget.RowColumnIndex = 0
         end
     end)
@@ -27,7 +27,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return thisWidget.Instance
             end),
         },
-        Generate = function(thisWidget: Types.Widget)
+        Generate = function(thisWidget: Types.Table)
             tableWidgets[thisWidget.ID] = thisWidget
 
             thisWidget.InitialNumColumns = -1
@@ -51,7 +51,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return Table
         end,
-        Update = function(thisWidget: Types.Widget)
+        Update = function(thisWidget: Types.Table)
             local Table = thisWidget.Instance :: Frame
 
             if thisWidget.arguments.BordersOuter == false then
@@ -113,11 +113,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
             end
         end,
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.Table)
             tableWidgets[thisWidget.ID] = nil
             thisWidget.Instance:Destroy()
         end,
-        ChildAdded = function(thisWidget: Types.Widget)
+        ChildAdded = function(thisWidget: Types.Table, _thisChild: Types.Widget)
             if thisWidget.RowColumnIndex == 0 then
                 thisWidget.RowColumnIndex = 1
             end

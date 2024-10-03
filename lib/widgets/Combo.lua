@@ -12,20 +12,20 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         },
         Events = {
             ["selected"] = {
-                ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(_thisWidget: Types.Selectable) end,
+                ["Get"] = function(thisWidget: Types.Selectable)
                     return thisWidget.lastSelectedTick == Iris._cycleTick
                 end,
             },
             ["unselected"] = {
-                ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(_thisWidget: Types.Selectable) end,
+                ["Get"] = function(thisWidget: Types.Selectable)
                     return thisWidget.lastUnselectedTick == Iris._cycleTick
                 end,
             },
             ["active"] = {
-                ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(_thisWidget: Types.Selectable) end,
+                ["Get"] = function(thisWidget: Types.Selectable)
                     return thisWidget.state.index.value == thisWidget.arguments.Index
                 end,
             },
@@ -50,7 +50,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return Selectable.SelectableButton
             end),
         },
-        Generate = function(thisWidget: Types.Widget): Frame
+        Generate = function(thisWidget: Types.Selectable)
             local Selectable: Frame = Instance.new("Frame")
             Selectable.Name = "Iris_Selectable"
             Selectable.Size = UDim2.new(Iris._config.ItemWidth, UDim.new(0, Iris._config.TextSize + 2 * Iris._config.FramePadding.Y - Iris._config.ItemSpacing.Y))
@@ -71,17 +71,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             widgets.UISizeConstraint(SelectableButton, Vector2.xAxis)
 
             thisWidget.ButtonColors = {
-                ButtonColor = Iris._config.HeaderColor,
-                ButtonTransparency = 1,
-                ButtonHoveredColor = Iris._config.HeaderHoveredColor,
-                ButtonHoveredTransparency = Iris._config.HeaderHoveredTransparency,
-                ButtonActiveColor = Iris._config.HeaderActiveColor,
-                ButtonActiveTransparency = Iris._config.HeaderActiveTransparency,
+                Color = Iris._config.HeaderColor,
+                Transparency = 1,
+                HoveredColor = Iris._config.HeaderHoveredColor,
+                HoveredTransparency = Iris._config.HeaderHoveredTransparency,
+                ActiveColor = Iris._config.HeaderActiveColor,
+                ActiveTransparency = Iris._config.HeaderActiveTransparency,
             }
 
-            widgets.applyInteractionHighlights(thisWidget, SelectableButton, SelectableButton, thisWidget.ButtonColors)
+            widgets.applyInteractionHighlights("Background", SelectableButton, SelectableButton, thisWidget.ButtonColors)
 
-            widgets.applyButtonClick(thisWidget, SelectableButton, function()
+            widgets.applyButtonClick(SelectableButton, function()
                 if thisWidget.arguments.NoClick ~= true then
                     if type(thisWidget.state.index.value) == "boolean" then
                         thisWidget.state.index:set(not thisWidget.state.index.value)
@@ -95,16 +95,16 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return Selectable
         end,
-        Update = function(thisWidget: Types.Widget)
+        Update = function(thisWidget: Types.Selectable)
             local Selectable = thisWidget.Instance :: Frame
             local SelectableButton: TextButton = Selectable.SelectableButton
             SelectableButton.Text = thisWidget.arguments.Text or "Selectable"
         end,
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.Selectable)
             thisWidget.Instance:Destroy()
             widgets.discardState(thisWidget)
         end,
-        GenerateState = function(thisWidget: Types.Widget)
+        GenerateState = function(thisWidget: Types.Selectable)
             if thisWidget.state.index == nil then
                 if thisWidget.arguments.Index ~= nil then
                     error("a shared state index is required for Selectables with an Index argument", 5)
@@ -112,15 +112,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 thisWidget.state.index = Iris._widgetState(thisWidget, "index", false)
             end
         end,
-        UpdateState = function(thisWidget: Types.Widget)
+        UpdateState = function(thisWidget: Types.Selectable)
             local Selectable = thisWidget.Instance :: Frame
             local SelectableButton: TextButton = Selectable.SelectableButton
             if thisWidget.state.index.value == (thisWidget.arguments.Index or true) then
-                thisWidget.ButtonColors.ButtonTransparency = Iris._config.HeaderTransparency
+                thisWidget.ButtonColors.Transparency = Iris._config.HeaderTransparency
                 SelectableButton.BackgroundTransparency = Iris._config.HeaderTransparency
                 thisWidget.lastSelectedTick = Iris._cycleTick + 1
             else
-                thisWidget.ButtonColors.ButtonTransparency = 1
+                thisWidget.ButtonColors.Transparency = 1
                 SelectableButton.BackgroundTransparency = 1
                 thisWidget.lastUnselectedTick = Iris._cycleTick + 1
             end
@@ -129,12 +129,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
     local AnyOpenedCombo: boolean = false
     local ComboOpenedTick: number = -1
-    local OpenedCombo: Types.Widget? = nil
+    local OpenedCombo: Types.Combo? = nil
 
-    local function UpdateChildContainerTransform(thisWidget: Types.Widget)
+    local function UpdateChildContainerTransform(thisWidget: Types.Combo)
         local Combo = thisWidget.Instance :: Frame
-        local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
         local PreviewContainer = Combo.PreviewContainer :: TextButton
+        local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
 
         ChildContainer.Size = UDim2.fromOffset(PreviewContainer.AbsoluteSize.X, 0)
 
@@ -202,14 +202,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         },
         Events = {
             ["opened"] = {
-                ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(_thisWidget: Types.Combo) end,
+                ["Get"] = function(thisWidget: Types.Combo)
                     return thisWidget.lastOpenedTick == Iris._cycleTick
                 end,
             },
             ["closed"] = {
-                ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(_thisWidget: Types.Combo) end,
+                ["Get"] = function(thisWidget: Types.Combo)
                     return thisWidget.lastClosedTick == Iris._cycleTick
                 end,
             },
@@ -220,7 +220,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return thisWidget.Instance
             end),
         },
-        Generate = function(thisWidget: Types.Widget)
+        Generate = function(thisWidget: Types.Combo)
             local frameHeight: number = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
 
             local Combo: Frame = Instance.new("Frame")
@@ -245,7 +245,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             widgets.applyFrameStyle(PreviewContainer, true)
             widgets.UIListLayout(PreviewContainer, Enum.FillDirection.Horizontal, UDim.new(0, 0))
-            widgets.UISizeConstraint(PreviewContainer, Vector2.xAxis * (frameHeight + 1))
+            widgets.UISizeConstraint(PreviewContainer, Vector2.new(frameHeight + 1))
 
             PreviewContainer.Parent = Combo
 
@@ -290,33 +290,33 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             -- for some reason ImGui Combo has no highlights for Active, only hovered.
             -- so this deviates from ImGui, but its a good UX change
-            widgets.applyInteractionHighlightsWithMultiHighlightee(thisWidget, PreviewContainer, {
+            widgets.applyInteractionHighlightsWithMultiHighlightee("Background", PreviewContainer, {
                 {
                     PreviewLabel,
                     {
-                        ButtonColor = Iris._config.FrameBgColor,
-                        ButtonTransparency = Iris._config.FrameBgTransparency,
-                        ButtonHoveredColor = Iris._config.FrameBgHoveredColor,
-                        ButtonHoveredTransparency = Iris._config.FrameBgHoveredTransparency,
-                        ButtonActiveColor = Iris._config.FrameBgActiveColor,
-                        ButtonActiveTransparency = Iris._config.FrameBgActiveTransparency,
+                        Color = Iris._config.FrameBgColor,
+                        Transparency = Iris._config.FrameBgTransparency,
+                        HoveredColor = Iris._config.FrameBgHoveredColor,
+                        HoveredTransparency = Iris._config.FrameBgHoveredTransparency,
+                        ActiveColor = Iris._config.FrameBgActiveColor,
+                        ActiveTransparency = Iris._config.FrameBgActiveTransparency,
                     },
                 },
                 {
                     DropdownButton,
                     {
-                        ButtonColor = Iris._config.ButtonColor,
-                        ButtonTransparency = Iris._config.ButtonTransparency,
-                        ButtonHoveredColor = Iris._config.ButtonHoveredColor,
-                        ButtonHoveredTransparency = Iris._config.ButtonHoveredTransparency,
+                        Color = Iris._config.ButtonColor,
+                        Transparency = Iris._config.ButtonTransparency,
+                        HoveredColor = Iris._config.ButtonHoveredColor,
+                        HoveredTransparency = Iris._config.ButtonHoveredTransparency,
                         -- Use hovered for active
-                        ButtonActiveColor = Iris._config.ButtonHoveredColor,
-                        ButtonActiveTransparency = Iris._config.ButtonHoveredTransparency,
+                        ActiveColor = Iris._config.ButtonHoveredColor,
+                        ActiveTransparency = Iris._config.ButtonHoveredTransparency,
                     },
                 },
             })
 
-            widgets.applyButtonClick(thisWidget, PreviewContainer, function()
+            widgets.applyButtonClick(PreviewContainer, function()
                 if AnyOpenedCombo and OpenedCombo ~= thisWidget then
                     return
                 end
@@ -358,7 +358,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             widgets.UIStroke(ChildContainer, Iris._config.WindowBorderSize, Iris._config.BorderColor, Iris._config.BorderTransparency)
             widgets.UIPadding(ChildContainer, Vector2.new(2, Iris._config.WindowPadding.Y))
-            widgets.UISizeConstraint(ChildContainer, 100 * Vector2.xAxis)
+            widgets.UISizeConstraint(ChildContainer, Vector2.new(100))
 
             local ChildContainerUIListLayout: UIListLayout = widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
             ChildContainerUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
@@ -369,7 +369,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             thisWidget.ChildContainer = ChildContainer
             return Combo
         end,
-        Update = function(thisWidget: Types.Widget)
+        Update = function(thisWidget: Types.Combo)
             local Iris_Combo = thisWidget.Instance :: Frame
             local PreviewContainer = Iris_Combo.PreviewContainer :: TextButton
             local PreviewLabel: TextLabel = PreviewContainer.PreviewLabel
@@ -397,12 +397,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 PreviewContainer.AutomaticSize = Enum.AutomaticSize.Y
             end
         end,
-        ChildAdded = function(thisWidget: Types.Widget, _thisChild: Types.Widget)
-            -- default to largest size if there are widgets other than selectables inside the combo
+        ChildAdded = function(thisWidget: Types.Combo, _thisChild: Types.Widget)
             UpdateChildContainerTransform(thisWidget)
             return thisWidget.ChildContainer
         end,
-        GenerateState = function(thisWidget: Types.Widget)
+        GenerateState = function(thisWidget: Types.Combo)
             if thisWidget.state.index == nil then
                 thisWidget.state.index = Iris._widgetState(thisWidget, "index", "No Selection")
             end
@@ -415,7 +414,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 thisWidget.state.isOpened = Iris._widgetState(thisWidget, "isOpened", false)
             end
         end,
-        UpdateState = function(thisWidget: Types.Widget)
+        UpdateState = function(thisWidget: Types.Combo)
             local Combo = thisWidget.Instance :: Frame
             local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
             local PreviewContainer = Combo.PreviewContainer :: TextButton
@@ -447,7 +446,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local stateIndex: any = thisWidget.state.index.value
             PreviewLabel.Text = if typeof(stateIndex) == "EnumItem" then stateIndex.Name else tostring(stateIndex)
         end,
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.Combo)
             thisWidget.Instance:Destroy()
             widgets.discardState(thisWidget)
         end,
