@@ -404,6 +404,22 @@ export type Combo = ParentWidget & {
     },
 } & Opened & Closed & Clicked & Hovered
 
+export type ColorPicker = Widget & {
+    Hue: number,
+    Saturation: number,
+    Value: number,
+
+    arguments: {
+        Compare: (Color3 | false)?,
+    },
+
+    state: {
+        color: State<Color3>,
+    },
+
+    active: () -> boolean,
+}
+
 -- Plot
 
 export type ProgressBar = Widget & {
