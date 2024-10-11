@@ -1,0 +1,45 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  publish-wally:
+    name: "Publish to Wally"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Aftman
+        uses: ok-nick/setup-aftman@v0.4.2
+        with:
+          version: v0.3.0
+
+      - name: Login
+        run: wally login --token ${{ secrets.WALLY_TOKEN }}
+
+      - name: Publish
+        run: wally publish
+
+  publish-demo-place:
+    name: "Publish Roblox Demo Place"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Aftman
+        uses: ok-nick/setup-aftman@v0.4.2
+        with:
+          version: v0.3.0
+
+      - name: Install rbxcloud
+        run: aftman add Sleitnick/rbxcloud@0.14.0
+
+      - name: Build place file
+        run: rojo build -o Iris.rbxl ./demo.project.json
+
+      - name: Publish
+        shell: bash
+        run: rbxcloud experience publish -a ${{ secrets.PLACE_KEY }} -u 2823622397 -p 7245022703 -t published -f Iris.rbxl
