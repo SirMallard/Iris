@@ -23,7 +23,7 @@ jobs:
           node-version: 20
 
       - name: Install Moonwave
-        run: npm i moonwave
+        run: npm i -g moonwave
 
       - name: Build
         run: moonwave build
