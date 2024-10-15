@@ -1,0 +1,35 @@
+name: "Documentation"
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  pages: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  publish-docs:
+    name: "Publish documentation page"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: action/setup-node@v4
+
+      - name: Install Moonwave
+        run: npm i moonwave
+
+      - name: Build
+        run: moonwave build
+
+      - name: Upload
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/
+
+      - name: Publish
+        uses: actions/deploy-pages@v4
