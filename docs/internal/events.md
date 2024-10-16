@@ -1,3 +1,7 @@
+---
+sidebar_position: 1
+---
+
 # Events
 
 Each widget has a number of events connected to it. You can see these events on the [API page](../API).

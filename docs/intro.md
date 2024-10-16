@@ -1,3 +1,7 @@
+---
+sidebar_position: 1
+---
+
 # Iris
 
 Iris is an Immediate mode GUI Library for Roblox, based on Dear ImGui, designed for building the UI for debug / visualisation and content-creation tools.

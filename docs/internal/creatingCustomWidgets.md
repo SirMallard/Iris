@@ -1,3 +1,7 @@
+---
+sidebar_position: 2
+---
+
 # Creating Custom Widgets
 
 :::note
