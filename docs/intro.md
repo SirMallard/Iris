@@ -33,7 +33,7 @@ end)
 ```
 </div>
 <div style={{"width": "50%", "display": "flex", "justify-content": "center", "align-items": "center"}}>
-    <img src="../assets/simple-example1.png" />
+    <img src="https://raw.githubusercontent.com/SirMallard/Iris/refs/heads/docs/assets/simple-example1.png" />
 </div>
 </div>
 
@@ -101,7 +101,7 @@ end)
 ```
 </div>
 <div style={{"width":"50%", "display": "flex", "justify-content": "center", "align-items": "center"}}>
-    <img src="../assets/simple-example2.png" />
+    <img src="https://raw.githubusercontent.com/SirMallard/Iris/refs/heads/docs/assets/simple-example2.png" />
 </div>
 </div>
 

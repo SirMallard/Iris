@@ -1,8 +1,8 @@
 ---
-sidebar_position: 2
+sidebar_position: 3
 ---
 
-# Creating Custom Widgets
+# Custom Widgets
 
 :::note
 This page needs to be rewritten and is lacking in detail.
