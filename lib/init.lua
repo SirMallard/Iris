@@ -153,7 +153,7 @@ end
 ]=]
 function Iris:Connect(callback: () -> ()): () -> () -- this uses method syntax for no reason.
     if Internal._started == false then
-        warn("Iris:Connect() was called before calling Iris.Init(), the connected function will never run")
+        warn("Iris:Connect() was called before calling Iris.Init(), the connected function will never run.")
     end
     local connectionIndex: number = #Internal._connectedFunctions + 1
     Internal._connectedFunctions[connectionIndex] = callback

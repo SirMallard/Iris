@@ -277,7 +277,7 @@ return function(Iris: Types.Iris): Types.Internal
         if Internal._stackIndex ~= 1 then
             -- has to be larger than 1 because of the check that it isnt below 1 in Iris.End
             Internal._stackIndex = 1
-            error("Callback has too few calls to Iris.End()", 0)
+            error("Callback has too few calls to Iris.End().", 0)
         end
 
         --debug.profileend()
