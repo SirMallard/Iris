@@ -74,7 +74,7 @@ For instance, in `Iris.Text`
 Update = function(thisWidget)
     local Text = thisWidget.Instance
     if thisWidget.arguments.Text == nil then
-        error("Iris.Text Text Argument is required", 5)
+        error("A text argument is requried for Iris.Text().", 5)
     end
     Text.Text = thisWidget.arguments.Text
 end

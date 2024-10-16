@@ -107,7 +107,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         GenerateState = function(thisWidget: Types.Selectable)
             if thisWidget.state.index == nil then
                 if thisWidget.arguments.Index ~= nil then
-                    error("a shared state index is required for Selectables with an Index argument", 5)
+                    error("A shared state index is required for Iris.Selectables() with an Index argument.", 5)
                 end
                 thisWidget.state.index = Iris._widgetState(thisWidget, "index", false)
             end

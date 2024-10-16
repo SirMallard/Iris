@@ -1676,7 +1676,7 @@ return function(Iris: Types.Iris)
     ]=]
     Iris.NextColumn = function()
         local parentWidget = Iris.Internal._GetParentWidget() :: Types.Table
-        assert(parentWidget.type == "Table", "Iris.NextColumn can only be called within a table.")
+        assert(parentWidget.type == "Table", "Iris.NextColumn() can only be called within a table.")
         parentWidget.RowColumnIndex += 1
     end
 
@@ -1689,8 +1689,8 @@ return function(Iris: Types.Iris)
     ]=]
     Iris.SetColumnIndex = function(columnIndex: number)
         local parentWidget = Iris.Internal._GetParentWidget() :: Types.Table
-        assert(parentWidget.type == "Table", "Iris.SetColumnIndex can only be called within a table.")
-        assert(columnIndex >= parentWidget.InitialNumColumns, "Iris.SetColumnIndex Argument must be in column range")
+        assert(parentWidget.type == "Table", "Iris.SetColumnIndex() can only be called within a table.")
+        assert(columnIndex >= parentWidget.InitialNumColumns, "Iris.SetColumnIndex() argument must be in column range.")
         parentWidget.RowColumnIndex = math.floor(parentWidget.RowColumnIndex / parentWidget.InitialNumColumns) + (columnIndex - 1)
     end
 
@@ -1704,7 +1704,7 @@ return function(Iris: Types.Iris)
     Iris.NextRow = function()
         -- sets column Index back to 0, increments Row
         local parentWidget = Iris.Internal._GetParentWidget() :: Types.Table
-        assert(parentWidget.type == "Table", "Iris.NextColumn can only be called within a table.")
+        assert(parentWidget.type == "Table", "Iris.NextColumn() can only be called within a table.")
         local InitialNumColumns: number = parentWidget.InitialNumColumns
         local nextRow: number = math.floor((parentWidget.RowColumnIndex + 1) / InitialNumColumns) * InitialNumColumns
         parentWidget.RowColumnIndex = nextRow

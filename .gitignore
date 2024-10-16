@@ -1,4 +1,6 @@
+bin/
 build/
+node_modules/
 .vscode/
 
 *.rbxl
@@ -6,5 +8,6 @@ build/
 *.rbxm
 *.rbxmx
 *.lock
+package*
 
 sourcemap.json
