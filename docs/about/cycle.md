@@ -1,5 +1,5 @@
 ---
-sidebar_position: 0
+sidebar_position: 1
 ---
 
 # Understanding the Lifecycle
@@ -55,7 +55,7 @@ end
 This is taken from the [Task Scheduler Documentation](https://create.roblox.com/docs/studio/microprofiler/task-scheduler)
 which goes into more detail about this.
 
-# Iris Lifecycle
+## Iris Lifecycle
 
 Iris needs to run every frame, called the cycle, in order to update global variables and to
 clean any unused widgets. This is equivalent to calling `ImGui::EndFrame()` for Dear ImGui,
@@ -73,7 +73,7 @@ able to run Iris code anywhere, in any event, at any time. As long as it is cons
 every frame, and before the cycle event, it will work properly. Therefore, it is very possible
 to put Iris directly into your core game loops.
 
-## Example
+## Demonstration
 
 Say you have a weapon class which is used by every weapon and then also a weapon handler/serivce/system/controller
 for handling all weapons on the client. Integrating Iris may look something similar to this:

@@ -1,8 +1,55 @@
 ---
-sidebar_position: 3
+sidebar_position: 2
 ---
 
-# Custom Widgets
+# Understanding Widgets
+
+An Iris widget is simply a table (or struct) of data. At its most basic, a widget contains only its
+ID, type, tick, events, arguments, zindex, parent widget and gui instance. None of the functionality
+of a widget is contained in the widget object. Instead, Iris uses a factory pattern for a widget
+class whereby the changes are applied onto any widget passed to the function.
+
+## Creating a Widget Class
+
+To declare or construct a widget we create a 'widget class', that is, the functions which take in a
+widget and make changes to it. This widget class is where all the functionality of a a widget is
+added and therefore needs to be declared or constucted in advance. The class widget is itself a table
+of data and functions but conforming to a specification which includes the necessary functions for
+operation.
+
+To create a widget class, use the `WidgetConstructor: (type: string, widgetClass: WidgetClass) -> ()` function
+in `Iris.Internal`. This takes two arguments, a type for the widget, such as Text, InputVector2 or
+SameLine, and a widget class table, containing the functions. This WidgetClass is defined as:
+```lua
+export type WidgetClass = {
+	-- Required
+    Generate: (thisWidget: Widget) -> GuiObject,
+    Discard: (thisWidget: Widget) -> (),
+    Update: (thisWidget: Widget, ...any) -> (),
+
+    Args: { [string]: number },
+    Events: Events,
+    hasChildren: boolean,
+    hasState: boolean,
+
+	-- Generated on construction
+    ArgNames: { [number]: string },
+
+	-- Required for widgets with state
+    GenerateState: (thisWidget: Widget) -> (),
+    UpdateState: (thisWidget: Widget) -> (),
+
+	-- Required for widgets with children
+    ChildAdded: (thisWidget: Widget, thisChild: Widget) -> GuiObject,
+	-- Optional for widgets with children
+    ChildDiscarded: (thisWidget: Widget, thisChild: Widget) -> (),
+}
+```
+
+Here, some of the widgets are required for any widget, which define what to do when the widget is
+first created, when it is destroyed or discarded because it is no longer called and when any arguments
+provided to it are updated.
+
 
 :::note
 This page needs to be rewritten and is lacking in detail.
