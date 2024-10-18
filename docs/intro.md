@@ -111,4 +111,4 @@ This example has introduced the state object which allows us to control the stat
 
 So far we've seen how Iris works in a simple environment, but Iris is most helpful when you are using it alongside your main code. In order to showcase this, we have taken 'The Mystery of Duval Drive' and added Iris which allows us to test and modify the game state when testing the game.
 
-For more examples of Iris being used in actual games as either debug and visualisation tools or for content creation tooling, checkout the [Showcases] page.
+For more examples of Iris being used in actual games as either debug and visualisation tools or for content creation tooling, checkout the [Showcases](./showcase.md) page.
