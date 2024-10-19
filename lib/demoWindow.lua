@@ -819,8 +819,6 @@ return function(Iris: Types.Iris)
     local styleEditor
     do
         styleEditor = function()
-            local selectedPanel = Iris.State(1)
-
             local styleList = {
                 {
                     "Sizing",
@@ -1054,17 +1052,19 @@ return function(Iris: Types.Iris)
                 end
                 Iris.End()
 
-                Iris.SameLine()
+                Iris.TabBar()
                 do
                     for i, v in ipairs(styleList) do
-                        Iris.RadioButton({ v[1], i }, { index = selectedPanel })
+                        Iris.Tab({ v[1] })
+                        do
+                            styleList[i][2]()
+                        end
+                        Iris.End()
                     end
                 end
                 Iris.End()
 
                 Iris.Separator()
-
-                styleList[selectedPanel:get()][2]()
             end
             Iris.End()
         end
