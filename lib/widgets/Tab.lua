@@ -272,7 +272,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 			TextLabel.Text = thisWidget.arguments.Text
 			CloseButton.Visible = if thisWidget.arguments.Hideable == true then true else false
 		end,
-		ChildAdded = function(thisWidget: Types.Tab, thisChild: Types.Widget)
+		ChildAdded = function(thisWidget: Types.Tab, _thisChild: Types.Widget)
 			return thisWidget.ChildContainer
 		end,
 		GenerateState = function(thisWidget: Types.Tab)
