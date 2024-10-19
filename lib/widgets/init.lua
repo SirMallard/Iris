@@ -433,6 +433,7 @@ return function(Iris: Types.Internal)
     require(script.Image)(Iris, widgets)
 
     require(script.Tree)(Iris, widgets)
+    require(script.Tab)(Iris, widgets)
 
     require(script.Input)(Iris, widgets)
     require(script.Combo)(Iris, widgets)

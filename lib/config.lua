@@ -62,6 +62,13 @@ local TemplateConfig = {
         HeaderActiveColor = Color3.fromRGB(66, 150, 250),
         HeaderActiveTransparency = 0,
 
+        TabColor = Color3.fromRGB(46, 89, 148),
+        TabTransparency = 0.14,
+        TabHoveredColor = Color3.fromRGB(66, 150, 250),
+        TabHoveredTransparency = 0.2,
+        TabActiveColor = Color3.fromRGB(51, 105, 173),
+        TabActiveTransparency = 0,
+
         SelectionImageObjectColor = Color3.fromRGB(255, 255, 255),
         SelectionImageObjectTransparency = 0.8,
         SelectionImageObjectBorderColor = Color3.fromRGB(255, 255, 255),
@@ -153,6 +160,13 @@ local TemplateConfig = {
         HeaderHoveredTransparency = 0.2,
         HeaderActiveColor = Color3.fromRGB(66, 150, 250),
         HeaderActiveTransparency = 0,
+
+        TabColor = Color3.fromRGB(195, 203, 213),
+        TabTransparency = 0.07,
+        TabHoveredColor = Color3.fromRGB(66, 150, 250),
+        TabHoveredTransparency = 0.2,
+        TabActiveColor = Color3.fromRGB(152, 186, 255),
+        TabActiveTransparency = 0,
 
         SliderGrabColor = Color3.fromRGB(61, 133, 224),
         SliderGrabTransparency = 0,

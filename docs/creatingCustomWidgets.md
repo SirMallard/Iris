@@ -1,5 +1,9 @@
 # Creating Custom Widgets
 
+:::note
+This page needs to be rewritten and is lacking in detail.
+:::
+
 # Overview
 
 Iris has a widget constructor method to create widgets with. Once a widget has been constructed, you can than use it like any other widget. Every widget follows a set of guidelines it must follow when constructed.

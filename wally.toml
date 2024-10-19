@@ -1,6 +1,6 @@
 [package]
-name = "michael-48/iris"
-description = "Iris is an Immediate mode GUI Library for Roblox, Based on Dear ImGui."
+name = "sirmallard/iris"
+description = "Iris is an Immediate-Mode GUI Library for Roblox, based on Dear ImGui, designed for creating debug, visualisation and content-creation tool UI."
 version = "2.3.1"
 
 license = "MIT"
