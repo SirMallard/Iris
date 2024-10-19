@@ -339,7 +339,7 @@ export type Tab = ParentWidget & {
         index: State<number>,
         isOpened: State<boolean>,
     },
-}
+} & Clicked & Opened & Selected & Unselected & Active & Closed & Hovered
 
 -- Input
 export type Input<T> = Widget & {

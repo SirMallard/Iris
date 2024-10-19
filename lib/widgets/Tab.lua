@@ -125,7 +125,44 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 			["Text"] = 1,
 			["Hideable"] = 2,
 		},
-		Events = {},
+		Events = {
+            ["clicked"] = widgets.EVENTS.click(function(thisWidget: Types.Widget)
+                return thisWidget.Instance
+            end),
+            ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
+                return thisWidget.Instance
+            end),
+            ["selected"] = {
+                ["Init"] = function(_thisWidget: Types.Tab) end,
+                ["Get"] = function(thisWidget: Types.Tab)
+                    return thisWidget.lastSelectedTick == Iris._cycleTick
+                end,
+            },
+            ["unselected"] = {
+                ["Init"] = function(_thisWidget: Types.Tab) end,
+                ["Get"] = function(thisWidget: Types.Tab)
+                    return thisWidget.lastUnselectedTick == Iris._cycleTick
+                end,
+            },
+            ["active"] = {
+                ["Init"] = function(_thisWidget: Types.Tab) end,
+                ["Get"] = function(thisWidget: Types.Tab)
+                    return thisWidget.state.index.value == thisWidget.Index
+                end,
+            },
+            ["opened"] = {
+                ["Init"] = function(_thisWidget: Types.Tab) end,
+                ["Get"] = function(thisWidget: Types.Tab)
+                    return thisWidget.lastOpenedTick == Iris._cycleTick
+                end,
+            },
+            ["closed"] = {
+                ["Init"] = function(_thisWidget: Types.Tab) end,
+                ["Get"] = function(thisWidget: Types.Tab)
+                    return thisWidget.lastClosedTick == Iris._cycleTick
+                end,
+            },
+        },
 		Generate = function(thisWidget: Types.Tab)
 			local Tab = Instance.new("TextButton")
 			Tab.Name = "Iris_Tab"
@@ -218,8 +255,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ChildContainer.Size = UDim2.fromScale(1, 0)
             ChildContainer.BackgroundTransparency = 1
             ChildContainer.BorderSizePixel = 0
-
+            
             ChildContainer.ClipsDescendants = true
+            widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
+            widgets.UIPadding(ChildContainer, Vector2.new(0, Iris._config.ItemSpacing.Y)).PaddingBottom = UDim.new()
 
 			thisWidget.ChildContainer = ChildContainer
 
@@ -233,7 +272,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 			TextLabel.Text = thisWidget.arguments.Text
 			CloseButton.Visible = if thisWidget.arguments.Hideable == true then true else false
 		end,
-		ChildAdded = function(thisWidget: Types.Tab, _thisChild: Types.Widget)
+		ChildAdded = function(thisWidget: Types.Tab, thisChild: Types.Widget)
 			return thisWidget.ChildContainer
 		end,
 		GenerateState = function(thisWidget: Types.Tab)
@@ -249,9 +288,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 			local Container = thisWidget.ChildContainer :: Frame
 
 			if thisWidget.state.isOpened.value == true then
+                thisWidget.lastOpenedTick = Iris._cycleTick + 1
                 openTab(thisWidget.parentWidget, thisWidget.Index)
 				Tab.Visible = true
 			else
+                thisWidget.lastClosedTick = Iris._cycleTick + 1
                 closeTab(thisWidget.parentWidget, thisWidget.Index)
 				Tab.Visible = false
 			end
@@ -262,12 +303,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 				Tab.BackgroundColor3 = Iris._config.TabActiveColor
 				Tab.BackgroundTransparency = Iris._config.TabActiveTransparency
 				Container.Visible = true
+                thisWidget.lastSelectedTick = Iris._cycleTick + 1
 			else
 				thisWidget.ButtonColors.Color = Iris._config.TabColor
 				thisWidget.ButtonColors.Transparency = Iris._config.TabTransparency
 				Tab.BackgroundColor3 = Iris._config.TabColor
 				Tab.BackgroundTransparency = Iris._config.TabTransparency
 				Container.Visible = false
+                thisWidget.lastUnselectedTick = Iris._cycleTick + 1
 			end
 		end,
 		Discard = function(thisWidget: Types.Tab)
