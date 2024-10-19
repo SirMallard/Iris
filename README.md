@@ -1,19 +1,18 @@
-### Demo:
-
-https://www.roblox.com/games/11145814918/Iris-Demonstration
 
 # Iris
 
-Iris is an Immediate mode GUI Library for Roblox, Based on [Dear ImGui](https://github.com/ocornut/imgui). It solves the same problems as Dear ImGui. It is fast, portable, and self-contained (no external dependencies).
+Iris is an Immediate mode GUI Library for Roblox, Based on [Dear ImGui](https://github.com/ocornut/imgui). It solves the same problems as Dear ImGui: providing a simple and bloat-free UI system, designed for visualisation and debugging. It is fast, portable, and self-contained (no external dependencies).
 
-what is Dear ImGui, and why is it important?
-<sub>Dear ImGui is best known for its use for developing debug UI. Using the Dear ImGui paradigm (Immediate Mode), UI is remarkably easy. Because of this, Dear ImGui has seen adoption in almost every major game engine, including Unity and Unreal Engine (and now Roblox!).</sub>
+#### What is Dear ImGui, and why is it important?
+Dear ImGui is best known for allowing developers to create content-creation and visualisation and debugging UI UI. Using the Dear ImGui paradigm (Immediate Mode), UI design is remarkably easy and simple. Because of this, Dear ImGui has been adopted in almost every major game engine from Unity and Unreal Engine to in-house engines from Rockstar and Ubisoft (and now Roblox!).
 
-Iris favors simplicity and productivity; It is designed to simplify UI, streamlining the process for creating visualization, debug tools, and data input. To accomplish this, Iris offers a different approach to Roblox UI than existing libraries, lacking certain features commonly found in more intricate UI libraries. Iris opts to supercede the Roblox UI API, instead having a streamlined Immediate-Mode library and a set of widgets whcih developers can use to create UI easily.
+Iris favors simplicity and productivity; It is designed to simplify UI, streamlining the process for creating visualisation, debug, and data input tools. To accomplish this, Iris offers a different approach to Roblox UI than existing libraries, at the cost of certain features commonly found in more intricate UI libraries. Iris opts to supercede the Roblox UI API, instead having a streamlined Immediate-Mode library and a set of widgets which developers can use to build the UI and tools they need.
+
+Demo Place: https://rbxl.games/11145814918
 
 ### Usage
 
-The Iris release comes as an rbxm or zip file. You can import the rbxm into any roblox project, and begin creating UI in any client side script. No external dependences are needed. Iris can be used in any kind of Roblox UI, including PlayerGui, CoreGui, BillboardGui, SurfaceGui, and PluginGui.
+Iris can be installed through [Wally](https://wally.run/) as a [package](https://wally.run/package/sirmallard/iris) or through a GitHub release comes as an rbxm or zip file. You can import the rbxm into any roblox project, and begin creating UI in any client side script. No external dependences are needed. Iris can be used in any kind of Roblox UI, including PlayerGui, CoreGui, BillboardGui, SurfaceGui, and PluginGui.
 
 Heres a basic Example:
 
@@ -87,6 +86,10 @@ Finally, Iris comes with a demo window, `Iris.ShowDemoWindow`. This window demon
     <img src="https://raw.githubusercontent.com/Michael-48/Iris/main/assets/demoWindow.png" alt="Sample Display Output"/>
 </div>
 
+### Learning Iris
+
+The best way to learn Iris is to look at the `Iris.DemoWindow` example file, which showcases all of Iris' features. The code can be found under `lib\demoWindow.lua`.
+
 ### How it Works
 
 Iris is an immediate mode UI library, as opposed to retained mode.
@@ -95,9 +98,15 @@ In a retained mode model, you might make a button and connect a clicked event, w
 
 In an immediate mode model, we call the button function and check if it's been clicked every frame (60 times per second). There's no need for a clicked event or to store a reference to the button.
 
+Therefore, you are not keeping track of the UI instances, you just declare what functionality you would like and Iris manages all instances and cleanup for you.
+
 Check out the Dear ImGuis [About the IMGUI paradigm](https://github.com/ocornut/imgui/wiki/About-the-IMGUI-paradigm) section if you want to understand the core principles behind the IMGUI paradigm.
 
 ### Credits
 
-Developed By [Michael_48](https://github.com/Michael-48), [SirMallard](https://github.com/SirMallard) and [JakeyWasTaken](https://github.com/JakeyWasTaken). Inspriation and design: [Omar Cornut](https://www.miracleworld.net/), [Evaera](https://github.com/evaera), Thanks!
+Created originally by [Michael_48](https://github.com/Michael-48) and now maintained by [SirMallard](https://github.com/SirMallard).
+
+Many thanks to [JakeyWasTaken](https://github.com/JakeyWasTaken), [OverHash](https://github.com/OverHash) and everyone else who has contributed to Iris in any way.
+
+Inspriation and design: [Omar Cornut](https://www.miracleworld.net/), [Evaera](https://github.com/evaera), Thanks!
 <meta name="google-site-verification" content="Ito4GceH5YJJXReIhx9JMqN0YEDdKePHaylk8H3-9Oo" />
