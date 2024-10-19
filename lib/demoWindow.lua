@@ -310,6 +310,81 @@ return function(Iris: Types.Iris)
             Iris.End()
         end,
 
+        Tab = function()
+            Iris.Tree({ "Tabs" })
+            do
+                Iris.Tree({ "Simple" })
+                do
+                    Iris.TabBar()
+                    do
+                        Iris.Tab({ "Apples" })
+                        do
+                            Iris.Text({ "Who loves apples?" })
+                        end
+                        Iris.End()
+                        Iris.Tab({ "Broccoli" })
+                        do
+                            Iris.Text({ "And what about broccoli?" })
+                        end
+                        Iris.End()
+                        Iris.Tab({ "Carrots" })
+                        do
+                            Iris.Text({ "But carrots are the best." })
+                        end
+                        Iris.End()
+                    end
+                    Iris.End()
+                    Iris.Separator()
+                    Iris.Text({ "Very important questions." })
+                end
+                Iris.End()
+
+                Iris.Tree({ "Closable" })
+                do
+                    local a = Iris.State(true)
+                    local b = Iris.State(true)
+                    local c = Iris.State(true)
+
+                    Iris.TabBar()
+                    do
+                        Iris.Tab({ "🍎", true }, { isOpened = a })
+                        do
+                            Iris.Text({ "Who loves apples?" })
+                            if Iris.Button({ "I don't like apples." }).clicked() then
+                                a:set(false)
+                            end
+                        end
+                        Iris.End()
+                        Iris.Tab({ "🥦", true }, { isOpened = b })
+                        do
+                            Iris.Text({ "And what about broccoli?" })
+                            if Iris.Button({ "Not for me." }).clicked() then
+                                b:set(false)
+                            end
+                        end
+                        Iris.End()
+                        Iris.Tab({ "🥕", true }, { isOpened = c })
+                        do
+                            Iris.Text({ "But carrots are the best." })
+                            if Iris.Button({ "I disagree with you." }).clicked() then
+                                c:set(false)
+                            end
+                        end
+                        Iris.End()
+                    end
+                    Iris.End()
+                    Iris.Separator()
+                    if Iris.Button({ "Actually, let me reconsider it." }).clicked() then
+                        a:set(true)
+                        b:set(true)
+                        c:set(true)
+                    end
+                end
+                Iris.End()
+            end
+            Iris.End()
+        end,
+
         Indent = function()
             Iris.Tree({ "Indents" })
             Iris.Text({ "Not Indented" })
@@ -502,7 +577,7 @@ return function(Iris: Types.Iris)
             Iris.End()
         end,
     }
-    local widgetDemosOrder = { "Basic", "Image", "Selectable", "Combo", "Tree", "CollapsingHeader", "Group", "Indent", "Input", "MultiInput", "InputText", "Tooltip", "Plotting" }
+    local widgetDemosOrder = { "Basic", "Image", "Selectable", "Combo", "Tree", "CollapsingHeader", "Group", "Tab", "Indent", "Input", "MultiInput", "InputText", "Tooltip", "Plotting" }
 
     local function recursiveTree()
         local theTree = Iris.Tree({ "Recursive Tree" })
@@ -744,8 +819,6 @@ return function(Iris: Types.Iris)
     local styleEditor
     do
         styleEditor = function()
-            local selectedPanel = Iris.State(1)
-
             local styleList = {
                 {
                     "Sizing",
@@ -979,17 +1052,19 @@ return function(Iris: Types.Iris)
                 end
                 Iris.End()
 
-                Iris.SameLine()
+                Iris.TabBar()
                 do
                     for i, v in ipairs(styleList) do
-                        Iris.RadioButton({ v[1], i }, { index = selectedPanel })
+                        Iris.Tab({ v[1] })
+                        do
+                            styleList[i][2]()
+                        end
+                        Iris.End()
                     end
                 end
                 Iris.End()
 
                 Iris.Separator()
-
-                styleList[selectedPanel:get()][2]()
             end
             Iris.End()
         end
