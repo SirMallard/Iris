@@ -434,6 +434,7 @@ return function(Iris: Types.Iris): Types.Internal
 
             -- convert the arguments to a key-value dictionary so arguments can be referred to by their name and not index.
             for index: number, argument: Types.Argument in args do
+                assert(index > 0, `Widget Arguments must be a positive number, not {index} of type {typeof(index)} for {argument}.`)
                 arguments[thisWidgetClass.ArgNames[index]] = argument
             end
         end

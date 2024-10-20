@@ -30,16 +30,19 @@ return function(Iris: Types.Internal)
     end
 
     -- acts as an offset where the absolute position of the base frame is not zero, such as IgnoreGuiInset or for stories
-    widgets.GuiOffset = Vector2.zero
+    widgets.GuiOffset = if Iris._config.IgnoreGuiInset then -widgets.GuiService:GetGuiInset() else Vector2.zero
     -- the registered mouse position always ignores the topbar, so needs a separate variable offset
     widgets.MouseOffset = if Iris._config.IgnoreGuiInset then Vector2.zero else widgets.GuiService:GetGuiInset()
 
     -- the topbar inset changes updates a frame later.
-    local connection: RBXScriptConnection = widgets.GuiService:GetPropertyChangedSignal("TopbarInset"):Once(function()
+    local connection: RBXScriptConnection
+    connection = widgets.GuiService:GetPropertyChangedSignal("TopbarInset"):Once(function()
         widgets.MouseOffset = if Iris._config.IgnoreGuiInset then Vector2.zero else widgets.GuiService:GetGuiInset()
+        widgets.GuiOffset = if Iris._config.IgnoreGuiInset then -widgets.GuiService:GetGuiInset() else Vector2.zero
+        connection:Disconnect()
     end)
     -- in case the topbar doesn't change, we cancel the event.
-    task.delay(3, function()
+    task.delay(5, function()
         connection:Disconnect()
     end)
 
