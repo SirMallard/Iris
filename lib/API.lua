@@ -61,7 +61,7 @@ return function(Iris: Types.Iris)
             NoScrollbar: boolean? = false, -- the scrollbar if the window is too short for all widgets.
             NoResize: boolean? = false,
             NoNav: boolean? = false, -- unimplemented.
-            NoMenu: boolean? -- whether the menubar will show if created.
+            NoMenu: boolean? = false -- whether the menubar will show if created.
         }
         Events = {
             opened: () -> boolean, -- once when opened.
