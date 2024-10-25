@@ -46,9 +46,28 @@ export type WidgetClass = {
 }
 ```
 
-Here, some of the widgets are required for any widget, which define what to do when the widget is
+Here, some of the functions are required for all widgets, which define what to do when the widget is
 first created, when it is destroyed or discarded because it is no longer called and when any arguments
-provided to it are updated.
+provided to it are updated. And others are only needed if the widget has state or has children.
+
+## Required
+
+Everut widget class must have a `Generate`, `Discard` and `Update` function, an `Args` and `Events`
+table and `hasChildren` and `hasState` value.
+
+Generally we define whether the widget will have children or have state first since this affects any
+other functions needed for the class.
+
+### hasChildren
+
+If your widget is going to be a parent and therefore have other widgets placed within or under it, like
+a Window, Tree or SameLine widget, this must be true. If not, it must be specified as false.
+
+### hasState
+
+If your widget will take in valuse and possibliy modify them in the widget and return them back, then
+the widget will use state objects and therefore must be set to true. Otherwise it must be sepcified as
+false.
 
 
 :::note
