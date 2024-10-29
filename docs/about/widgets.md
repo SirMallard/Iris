@@ -50,9 +50,26 @@ Here, some of the functions are required for all widgets, which define what to d
 first created, when it is destroyed or discarded because it is no longer called and when any arguments
 provided to it are updated. And others are only needed if the widget has state or has children.
 
+## Understanding the Widget Lifecycle
+
+When a widget is called, Iris will try to find the widget from the preivous frame using a VDOM table
+and an ID dependent on the line it was called from. If the widget was called for the first time, then
+Iris must generate a new widget. It does this by firstly generating the widget structure, being a table
+with a few properties. It then generates the UI instances, by calling the `Generate` function of the
+widget class. Iris will then use the parent of the widget and call the `ChildAdded` function of the
+parent widget class which tells Iris where to parent the UI instances to. At this point, the new widget
+looks the same as a pre-existing one.
+
+Iris then checks the arguments provided to determine if they have changed. If they have, then Iris will
+call 'Update' from the widget class which handles any UI changes needed. At this point, the widget is
+ready, with a functioning UI and can be placed correctly. And that is the end of the call.
+
+At the end of the frame, if Iris finds any widgets which were not called in that frame, it will call
+the `Discard` function which is essentially designed to destroy the UI instances.
+
 ## Required
 
-Everut widget class must have a `Generate`, `Discard` and `Update` function, an `Args` and `Events`
+Every widget class must have a `Generate`, `Discard` and `Update` function, an `Args` and `Events`
 table and `hasChildren` and `hasState` value.
 
 Generally we define whether the widget will have children or have state first since this affects any
@@ -68,6 +85,67 @@ a Window, Tree or SameLine widget, this must be true. If not, it must be specifi
 If your widget will take in valuse and possibliy modify them in the widget and return them back, then
 the widget will use state objects and therefore must be set to true. Otherwise it must be sepcified as
 false.
+
+### Generate
+
+The `Generate` function is called whenever a widget is first called and is responsible for creating the
+actual UI instances that make up the window. It handles all of the styling but does not use the
+widget arguments (this is hande=led in the `Update` function). Any widget interactivity such as events
+for clicks or hovers, which may also change the style, are setup in here. There area few rules which
+the generated UI instances follow:
+1. The root instance should be named "Iris_[WIDGET_TYPE]".
+2. The ZIndex and LayoutOrder of the root element are taken from the ZIndex property of the widget.
+3. Returns the root instance.
+4. Widgets are generally sized using AutomaticSize or the config over hard-coded numbers, and therefore
+	scale better
+5. The arguments are never used to modify any instances because if the arguments change then the widget
+	should be able to handle the changes on existing UI rather than creating a new design.
+
+The code of a Buttn best demonstrates this:
+```lua
+Generate = function(thisWidget: Types.Button)
+	-- a TextButton is the best option here because it has the correct events
+	local Button: TextButton = Instance.new("TextButton")
+	-- we rely on auomatic size
+	Button.Size = UDim2.fromOfset(0, 0)
+	-- using the config values
+	Button.BackgroundColor3 = Iris._config.ButtonColor
+	Button.BackgroundTransparency = Iris._config.ButtonTransparency
+	Button.AutoButtonColor = false
+	Button.AutomaticSize = Enum.AutomaticSize.XY
+
+	-- utility functions exist such as this one which correctly sets the text
+	-- style for the widget
+	widgets.applyTextStyle(Button)
+	Button.TextXAlignment = Enum.TextXAlignment.Center
+
+	-- another utility function which adds any borders or padding dependent
+	-- on the config
+	widgets.applyFrameStyle(Button)
+
+	-- an utility event which uses clicks and hovers to colour the button
+	-- when the mouse interacts with it: normal, hovered and clicked
+	widgets.applyInteractionHighlights("Background", Button, Button, {
+		Color = Iris._config.ButtonColor,
+		Transparency = Iris._config.ButtonTransparency,
+		HoveredColor = Iris._config.ButtonHoveredColor,
+		HoveredTransparency = Iris._config.ButtonHoveredTransparency,
+		ActiveColor = Iris._config.ButtonActiveColor,
+		ActiveTransparency = Iris._config.ButtonActiveTransparency,
+	})
+
+	-- set the correct layout order and zindex to ensure it stays in the
+	-- correct order. Iris relies heavily on UIListLayouts to automatically
+	-- position the UI, and therefore relies on the LayoutOrder property.
+	Button.ZIndex = thisWidget.ZIndex
+	Button.LayoutOrder = thisWidget.ZIndex
+
+	-- we finally return the instance, which is correctly parented and 
+	-- Iris sets the widget.instance property to this root element
+	return Button
+end,
+```
+
 
 
 :::note
