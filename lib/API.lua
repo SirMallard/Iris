@@ -1677,7 +1677,7 @@ return function(Iris: Types.Iris)
 
     --[=[
         @within Plot
-        @prop ProgressBar Iris.PrograssBar
+        @prop ProgressBar Iris.ProgressBar
         @tag Widget
         @tag HasState
 
