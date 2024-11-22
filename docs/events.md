@@ -1,6 +1,6 @@
 # Events
 
-Each widget has a number of events connected to it. You can see these events on the [API page](../API).
+Each widget has a number of events connected to it. You can see these events on the [API page](/API/Iris).
 
 Certain events will happen once, such as a window being collapsed or a button being clicked. Other events can be continuous, such as a widget being hovered.
 Each event is a function which returns a boolean value for whether the event has happened that frame or not.
