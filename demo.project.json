@@ -1,156 +1,156 @@
 {
-	"name": "IrisDemoPlace",
-	"tree": {
-		"$className": "DataModel",
-		"Workspace": {
-			"Baseplate": {
-				"$className": "Part",
-				"$properties": {
-					"Anchored": true,
-					"Locked": true,
-					"Position": [
-						0,
-						-8,
-						0
-					],
-					"Size": [
-						2048,
-						16,
-						2048
-					],
-					"Color": [
-						0.35686274509,
-						0.35686274509,
-						0.35686274509
-					],
-					"TopSurface": "Smooth",
-					"BottomSurface": "Smooth"
-				},
-				"Texture": {
-					"$className": "Texture",
-					"$properties": {
-						"Texture": "rbxassetid://6372755229",
-						"Color3": [
-							0,
-							0,
-							0
-						],
-						"Transparency": 0.8,
-						"StudsPerTileU": 8,
-						"StudsPerTileV": 8,
-						"Face": "Top"
-					}
-				}
-			}
-		},
-		"Lighting": {
-			"$className": "Lighting",
-			"$properties": {
-				"Technology": "Future",
-				"Ambient": [
-					0.27450980392,
-					0.27450980392,
-					0.27450980392
-				],
-				"Brightness": 3,
-				"OutdoorAmbient": [
-					0.27450980392,
-					0.27450980392,
-					0.27450980392
-				],
-				"GlobalShadows": true,
-				"EnvironmentDiffuseScale": 1,
-				"EnvironmentSpecularScale": 1,
-				"ShadowSoftness": 0.2,
-				"GeographicLatitude": 0,
-				"ClockTime": 14.5
-			},
-			"Atmosphere": {
-				"$className": "Atmosphere",
-				"$properties": {
-					"Density": 0.3,
-					"Offset": 0.25,
-					"Color": [
-						0.7803921569,
-						0.7803921569,
-						0.7803921569
-					],
-					"Decay": [
-						0.41568627451,
-						0.43921568627,
-						0.49019607843
-					]
-				}
-			},
-			"Sky": {
-				"$className": "Sky",
-				"$properties": {
-					"SunTextureId": "rbxassetid://6196665106",
-					"MoonTextureId": "rbxassetid://6444320592",
-					"SkyboxFt": "rbxassetid://6444884337",
-					"SkyboxBk": "rbxassetid://6444884337",
-					"SkyboxLf": "rbxassetid://6444884337",
-					"SkyboxRt": "rbxassetid://6444884337",
-					"SkyboxUp": "rbxassetid://6412503613",
-					"SkyboxDn": "rbxassetid://6444884785",
-					"SunAngularSize": 11
-				}
-			},
-			"Bloom": {
-				"$className": "BloomEffect",
-				"$properties": {
-					"Intensity": 1,
-					"Size": 24,
-					"Threshold": 2
-				}
-			},
-			"DepthOfField": {
-				"$className": "DepthOfFieldEffect",
-				"$properties": {
-					"Enabled": false,
-					"NearIntensity": 0.75,
-					"FarIntensity": 0.1,
-					"FocusDistance": 0.05,
-					"InFocusRadius": 30
-				}
-			},
-			"SunRays": {
-				"$className": "SunRaysEffect",
-				"$properties": {
-					"Intensity": 0.01,
-					"Spread": 0.1
-				}
-			}
-		},
-		"ReplicatedStorage": {
-			"Iris": {
-				"$path": "default.project.json"
-			}
-		},
-		"ServerScriptService": {
-			"Plugins": {
-				"$className": "Folder",
-				"IrisExamplePlugin": {
-					"$path": "src/plugins",
-					"Iris": {
-						"$path": "default.project.json"
-					},
-					"UserInputService": {
-						"$path": "src/libraries/UserInputService"
-					}
-				}
-			},
-			"Stories": {
-				"$path": "stories",
-				"UserInputService": {
-					"$path": "src/libraries/UserInputService"
-				}
-			}
-		},
-		"StarterPlayer": {
-			"StarterPlayerScripts": {
-				"$path": "src/client"
-			}
-		}
-	}
+    "name": "IrisDemoPlace",
+    "tree": {
+        "$className": "DataModel",
+        "Workspace": {
+            "Baseplate": {
+                "$className": "Part",
+                "$properties": {
+                    "Anchored": true,
+                    "Locked": true,
+                    "Position": [
+                        0,
+                        -8,
+                        0
+                    ],
+                    "Size": [
+                        2048,
+                        16,
+                        2048
+                    ],
+                    "Color": [
+                        0.35686274509,
+                        0.35686274509,
+                        0.35686274509
+                    ],
+                    "TopSurface": "Smooth",
+                    "BottomSurface": "Smooth"
+                },
+                "Texture": {
+                    "$className": "Texture",
+                    "$properties": {
+                        "Texture": "rbxassetid://6372755229",
+                        "Color3": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Transparency": 0.8,
+                        "StudsPerTileU": 8,
+                        "StudsPerTileV": 8,
+                        "Face": "Top"
+                    }
+                }
+            }
+        },
+        "Lighting": {
+            "$className": "Lighting",
+            "$properties": {
+                "Technology": "Future",
+                "Ambient": [
+                    0.27450980392,
+                    0.27450980392,
+                    0.27450980392
+                ],
+                "Brightness": 3,
+                "OutdoorAmbient": [
+                    0.27450980392,
+                    0.27450980392,
+                    0.27450980392
+                ],
+                "GlobalShadows": true,
+                "EnvironmentDiffuseScale": 1,
+                "EnvironmentSpecularScale": 1,
+                "ShadowSoftness": 0.2,
+                "GeographicLatitude": 0,
+                "ClockTime": 14.5
+            },
+            "Atmosphere": {
+                "$className": "Atmosphere",
+                "$properties": {
+                    "Density": 0.3,
+                    "Offset": 0.25,
+                    "Color": [
+                        0.7803921569,
+                        0.7803921569,
+                        0.7803921569
+                    ],
+                    "Decay": [
+                        0.41568627451,
+                        0.43921568627,
+                        0.49019607843
+                    ]
+                }
+            },
+            "Sky": {
+                "$className": "Sky",
+                "$properties": {
+                    "SunTextureId": "rbxassetid://6196665106",
+                    "MoonTextureId": "rbxassetid://6444320592",
+                    "SkyboxFt": "rbxassetid://6444884337",
+                    "SkyboxBk": "rbxassetid://6444884337",
+                    "SkyboxLf": "rbxassetid://6444884337",
+                    "SkyboxRt": "rbxassetid://6444884337",
+                    "SkyboxUp": "rbxassetid://6412503613",
+                    "SkyboxDn": "rbxassetid://6444884785",
+                    "SunAngularSize": 11
+                }
+            },
+            "Bloom": {
+                "$className": "BloomEffect",
+                "$properties": {
+                    "Intensity": 1,
+                    "Size": 24,
+                    "Threshold": 2
+                }
+            },
+            "DepthOfField": {
+                "$className": "DepthOfFieldEffect",
+                "$properties": {
+                    "Enabled": false,
+                    "NearIntensity": 0.75,
+                    "FarIntensity": 0.1,
+                    "FocusDistance": 0.05,
+                    "InFocusRadius": 30
+                }
+            },
+            "SunRays": {
+                "$className": "SunRaysEffect",
+                "$properties": {
+                    "Intensity": 0.01,
+                    "Spread": 0.1
+                }
+            }
+        },
+        "ReplicatedStorage": {
+            "Iris": {
+                "$path": "default.project.json"
+            }
+        },
+        "ServerScriptService": {
+            "Plugins": {
+                "$className": "Folder",
+                "IrisExamplePlugin": {
+                    "$path": "src/plugins",
+                    "Iris": {
+                        "$path": "default.project.json"
+                    },
+                    "UserInputService": {
+                        "$path": "src/libraries/UserInputService"
+                    }
+                }
+            },
+            "Stories": {
+                "$path": "stories",
+                "UserInputService": {
+                    "$path": "src/libraries/UserInputService"
+                }
+            }
+        },
+        "StarterPlayer": {
+            "StarterPlayerScripts": {
+                "$path": "src/client"
+            }
+        }
+    }
 }
