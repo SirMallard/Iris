@@ -131,4 +131,28 @@ local positionState = window.state.position
 
 ### Using Events
 
-We should now have an understanding of how to use the library and understand the API provided.
+We've covered children, arguments and state but not yet events. Events are what make widgets interactive and
+allow us run code when we use a widget. Each widget has a set of predefined events which we can check for
+every frame.
+
+To listen to any event, we can just call the function on the widget like this:
+
+```lua
+local window = Iris.Window({"Window"})
+-- the window has opened and uncollapsed events, which return booleans
+if window.opened() and window.uncollapsed() then
+    -- run the window code only if the window is actually open and uncollapsed,
+    -- which is more efficient.
+
+    -- the button has a clicked event, returning true when it is pressed
+    if Iris.Button({"Click me"}).clicked() then
+        -- run code if we click the button
+    end
+end
+Iris.End()
+```
+
+Here, we are listening to events which are just functions that return a boolean if the condition is true.
+We can refer to the API to find all the events, and they should be fairly self-explanatory in what they do.
+Some events will only happen once when the user interacts with the widget, others will depend on the state of
+the widget instead.
