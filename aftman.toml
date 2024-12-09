@@ -5,6 +5,6 @@
 [tools]
 rojo = "rojo-rbx/rojo@7.4.4"
 wally = "UpliftGames/wally@0.3.2"
-stylua = "johnnymorganz/stylua@2.0.1"
+stylua = "johnnymorganz/stylua@2.0.2"
 selene = "Kampfkarren/selene@0.27.1"
 testez = "roblox/testez@0.3.2"
