@@ -45,6 +45,8 @@ export type Image = WidgetTypes.Image
 export type ImageButton = WidgetTypes.ImageButton
 export type Tree = WidgetTypes.Tree
 export type CollapsingHeader = WidgetTypes.CollapsingHeader
+export type TabBar = WidgetTypes.TabBar
+export type Tab = WidgetTypes.Tab
 export type Input<T> = WidgetTypes.Input<T>
 export type InputColor3 = WidgetTypes.InputColor3
 export type InputColor4 = WidgetTypes.InputColor4
@@ -179,6 +181,8 @@ export type WidgetClass = {
     ChildAdded: (thisWidget: Widget, thisChild: Widget) -> GuiObject,
     ChildDiscarded: (thisWidget: Widget, thisChild: Widget) -> (),
 }
+
+-- Iris
 
 export type Internal = {
     --[[
@@ -393,6 +397,13 @@ export type Config = {
     HeaderActiveColor: Color3,
     HeaderActiveTransparency: number,
 
+    TabColor: Color3,
+    TabTransparency: number,
+    TabHoveredColor: Color3,
+    TabHoveredTransparency: number,
+    TabActiveColor: Color3,
+    TabActiveTransparency: number,
+
     SelectionImageObjectColor: Color3,
     SelectionImageObjectTransparency: number,
     SelectionImageObjectBorderColor: Color3,
@@ -511,6 +522,10 @@ export type Iris = {
     -- Tree Widget API
     Tree: WidgetCall<Tree, WidgetArguments, WidgetStates?>,
     CollapsingHeader: WidgetCall<CollapsingHeader, WidgetArguments, WidgetStates?>,
+
+    -- Tab Widget API
+    TabBar: WidgetCall<TabBar, WidgetArguments?, WidgetStates?>,
+    Tab: WidgetCall<Tab, WidgetArguments, WidgetStates?>,
 
     -- Input Widget API
     InputNum: WidgetCall<Input<number>, WidgetArguments, WidgetStates?>,

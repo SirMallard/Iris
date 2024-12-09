@@ -315,6 +315,32 @@ export type CollapsingHeader = ParentWidget & {
     },
 } & Collapsed & Uncollapsed & Hovered
 
+-- Tabs
+
+export type TabBar = ParentWidget & {
+    Tabs: { Tab },
+
+    state: {
+        index: State<number>,
+    },
+}
+
+export type Tab = ParentWidget & {
+    parentWidget: TabBar,
+    Index: number,
+    ButtonColors: { [string]: Color3 | number },
+
+    arguments: {
+        Text: string,
+        Hideable: boolean,
+    },
+
+    state: {
+        index: State<number>,
+        isOpened: State<boolean>,
+    },
+} & Clicked & Opened & Selected & Unselected & Active & Closed & Hovered
+
 -- Input
 export type Input<T> = Widget & {
     lastClickedTime: number,
