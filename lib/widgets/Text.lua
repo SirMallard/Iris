@@ -33,7 +33,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Update = function(thisWidget: Types.Text)
             local Text = thisWidget.Instance :: TextLabel
             if thisWidget.arguments.Text == nil then
-                error("Iris.Text Text Argument is required", 5)
+                error("Text argument is required for Iris.Text().", 5)
             end
             if thisWidget.arguments.Wrapped ~= nil then
                 Text.TextWrapped = thisWidget.arguments.Wrapped
@@ -123,7 +123,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local SeparatorText = thisWidget.Instance :: Frame
             local TextLabel: TextLabel = SeparatorText.TextLabel
             if thisWidget.arguments.Text == nil then
-                error("Iris.Text Text Argument is required", 5)
+                error("Text argument is required for Iris.SeparatorText().", 5)
             end
             TextLabel.Text = thisWidget.arguments.Text
         end,

@@ -242,7 +242,7 @@ return function(Iris: Types.Iris): Types.Internal
         -- end
         local compatibleParent: boolean = (Internal.parentInstance:IsA("GuiBase2d") or Internal.parentInstance:IsA("CoreGui") or Internal.parentInstance:IsA("PluginGui") or Internal.parentInstance:IsA("PlayerGui"))
         if compatibleParent == false then
-            error("Iris Parent Instance cant contain GUI")
+            error("The Iris parent instance will not display any GUIs.")
         end
 
         -- if we are running in Studio, we want full error tracebacks, so we don't have
@@ -277,7 +277,7 @@ return function(Iris: Types.Iris): Types.Internal
         if Internal._stackIndex ~= 1 then
             -- has to be larger than 1 because of the check that it isnt below 1 in Iris.End
             Internal._stackIndex = 1
-            error("Callback has too few calls to Iris.End()", 0)
+            error("Too few calls to Iris.End().", 0)
         end
 
         --debug.profileend()

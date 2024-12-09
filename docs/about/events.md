@@ -1,9 +1,14 @@
-# Events
+---
+sidebar_position: 4
+---
+
+# Understanding Events
 
 Each widget has a number of events connected to it. You can see these events on the [API page](/API/Iris).
 
-Certain events will happen once, such as a window being collapsed or a button being clicked. Other events can be continuous, such as a widget being hovered.
-Each event is a function which returns a boolean value for whether the event has happened that frame or not.
+Certain events will happen once, such as a window being collapsed or a button being clicked. Other events can be
+continuous, such as a widget being hovered. Each event is a function which returns a boolean value for whether the
+event has happened that frame or not.
 
 To listen to an event, use the following:
 ```lua
@@ -13,8 +18,8 @@ if button.clicked() then
 end
 ```
 
-Events will fire the frame after the initial action happened. This is so that any changes caused by that event can propogate visually.
-For example on a checkbox:
+Events will fire the frame after the initial action happened. This is so that any changes caused by that event can
+propogate visually. For example on a checkbox:
 
 - [Frames 1 - 60]
 The mouse is elsewhere.

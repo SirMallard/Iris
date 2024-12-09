@@ -62,7 +62,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             if thisWidget.InitialNumColumns == -1 then
                 if thisWidget.arguments.NumColumns == nil then
-                    error("Iris.Table NumColumns argument is required", 5)
+                    error("NumColumns argument is required for Iris.Table().", 5)
                 end
                 thisWidget.InitialNumColumns = thisWidget.arguments.NumColumns
 
@@ -87,7 +87,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             elseif thisWidget.arguments.NumColumns ~= thisWidget.InitialNumColumns then
                 -- its possible to make it so that the NumColumns can increase,
                 -- but decreasing it would interfere with child widget instances
-                error("Iris.Table NumColumns Argument must be static")
+                error("NumColumns Argument must be static for Iris.Table().")
             end
 
             if thisWidget.arguments.RowBg == false then

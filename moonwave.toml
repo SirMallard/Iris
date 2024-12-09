@@ -35,9 +35,10 @@ classes = ["Internal"]
 
 [docusaurus]
 onBrokenMarkdownLinks = "warn"
+trailingSlash = false
 [docusarus.themeConfig.prism]
 additionalLangues = ["lua", "luau", "cpp"]
 
 [footer]
 style = "dark"
-copyright = "Copyright © 2024 Michael_48"
+copyright = "©2024 Michael_48 & SirMallard"

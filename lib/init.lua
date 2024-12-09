@@ -70,8 +70,8 @@ Iris.Events = {}
     If the `eventConnection` is `false` then Iris will not create a cycle loop and the user will need to call [Internal._cycle] every frame.
 ]=]
 function Iris.Init(parentInstance: Instance?, eventConnection: (RBXScriptSignal | () -> () | false)?): Types.Iris
-    assert(Internal._started == false, "Iris.Init can only be called once.")
-    assert(Internal._shutdown == false, "Iris.Init cannot be called once shutdown.")
+    assert(Internal._started == false, "Iris.Init() can only be called once.")
+    assert(Internal._shutdown == false, "Iris.Init() cannot be called once shutdown.")
 
     if parentInstance == nil then
         -- coalesce to playerGui
@@ -153,7 +153,7 @@ end
 ]=]
 function Iris:Connect(callback: () -> ()): () -> () -- this uses method syntax for no reason.
     if Internal._started == false then
-        warn("Iris:Connect() was called before calling Iris.Init(), the connected function will never run")
+        warn("Iris:Connect() was called before calling Iris.Init(); always initialise Iris first.")
     end
     local connectionIndex: number = #Internal._connectedFunctions + 1
     Internal._connectedFunctions[connectionIndex] = callback
@@ -212,7 +212,7 @@ end
 ]=]
 function Iris.End()
     if Internal._stackIndex == 1 then
-        error("Callback has too many calls to Iris.End()", 2)
+        error("Too many calls to Iris.End().", 2)
     end
 
     Internal._IDStack[Internal._stackIndex] = nil
@@ -339,7 +339,7 @@ Internal._globalRefreshRequested = false -- UpdatingGlobalConfig changes this to
     Sets the id discriminator for the next widgets. Use [Iris.PopId] to remove it.
 ]=]
 function Iris.PushId(ID: Types.ID)
-    assert(typeof(ID) == "string", "Iris expected Iris.PushId id to PushId to be a string.")
+    assert(typeof(ID) == "string", "The ID argument to Iris.PushId() to be a string.")
 
     Internal._pushedId = tostring(ID)
 end
@@ -551,7 +551,7 @@ end
     Here the `data._started` should never be updated directly, only through the `toggle` function. However, we still want to monitor the value and be able to change it.
     Therefore, we use the callback to toggle the function for us and prevent Iris from updating the table value by returning false.
     ```lua
-    local data ={
+    local data = {
         _started = false
     }
 
