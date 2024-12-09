@@ -177,20 +177,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             Plot.Parent = Background
 
-            local Path: Path2D = Instance.new("Path2D")
-            Path.Name = "Path"
-            Path.Thickness = 1
-            Path.Color3 = Iris._config.PlotLinesColor
-
-            Path.Parent = Plot
-
-            local HoveredPath: Path2D = Instance.new("Path2D")
-            HoveredPath.Name = "HoveredPath"
-            HoveredPath.Thickness = 1
-            HoveredPath.Color3 = Iris._config.PlotLinesHoveredColor
-
-            HoveredPath.Parent = Plot
-
             local TextLabel: TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
             TextLabel.AutomaticSize = Enum.AutomaticSize.XY
@@ -223,12 +209,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local PlotLines = thisWidget.Instance :: Frame
             local Background = PlotLines.Background :: Frame
             local Plot = Background.Plot :: Frame
-            local Path: Path2D = Plot.Path
 
             local values: { number } = thisWidget.state.values.value
             local count: number = #values
-            local points: { Path2DControlPoint } = Path:GetControlPoints()
-            local numPoints: number = #points
 
             local min: number = thisWidget.arguments.Min
             local max: number = thisWidget.arguments.Max
@@ -241,22 +224,21 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
             local range: number = max - min
 
-            for index = 1, math.min(count, numPoints) do
-                points[index].Position = UDim2.fromScale((index - 1) / (count - 1), (values[index] - min) / range)
-            end
+            -- for index = 1, math.min(count, numPoints) do
+            --     points[index].Position = UDim2.fromScale((index - 1) / (count - 1), (values[index] - min) / range)
+            -- end
 
-            if numPoints < count then
-                for index = numPoints + 1, count do
-                    -- selene: allow(undefined_variable)
-                    table.insert(points, Path2DControlPoint.new(UDim2.fromScale((index - 1) / (count - 1), (values[index] - min) / range)))
-                end
-            elseif numPoints > count then
-                for _ = count + 1, numPoints do
-                    table.remove(points)
-                end
-            end
+            -- if numPoints < count then
+            --     for index = numPoints + 1, count do
+            --         -- selene: allow(undefined_variable)
+            --         table.insert(points, Path2DControlPoint.new(UDim2.fromScale((index - 1) / (count - 1), (values[index] - min) / range)))
+            --     end
+            -- elseif numPoints > count then
+            --     for _ = count + 1, numPoints do
+            --         table.remove(points)
+            --     end
+            -- end
 
-            Path:SetControlPoints(points)
         end,
         Discard = function(thisWidget: Types.PlotLines)
             thisWidget.Instance:Destroy()
@@ -378,6 +360,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Tooltip.BackgroundColor3 = Iris._config.PopupBgColor
             Tooltip.BackgroundTransparency = Iris._config.PopupBgTransparency
             Tooltip.BorderSizePixel = 0
+            Tooltip.Visible = false
 
             widgets.applyTextStyle(Tooltip)
             widgets.UIStroke(Tooltip, Iris._config.PopupBorderSize, Iris._config.BorderActiveColor, Iris._config.BorderActiveTransparency)
@@ -421,7 +404,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
         GenerateState = function(thisWidget: Types.PlotHistogram)
             if thisWidget.state.values == nil then
-                thisWidget.state.values = Iris._widgetState(thisWidget, "Values", { 0 })
+                thisWidget.state.values = Iris._widgetState(thisWidget, "values", { 0 })
             end            
         end,
         Update = function(thisWidget: Types.PlotHistogram)
