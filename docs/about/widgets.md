@@ -75,6 +75,104 @@ table and `hasChildren` and `hasState` value.
 Generally we define whether the widget will have children or have state first since this affects any
 other functions needed for the class.
 
+### Args
+
+Args is a string-indexed table where each possible argument for a widget is given an index, which
+corresponds to the index when calling the widget. Therefore, we specify every argument, but do not give
+a type, or default value.
+
+An example for Window and Button are shown below:
+<div style={{"width": "100%", "display": "flex", "flex-direction": "row", "justify-content": "center"}}>
+<div style={{"width": "50%"}}>
+
+```lua
+-- Button arguments
+Args = {
+    ["Text"] = 1,
+    ["Size"] = 2,
+}
+
+
+
+
+
+
+
+
+```
+</div>
+<div style={{"width": "50%"}}>
+
+```lua
+-- Window arguments
+Args = {
+    ["Title"] = 1,
+    ["NoTitleBar"] = 2,
+    ["NoBackground"] = 3,
+    ["NoCollapse"] = 4,
+    ["NoClose"] = 5,
+    ["NoMove"] = 6,
+    ["NoScrollbar"] = 7,
+    ["NoResize"] = 8,
+    ["NoNav"] = 9,
+    ["NoMenu"] = 10,
+}
+```
+</div>
+</div>
+
+### Events
+
+Events are used to query the current state of a widget. For a button, it might be the whether it has been
+clicked. For a checkbox, whether it is active or for a window whether it is open. All of these are 
+defined to be custom in Iris and called like regular functions on a widget. To do this, we specify a table
+containing all of the possible events.
+
+Each event is a string index for a table conaining to functions: an `Init` function, to setup any
+prerequisites; and a `Get` function, which returns the value when the event is called. Because some events
+are so common, such as `hovered()` and `clicked()`, Iris provides shorthands for these, making them easier
+to add to any widget.
+
+If we look at the example Window widget events, we'll see the two common ways:
+```lua
+Events = {
+    ["closed"] = {
+        ["Init"] = function(_thisWidget: Types.Window) end,
+        ["Get"] = function(thisWidget: Types.Window)
+            return thisWidget.lastClosedTick == Iris._cycleTick
+        end,
+    },
+    ["opened"] = {
+        ["Init"] = function(_thisWidget: Types.Window) end,
+        ["Get"] = function(thisWidget: Types.Window)
+            return thisWidget.lastOpenedTick == Iris._cycleTick
+        end,
+    },
+    ["collapsed"] = {
+        ["Init"] = function(_thisWidget: Types.Window) end,
+        ["Get"] = function(thisWidget: Types.Window)
+            return thisWidget.lastCollapsedTick == Iris._cycleTick
+        end,
+    },
+    ["uncollapsed"] = {
+        ["Init"] = function(_thisWidget: Types.Window) end,
+        ["Get"] = function(thisWidget: Types.Window)
+            return thisWidget.lastUncollapsedTick == Iris._cycleTick
+        end,
+    },
+    ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
+        local Window = thisWidget.Instance :: Frame
+        return Window.WindowButton
+    end),
+}
+```
+
+The hovered event here used a macro utility, which takes a function that returns the Instance to check for
+hovering on. It then sets up the `MouseHover` events for us, and returns the two functions so that th event
+is setup correctly. This is the easiest way, since we only need to provide the UI Instance.
+
+The other event style uses our own counters. 
+
 ### hasChildren
 
 If your widget is going to be a parent and therefore have other widgets placed within or under it, like
@@ -154,6 +252,16 @@ root Instance of the widget, which will close any connections and remove all chi
 has any state objects, you will also need to call the `discardState()` function in the widget utility
 library, which removes any connected states from the widget, allowing the widget to be correctly cleaned
 up. 
+
+## State
+
+## Children
+
+:::danger
+END OF PAGE
+
+STOP HERE
+:::
 
 # Overview
 

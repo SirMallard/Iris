@@ -14,6 +14,21 @@ need to run `Iris.Init()` before using Iris anywhere else. This can be difficult
 scripts running at the same time, so it is best to organise your code with a single entry point to
 initialise Iris from.
 
+# Checking Iris Works
+
+We can first test Iris works properly by using the DemoWindow, to display all the widgets in Iris.
+First we'll create a client script under `StarterPlayer.StarterPlayerScipts`, and put this into it:
+```lua
+local Iris = require(path.to.Iris)
+
+Iris.Init()
+Iris:Connect(Iris.ShowDemoWindow)
+```
+If we then run the game, we should see the Iris Demo Window appear on the screen. This shows that Iris
+is working properly and we can start writing our own code. Check [here](intro.md) for some example code,
+read through the [`demoWindow.lua`](https://github.com/SirMallard/Iris/blob/main/lib/demoWindow.lua)
+file to see how the demo window works, or check the rest of the documentation for each widget.
+
 ## Understanding the API
 
 The Iris API is fairly unique and can be difficult to understand initially. However, once understood, it
@@ -95,11 +110,14 @@ For the last two, the order no longer matters and the arguments can be placed in
 which arguments you are using, but at the cost of longer function calls. This is generally only used for widgets
 with rarely used arguments.
 :::info
+These are what the values actually are.
 `Iris.Args.Window.Title` = 1
 `Iris.Args.Window.NoClose` = 5
 `Iris.Args.Window.NoResize` = 8
 
-These are just shorthands, providing `{Title = "Title"}` or any variation of this will not work and will error.
+These are just shorthands, making it easier for you, if you choose to use them.
+
+Providing `{Title = "Title"}` or any variation of this with a string index will not work and will error.
 :::
 
 Iris is designed to mainly use the first example, because it is very similar to Dear ImGui and acts the same way
