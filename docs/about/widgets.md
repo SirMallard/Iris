@@ -270,15 +270,62 @@ for the UI Instance.
 
 ## State
 
+These functions are both required for any widget which has a state.
+
 ### GenerateState
+
+GenerateState will create all of the state objects used by that widget, if they are not provided by
+the user. It is called only once, when the widget is first created. Creating a new state is not just 
+creating the object, but also linking it to the widget, so that when the state changes, it updates the
+widget. We can use an example to demonstrate the macro function that Iris provides to make this easier,
+as shown in the Checkbox widget:
+
+```lua
+GenerateState = function(thisWidget: Types.Checkbox)
+    if thisWidget.state.isChecked == nil then
+        thisWidget.state.isChecked = Iris._widgetState(thisWidget, "checked", false)
+    end
+end
+```
+
+We first check whether the state already exists. If it doesn't we can use the `Iris._widgetState()`
+function which will construct a new state for this widget with a given name and default value. We can
+therefore give the states their default values here. Within `Iris._widgetState()`, we create a new
+state object and add this widget to its internal table of all connected widgets, and then return the
+new state.
+
+Since `GenerateState` is called only once, we can also use it to connect any widget states together
+using the `:onChange()` connection.
 
 ### UpdateState
 
+UpdateState is the equivalent to `Update`, but for state. If any state object connected to this widget
+is updated, then this will be called, which handles all of the UI changes. This is also called once at
+widget creation, to properly design the UI before it is first shown.
+
+:::note
+Any changes to UI due to state should be handled here, and not in the code which updates the state.
+
+For example, if you have a click event within `GenerateState`, such as for a checkbox, which changes 
+the state, the code within `UpdateState` should change the UI, such as show a tick, rather than handling
+it in `GenerateState`.
+:::
+
 ## Children
+
+These functions are used if a widget has children. Only `ChildAdded` is required.
 
 ### ChildAdded
 
+ChildAdded returns the UI instance which the child widget should be parented to. For most functions,
+it just returns this Instance. However, it is also possible to validate that the child widget is a certain
+type, such as only Menus under a MenuBar. You can also update any UI behaviour which may depend on the
+number of children, such as a container height.
+
 ### ChildDiscarded
+
+ChildDiscarded is optional, and is only necessary when the removal of a child needs to update the parent
+widget in some way, such as changing the size.
 
 ## Calling a Widget
 
