@@ -11,11 +11,11 @@ part of the game process happens when. A typical game loop make look very simila
 
 ```cpp
 while(not_closed) {
-	poll_input();
-	update_game_state();
-	step_physics();
-	render_content();
-	wait(); // for a 60 fps limit
+    poll_input();
+    update_game_state();
+    step_physics();
+    render_content();
+    wait(); // for a 60 fps limit
 }
 ```
 Here we start firstly with polling for any input changes, since these affect the game state
@@ -33,22 +33,22 @@ seen below:
 
 ```lua
 while not_closed do
-	update(UserInputService)
-	update(ContextActionService)
+    update(UserInputService)
+    update(ContextActionService)
 
-	event(RunService.BindToRenderStepped)
-	event(RunService.RenderStepped)
+    event(RunService.BindToRenderStepped)
+    event(RunService.RenderStepped)
 
-	render()
+    render()
 
-	event(wait)
-	event(RunService.Stepped)
-	update(PhysicsService)
+    event(wait)
+    event(RunService.Stepped)
+    update(PhysicsService)
 
-	event(RunService.Heartbeat)
-	update(ReplicationService)
+    event(RunService.Heartbeat)
+    update(ReplicationService)
 
-	delay() -- for a 60 fps limit
+    delay() -- for a 60 fps limit
 end
 ```
 
@@ -82,9 +82,9 @@ for handling all weapons on the client. Integrating Iris may look something simi
 --- game.ReplicatedStorage.Modules.Client.Weaopns.WeaponsService.lua
 ------------------------------------------------------------------------
 local WeaponsService = {
-	maxWeapons = 10,
-	activeWeapon = nil,
-	weapons = {}
+    maxWeapons = 10,
+    activeWeapon = nil,
+    weapons = {}
 }
 
 function WeaponsService.init()
@@ -92,28 +92,28 @@ end
 
 -- called every frame to update all weapons
 function WeaponsService.update(deltaTime: number)
-	Iris.Window({ "Weapons Service" })
+    Iris.Window({ "Weapons Service" })
 
-	WeaponsService.doSomething()
-	Iris.CollapsingHeader({ "Global Variables" })
-		Iris.DragNum({ "Max Weapons", 1, 0 }, { number = Iris.TableState(WeaponsService.maxWeapons) })
-	Iris.End()
+    WeaponsService.doSomething()
+    Iris.CollapsingHeader({ "Global Variables" })
+        Iris.DragNum({ "Max Weapons", 1, 0 }, { number = Iris.TableState(WeaponsService.maxWeapons) })
+    Iris.End()
 
-	Iris.CollapsingHeader({ "Weapons" })
-		Iris.Tree({ `Active Weapon: {WeaponsService.activeWeapon.name}` })
-			WeaponsService.activeWeapon:update()
-		Iris.End()
+    Iris.CollapsingHeader({ "Weapons" })
+        Iris.Tree({ `Active Weapon: {WeaponsService.activeWeapon.name}` })
+            WeaponsService.activeWeapon:update()
+        Iris.End()
 
-		Iris.SeparatorText({ "All Weapons" })
-		for _, weapon: weapon in WeaponsService.weapons do
-			Iris.Tree({ weapon.name })
-				weapon:update()
-			Iris.End()
-		end
-	Iris.End()
-	
-	WeaponsService.doSomethingElse()
-	Iris.End()
+        Iris.SeparatorText({ "All Weapons" })
+        for _, weapon: weapon in WeaponsService.weapons do
+            Iris.Tree({ weapon.name })
+                weapon:update()
+            Iris.End()
+        end
+    Iris.End()
+    
+    WeaponsService.doSomethingElse()
+    Iris.End()
 end
 
 function WeaponsService.terminate()
@@ -131,13 +131,13 @@ function Weapon.new(...)
 end
 
 function Weapon.update(self, deltaTime: number)
-	Iris.Text({ `ID: {self.id}` })
-	Iris.Text({ `Bullets: {self.bullets}/{self.capacity}" })
-	Iris.Checkbox({ "No reload" }, { isChecked = Iris.TableState(self.noreload) })
-	...
-	self:updateInputs()
-	self:updateTransforms()
-	...
+    Iris.Text({ `ID: {self.id}` })
+    Iris.Text({ `Bullets: {self.bullets}/{self.capacity}" })
+    Iris.Checkbox({ "No reload" }, { isChecked = Iris.TableState(self.noreload) })
+    ...
+    self:updateInputs()
+    self:updateTransforms()
+    ...
 end
 
 function Weapon.destroy(self)

@@ -426,6 +426,7 @@ function Iris.State<T>(initialValue: T): Types.State<T>
     Internal._states[ID] = {
         ID = ID,
         value = initialValue,
+        lastChangeTick = Iris.Internal._cycleTick,
         ConnectedWidgets = {},
         ConnectedFunctions = {},
     } :: any
@@ -454,6 +455,7 @@ function Iris.WeakState<T>(initialValue: T): Types.State<T>
     Internal._states[ID] = {
         ID = ID,
         value = initialValue,
+        lastChangeTick = Iris.Internal._cycleTick,
         ConnectedWidgets = {},
         ConnectedFunctions = {},
     } :: any
@@ -513,6 +515,7 @@ function Iris.VariableState<T>(variable: T, callback: (T) -> ()): Types.State<T>
     local newState = {
         ID = ID,
         value = variable,
+        lastChangeTick = Iris.Internal._cycleTick,
         ConnectedWidgets = {},
         ConnectedFunctions = {},
     } :: Types.State<T>
@@ -594,6 +597,7 @@ function Iris.TableState<K, V>(tab: { [K]: V }, key: K, callback: ((newValue: V)
     local newState = {
         ID = ID,
         value = value,
+        lastChangeTick = Iris.Internal._cycleTick,
         ConnectedWidgets = {},
         ConnectedFunctions = {},
     } :: Types.State<V>
@@ -639,6 +643,7 @@ function Iris.ComputedState<T, U>(firstState: Types.State<T>, onChangeCallback: 
         Internal._states[ID] = {
             ID = ID,
             value = onChangeCallback(firstState.value),
+            lastChangeTick = Iris.Internal._cycleTick,
             ConnectedWidgets = {},
             ConnectedFunctions = {},
         } :: Types.State<U>

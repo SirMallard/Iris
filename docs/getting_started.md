@@ -41,30 +41,30 @@ The API documentation for a window is as follows and contains all the informatio
 hasChildren = true
 hasState = true
 Arguments = {
-	Title: string,
-	NoTitleBar: boolean? = false,
-	NoBackground: boolean? = false, -- the background behind the widget container.
-	NoCollapse: boolean? = false,
-	NoClose: boolean? = false,
-	NoMove: boolean? = false,
-	NoScrollbar: boolean? = false, -- the scrollbar if the window is too short for all widgets.
-	NoResize: boolean? = false,
-	NoNav: boolean? = false, -- unimplemented.
-	NoMenu: boolean? = false -- whether the menubar will show if created.
+    Title: string,
+    NoTitleBar: boolean? = false,
+    NoBackground: boolean? = false, -- the background behind the widget container.
+    NoCollapse: boolean? = false,
+    NoClose: boolean? = false,
+    NoMove: boolean? = false,
+    NoScrollbar: boolean? = false, -- the scrollbar if the window is too short for all widgets.
+    NoResize: boolean? = false,
+    NoNav: boolean? = false, -- unimplemented.
+    NoMenu: boolean? = false -- whether the menubar will show if created.
 }
 Events = {
-	opened: () -> boolean, -- once when opened.
-	closed: () -> boolean, -- once when closed.
-	collapsed: () -> boolean, -- once when collapsed.
-	uncollapsed: () -> boolean, -- once when uncollapsed.
-	hovered: () -> boolean -- fires when the mouse hovers over any of the window.
+    opened: () -> boolean, -- once when opened.
+    closed: () -> boolean, -- once when closed.
+    collapsed: () -> boolean, -- once when collapsed.
+    uncollapsed: () -> boolean, -- once when uncollapsed.
+    hovered: () -> boolean -- fires when the mouse hovers over any of the window.
 }
 States = {
-	size = State<Vector2>? = Vector2.new(400, 300),
-	position = State<Vector2>?,
-	isUncollapsed = State<boolean>? = true,
-	isOpened = State<boolean>? = true,
-	scrollDistance = State<number>? -- vertical scroll distance, if too short.
+    size = State<Vector2>? = Vector2.new(400, 300),
+    position = State<Vector2>?,
+    isUncollapsed = State<boolean>? = true,
+    isOpened = State<boolean>? = true,
+    scrollDistance = State<number>? -- vertical scroll distance, if too short.
 }
 ```
 

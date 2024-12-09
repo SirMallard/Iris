@@ -22,7 +22,7 @@ function in `Iris.Internal`. This takes two arguments, a type for the widget, su
 or SameLine, and a widget class table, containing the functions. This WidgetClass is defined as:
 ```lua
 export type WidgetClass = {
-	-- Required
+    -- Required
     Generate: (thisWidget: Widget) -> GuiObject,
     Discard: (thisWidget: Widget) -> (),
     Update: (thisWidget: Widget, ...any) -> (),
@@ -32,16 +32,16 @@ export type WidgetClass = {
     hasChildren: boolean,
     hasState: boolean,
 
-	-- Generated on construction
+    -- Generated on construction
     ArgNames: { [number]: string },
 
-	-- Required for widgets with state
+    -- Required for widgets with state
     GenerateState: (thisWidget: Widget) -> (),
     UpdateState: (thisWidget: Widget) -> (),
 
-	-- Required for widgets with children
+    -- Required for widgets with children
     ChildAdded: (thisWidget: Widget, thisChild: Widget) -> GuiObject,
-	-- Optional for widgets with children
+    -- Optional for widgets with children
     ChildDiscarded: (thisWidget: Widget, thisChild: Widget) -> (),
 }
 ```
@@ -200,52 +200,52 @@ the generated UI instances follow:
 2. The ZIndex and LayoutOrder of the root element are taken from the ZIndex property of the widget.
 3. Returns the root instance.
 4. Widgets are generally sized using AutomaticSize or the config over hard-coded numbers, and therefore
-	scale better
+    scale better
 5. The arguments are never used to modify any instances because if the arguments change then the widget
-	should be able to handle the changes on existing UI rather than creating a new design.
+    should be able to handle the changes on existing UI rather than creating a new design.
 
 The code of a Button best demonstrates this:
 ```lua
 Generate = function(thisWidget: Types.Button)
-	-- a TextButton is the best option here because it has the correct events
-	local Button: TextButton = Instance.new("TextButton")
-	-- we rely on auomatic size
-	Button.Size = UDim2.fromOfset(0, 0)
-	-- using the config values
-	Button.BackgroundColor3 = Iris._config.ButtonColor
-	Button.BackgroundTransparency = Iris._config.ButtonTransparency
-	Button.AutoButtonColor = false
-	Button.AutomaticSize = Enum.AutomaticSize.XY
+    -- a TextButton is the best option here because it has the correct events
+    local Button: TextButton = Instance.new("TextButton")
+    -- we rely on auomatic size
+    Button.Size = UDim2.fromOfset(0, 0)
+    -- using the config values
+    Button.BackgroundColor3 = Iris._config.ButtonColor
+    Button.BackgroundTransparency = Iris._config.ButtonTransparency
+    Button.AutoButtonColor = false
+    Button.AutomaticSize = Enum.AutomaticSize.XY
 
-	-- utility functions exist such as this one which correctly sets the text
-	-- style for the widget
-	widgets.applyTextStyle(Button)
-	Button.TextXAlignment = Enum.TextXAlignment.Center
+    -- utility functions exist such as this one which correctly sets the text
+    -- style for the widget
+    widgets.applyTextStyle(Button)
+    Button.TextXAlignment = Enum.TextXAlignment.Center
 
-	-- another utility function which adds any borders or padding dependent
-	-- on the config
-	widgets.applyFrameStyle(Button)
+    -- another utility function which adds any borders or padding dependent
+    -- on the config
+    widgets.applyFrameStyle(Button)
 
-	-- an utility event which uses clicks and hovers to colour the button
-	-- when the mouse interacts with it: normal, hovered and clicked
-	widgets.applyInteractionHighlights("Background", Button, Button, {
-		Color = Iris._config.ButtonColor,
-		Transparency = Iris._config.ButtonTransparency,
-		HoveredColor = Iris._config.ButtonHoveredColor,
-		HoveredTransparency = Iris._config.ButtonHoveredTransparency,
-		ActiveColor = Iris._config.ButtonActiveColor,
-		ActiveTransparency = Iris._config.ButtonActiveTransparency,
-	})
+    -- an utility event which uses clicks and hovers to colour the button
+    -- when the mouse interacts with it: normal, hovered and clicked
+    widgets.applyInteractionHighlights("Background", Button, Button, {
+        Color = Iris._config.ButtonColor,
+        Transparency = Iris._config.ButtonTransparency,
+        HoveredColor = Iris._config.ButtonHoveredColor,
+        HoveredTransparency = Iris._config.ButtonHoveredTransparency,
+        ActiveColor = Iris._config.ButtonActiveColor,
+        ActiveTransparency = Iris._config.ButtonActiveTransparency,
+    })
 
-	-- set the correct layout order and zindex to ensure it stays in the
-	-- correct order. Iris relies heavily on UIListLayouts to automatically
-	-- position the UI, and therefore relies on the LayoutOrder property.
-	Button.ZIndex = thisWidget.ZIndex
-	Button.LayoutOrder = thisWidget.ZIndex
+    -- set the correct layout order and zindex to ensure it stays in the
+    -- correct order. Iris relies heavily on UIListLayouts to automatically
+    -- position the UI, and therefore relies on the LayoutOrder property.
+    Button.ZIndex = thisWidget.ZIndex
+    Button.LayoutOrder = thisWidget.ZIndex
 
-	-- we finally return the instance, which is correctly parented and 
-	-- Iris sets the widget.instance property to this root element
-	return Button
+    -- we finally return the instance, which is correctly parented and 
+    -- Iris sets the widget.instance property to this root element
+    return Button
 end,
 ```
 

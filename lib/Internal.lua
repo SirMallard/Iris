@@ -144,6 +144,7 @@ return function(Iris: Types.Iris): Types.Internal
             return self.value
         end
         self.value = newValue
+        self.lastChangeTick = Iris.Internal._cycleTick
         for _, thisWidget: Types.Widget in self.ConnectedWidgets do
             Internal._widgets[thisWidget.type].UpdateState(thisWidget)
         end

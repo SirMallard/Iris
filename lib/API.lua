@@ -695,14 +695,14 @@ return function(Iris: Types.Iris)
     Iris.CollapsingHeader = wrapper("CollapsingHeader")
 
     --[[
-		--------------------------------
-			[SECTION] Tab Widget API
-		--------------------------------
-	]]
+        --------------------------------
+            [SECTION] Tab Widget API
+        --------------------------------
+    ]]
     --[=[
-		@class Tab
-		Tab Widget API
-	]=]
+        @class Tab
+        Tab Widget API
+    ]=]
 
     --[=[
         @within Tab
