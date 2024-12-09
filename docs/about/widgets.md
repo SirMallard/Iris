@@ -17,9 +17,9 @@ added and therefore needs to be declared or constucted in advance. The class wid
 of data and functions but conforming to a specification which includes the necessary functions for
 operation.
 
-To create a widget class, use the `WidgetConstructor: (type: string, widgetClass: WidgetClass) -> ()` function
-in `Iris.Internal`. This takes two arguments, a type for the widget, such as Text, InputVector2 or
-SameLine, and a widget class table, containing the functions. This WidgetClass is defined as:
+To create a widget class, use the `WidgetConstructor: (type: string, widgetClass: WidgetClass) -> ()`
+function in `Iris.Internal`. This takes two arguments, a type for the widget, such as Text, InputVector2
+or SameLine, and a widget class table, containing the functions. This WidgetClass is defined as:
 ```lua
 export type WidgetClass = {
 	-- Required
@@ -101,7 +101,7 @@ the generated UI instances follow:
 5. The arguments are never used to modify any instances because if the arguments change then the widget
 	should be able to handle the changes on existing UI rather than creating a new design.
 
-The code of a Buttn best demonstrates this:
+The code of a Button best demonstrates this:
 ```lua
 Generate = function(thisWidget: Types.Button)
 	-- a TextButton is the best option here because it has the correct events
@@ -146,17 +146,24 @@ Generate = function(thisWidget: Types.Button)
 end,
 ```
 
+### Discard
 
-
-:::note
-This page needs to be rewritten and is lacking in detail.
-:::
+Discard is called whenever the widget is about to be destroyed because it has not been called this frame.
+It hsould remove any instances used by the widget. Most of the time, it is possible to just destroy the
+root Instance of the widget, which will close any connections and remove all child instances. If a widget
+has any state objects, you will also need to call the `discardState()` function in the widget utility
+library, which removes any connected states from the widget, allowing the widget to be correctly cleaned
+up. 
 
 # Overview
 
-Iris has a widget constructor method to create widgets with. Once a widget has been constructed, you can than use it like any other widget. Every widget follows a set of guidelines it must follow when constructed.
+Iris has a widget constructor method to create widgets with. Once a widget has been constructed, you
+can than use it like any other widget. Every widget follows a set of guidelines it must follow when
+constructed.
 
-To construct a new widget, you can call `Iris.WidgetConstructor()` with the widget name and widget class. To then use the widget you can call `Iris.Internal._Insert()` with the widget name and then optional argument and state tables.
+To construct a new widget, you can call `Iris.WidgetConstructor()` with the widget name and widget class.
+To then use the widget you can call `Iris.Internal._Insert()` with the widget name and then optional
+argument and state tables.
 
 # Documentation
 
@@ -195,7 +202,10 @@ Iris.WidgetConstructor("Text", {
 The first argument, `type: string`, specifies a name for the widget.
 
 
-The second argument is the widget class. The methods which a widget class has depends on the value of `hasState` and `hasChildren`. Every widget class should specify if it `hasState` and `hasChildren`. The example widget, a text label, has no state, and it does not contain other widgets, so both are false. Every widget must have the following functions:
+The second argument is the widget class. The methods which a widget class has depends on the value of
+`hasState` and `hasChildren`. Every widget class should specify if it `hasState` and `hasChildren`. The
+example widget, a text label, has no state, and it does not contain other widgets, so both are false.
+Every widget must have the following functions:
 
 | All Widgets | Widgets with State | Widgets with Children     |
 | ----------- | ------------------ | ------------------------- |
@@ -206,10 +216,11 @@ The second argument is the widget class. The methods which a widget class has de
 | Events      |                    |                           |
 
 ### Generate
-Generate is called when a widget is first instantiated. It should create all the instances and properly adjust them to fit the config properties.
-Generate is also called when style properties change.
+Generate is called when a widget is first instantiated. It should create all the instances and properly
+adjust them to fit the config properties. Generate is also called when style properties change.
 
-Generate should return the instance which acts as the root of the widget. (what should be parented to the parents designated Instance)
+Generate should return the instance which acts as the root of the widget. (what should be parented to
+the parents designated Instance)
 
 ### Update
 Update is called only after instantiation and when widget arguments have changed. 
@@ -233,7 +244,8 @@ end
 ```
 
 ### Events
-Events is a table, not a method. It contains all of the possible events which a widget can have. Lets look at the hovered event as an example.
+Events is a table, not a method. It contains all of the possible events which a widget can have. Lets
+look at the hovered event as an example.
 ```lua
 ["hovered"] = {
     ["Init"] = function(thisWidget)
@@ -255,11 +267,13 @@ Events is a table, not a method. It contains all of the possible events which a 
 Every event has 2 methods, `Init` and `Get`. 
 `Init` is called when a widget first polls the value of an event.
 Because of this, you can instantiate events and variables for an event to only widgets which need it.
-`Get` is the actual function which is called by the call to an event (like `Button.hovered()`), it should return the event value.
+`Get` is the actual function which is called by the call to an event (like `Button.hovered()`), it should
+return the event value.
 
 ### Args
-Args is a table, not a method. It enumerates all of the possible arguments which may be passed as arguments into the widget.
-The order of the tables indicies indicate which position the Argument will be interpreted as. For instance, in `Iris.Text`:
+Args is a table, not a method. It enumerates all of the possible arguments which may be passed as arguments
+into the widget. The order of the tables indicies indicate which position the Argument will be interpreted
+as. For instance, in `Iris.Text`:
 ```lua
 Args = {
     ["Text"] = 1
@@ -274,8 +288,8 @@ Iris.Text({"Hello"})
 the `Update` function can retrieve arguments from `thisWidget.arguments`, such as `thisWidget.arguments.Text`
 
 ### GenerateState
-GenerateState is called when the widget is first Instantiated, It should generate any state objects which weren't passed as a state by the user.
-For Instance, in `Iris.Checkbox`:
+GenerateState is called when the widget is first Instantiated, It should generate any state objects which
+weren't passed as a state by the user. For instance, in `Iris.Checkbox`:
 ```lua
 GenerateState = function(thisWidget)
     if thisWidget.state.isChecked == nil then
@@ -305,7 +319,8 @@ UpdateState should avoid calling :set().
 :::
 
 ### ChildAdded
-ChildAdded is called when a widget is first Initiated and is a child of the widget. ChildAdded should return the Instance which the Child will be parented to.
+ChildAdded is called when a widget is first Initiated and is a child of the widget. ChildAdded should return the
+Instance which the Child will be parented to.
 
 ### ChildDiscarded
 ChildDiscarded is called when a widget is Discarded and is a child of the widget. ChildDiscarded is optional.

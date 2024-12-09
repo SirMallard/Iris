@@ -4,6 +4,16 @@ sidebar_position: 2
 
 # Getting Started
 
+## Installing Iris
+
+Iris is available to download using Wally, use the release from GitHub, or build yourself. It is best to
+place Iris somewhere on the client, such as under `StarterPlayerScripts` or `ReplicatedStorage`. Once
+Iris is installed, you can `require(path.to.Iris)` the module from any client script. Iris also has a
+public types system, which you can access from `require(path.to.Iris.PubTypes)`. To start Iris, you will
+need to run `Iris.Init()` before using Iris anywhere else. This can be difficult when you have multiple
+scripts running at the same time, so it is best to organise your code with a single entry point to
+initialise Iris from.
+
 ## Understanding the API
 
 The Iris API is fairly unique and can be difficult to understand initially. However, once understood, it
@@ -155,4 +165,4 @@ Iris.End()
 Here, we are listening to events which are just functions that return a boolean if the condition is true.
 We can refer to the API to find all the events, and they should be fairly self-explanatory in what they do.
 Some events will only happen once when the user interacts with the widget, others will depend on the state of
-the widget instead.
+the widget, such as if it is open.
