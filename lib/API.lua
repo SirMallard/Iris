@@ -464,7 +464,7 @@ return function(Iris: Types.Iris)
         hasState = false
         Arguments = {
             Text: string,
-            Size: UDim2? = 0,
+            Size: UDim2? = UDim2.fromOffset(0, 0),
         }
         Events = {
             clicked: () -> boolean,

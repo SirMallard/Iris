@@ -117,8 +117,12 @@ This issue may also arise if some of your code either yields or errors and there
 
 ```lua
  4| Iris.Window({ "Valid Code with Error" })
- 5| 	error("Something has gone wrong. :(")
+ 5| 	error("Something has gone wrong. :(") -- errors within Iris
  6| Iris.End()
+
+ 7| Iris.Window({ "Asynchronous Code" })
+ 8|     task.wait(1) -- yeilds within Iris
+ 9| Iris.End()
 ```
 
 Although all the `Iris.End()` statements are there and in the right space, the error has prevented

@@ -171,7 +171,12 @@ The hovered event here used a macro utility, which takes a function that returns
 hovering on. It then sets up the `MouseHover` events for us, and returns the two functions so that th event
 is setup correctly. This is the easiest way, since we only need to provide the UI Instance.
 
-The other event style uses our own counters. 
+The other events are added manually. They each work by checking whether an event has fired on this tick.
+Elsewhere in the code for the Window widget, these tick variables are set when an event happens. For example,
+in the code which checks for a click on the window collapse button, it will update the tick variable to the
+next cycle, ensuring that the event fires when all of the UI changes.
+
+Most of the time, you can the existing examples from other widgets.
 
 ### hasChildren
 
@@ -253,204 +258,38 @@ has any state objects, you will also need to call the `discardState()` function 
 library, which removes any connected states from the widget, allowing the widget to be correctly cleaned
 up. 
 
+### Update
+
+Update is used to alter the widget dependent on the provided arguments. Since the arguments can change
+every frame, Iris will call `Update` whenever these arguments change, and when the widget is first
+created. Within Generate, all possible instances that are used by the widget are created. `Update` is
+used to determine which ones are visible and the style of them.
+
+For example, the Text argument of a widget can be updated dynamically, by simply changing the Text value
+for the UI Instance. 
+
 ## State
+
+### GenerateState
+
+### UpdateState
 
 ## Children
 
-:::danger
-END OF PAGE
-
-STOP HERE
-:::
-
-# Overview
-
-Iris has a widget constructor method to create widgets with. Once a widget has been constructed, you
-can than use it like any other widget. Every widget follows a set of guidelines it must follow when
-constructed.
-
-To construct a new widget, you can call `Iris.WidgetConstructor()` with the widget name and widget class.
-To then use the widget you can call `Iris.Internal._Insert()` with the widget name and then optional
-argument and state tables.
-
-# Documentation
-
-## Widget Construction
-
-For Instance, this is the call to `Iris.WidgetConstructor` for the `Iris.Text` widget:
-```lua
-Iris.WidgetConstructor("Text", {
-    hasState = false,
-    hasChildren = false,
-    Args = {
-        ["Text"] = 1
-    },
-    Events  {
-        ["hovered"] = {
-            ...
-        }
-    }
-    Generate = function(thisWidget)
-        local Text = Instance.new("TextLabel")
-        
-        ...
-
-        return Text
-    end,
-    Update = function(thisWidget)
-        ...
-    end,
-    Discard = function(thisWidget)
-        thisWidget.Instance:Destroy()
-    end
-})
-```
-
-
-The first argument, `type: string`, specifies a name for the widget.
-
-
-The second argument is the widget class. The methods which a widget class has depends on the value of
-`hasState` and `hasChildren`. Every widget class should specify if it `hasState` and `hasChildren`. The
-example widget, a text label, has no state, and it does not contain other widgets, so both are false.
-Every widget must have the following functions:
-
-| All Widgets | Widgets with State | Widgets with Children     |
-| ----------- | ------------------ | ------------------------- |
-| Generate    | GenerateState      | ChildAdded                |
-| Update      | UpdateState        | ChildDiscarded (optional) |
-| Discard     |                    |                           |
-| Args        |                    |                           |
-| Events      |                    |                           |
-
-### Generate
-Generate is called when a widget is first instantiated. It should create all the instances and properly
-adjust them to fit the config properties. Generate is also called when style properties change.
-
-Generate should return the instance which acts as the root of the widget. (what should be parented to
-the parents designated Instance)
-
-### Update
-Update is called only after instantiation and when widget arguments have changed. 
-For instance, in `Iris.Text`
-```lua
-Update = function(thisWidget)
-    local Text = thisWidget.Instance
-    if thisWidget.arguments.Text == nil then
-        error("A text argument is requried for Iris.Text().", 5)
-    end
-    Text.Text = thisWidget.arguments.Text
-end
-```
-
-### Discard
-Discard is called when the widget stops being displayed. In most cases the function body should resemble this:
-```lua
-Discard = function(thisWidget)
-    thisWidget.Instance:Destroy()
-end
-```
-
-### Events
-Events is a table, not a method. It contains all of the possible events which a widget can have. Lets
-look at the hovered event as an example.
-```lua
-["hovered"] = {
-    ["Init"] = function(thisWidget)
-        local hoveredGuiObject = thisWidget.Instance
-        thisWidget.isHoveredEvent = false
-
-        hoveredGuiObject.MouseEnter:Connect(function()
-            thisWidget.isHoveredEvent = true
-        end)
-        hoveredGuiObject.MouseLeave:Connect(function()
-            thisWidget.isHoveredEvent = false
-        end)
-    end,
-    ["Get"] = function(thisWidget)
-        return thisWidget.isHoveredEvent
-    end
-}
-```
-Every event has 2 methods, `Init` and `Get`. 
-`Init` is called when a widget first polls the value of an event.
-Because of this, you can instantiate events and variables for an event to only widgets which need it.
-`Get` is the actual function which is called by the call to an event (like `Button.hovered()`), it should
-return the event value.
-
-### Args
-Args is a table, not a method. It enumerates all of the possible arguments which may be passed as arguments
-into the widget. The order of the tables indicies indicate which position the Argument will be interpreted
-as. For instance, in `Iris.Text`:
-```lua
-Args = {
-    ["Text"] = 1
-}
-```
-when a Text widget is generated, the first index of the Arguments table will be interpreted as the 'Text' parameter
-```lua
-Iris.Text({[1] = "Hello"})
--- same result
-Iris.Text({"Hello"})
-```
-the `Update` function can retrieve arguments from `thisWidget.arguments`, such as `thisWidget.arguments.Text`
-
-### GenerateState
-GenerateState is called when the widget is first Instantiated, It should generate any state objects which
-weren't passed as a state by the user. For instance, in `Iris.Checkbox`:
-```lua
-GenerateState = function(thisWidget)
-    if thisWidget.state.isChecked == nil then
-        thisWidget.state.isChecked = Iris._widgetState(thisWidget, "checked", false)
-    end
-end
-```
-
-### UpdateState
-UpdateState is called whenever ANY state objects are updated, using its :set() method.
-For instance, in `Iris.Checkbox`:
-```lua
-UpdateState = function(thisWidget)
-    local Checkbox = thisWidget.Instance.CheckboxBox
-    if thisWidget.state.isChecked.value then
-        Checkbox.Text = ICONS.CHECK_MARK
-        thisWidget.events.checked = true
-    else
-        Checkbox.Text = ""
-        thisWidget.events.unchecked = true
-    end
-end
-```
-:::caution
-calling :set() to any of a widget's own state objects inside of UpdateState may cause an infinite loop of state updates.
-UpdateState should avoid calling :set().
-:::
-
 ### ChildAdded
-ChildAdded is called when a widget is first Initiated and is a child of the widget. ChildAdded should return the
-Instance which the Child will be parented to.
 
 ### ChildDiscarded
-ChildDiscarded is called when a widget is Discarded and is a child of the widget. ChildDiscarded is optional.
 
-## Widget Usage
+## Calling a Widget
 
-To use this widget once it has been constructed, you can use:
+We have constructed our widget class, but need to know how to call it. We use the `_Insert` API under
+`Iris.Internal`: `_Insert: (widgetType: string, arguments: WidgetArguments?, states: WidgetStates?) -> Widget`.
+We provide the widgetType, as specified in the constructor, and then arguments and states.
+
+For example, we can create a Text widget by calling:
 ```lua
-Iris.Internal._Insert("Text", {"Sampele text"}, nil) -- "Text" argument and no state
+Iris.Internal._Insert("Text", { "Text label" })
 ```
-This is the same as calling any other widget but requires the widget name as passed to `Iris.WidgetConstructor()` as the first argument.
 
-***
-
-## When does a widget need to have state?
-State should only be used by widgets when there are properties which are able to be set by BOTH the widget, and by the user's code.
-
-For Instance, `Iris.Window` has a state, `size`. This field can be changed by the user's code, to adjust or initiate the size, and the widget also changes the size when it is resized.
-
-If the window was never able to change the size property, such as if there were no resize feature, then instead it should be an argument.
-
-This table demonstrates the relation between User / Widget permissions, and where the field should belong inside the widget class.
-<div align="Left">
-    <img src="https://raw.githubusercontent.com/Michael-48/Iris/main/assets/IrisHelpfulChart.png" alt="Sample Display Output"/>
-</div>
+We create an alias for these functions under `Iris` directly, which is why the user does not call
+this function directly.
