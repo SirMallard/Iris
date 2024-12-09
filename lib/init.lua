@@ -551,7 +551,7 @@ end
     Here the `data._started` should never be updated directly, only through the `toggle` function. However, we still want to monitor the value and be able to change it.
     Therefore, we use the callback to toggle the function for us and prevent Iris from updating the table value by returning false.
     ```lua
-    local data ={
+    local data = {
         _started = false
     }
 

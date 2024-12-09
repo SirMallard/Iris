@@ -156,7 +156,7 @@ return function(Iris: Types.Iris)
 
         :::info
         There are widgets which are designed for being parented to a menu whilst other happens to work. There is nothing
-        preventing you from adding any widget as a child, but the behaviour is unexplained and not intended, despite allowed.
+        preventing you from adding any widget as a child, but the behaviour is unexplained and not intended.
         :::
         
         ```lua
