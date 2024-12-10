@@ -16,7 +16,7 @@ return function(Iris: Types.Iris): Types.Internal
         ---------------------------------
     ]]
 
-    Internal._version = [[ 2.3.1 ]]
+    Internal._version = [[ 2.4.1 ]]
 
     Internal._started = false -- has Iris.connect been called yet
     Internal._shutdown = false
