@@ -442,11 +442,15 @@ export type ProgressBar = Widget & {
 } & Changed & Hovered
 
 export type PlotLines = Widget & {
+    Lines: { Frame },
+    HoveredLine: Frame | false,
+    Tooltip: TextLabel,
+
     arguments: {
         Text: string,
+        Height: number,
         Min: number,
         Max: number,
-        Height: number,
         TextOverlay: string,
     },
 
@@ -462,11 +466,11 @@ export type PlotHistogram = Widget & {
 
     arguments: {
         Text: string,
+        Height: number,
         Min: number,
         Max: number,
-        Height: number,
-        BaseLine: number,
         TextOverlay: string,
+        BaseLine: number,
     },
 
     state: {
