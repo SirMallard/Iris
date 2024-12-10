@@ -35,6 +35,7 @@ classes = ["Internal"]
 
 [docusaurus]
 onBrokenMarkdownLinks = "warn"
+onBrokenLinks = "ignore"
 trailingSlash = false
 [docusarus.themeConfig.prism]
 additionalLangues = ["lua", "luau", "cpp"]

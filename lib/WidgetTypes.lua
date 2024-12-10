@@ -460,7 +460,7 @@ export type PlotLines = Widget & {
         values: State<{ number }>,
         hovered: State<{ number }?>,
     },
-}
+} & Hovered
 
 export type PlotHistogram = Widget & {
     Blocks: { Frame },
@@ -480,7 +480,7 @@ export type PlotHistogram = Widget & {
         values: State<{ number }>,
         hovered: State<number?>,
     },
-}
+} & Hovered
 
 export type Table = ParentWidget & {
     RowColumnIndex: number,
