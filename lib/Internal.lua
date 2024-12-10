@@ -161,6 +161,7 @@ return function(Iris: Types.Iris): Types.Internal
         @within State
         @method onChange<T>
         @param callback (newValue: T) -> ()
+        @return () -> ()
         
         Allows the caller to connect a callback which is called when the states value is changed.
 
@@ -175,6 +176,17 @@ return function(Iris: Types.Iris): Types.Internal
         return function()
             self.ConnectedFunctions[connectionIndex] = nil
         end
+    end
+
+    --[=[
+        @within State
+        @method changed<T>
+        @return boolean
+
+        Returns true if the state was changed on this frame.
+    ]=]
+    function StateClass:changed<T>(): boolean
+        return self.lastChangeTick + 1 == Internal._cycleTick
     end
 
     Internal.StateClass = StateClass

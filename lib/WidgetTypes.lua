@@ -18,6 +18,7 @@ export type State<T> = {
     get: (self: State<T>) -> T,
     set: (self: State<T>, newValue: T, force: true?) -> (),
     onChange: (self: State<T>, funcToConnect: (newValue: T) -> ()) -> () -> (),
+    changed: (self: State<T>) -> boolean,
 }
 
 --[=[
