@@ -34,6 +34,8 @@ export type InputText = Types.InputText
 export type Selectable = Types.Selectable
 export type Combo = Types.Combo
 export type ProgressBar = Types.ProgressBar
+export type PlotLines = Types.PlotLines
+export type PlotHistogram = Types.PlotHistogram
 export type Table = Types.Table
 
 export type Iris = Types.Iris

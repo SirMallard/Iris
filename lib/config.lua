@@ -94,6 +94,10 @@ local TemplateConfig = {
         CheckMarkColor = Color3.fromRGB(66, 150, 250),
         CheckMarkTransparency = 0,
 
+        PlotLinesColor = Color3.fromRGB(156, 156, 156),
+        PlotLinesTransparency = 0,
+        PlotLinesHoveredColor = Color3.fromRGB(255, 110, 89),
+        PlotLinesHoveredTransparency = 0,
         PlotHistogramColor = Color3.fromRGB(230, 179, 0),
         PlotHistogramTransparency = 0,
         PlotHistogramHoveredColor = Color3.fromRGB(255, 153, 0),
@@ -194,6 +198,10 @@ local TemplateConfig = {
         CheckMarkColor = Color3.fromRGB(66, 150, 250),
         CheckMarkTransparency = 0,
 
+        PlotLinesColor = Color3.fromRGB(99, 99, 99),
+        PlotLinesTransparency = 0,
+        PlotLinesHoveredColor = Color3.fromRGB(255, 110, 89),
+        PlotLinesHoveredTransparency = 0,
         PlotHistogramColor = Color3.fromRGB(230, 179, 0),
         PlotHistogramTransparency = 0,
         PlotHistogramHoveredColor = Color3.fromRGB(255, 153, 0),

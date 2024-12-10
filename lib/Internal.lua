@@ -21,6 +21,7 @@ return function(Iris: Types.Iris): Types.Internal
     Internal._started = false -- has Iris.connect been called yet
     Internal._shutdown = false
     Internal._cycleTick = 0 -- increments for each call to Cycle, used to determine the relative age and freshness of generated widgets
+    Internal._deltaTime = 0
 
     -- Refresh
     Internal._globalRefreshRequested = false -- refresh means that all GUI is destroyed and regenerated, usually because a style change was made and needed to be propogated to all UI
@@ -134,12 +135,13 @@ return function(Iris: Types.Iris): Types.Internal
         @within State
         @method set<T>
         @param newValue T
+        @param force boolean? -- force an update to all connections
         @return T
         
         Allows the caller to assign the state object a new value, and returns the new value.
     ]=]
-    function StateClass:set<T>(newValue: T): T
-        if newValue == self.value then
+    function StateClass:set<T>(newValue: T, force: true?): T
+        if newValue == self.value and force ~= true then
             -- no need to update on no change.
             return self.value
         end
@@ -189,7 +191,7 @@ return function(Iris: Types.Iris): Types.Internal
         
         Called every frame to handle all of the widget management. Any previous frame data is ammended and everything updates.
     ]=]
-    function Internal._cycle()
+    function Internal._cycle(deltaTime: number)
         --debug.profilebegin("Iris/Cycle")
         if Iris.Disabled then
             return -- Stops all rendering, effectively freezes the current frame with no interaction.
@@ -236,6 +238,7 @@ return function(Iris: Types.Iris): Types.Internal
 
         -- update counters
         Internal._cycleTick += 1
+        Internal._deltaTime = deltaTime
         table.clear(Internal._usedIDs)
 
         -- if Internal.parentInstance:IsA("GuiBase2d") and math.min(Internal.parentInstance.AbsoluteSize.X, Internal.parentInstance.AbsoluteSize.Y) < 100 then
@@ -552,6 +555,7 @@ return function(Iris: Types.Iris): Types.Internal
                         -- generate a new state.
                         states[index] = Internal._widgetState(stateWidget, index, state)
                     end
+                    states[index].lastChangeTick = Internal._cycleTick
                 end
 
                 stateWidget.state = states
@@ -646,11 +650,13 @@ return function(Iris: Types.Iris): Types.Internal
         local ID: Types.ID = thisWidget.ID .. stateName
         if Internal._states[ID] then
             Internal._states[ID].ConnectedWidgets[thisWidget.ID] = thisWidget
+            Internal._states[ID].lastChangeTick = Internal._cycleTick
             return Internal._states[ID]
         else
             Internal._states[ID] = {
                 ID = ID,
                 value = initialValue,
+                lastChangeTick = Internal._cycleTick,
                 ConnectedWidgets = { [thisWidget.ID] = thisWidget },
                 ConnectedFunctions = {},
             }

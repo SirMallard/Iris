@@ -98,6 +98,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             TextLabel.Text = thisWidget.arguments.Text or "Radio Button"
             if thisWidget.state then
+                thisWidget.state.index.lastChangeTick = Iris._cycleTick
                 Iris._widgets[thisWidget.type].UpdateState(thisWidget)
             end
         end,

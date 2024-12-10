@@ -69,7 +69,7 @@ Iris.Events = {}
 
     If the `eventConnection` is `false` then Iris will not create a cycle loop and the user will need to call [Internal._cycle] every frame.
 ]=]
-function Iris.Init(parentInstance: Instance?, eventConnection: (RBXScriptSignal | () -> () | false)?): Types.Iris
+function Iris.Init(parentInstance: Instance?, eventConnection: (RBXScriptSignal | (() -> number) | false)?): Types.Iris
     assert(Internal._started == false, "Iris.Init() can only be called once.")
     assert(Internal._shutdown == false, "Iris.Init() cannot be called once shutdown.")
 
@@ -95,12 +95,12 @@ function Iris.Init(parentInstance: Instance?, eventConnection: (RBXScriptSignal 
     task.spawn(function()
         if typeof(eventConnection) == "function" then
             while Internal._started do
-                eventConnection()
-                Internal._cycle()
+                local deltaTime: number = eventConnection()
+                Internal._cycle(deltaTime)
             end
         elseif eventConnection ~= nil and eventConnection ~= false then
-            Internal._eventConnection = eventConnection:Connect(function()
-                Internal._cycle()
+            Internal._eventConnection = eventConnection:Connect(function(...)
+                Internal._cycle(...)
             end)
         end
     end)

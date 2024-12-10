@@ -16,7 +16,7 @@ export type State<T> = {
     ConnectedFunctions: { (newValue: T) -> () },
 
     get: (self: State<T>) -> T,
-    set: (self: State<T>, newValue: T) -> (),
+    set: (self: State<T>, newValue: T, force: true?) -> (),
     onChange: (self: State<T>, funcToConnect: (newValue: T) -> ()) -> () -> (),
 }
 
@@ -417,8 +417,6 @@ export type Selectable = Widget & {
 } & Selected & Unselected & Clicked & RightClicked & DoubleClicked & CtrlClicked & Hovered
 
 export type Combo = ParentWidget & {
-    ComboChildrenHeight: number,
-
     arguments: {
         Text: string?,
         NoButton: boolean?,
@@ -443,6 +441,45 @@ export type ProgressBar = Widget & {
         progress: State<number>,
     },
 } & Changed & Hovered
+
+export type PlotLines = Widget & {
+    Lines: { Frame },
+    HoveredLine: Frame | false,
+    Tooltip: TextLabel,
+
+    arguments: {
+        Text: string,
+        Height: number,
+        Min: number,
+        Max: number,
+        TextOverlay: string,
+    },
+
+    state: {
+        values: State<{ number }>,
+        hovered: State<{ number }?>,
+    },
+}
+
+export type PlotHistogram = Widget & {
+    Blocks: { Frame },
+    HoveredBlock: Frame | false,
+    Tooltip: TextLabel,
+
+    arguments: {
+        Text: string,
+        Height: number,
+        Min: number,
+        Max: number,
+        TextOverlay: string,
+        BaseLine: number,
+    },
+
+    state: {
+        values: State<{ number }>,
+        hovered: State<number?>,
+    },
+}
 
 export type Table = ParentWidget & {
     RowColumnIndex: number,
