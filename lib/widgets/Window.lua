@@ -217,13 +217,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
                 local WindowButton = Window.WindowButton :: TextButton
                 local ResizeBorder: TextButton = WindowButton.ResizeBorder
-                if ResizeBorder and widgets.isPosInsideRect(position, ResizeBorder.AbsolutePosition, ResizeBorder.AbsolutePosition + ResizeBorder.AbsoluteSize) then
+                if ResizeBorder and widgets.isPosInsideRect(position, ResizeBorder.AbsolutePosition - widgets.GuiOffset, ResizeBorder.AbsolutePosition - widgets.GuiOffset + ResizeBorder.AbsoluteSize) then
                     inWindow = true
                     break
                 end
             end
 
             if not inWindow then
+                print("Outside")
                 Iris.SetFocusedWindow(nil)
             end
         end
@@ -630,32 +631,67 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local ResizeButtonSize: number = Iris._config.TextSize + Iris._config.FramePadding.X
 
-            local ResizeGrip = Instance.new("ImageButton")
-            ResizeGrip.Name = "ResizeGrip"
-            ResizeGrip.AnchorPoint = Vector2.one
-            ResizeGrip.Size = UDim2.fromOffset(ResizeButtonSize, ResizeButtonSize)
-            ResizeGrip.Position = UDim2.fromScale(1, 1)
-            ResizeGrip.Rotation = 90
-            ResizeGrip.AutoButtonColor = false
-            ResizeGrip.BorderSizePixel = 0
-            ResizeGrip.BackgroundTransparency = 1
-            ResizeGrip.Image = widgets.ICONS.BOTTOM_RIGHT_CORNER
-            ResizeGrip.ImageColor3 = Iris._config.ButtonColor
-            ResizeGrip.ImageTransparency = Iris._config.ButtonTransparency
-            ResizeGrip.Selectable = false
-            ResizeGrip.ZIndex = 3
-            ResizeGrip.Parent = WindowButton
+            local LeftResizeGrip = Instance.new("ImageButton")
+            LeftResizeGrip.Name = "LeftResizeGrip"
+            LeftResizeGrip.AnchorPoint = Vector2.yAxis
+            LeftResizeGrip.Rotation = 180
+            LeftResizeGrip.Size = UDim2.fromOffset(ResizeButtonSize, ResizeButtonSize)
+            LeftResizeGrip.Position = UDim2.fromScale(0, 1)
+            LeftResizeGrip.BackgroundTransparency = 1
+            LeftResizeGrip.BorderSizePixel = 0
+            LeftResizeGrip.Image = widgets.ICONS.BOTTOM_RIGHT_CORNER
+            LeftResizeGrip.ImageColor3 = Iris._config.ResizeGripColor
+            LeftResizeGrip.ImageTransparency = 1
+            LeftResizeGrip.AutoButtonColor = false
+            LeftResizeGrip.ZIndex = 3
+            LeftResizeGrip.Parent = WindowButton
 
-            widgets.applyInteractionHighlights("Image", ResizeGrip, ResizeGrip, {
-                Color = Iris._config.ButtonColor,
-                Transparency = Iris._config.ButtonTransparency,
-                HoveredColor = Iris._config.ButtonHoveredColor,
-                HoveredTransparency = Iris._config.ButtonHoveredTransparency,
-                ActiveColor = Iris._config.ButtonActiveColor,
-                ActiveTransparency = Iris._config.ButtonActiveTransparency,
+            widgets.applyInteractionHighlights("Image", LeftResizeGrip, LeftResizeGrip, {
+                Color = Iris._config.ResizeGripColor,
+                Transparency = 1,
+                HoveredColor = Iris._config.ResizeGripHoveredColor,
+                HoveredTransparency = Iris._config.ResizeGripHoveredTransparency,
+                ActiveColor = Iris._config.ResizeGripActiveColor,
+                ActiveTransparency = Iris._config.ResizeGripActiveTransparency,
             })
 
-            widgets.applyButtonDown(ResizeGrip, function()
+            widgets.applyButtonDown(LeftResizeGrip, function()
+                if not anyFocusedWindow or not (focusedWindow == thisWidget) then
+                    Iris.SetFocusedWindow(thisWidget)
+                    -- mitigating wrong focus when clicking on buttons inside of a window without clicking the window itself
+                end
+                isResizing = true
+                resizeFromTopBottom = Enum.TopBottom.Bottom
+                resizeFromLeftRight = Enum.LeftRight.Left
+                resizeWindow = thisWidget
+            end)
+
+            -- each border uses an image, allowing it to have a visible borde which is larger than the UI
+            local RightResizeGrip = Instance.new("ImageButton")
+            RightResizeGrip.Name = "RightResizeGrip"
+            RightResizeGrip.AnchorPoint = Vector2.one
+            RightResizeGrip.Rotation = 90
+            RightResizeGrip.Size = UDim2.fromOffset(ResizeButtonSize, ResizeButtonSize)
+            RightResizeGrip.Position = UDim2.fromScale(1, 1)
+            RightResizeGrip.BackgroundTransparency = 1
+            RightResizeGrip.BorderSizePixel = 0
+            RightResizeGrip.Image = widgets.ICONS.BOTTOM_RIGHT_CORNER
+            RightResizeGrip.ImageColor3 = Iris._config.ResizeGripColor
+            RightResizeGrip.ImageTransparency = Iris._config.ResizeGripTransparency
+            RightResizeGrip.AutoButtonColor = false
+            RightResizeGrip.ZIndex = 3
+            RightResizeGrip.Parent = WindowButton
+
+            widgets.applyInteractionHighlights("Image", RightResizeGrip, RightResizeGrip, {
+                Color = Iris._config.ResizeGripColor,
+                Transparency = Iris._config.ResizeGripTransparency,
+                HoveredColor = Iris._config.ResizeGripHoveredColor,
+                HoveredTransparency = Iris._config.ResizeGripHoveredTransparency,
+                ActiveColor = Iris._config.ResizeGripActiveColor,
+                ActiveTransparency = Iris._config.ResizeGripActiveTransparency,
+            })
+
+            widgets.applyButtonDown(RightResizeGrip, function()
                 if not anyFocusedWindow or not (focusedWindow == thisWidget) then
                     Iris.SetFocusedWindow(thisWidget)
                     -- mitigating wrong focus when clicking on buttons inside of a window without clicking the window itself
@@ -665,6 +701,114 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 resizeFromLeftRight = Enum.LeftRight.Right
                 resizeWindow = thisWidget
             end)
+
+            local LeftResizeBorder: ImageButton = Instance.new("ImageButton")
+            LeftResizeBorder.Name = "LeftResizeBorder"
+            LeftResizeBorder.AnchorPoint = Vector2.new(1, .5)
+            LeftResizeBorder.Position = UDim2.fromScale(0, .5)
+            LeftResizeBorder.Size = UDim2.new(0, Iris._config.WindowResizePadding.X, 1, 2 * Iris._config.WindowBorderSize)
+            LeftResizeBorder.Transparency = 1
+            LeftResizeBorder.Image = widgets.ICONS.BORDER
+            LeftResizeBorder.ResampleMode = Enum.ResamplerMode.Pixelated
+            LeftResizeBorder.ScaleType = Enum.ScaleType.Slice
+            LeftResizeBorder.SliceCenter = Rect.new(0, 0, 1, 1)
+            LeftResizeBorder.ImageRectOffset = Vector2.new(2, 2)
+            LeftResizeBorder.ImageRectSize = Vector2.new(2, 1)
+            LeftResizeBorder.ImageTransparency = 1
+            LeftResizeBorder.ZIndex = 4
+            LeftResizeBorder.AutoButtonColor = false
+
+            LeftResizeBorder.Parent = WindowButton
+
+            local RightResizeBorder: ImageButton = Instance.new("ImageButton")
+            RightResizeBorder.Name = "RightResizeBorder"
+            RightResizeBorder.AnchorPoint = Vector2.new(0, .5)
+            RightResizeBorder.Position = UDim2.fromScale(1, .5)
+            RightResizeBorder.Size = UDim2.new(0, Iris._config.WindowResizePadding.X, 1, 2 * Iris._config.WindowBorderSize)
+            RightResizeBorder.Transparency = 1
+            RightResizeBorder.Image = widgets.ICONS.BORDER
+            RightResizeBorder.ResampleMode = Enum.ResamplerMode.Pixelated
+            RightResizeBorder.ScaleType = Enum.ScaleType.Slice
+            RightResizeBorder.SliceCenter = Rect.new(1, 0, 2, 1)
+            RightResizeBorder.ImageRectOffset = Vector2.new(1, 2)
+            RightResizeBorder.ImageRectSize = Vector2.new(2, 1)
+            RightResizeBorder.ImageTransparency = 1
+            RightResizeBorder.ZIndex = 4
+            RightResizeBorder.AutoButtonColor = false
+
+            RightResizeBorder.Parent = WindowButton
+
+            local TopResizeBorder: ImageButton = Instance.new("ImageButton")
+            TopResizeBorder.Name = "TopResizeBorder"
+            TopResizeBorder.AnchorPoint = Vector2.new(.5, 1)
+            TopResizeBorder.Position = UDim2.fromScale(.5, 0)
+            TopResizeBorder.Size = UDim2.new(1, 2 * Iris._config.WindowBorderSize, 0, Iris._config.WindowResizePadding.Y)
+            TopResizeBorder.Transparency = 1
+            TopResizeBorder.Image = widgets.ICONS.BORDER
+            TopResizeBorder.ResampleMode = Enum.ResamplerMode.Pixelated
+            TopResizeBorder.ScaleType = Enum.ScaleType.Slice
+            TopResizeBorder.SliceCenter = Rect.new(0, 0, 1, 1)
+            TopResizeBorder.ImageRectOffset = Vector2.new(2, 2)
+            TopResizeBorder.ImageRectSize = Vector2.new(1, 2)
+            TopResizeBorder.ImageTransparency = 1
+            TopResizeBorder.ZIndex = 4
+            TopResizeBorder.AutoButtonColor = false
+
+            TopResizeBorder.Parent = WindowButton
+
+            local BottomResizeBorder: ImageButton = Instance.new("ImageButton")
+            BottomResizeBorder.Name = "BottomResizeBorder"
+            BottomResizeBorder.AnchorPoint = Vector2.new(.5, 0)
+            BottomResizeBorder.Position = UDim2.fromScale(.5, 1)
+            BottomResizeBorder.Size = UDim2.new(1, 2 * Iris._config.WindowBorderSize, 0, Iris._config.WindowResizePadding.Y)
+            BottomResizeBorder.Transparency = 1
+            BottomResizeBorder.Image = widgets.ICONS.BORDER
+            BottomResizeBorder.ResampleMode = Enum.ResamplerMode.Pixelated
+            BottomResizeBorder.ScaleType = Enum.ScaleType.Slice
+            BottomResizeBorder.SliceCenter = Rect.new(0, 1, 1, 2)
+            BottomResizeBorder.ImageRectOffset = Vector2.new(2, 1)
+            BottomResizeBorder.ImageRectSize = Vector2.new(1, 2)
+            BottomResizeBorder.ImageTransparency = 1
+            BottomResizeBorder.ZIndex = 4
+            BottomResizeBorder.AutoButtonColor = false
+
+            BottomResizeBorder.Parent = WindowButton
+
+            widgets.applyInteractionHighlights("Image", LeftResizeBorder, LeftResizeBorder, {
+                Color = Iris._config.ResizeGripColor,
+                Transparency = 1,
+                HoveredColor = Iris._config.ResizeGripHoveredColor,
+                HoveredTransparency = Iris._config.ResizeGripHoveredTransparency,
+                ActiveColor = Iris._config.ResizeGripActiveColor,
+                ActiveTransparency = Iris._config.ResizeGripActiveTransparency,
+            })
+
+            widgets.applyInteractionHighlights("Image", RightResizeBorder, RightResizeBorder, {
+                Color = Iris._config.ResizeGripColor,
+                Transparency = 1,
+                HoveredColor = Iris._config.ResizeGripHoveredColor,
+                HoveredTransparency = Iris._config.ResizeGripHoveredTransparency,
+                ActiveColor = Iris._config.ResizeGripActiveColor,
+                ActiveTransparency = Iris._config.ResizeGripActiveTransparency,
+            })
+
+            widgets.applyInteractionHighlights("Image", TopResizeBorder, TopResizeBorder, {
+                Color = Iris._config.ResizeGripColor,
+                Transparency = 1,
+                HoveredColor = Iris._config.ResizeGripHoveredColor,
+                HoveredTransparency = Iris._config.ResizeGripHoveredTransparency,
+                ActiveColor = Iris._config.ResizeGripActiveColor,
+                ActiveTransparency = Iris._config.ResizeGripActiveTransparency,
+            })
+
+            widgets.applyInteractionHighlights("Image", BottomResizeBorder, BottomResizeBorder, {
+                Color = Iris._config.ResizeGripColor,
+                Transparency = 1,
+                HoveredColor = Iris._config.ResizeGripHoveredColor,
+                HoveredTransparency = Iris._config.ResizeGripHoveredTransparency,
+                ActiveColor = Iris._config.ResizeGripActiveColor,
+                ActiveTransparency = Iris._config.ResizeGripActiveTransparency,
+            })
 
             local ResizeBorder: Frame = Instance.new("Frame")
             ResizeBorder.Name = "ResizeBorder"
@@ -685,6 +829,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             widgets.applyMouseLeave(ResizeBorder, function()
                 if focusedWindow == thisWidget then
                     isInsideResize = false
+                end
+            end)
+            widgets.applyInputBegan(ResizeBorder, function(input: InputObject)
+                if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Keyboard then
+                    return
+                end
+                if thisWidget.state.isUncollapsed.value then
+                    Iris.SetFocusedWindow(thisWidget)
                 end
             end)
 
@@ -710,12 +862,27 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local TitleBar = Content.TitleBar :: Frame
             local Title: TextLabel = TitleBar.Title
             local MenuBar: Frame? = Content:FindFirstChild("MenuBar")
-            local ResizeGrip: TextButton = WindowButton.ResizeGrip
+            local LeftResizeGrip: TextButton = WindowButton.LeftResizeGrip
+            local RightResizeGrip: TextButton = WindowButton.RightResizeGrip
+            local LeftResizeBorder: Frame = WindowButton.LeftResizeBorder
+            local RightResizeBorder: Frame = WindowButton.RightResizeBorder
+            local TopResizeBorder: Frame = WindowButton.TopResizeBorder
+            local BottomResizeBorder: Frame = WindowButton.BottomResizeBorder
 
             if thisWidget.arguments.NoResize ~= true then
-                ResizeGrip.Visible = true
+                LeftResizeGrip.Visible = true
+                RightResizeGrip.Visible = true
+                LeftResizeBorder.Visible = true
+                RightResizeBorder.Visible = true
+                TopResizeBorder.Visible = true
+                BottomResizeBorder.Visible = true
             else
-                ResizeGrip.Visible = false
+                LeftResizeGrip.Visible = false
+                RightResizeGrip.Visible = false
+                LeftResizeBorder.Visible = false
+                RightResizeBorder.Visible = false
+                TopResizeBorder.Visible = false
+                BottomResizeBorder.Visible = false
             end
             if thisWidget.arguments.NoScrollbar then
                 ChildContainer.ScrollBarThickness = 0
@@ -796,7 +963,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local Content = WindowButton.Content :: Frame
             local TitleBar = Content.TitleBar :: Frame
             local MenuBar: Frame? = Content:FindFirstChild("MenuBar")
-            local ResizeGrip: TextButton = WindowButton.ResizeGrip
+            local LeftResizeGrip: TextButton = WindowButton.LeftResizeGrip
+            local RightResizeGrip: TextButton = WindowButton.RightResizeGrip
+            local LeftResizeBorder: Frame = WindowButton.LeftResizeBorder
+            local RightResizeBorder: Frame = WindowButton.RightResizeBorder
+            local TopResizeBorder: Frame = WindowButton.TopResizeBorder
+            local BottomResizeBorder: Frame = WindowButton.BottomResizeBorder
 
             WindowButton.Size = UDim2.fromOffset(stateSize.X, stateSize.Y)
             WindowButton.Position = UDim2.fromOffset(statePosition.X, statePosition.Y)
@@ -828,7 +1000,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
                 ChildContainer.Visible = true
                 if thisWidget.arguments.NoResize ~= true then
-                    ResizeGrip.Visible = true
+                    LeftResizeGrip.Visible = true
+                    RightResizeGrip.Visible = true
+                    LeftResizeBorder.Visible = true
+                    RightResizeBorder.Visible = true
+                    TopResizeBorder.Visible = true
+                    BottomResizeBorder.Visible = true
                 end
                 WindowButton.AutomaticSize = Enum.AutomaticSize.None
                 thisWidget.lastUncollapsedTick = Iris._cycleTick + 1
@@ -840,7 +1017,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     MenuBar.Visible = false
                 end
                 ChildContainer.Visible = false
-                ResizeGrip.Visible = false
+                LeftResizeGrip.Visible = false
+                RightResizeGrip.Visible = false
+                LeftResizeBorder.Visible = false
+                RightResizeBorder.Visible = false
+                TopResizeBorder.Visible = false
+                BottomResizeBorder.Visible = false
                 WindowButton.Size = UDim2.fromOffset(stateSize.X, collapsedHeight)
                 thisWidget.lastCollapsedTick = Iris._cycleTick + 1
             end

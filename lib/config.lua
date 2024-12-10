@@ -102,6 +102,13 @@ local TemplateConfig = {
         PlotHistogramTransparency = 0,
         PlotHistogramHoveredColor = Color3.fromRGB(255, 153, 0),
         PlotHistogramHoveredTransparency = 0,
+
+        ResizeGripColor = Color3.fromRGB(66, 150, 250),
+        ResizeGripTransparency = 0.8,
+        ResizeGripHoveredColor = Color3.fromRGB(66, 150, 250),
+        ResizeGripHoveredTransparency = 0.33,
+        ResizeGripActiveColor = Color3.fromRGB(66, 150, 250),
+        ResizeGripActiveTransparency = 0.05,
     },
     colorLight = { -- Dear, ImGui default light
         TextColor = Color3.fromRGB(0, 0, 0),
@@ -206,6 +213,13 @@ local TemplateConfig = {
         PlotHistogramTransparency = 0,
         PlotHistogramHoveredColor = Color3.fromRGB(255, 153, 0),
         PlotHistogramHoveredTransparency = 0,
+
+        ResizeGripColor = Color3.fromRGB(89, 89, 89),
+        ResizeGripTransparency = 0.83,
+        ResizeGripHoveredColor = Color3.fromRGB(66, 150, 250),
+        ResizeGripHoveredTransparency = 0.33,
+        ResizeGripActiveColor = Color3.fromRGB(66, 150, 250),
+        ResizeGripActiveTransparency = 0.05,
     },
 
     sizeDefault = { -- Dear, ImGui default

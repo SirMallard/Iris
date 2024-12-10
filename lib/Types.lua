@@ -303,6 +303,7 @@ export type WidgetUtility = {
         MULTIPLICATION_SIGN: string,
         BOTTOM_RIGHT_CORNER: string,
         CHECK_MARK: string,
+        BORDER: string,
         ALPHA_BACKGROUND_TEXTURE: string,
         UNKNOWN_TEXTURE: string,
     },
@@ -445,6 +446,13 @@ export type Config = {
     PlotHistogramTransparency: number,
     PlotHistogramHoveredColor: Color3,
     PlotHistogramHoveredTransparency: number,
+
+    ResizeGripColor: Color3,
+    ResizeGripTransparency: number,
+    ResizeGripHoveredColor: Color3,
+    ResizeGripHoveredTransparency: number,
+    ResizeGripActiveColor: Color3,
+    ResizeGripActiveTransparency: number,
 
     HoverColor: Color3,
     HoverTransparency: number,

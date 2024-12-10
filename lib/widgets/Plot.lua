@@ -379,9 +379,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
 
                 -- only update the hovered block if it exists.
-                if thisWidget.HoveredLine then
-                    updateLine(thisWidget)
-                end
+                -- if thisWidget.HoveredLine then
+                --     updateLine(thisWidget)
+                -- end
             end
         end,
         Discard = function(thisWidget: Types.PlotLines)

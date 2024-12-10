@@ -8,6 +8,7 @@ node_modules/
 *.rbxm
 *.rbxmx
 *.lock
+dev.*.lua
 package*
 
 sourcemap.json
