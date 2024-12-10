@@ -153,9 +153,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         if thisWidget.HoveredLine then
             thisWidget.HoveredLine.BackgroundColor3 = Iris._config.PlotLinesColor
             thisWidget.HoveredLine.BackgroundTransparency = Iris._config.PlotLinesTransparency
-            thisWidget.HoveredLine = false
+            thisWidget.HoveredLine = nil
         end
-        thisWidget.Tooltip.Visible = false
     end
 
     local function updateLine(thisWidget: Types.PlotLines)
@@ -174,7 +173,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             if line ~= thisWidget.HoveredLine then
                 clearLine(thisWidget)
             end
-            thisWidget.Tooltip.Visible = true
             local start: number? = thisWidget.state.values.value[index]
             local stop: number? = thisWidget.state.values.value[index + 1]
             if start and stop then
@@ -187,6 +185,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             thisWidget.HoveredLine = line
             line.BackgroundColor3 = Iris._config.PlotLinesHoveredColor
             line.BackgroundTransparency = Iris._config.PlotLinesHoveredTransparency
+            thisWidget.state.hovered:set({ start, stop })
         end
     end
 
@@ -201,7 +200,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ["Max"] = 4,
             ["TextOverlay"] = 5,
         },
-        Events = {},
+        Events = {
+            ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
+                return thisWidget.Instance
+            end),
+        },
         Generate = function(thisWidget: Types.PlotLines)
             local PlotLines: Frame = Instance.new("Frame")
             PlotLines.Name = "Iris_PlotLines"
@@ -280,7 +283,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Plot.Parent = Background
 
             thisWidget.Lines = {}
-            thisWidget.HoveredLine = false
+            thisWidget.HoveredLine = nil
 
             local TextLabel: TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
@@ -299,7 +302,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
         GenerateState = function(thisWidget: Types.PlotLines)
             if thisWidget.state.values == nil then
-                thisWidget.state.values = Iris._widgetState(thisWidget, "Values", { 0, 1 })
+                thisWidget.state.values = Iris._widgetState(thisWidget, "values", { 0, 1 })
+            end
+            if thisWidget.state.hovered == nil then
+                thisWidget.state.hovered = Iris._widgetState(thisWidget, "hovered", nil)
             end
         end,
         Update = function(thisWidget: Types.PlotLines)
@@ -314,56 +320,66 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             PlotLines.Size = UDim2.new(1, 0, 0, thisWidget.arguments.Height or 0)
         end,
         UpdateState = function(thisWidget: Types.PlotLines)
-            local PlotLines = thisWidget.Instance :: Frame
-            local Background = PlotLines.Background :: Frame
-            local Plot = Background.Plot :: Frame
-
-            local values: { number } = thisWidget.state.values.value
-            local count: number = #values - 1
-            local numLines: number = #thisWidget.Lines
-
-            local min: number = thisWidget.arguments.Min
-            local max: number = thisWidget.arguments.Max
-
-            if min == nil or max == nil then
-                for _, value: number in values do
-                    min = math.min(min or value, value)
-                    max = math.max(max or value, value)
+            if true then
+                if thisWidget.state.hovered.value then
+                    thisWidget.Tooltip.Visible = true
+                else
+                    thisWidget.Tooltip.Visible = false
                 end
             end
 
-            -- add or remove blocks depending on how many are needed
-            if numLines < count then
-                for index = numLines + 1, count do
-                    table.insert(thisWidget.Lines, createLine(Plot, index))
-                end
-            elseif numLines > count then
-                for _ = count + 1, numLines do
-                    local line: Frame? = table.remove(thisWidget.Lines)
-                    if line then
-                        line:Destroy()
+            if true then
+                local PlotLines = thisWidget.Instance :: Frame
+                local Background = PlotLines.Background :: Frame
+                local Plot = Background.Plot :: Frame
+
+                local values: { number } = thisWidget.state.values.value
+                local count: number = #values - 1
+                local numLines: number = #thisWidget.Lines
+
+                local min: number = thisWidget.arguments.Min
+                local max: number = thisWidget.arguments.Max
+
+                if min == nil or max == nil then
+                    for _, value: number in values do
+                        min = math.min(min or value, value)
+                        max = math.max(max or value, value)
                     end
                 end
-            end
 
-            local range: number = max - min
-            local size: Vector2 = Plot.AbsoluteSize
-            
-            for index = 1, count do
-                local start: number = values[index]
-                local stop: number = values[index + 1]
-                local a: Vector2 = size * Vector2.new((index - 1) / count, (max - start) / range)
-                local b: Vector2 = size * Vector2.new(index / count, (max - stop) / range)
-                local position: Vector2 = (a + b) / 2
+                -- add or remove blocks depending on how many are needed
+                if numLines < count then
+                    for index = numLines + 1, count do
+                        table.insert(thisWidget.Lines, createLine(Plot, index))
+                    end
+                elseif numLines > count then
+                    for _ = count + 1, numLines do
+                        local line: Frame? = table.remove(thisWidget.Lines)
+                        if line then
+                            line:Destroy()
+                        end
+                    end
+                end
 
-                thisWidget.Lines[index].Size = UDim2.fromOffset((b - a).Magnitude + 1, 1)
-                thisWidget.Lines[index].Position = UDim2.fromOffset(position.X, position.Y)
-                thisWidget.Lines[index].Rotation = math.atan2(b.Y - a.Y, b.X - a.X) * (180 / math.pi)
-            end
+                local range: number = max - min
+                local size: Vector2 = Plot.AbsoluteSize
+                
+                for index = 1, count do
+                    local start: number = values[index]
+                    local stop: number = values[index + 1]
+                    local a: Vector2 = size * Vector2.new((index - 1) / count, (max - start) / range)
+                    local b: Vector2 = size * Vector2.new(index / count, (max - stop) / range)
+                    local position: Vector2 = (a + b) / 2
 
-            -- only update the hovered block if it exists.
-            if thisWidget.HoveredLine then
-                updateLine(thisWidget)
+                    thisWidget.Lines[index].Size = UDim2.fromOffset((b - a).Magnitude + 1, 1)
+                    thisWidget.Lines[index].Position = UDim2.fromOffset(position.X, position.Y)
+                    thisWidget.Lines[index].Rotation = math.atan2(b.Y - a.Y, b.X - a.X) * (180 / math.pi)
+                end
+
+                -- only update the hovered block if it exists.
+                if thisWidget.HoveredLine then
+                    updateLine(thisWidget)
+                end
             end
         end,
         Discard = function(thisWidget: Types.PlotLines)
@@ -388,9 +404,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         if thisWidget.HoveredBlock then
             thisWidget.HoveredBlock.BackgroundColor3 = Iris._config.PlotHistogramColor
             thisWidget.HoveredBlock.BackgroundTransparency = Iris._config.PlotHistogramTransparency
-            thisWidget.HoveredBlock = false
+            thisWidget.HoveredBlock = nil
         end
-        thisWidget.Tooltip.Visible = false
     end
 
     local function updateBlock(thisWidget: Types.PlotHistogram)
@@ -409,7 +424,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             if block ~= thisWidget.HoveredBlock then
                 clearBlock(thisWidget)
             end
-            thisWidget.Tooltip.Visible = true
             local value: number? = thisWidget.state.values.value[index]
             if value then
                 thisWidget.Tooltip.Text = if math.floor(value) == value then ("%d: %d"):format(index, value) else ("%d: %.3f"):format(index, value)
@@ -417,6 +431,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             thisWidget.HoveredBlock = block
             block.BackgroundColor3 = Iris._config.PlotHistogramHoveredColor
             block.BackgroundTransparency = Iris._config.PlotHistogramHoveredTransparency
+            thisWidget.state.hovered:set(value)
         end
     end
 
@@ -432,7 +447,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ["TextOverlay"] = 5,
             ["BaseLine"] = 6,
         },
-        Events = {},
+        Events = {
+            ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
+                return thisWidget.Instance
+            end),
+        },
         Generate = function(thisWidget: Types.PlotHistogram)
             local PlotHistogram: Frame = Instance.new("Frame")
             PlotHistogram.Name = "Iris_PlotHistogram"
@@ -510,7 +529,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Plot.Parent = Background
 
             thisWidget.Blocks = {}
-            thisWidget.HoveredBlock = false
+            thisWidget.HoveredBlock = nil
 
             local TextLabel: TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
@@ -530,7 +549,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         GenerateState = function(thisWidget: Types.PlotHistogram)
             if thisWidget.state.values == nil then
                 thisWidget.state.values = Iris._widgetState(thisWidget, "values", { 1 })
-            end            
+            end     
+            if thisWidget.state.hovered == nil then
+                thisWidget.state.hovered = Iris._widgetState(thisWidget, "hovered", { 1 })
+            end     
         end,
         Update = function(thisWidget: Types.PlotHistogram)
             local PlotLines = thisWidget.Instance :: Frame
@@ -544,55 +566,65 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             PlotLines.Size = UDim2.new(1, 0, 0, thisWidget.arguments.Height or 0)
         end,
         UpdateState = function(thisWidget: Types.PlotHistogram)
-            local PlotHistogram = thisWidget.Instance :: Frame
-            local Background = PlotHistogram.Background :: Frame
-            local Plot = Background.Plot :: Frame
-
-            local values: { number } = thisWidget.state.values.value
-            local count: number = #values
-            local numBlocks: number = #thisWidget.Blocks
-
-            local min: number = thisWidget.arguments.Min
-            local max: number = thisWidget.arguments.Max
-            local baseline: number = thisWidget.arguments.BaseLine or 0
-
-            if min == nil or max == nil then
-                for _, value: number in values do
-                    min = math.min(min or value, value)
-                    max = math.max(max or value, value)
+            if true then
+                if thisWidget.state.hovered.value then
+                    thisWidget.Tooltip.Visible = true
+                else
+                    thisWidget.Tooltip.Visible = false
                 end
             end
 
-            -- add or remove blocks depending on how many are needed
-            if numBlocks < count then
-                for index = numBlocks + 1, count do
-                    table.insert(thisWidget.Blocks, createBlock(Plot, index))                    
-                end
-            elseif numBlocks > count then
-                for _ = count + 1, numBlocks do
-                    local block: Frame? = table.remove(thisWidget.Blocks)
-                    if block then
-                        block:Destroy()
+            if true then
+                local PlotHistogram = thisWidget.Instance :: Frame
+                local Background = PlotHistogram.Background :: Frame
+                local Plot = Background.Plot :: Frame
+
+                local values: { number } = thisWidget.state.values.value
+                local count: number = #values
+                local numBlocks: number = #thisWidget.Blocks
+
+                local min: number = thisWidget.arguments.Min
+                local max: number = thisWidget.arguments.Max
+                local baseline: number = thisWidget.arguments.BaseLine or 0
+
+                if min == nil or max == nil then
+                    for _, value: number in values do
+                        min = math.min(min or value, value)
+                        max = math.max(max or value, value)
                     end
                 end
-            end
-            
-            local range: number = max - min
-            local width: UDim = UDim.new(1 / count, -1)
-            for index = 1, count do
-                local num: number = values[index]
-                if num >= 0 then
-                    thisWidget.Blocks[index].Size = UDim2.new(width, UDim.new((num - baseline) / range))
-                    thisWidget.Blocks[index].Position = UDim2.fromScale((index - 1) / count, (max - num) / range)
-                else
-                    thisWidget.Blocks[index].Size = UDim2.new(width, UDim.new((baseline - num) / range))
-                    thisWidget.Blocks[index].Position = UDim2.fromScale((index - 1) / count, (max - baseline) / range)
-                end
-            end
 
-            -- only update the hovered block if it exists.
-            if thisWidget.HoveredBlock then
-                updateBlock(thisWidget)
+                -- add or remove blocks depending on how many are needed
+                if numBlocks < count then
+                    for index = numBlocks + 1, count do
+                        table.insert(thisWidget.Blocks, createBlock(Plot, index))                    
+                    end
+                elseif numBlocks > count then
+                    for _ = count + 1, numBlocks do
+                        local block: Frame? = table.remove(thisWidget.Blocks)
+                        if block then
+                            block:Destroy()
+                        end
+                    end
+                end
+                
+                local range: number = max - min
+                local width: UDim = UDim.new(1 / count, -1)
+                for index = 1, count do
+                    local num: number = values[index]
+                    if num >= 0 then
+                        thisWidget.Blocks[index].Size = UDim2.new(width, UDim.new((num - baseline) / range))
+                        thisWidget.Blocks[index].Position = UDim2.fromScale((index - 1) / count, (max - num) / range)
+                    else
+                        thisWidget.Blocks[index].Size = UDim2.new(width, UDim.new((baseline - num) / range))
+                        thisWidget.Blocks[index].Position = UDim2.fromScale((index - 1) / count, (max - baseline) / range)
+                    end
+                end
+
+                -- only update the hovered block if it exists.
+                if thisWidget.HoveredBlock then
+                    updateBlock(thisWidget)
+                end
             end
         end,
         Discard = function(thisWidget: Types.PlotHistogram)
