@@ -589,7 +589,7 @@ return function(Iris: Types.Iris)
                     local SampleState = Iris.State(37)
                     local BaseLineState = Iris.State(0)
                     local ValueState = Iris.State({})
-                    local TimeState = Iris.State(-1)
+                    local TimeState = Iris.State(0)
 
                     local Animated = Iris.Checkbox({ "Animate" })
                     local plotFunc = Iris.ComboArray({ "Plotting Function" }, { index = FunctionState }, { "Sin", "Cos", "Tan", "Saw" })
@@ -599,8 +599,10 @@ return function(Iris: Types.Iris)
                     end
 
                     if Animated.state.isChecked.value or plotFunc.closed() or samples.numberChanged() or #ValueState.value == 0 then
-                        TimeState:set(TimeState.value + Iris.Internal._deltaTime)
-                        local offset: number = math.floor(TimeState.value * 30)
+                        if Animated.state.isChecked.value then
+                            TimeState:set(TimeState.value + Iris.Internal._deltaTime)
+                        end
+                        local offset: number = math.floor(TimeState.value * 30) - 1
                         local func: string = FunctionState.value
                         table.clear(ValueState.value)
                         for i = 1, SampleState.value do

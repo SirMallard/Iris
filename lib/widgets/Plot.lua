@@ -154,6 +154,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             thisWidget.HoveredLine.BackgroundColor3 = Iris._config.PlotLinesColor
             thisWidget.HoveredLine.BackgroundTransparency = Iris._config.PlotLinesTransparency
             thisWidget.HoveredLine = false
+            thisWidget.state.hovered:set(nil)
         end
     end
 
@@ -234,6 +235,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Plot.ClipsDescendants = true
 
             Plot:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+                thisWidget.state.values.lastChangeTick = Iris._cycleTick
                 Iris._widgets.PlotLines.UpdateState(thisWidget)
             end)
 
@@ -405,6 +407,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             thisWidget.HoveredBlock.BackgroundColor3 = Iris._config.PlotHistogramColor
             thisWidget.HoveredBlock.BackgroundTransparency = Iris._config.PlotHistogramTransparency
             thisWidget.HoveredBlock = false
+            thisWidget.state.hovered:set(nil)
         end
     end
 
@@ -551,7 +554,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 thisWidget.state.values = Iris._widgetState(thisWidget, "values", { 1 })
             end     
             if thisWidget.state.hovered == nil then
-                thisWidget.state.hovered = Iris._widgetState(thisWidget, "hovered", { 1 })
+                thisWidget.state.hovered = Iris._widgetState(thisWidget, "hovered", nil)
             end     
         end,
         Update = function(thisWidget: Types.PlotHistogram)

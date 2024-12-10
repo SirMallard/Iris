@@ -555,6 +555,7 @@ return function(Iris: Types.Iris): Types.Internal
                         -- generate a new state.
                         states[index] = Internal._widgetState(stateWidget, index, state)
                     end
+                    states[index].lastChangeTick = Internal._cycleTick
                 end
 
                 stateWidget.state = states
@@ -649,11 +650,13 @@ return function(Iris: Types.Iris): Types.Internal
         local ID: Types.ID = thisWidget.ID .. stateName
         if Internal._states[ID] then
             Internal._states[ID].ConnectedWidgets[thisWidget.ID] = thisWidget
+            Internal._states[ID].lastChangeTick = Internal._cycleTick
             return Internal._states[ID]
         else
             Internal._states[ID] = {
                 ID = ID,
                 value = initialValue,
+                lastChangeTick = Internal._cycleTick,
                 ConnectedWidgets = { [thisWidget.ID] = thisWidget },
                 ConnectedFunctions = {},
             }

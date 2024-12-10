@@ -832,6 +832,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     -- since the state values have changed display, we call an update. The check is because state is not
                     -- initialised on creation, so it would error otherwise.
                     if thisWidget.state then
+                        thisWidget.state.color.lastChangeTick = Iris._cycleTick
+                        if dataType == "Color4" then
+                            thisWidget.state.transparency.lastChangeTick = Iris._cycleTick
+                        end
                         Iris._widgets[thisWidget.type].UpdateState(thisWidget)
                     end
                 end,
@@ -1144,6 +1148,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Iris._postCycleCallbacks[callbackIndex] = function()
                         if Iris._cycleTick >= desiredCycleTick then
                             if thisWidget.lastCycleTick ~= -1 then
+                                thisWidget.state.number.lastChangeTick = Iris._cycleTick
                                 Iris._widgets[`Slider{dataType}`].UpdateState(thisWidget)
                             end
                             Iris._postCycleCallbacks[callbackIndex] = nil
