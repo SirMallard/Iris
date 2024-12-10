@@ -444,7 +444,7 @@ export type ProgressBar = Widget & {
 
 export type PlotLines = Widget & {
     Lines: { Frame },
-    HoveredLine: Frame?,
+    HoveredLine: Frame | false,
     Tooltip: TextLabel,
 
     arguments: {
@@ -463,7 +463,7 @@ export type PlotLines = Widget & {
 
 export type PlotHistogram = Widget & {
     Blocks: { Frame },
-    HoveredBlock: Frame?,
+    HoveredBlock: Frame | false,
     Tooltip: TextLabel,
 
     arguments: {

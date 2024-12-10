@@ -153,7 +153,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         if thisWidget.HoveredLine then
             thisWidget.HoveredLine.BackgroundColor3 = Iris._config.PlotLinesColor
             thisWidget.HoveredLine.BackgroundTransparency = Iris._config.PlotLinesTransparency
-            thisWidget.HoveredLine = nil
+            thisWidget.HoveredLine = false
         end
     end
 
@@ -283,7 +283,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Plot.Parent = Background
 
             thisWidget.Lines = {}
-            thisWidget.HoveredLine = nil
+            thisWidget.HoveredLine = false
 
             local TextLabel: TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
@@ -320,7 +320,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             PlotLines.Size = UDim2.new(1, 0, 0, thisWidget.arguments.Height or 0)
         end,
         UpdateState = function(thisWidget: Types.PlotLines)
-            if true then
+            if thisWidget.state.hovered.lastChangeTick == Iris._cycleTick then
                 if thisWidget.state.hovered.value then
                     thisWidget.Tooltip.Visible = true
                 else
@@ -328,7 +328,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
             end
 
-            if true then
+            if thisWidget.state.values.lastChangeTick == Iris._cycleTick then
                 local PlotLines = thisWidget.Instance :: Frame
                 local Background = PlotLines.Background :: Frame
                 local Plot = Background.Plot :: Frame
@@ -404,7 +404,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         if thisWidget.HoveredBlock then
             thisWidget.HoveredBlock.BackgroundColor3 = Iris._config.PlotHistogramColor
             thisWidget.HoveredBlock.BackgroundTransparency = Iris._config.PlotHistogramTransparency
-            thisWidget.HoveredBlock = nil
+            thisWidget.HoveredBlock = false
         end
     end
 
@@ -529,7 +529,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Plot.Parent = Background
 
             thisWidget.Blocks = {}
-            thisWidget.HoveredBlock = nil
+            thisWidget.HoveredBlock = false
 
             local TextLabel: TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
@@ -566,7 +566,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             PlotLines.Size = UDim2.new(1, 0, 0, thisWidget.arguments.Height or 0)
         end,
         UpdateState = function(thisWidget: Types.PlotHistogram)
-            if true then
+            if thisWidget.state.hovered.lastChangeTick == Iris._cycleTick then
                 if thisWidget.state.hovered.value then
                     thisWidget.Tooltip.Visible = true
                 else
@@ -574,7 +574,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
             end
 
-            if true then
+            if thisWidget.state.values.lastChangeTick == Iris._cycleTick then
                 local PlotHistogram = thisWidget.Instance :: Frame
                 local Background = PlotHistogram.Background :: Frame
                 local Plot = Background.Plot :: Frame

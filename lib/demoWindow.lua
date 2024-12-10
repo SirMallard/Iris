@@ -587,14 +587,14 @@ return function(Iris: Types.Iris)
                 do
                     local FunctionState = Iris.State("Cos")
                     local SampleState = Iris.State(37)
-                    local BaselineState = Iris.State(0)
+                    local BaseLineState = Iris.State(0)
                     local ValueState = Iris.State({})
                     local TimeState = Iris.State(-1)
 
                     local Animated = Iris.Checkbox({ "Animate" })
                     local plotFunc = Iris.ComboArray({ "Plotting Function" }, { index = FunctionState }, { "Sin", "Cos", "Tan", "Saw" })
                     local samples = Iris.SliderNum({ "Samples", 1, 1, 145, "%d samples" }, { number = SampleState })
-                    if Iris.SliderNum({ "Baseline", 0.1, -1, 1 }, { number = BaselineState }).numberChanged() then
+                    if Iris.SliderNum({ "Baseline", 0.1, -1, 1 }, { number = BaseLineState }).numberChanged() then
                         ValueState:set(ValueState.value, true)
                     end
 
@@ -618,7 +618,7 @@ return function(Iris: Types.Iris)
                         ValueState:set(ValueState.value, true)
                     end
 
-                    Iris.PlotHistogram({ "Histogram", 100, -1, 1, "", BaselineState:get() }, { values = ValueState })
+                    Iris.PlotHistogram({ "Histogram", 100, -1, 1, "", BaseLineState:get() }, { values = ValueState })
                     Iris.PlotLines({ "Lines", 100, -1, 1 }, { values = ValueState })
                 end
             end
