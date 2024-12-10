@@ -564,6 +564,7 @@ return function(Iris: Types.Iris)
         Plotting = function()
             Iris.Tree({ "Plotting" })
             do
+                Iris.SeparatorText({ "Progress" })
                 local curTime = os.clock() * 15
 
                 local Progress = Iris.State(0)
@@ -573,6 +574,53 @@ return function(Iris: Types.Iris)
 
                 Iris.ProgressBar({ "Progress Bar" }, { progress = Progress })
                 Iris.ProgressBar({ "Progress Bar", `{math.floor(Progress:get() * 1753)}/1753` }, { progress = Progress })
+
+                Iris.SeparatorText({ "Graphs" })
+
+                do
+                    local ValueState = Iris.State({ 0.5, 0.8, 0.2, 0.9, 0.1, 0.6, 0.4, 0.7, 0.3, 0.0 })
+
+                    Iris.PlotHistogram({ "Histogram", 100, 0, 1, "random" }, { values = ValueState })
+                    Iris.PlotLines({ "Lines", 100, 0, 1, "random" }, { values = ValueState })
+                end
+
+                do
+                    local FunctionState = Iris.State("Cos")
+                    local SampleState = Iris.State(37)
+                    local BaselineState = Iris.State(0)
+                    local ValueState = Iris.State({})
+                    local TimeState = Iris.State(-1)
+
+                    local Animated = Iris.Checkbox({ "Animate" })
+                    local plotFunc = Iris.ComboArray({ "Plotting Function" }, { index = FunctionState }, { "Sin", "Cos", "Tan", "Saw" })
+                    local samples = Iris.SliderNum({ "Samples", 1, 1, 145, "%d samples" }, { number = SampleState })
+                    if Iris.SliderNum({ "Baseline", 0.1, -1, 1 }, { number = BaselineState }).numberChanged() then
+                        ValueState:set(ValueState.value, true)
+                    end
+
+                    if Animated.state.isChecked.value or plotFunc.closed() or samples.numberChanged() or #ValueState.value == 0 then
+                        TimeState:set(TimeState.value + Iris.Internal._deltaTime)
+                        local offset: number = math.floor(TimeState.value * 30)
+                        local func: string = FunctionState.value
+                        table.clear(ValueState.value)
+                        for i = 1, SampleState.value do
+                            if func == "Sin" then
+                                ValueState.value[i] = math.sin(math.rad(5 * (i + offset)))
+                            elseif func == "Cos" then
+                                ValueState.value[i] = math.cos(math.rad(5 * (i + offset)))
+                            elseif func == "Tan" then
+                                ValueState.value[i] = math.tan(math.rad(5 * (i + offset)))
+                            elseif func == "Saw" then
+                                ValueState.value[i] = if (i % 2) == (offset % 2) then 1 else -1
+                            end
+                        end
+
+                        ValueState:set(ValueState.value, true)
+                    end
+
+                    Iris.PlotHistogram({ "Histogram", 100, -1, 1, "", BaselineState:get() }, { values = ValueState })
+                    Iris.PlotLines({ "Lines", 100, -1, 1 }, { values = ValueState })
+                end
             end
             Iris.End()
         end,

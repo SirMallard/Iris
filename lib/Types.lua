@@ -200,6 +200,7 @@ export type Internal = {
     _started: boolean,
     _shutdown: boolean,
     _cycleTick: number,
+    _deltaTime: number,
     _eventConnection: RBXScriptConnection?,
 
     -- Refresh
@@ -260,7 +261,7 @@ export type Internal = {
           FUNCTIONS
         -------------
     ]]
-    _cycle: () -> (),
+    _cycle: (deltaTime: number) -> (),
     _NoOp: () -> (),
 
     -- Widget
