@@ -11,6 +11,7 @@ export type ID = string
 export type State<T> = {
     ID: ID,
     value: T,
+    lastChangeTick: number,
     ConnectedWidgets: { [ID]: Widget },
     ConnectedFunctions: { (newValue: T) -> () },
 

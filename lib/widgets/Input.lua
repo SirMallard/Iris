@@ -68,7 +68,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             return v[index]
         end
 
-        error(`Incorrect datatype or value: {value} {typeof(value)} {index}`)
+        error(`Incorrect datatype or value: {value} {typeof(value)} {index}.`)
     end
 
     local function updateValueByIndex<T>(value: T, index: number, newValue: number, arguments: Types.Arguments): T
@@ -134,7 +134,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end
 
-        error(`Incorrect datatype or value {value} {typeof(value)} {index}`)
+        error(`Incorrect datatype or value {value} {typeof(value)} {index}.`)
     end
 
     local defaultIncrements: { [InputDataTypes]: { number } } = {

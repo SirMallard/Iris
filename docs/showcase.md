@@ -1,3 +1,7 @@
+---
+sidebar_position: 8
+---
+
 # Showcases
 
 Iris is already being used across Roblox. A few examples of what people have publicly posted and what they are saying about Iris are shown here. Over time, this page will be updated. If you are using Iris or see Iris being used somewhere, reach out to us so we can add it here.

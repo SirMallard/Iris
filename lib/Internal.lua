@@ -146,6 +146,7 @@ return function(Iris: Types.Iris): Types.Internal
             return self.value
         end
         self.value = newValue
+        self.lastChangeTick = Iris.Internal._cycleTick
         for _, thisWidget: Types.Widget in self.ConnectedWidgets do
             Internal._widgets[thisWidget.type].UpdateState(thisWidget)
         end
@@ -245,7 +246,7 @@ return function(Iris: Types.Iris): Types.Internal
         -- end
         local compatibleParent: boolean = (Internal.parentInstance:IsA("GuiBase2d") or Internal.parentInstance:IsA("CoreGui") or Internal.parentInstance:IsA("PluginGui") or Internal.parentInstance:IsA("PlayerGui"))
         if compatibleParent == false then
-            error("Iris Parent Instance cant contain GUI")
+            error("The Iris parent instance will not display any GUIs.")
         end
 
         -- if we are running in Studio, we want full error tracebacks, so we don't have
@@ -280,7 +281,7 @@ return function(Iris: Types.Iris): Types.Internal
         if Internal._stackIndex ~= 1 then
             -- has to be larger than 1 because of the check that it isnt below 1 in Iris.End
             Internal._stackIndex = 1
-            error("Callback has too few calls to Iris.End()", 0)
+            error("Too few calls to Iris.End().", 0)
         end
 
         --debug.profileend()
@@ -437,6 +438,7 @@ return function(Iris: Types.Iris): Types.Internal
 
             -- convert the arguments to a key-value dictionary so arguments can be referred to by their name and not index.
             for index: number, argument: Types.Argument in args do
+                assert(index > 0, `Widget Arguments must be a positive number, not {index} of type {typeof(index)} for {argument}.`)
                 arguments[thisWidgetClass.ArgNames[index]] = argument
             end
         end

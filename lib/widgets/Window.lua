@@ -61,7 +61,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local Tooltip = thisWidget.Instance :: Frame
             local TooltipText: TextLabel = Tooltip.TooltipText
             if thisWidget.arguments.Text == nil then
-                error("Iris.Text Text Argument is required", 5)
+                error("Text argument is required for Iris.Tooltip().", 5)
             end
             TooltipText.Text = thisWidget.arguments.Text
             relocateTooltips()

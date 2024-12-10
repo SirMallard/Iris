@@ -61,7 +61,7 @@ return function(Iris: Types.Iris)
             NoScrollbar: boolean? = false, -- the scrollbar if the window is too short for all widgets.
             NoResize: boolean? = false,
             NoNav: boolean? = false, -- unimplemented.
-            NoMenu: boolean? -- whether the menubar will show if created.
+            NoMenu: boolean? = false -- whether the menubar will show if created.
         }
         Events = {
             opened: () -> boolean, -- once when opened.
@@ -156,7 +156,7 @@ return function(Iris: Types.Iris)
 
         :::info
         There are widgets which are designed for being parented to a menu whilst other happens to work. There is nothing
-        preventing you from adding any widget as a child, but the behaviour is unexplained and not intended, despite allowed.
+        preventing you from adding any widget as a child, but the behaviour is unexplained and not intended.
         :::
         
         ```lua
@@ -464,7 +464,7 @@ return function(Iris: Types.Iris)
         hasState = false
         Arguments = {
             Text: string,
-            Size: UDim2? = 0,
+            Size: UDim2? = UDim2.fromOffset(0, 0),
         }
         Events = {
             clicked: () -> boolean,
@@ -695,14 +695,14 @@ return function(Iris: Types.Iris)
     Iris.CollapsingHeader = wrapper("CollapsingHeader")
 
     --[[
-		--------------------------------
-			[SECTION] Tab Widget API
-		--------------------------------
-	]]
+        --------------------------------
+            [SECTION] Tab Widget API
+        --------------------------------
+    ]]
     --[=[
-		@class Tab
-		Tab Widget API
-	]=]
+        @class Tab
+        Tab Widget API
+    ]=]
 
     --[=[
         @within Tab
@@ -1677,7 +1677,7 @@ return function(Iris: Types.Iris)
 
     --[=[
         @within Plot
-        @prop ProgressBar Iris.PrograssBar
+        @prop ProgressBar Iris.ProgressBar
         @tag Widget
         @tag HasState
 
@@ -1747,7 +1747,7 @@ return function(Iris: Types.Iris)
     ]=]
     Iris.NextColumn = function()
         local parentWidget = Iris.Internal._GetParentWidget() :: Types.Table
-        assert(parentWidget.type == "Table", "Iris.NextColumn can only be called within a table.")
+        assert(parentWidget.type == "Table", "Iris.NextColumn() can only be called within a table.")
         parentWidget.RowColumnIndex += 1
     end
 
@@ -1760,8 +1760,8 @@ return function(Iris: Types.Iris)
     ]=]
     Iris.SetColumnIndex = function(columnIndex: number)
         local parentWidget = Iris.Internal._GetParentWidget() :: Types.Table
-        assert(parentWidget.type == "Table", "Iris.SetColumnIndex can only be called within a table.")
-        assert(columnIndex >= parentWidget.InitialNumColumns, "Iris.SetColumnIndex Argument must be in column range")
+        assert(parentWidget.type == "Table", "Iris.SetColumnIndex() can only be called within a table.")
+        assert(columnIndex >= parentWidget.InitialNumColumns, "Iris.SetColumnIndex() argument must be in column range.")
         parentWidget.RowColumnIndex = math.floor(parentWidget.RowColumnIndex / parentWidget.InitialNumColumns) + (columnIndex - 1)
     end
 
@@ -1775,7 +1775,7 @@ return function(Iris: Types.Iris)
     Iris.NextRow = function()
         -- sets column Index back to 0, increments Row
         local parentWidget = Iris.Internal._GetParentWidget() :: Types.Table
-        assert(parentWidget.type == "Table", "Iris.NextColumn can only be called within a table.")
+        assert(parentWidget.type == "Table", "Iris.NextColumn() can only be called within a table.")
         local InitialNumColumns: number = parentWidget.InitialNumColumns
         local nextRow: number = math.floor((parentWidget.RowColumnIndex + 1) / InitialNumColumns) * InitialNumColumns
         parentWidget.RowColumnIndex = nextRow
