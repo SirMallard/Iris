@@ -4,7 +4,7 @@ sidebar_position: 4
 
 # Understanding Events
 
-Each widget has a number of events connected to it. You can see these events on the [API page](/API/Iris).
+Each widget has a number of events connected to it. You can see these events on the [API page](api/Iris).
 
 Certain events will happen once, such as a window being collapsed or a button being clicked. Other events can be
 continuous, such as a widget being hovered. Each event is a function which returns a boolean value for whether the

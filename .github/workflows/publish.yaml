@@ -34,9 +34,6 @@ jobs:
         with:
           version: v0.3.0
 
-      - name: Install rbxcloud
-        run: aftman add Sleitnick/rbxcloud@0.14.0
-
       - name: Build place file
         run: rojo build -o Iris.rbxl ./demo.project.json
 
