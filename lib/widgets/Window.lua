@@ -224,7 +224,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
 
             if not inWindow then
-                print("Outside")
                 Iris.SetFocusedWindow(nil)
             end
         end
