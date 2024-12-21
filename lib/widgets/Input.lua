@@ -195,9 +195,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     ]]
     local generateInputScalar: <T>(dataType: InputDataTypes, components: number, defaultValue: any) -> Types.WidgetClass
     do
-        local function generateButtons(thisWidget: Types.Input<number>, parent: GuiObject, rightPadding: number, textHeight: number)
-            rightPadding += 2 * Iris._config.ItemInnerSpacing.X + 2 * textHeight
-
+        local function generateButtons(thisWidget: Types.Input<number>, parent: GuiObject, textHeight: number)
             local SubButton = widgets.abstractButton.Generate(thisWidget) :: TextButton
             SubButton.Name = "SubButton"
             SubButton.ZIndex = 5
@@ -244,7 +242,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 thisWidget.lastNumberChangedTick = Iris._cycleTick + 1
             end)
 
-            return rightPadding
+            return 2 * Iris._config.ItemInnerSpacing.X + 2 * textHeight
         end
 
         function generateInputScalar<T>(dataType: InputDataTypes, components: number, defaultValue: any)
@@ -280,7 +278,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     local textHeight: number = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
 
                     if components == 1 then
-                        rightPadding = generateButtons(thisWidget :: any, Input, rightPadding, textHeight)
+                        rightPadding = generateButtons(thisWidget :: any, Input, textHeight)
                     end
 
                     -- we divide the total area evenly between each field. This includes accounting for any additional boxes and the offset.
@@ -369,6 +367,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     if components == 1 then
                         Input.SubButton.Visible = not thisWidget.arguments.NoButtons
                         Input.AddButton.Visible = not thisWidget.arguments.NoButtons
+                        local rightPadding: number = if thisWidget.arguments.NoButtons then 0 else (2 * Iris._config.ItemInnerSpacing.X) + (2 * (Iris._config.TextSize + 2 * Iris._config.FramePadding.Y))
+                        local InputField: TextBox = Input.InputField1
+                        InputField.Size = UDim2.new(UDim.new(Iris._config.ContentWidth.Scale, Iris._config.ContentWidth.Offset - rightPadding), Iris._config.ContentHeight)
                     end
 
                     if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then

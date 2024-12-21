@@ -158,7 +158,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
     end
 
-    local function updateLine(thisWidget: Types.PlotLines)
+    local function updateLine(thisWidget: Types.PlotLines, silent: true?)
         local PlotLines = thisWidget.Instance :: Frame
         local Background = PlotLines.Background :: Frame
         local Plot = Background.Plot :: Frame
@@ -171,7 +171,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         local line: Frame? = thisWidget.Lines[index]
 
         if line then
-            if line ~= thisWidget.HoveredLine then
+            if line ~= thisWidget.HoveredLine and not silent then
                 clearLine(thisWidget)
             end
             local start: number? = thisWidget.state.values.value[index]
@@ -186,7 +186,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             thisWidget.HoveredLine = line
             line.BackgroundColor3 = Iris._config.PlotLinesHoveredColor
             line.BackgroundTransparency = Iris._config.PlotLinesHoveredTransparency
-            thisWidget.state.hovered:set({ start, stop })
+            if silent then
+                thisWidget.state.hovered.value = { start, stop }
+            else
+                thisWidget.state.hovered:set({ start, stop })
+            end
         end
     end
 
@@ -379,9 +383,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
 
                 -- only update the hovered block if it exists.
-                -- if thisWidget.HoveredLine then
-                --     updateLine(thisWidget)
-                -- end
+                if thisWidget.HoveredLine then
+                    updateLine(thisWidget, true)
+                end
             end
         end,
         Discard = function(thisWidget: Types.PlotLines)
@@ -411,7 +415,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
     end
 
-    local function updateBlock(thisWidget: Types.PlotHistogram)
+    local function updateBlock(thisWidget: Types.PlotHistogram, silent: true?)
         local PlotHistogram = thisWidget.Instance :: Frame
         local Background = PlotHistogram.Background :: Frame
         local Plot = Background.Plot :: Frame
@@ -424,7 +428,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         local block: Frame? = thisWidget.Blocks[index]
 
         if block then
-            if block ~= thisWidget.HoveredBlock then
+            if block ~= thisWidget.HoveredBlock and not silent then
                 clearBlock(thisWidget)
             end
             local value: number? = thisWidget.state.values.value[index]
@@ -434,7 +438,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             thisWidget.HoveredBlock = block
             block.BackgroundColor3 = Iris._config.PlotHistogramHoveredColor
             block.BackgroundTransparency = Iris._config.PlotHistogramHoveredTransparency
-            thisWidget.state.hovered:set(value)
+            if silent then
+                thisWidget.state.hovered.value = value
+            else
+                thisWidget.state.hovered:set(value)
+            end
         end
     end
 
@@ -626,7 +634,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 -- only update the hovered block if it exists.
                 if thisWidget.HoveredBlock then
-                    updateBlock(thisWidget)
+                    updateBlock(thisWidget, true)
                 end
             end
         end,
