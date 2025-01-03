@@ -2,6 +2,34 @@ local Types = require(script.Parent.Parent.Types)
 
 -- Tables need an overhaul.
 
+--[[
+	Iris.Table(
+		{
+			NumColumns,
+			Resizable,
+			Header,
+			RowBackground,
+			OuterBorders,
+			InnerBorders
+		}
+	)
+
+	Config = {
+		CellPadding: Vector2,
+		CellSize: UDim2,
+	}
+
+	Iris.NextColumn()
+	Iris.NextRow()
+	Iris.SetColumnIndex(index: number)
+	Iris.SetRowIndex(index: number)
+
+	Iris.NextHeaderColumn()
+	Iris.SetHeaderColumnIndex(index: number)
+
+	Iris.SetColumnWidth(index: number, width: number | UDim)
+]]
+
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local tableWidgets: { [Types.ID]: Types.Table } = {}
 
