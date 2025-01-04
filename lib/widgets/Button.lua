@@ -58,9 +58,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Button.Size = thisWidget.arguments.Size or UDim2.fromOffset(0, 0)
         end,
         Discard = function(thisWidget: Types.Button)
-            if thisWidget.Instance then
-                thisWidget.Instance:Destroy()
-            end
+            thisWidget.Instance:Destroy()
         end,
     } :: Types.WidgetClass
     widgets.abstractButton = abstractButton

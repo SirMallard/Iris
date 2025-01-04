@@ -131,9 +131,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             thisWidget.lastChangedTick = Iris._cycleTick + 1
         end,
         Discard = function(thisWidget: Types.ProgressBar)
-            if thisWidget.Instance then
-                thisWidget.Instance:Destroy()
-            end
+            thisWidget.Instance:Destroy()
             widgets.discardState(thisWidget)
         end,
     } :: Types.WidgetClass)
@@ -391,12 +389,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         Discard = function(thisWidget: Types.PlotLines)
-            if thisWidget.Instance then
-                thisWidget.Instance:Destroy()
-            end
-            if thisWidget.Tooltip then
-                thisWidget.Tooltip:Destroy()
-            end
+            thisWidget.Instance:Destroy()
+            thisWidget.Tooltip:Destroy()
             widgets.discardState(thisWidget)
         end,
     } :: Types.WidgetClass)
@@ -646,12 +640,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         Discard = function(thisWidget: Types.PlotHistogram)
-            if thisWidget.Instance then
-                thisWidget.Instance:Destroy()
-            end
-            if thisWidget.Tooltip then
-                thisWidget.Tooltip:Destroy()
-            end
+            thisWidget.Instance:Destroy()
+            thisWidget.Tooltip:Destroy()
             widgets.discardState(thisWidget)            
         end,
     } :: Types.WidgetClass)

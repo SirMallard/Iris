@@ -117,9 +117,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         UpdateState = function(_thisWidget: Types.Tab)
         end,
         Discard = function(thisWidget: Types.TabBar)
-            if thisWidget.Instance then
-                thisWidget.Instance:Destroy()
-            end
+            thisWidget.Instance:Destroy()
         end,
     } :: Types.WidgetClass)
 
@@ -324,12 +322,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         Discard = function(thisWidget: Types.Tab)
-            if thisWidget.Instance then
-                thisWidget.Instance:Destroy()
+            if thisWidget.state.isOpened.value == true then
+                closeTab(thisWidget.parentWidget, thisWidget.Index)
             end
-            if thisWidget.ChildContainer then
-                thisWidget.ChildContainer:Destroy()
-            end
+            
+            thisWidget.Instance:Destroy()
+            thisWidget.ChildContainer:Destroy()
+            widgets.discardState(thisWidget)
         end
     } :: Types.WidgetClass)
 end

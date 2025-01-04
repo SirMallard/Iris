@@ -103,9 +103,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         Discard = function(thisWidget: Types.RadioButton)
-            if thisWidget.Instance then
-                thisWidget.Instance:Destroy()
-            end
+            thisWidget.Instance:Destroy()
             widgets.discardState(thisWidget)
         end,
         GenerateState = function(thisWidget: Types.RadioButton)

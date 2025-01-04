@@ -128,9 +128,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             return thisWidget.Instance
         end,
         Discard = function(thisWidget: Types.MenuBar)
-            if thisWidget.Instance then
-                thisWidget.Instance:Destroy()
-            end
+            thisWidget.Instance:Destroy()
         end,
     } :: Types.WidgetClass)
 
@@ -335,12 +333,21 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         Discard = function(thisWidget: Types.Menu)
-            if thisWidget.Instance then
-                thisWidget.Instance:Destroy()
+            -- properly handle removing a menu if open and deleted
+            if AnyMenuOpen then
+                local parentMenu = thisWidget.parentWidget :: Types.Menu
+                local parentIndex: number? = table.find(MenuStack, parentMenu)
+                if parentIndex then
+                    EmptyMenuStack(parentIndex)
+                    if #MenuStack ~= 0 then
+                        ActiveMenu = parentMenu
+                        AnyMenuOpen = true
+                    end
+                end
             end
-            if thisWidget.ChildContainer then
-                thisWidget.ChildContainer:Destroy()
-            end
+
+            thisWidget.Instance:Destroy()
+            thisWidget.ChildContainer:Destroy()
             widgets.discardState(thisWidget)
         end,
     } :: Types.WidgetClass)
@@ -443,9 +450,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         Discard = function(thisWidget: Types.MenuItem)
-            if thisWidget.Instance then
-                thisWidget.Instance:Destroy()
-            end
+            thisWidget.Instance:Destroy()
         end,
     } :: Types.WidgetClass)
 
@@ -591,9 +596,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         Discard = function(thisWidget: Types.MenuToggle)
-            if thisWidget.Instance then
-                thisWidget.Instance:Destroy()
-            end
+            thisWidget.Instance:Destroy()
             widgets.discardState(thisWidget)
         end,
     } :: Types.WidgetClass)
