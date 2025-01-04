@@ -94,7 +94,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Checkbox.TextLabel.Text = thisWidget.arguments.Text or "Checkbox"
         end,
         Discard = function(thisWidget: Types.Checkbox)
-            thisWidget.Instance:Destroy()
+            if thisWidget.Instance then
+                thisWidget.Instance:Destroy()
+            end
             widgets.discardState(thisWidget)
         end,
         GenerateState = function(thisWidget: Types.Checkbox)

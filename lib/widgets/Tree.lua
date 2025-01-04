@@ -22,7 +22,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end),
         },
         Discard = function(thisWidget: Types.CollapsingHeader)
-            thisWidget.Instance:Destroy()
+            if thisWidget.Instance then
+                thisWidget.Instance:Destroy()
+            end
             widgets.discardState(thisWidget)
         end,
         ChildAdded = function(thisWidget: Types.CollapsingHeader, _thisChild: Types.Widget)

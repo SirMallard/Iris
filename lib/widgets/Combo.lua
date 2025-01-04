@@ -101,7 +101,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             SelectableButton.Text = thisWidget.arguments.Text or "Selectable"
         end,
         Discard = function(thisWidget: Types.Selectable)
-            thisWidget.Instance:Destroy()
+            if thisWidget.Instance then
+                thisWidget.Instance:Destroy()
+            end
             widgets.discardState(thisWidget)
         end,
         GenerateState = function(thisWidget: Types.Selectable)
@@ -447,7 +449,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             PreviewLabel.Text = if typeof(stateIndex) == "EnumItem" then stateIndex.Name else tostring(stateIndex)
         end,
         Discard = function(thisWidget: Types.Combo)
-            thisWidget.Instance:Destroy()
+            if thisWidget.Instance then
+                thisWidget.Instance:Destroy()
+            end
 
 			-- If we are discarding the current combo active, we need to hide it
 			if OpenedCombo and OpenedCombo == thisWidget then
@@ -457,6 +461,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 				local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
 				ChildContainer.Visible = false
 			end
+            if thisWidget.ChildContainer then
+                thisWidget.ChildContainer:Destroy()
+            end
 
             widgets.discardState(thisWidget)
         end,

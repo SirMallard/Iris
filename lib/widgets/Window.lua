@@ -67,7 +67,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             relocateTooltips()
         end,
         Discard = function(thisWidget: Types.Tooltip)
-            thisWidget.Instance:Destroy()
+            if thisWidget.Instance then
+                thisWidget.Instance:Destroy()
+            end
         end,
     } :: Types.WidgetClass)
 
@@ -934,7 +936,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 isResizing = false
             end
             windowWidgets[thisWidget.ID] = nil
-            thisWidget.Instance:Destroy()
+            if thisWidget.Instance then
+                thisWidget.Instance:Destroy()
+            end
             widgets.discardState(thisWidget)
         end,
         ChildAdded = function(thisWidget: Types.Window, thisChid: Types.Widget)

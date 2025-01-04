@@ -105,7 +105,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
         Discard = function(thisWidget: Types.Root)
             NumNonWindowChildren = 0
-            thisWidget.Instance:Destroy()
+            if thisWidget.Instance then
+                thisWidget.Instance:Destroy()
+            end
         end,
         ChildAdded = function(thisWidget: Types.Root, thisChild: Types.Widget)
             local Root = thisWidget.Instance :: any

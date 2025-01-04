@@ -115,7 +115,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
         Discard = function(thisWidget: Types.Table)
             tableWidgets[thisWidget.ID] = nil
-            thisWidget.Instance:Destroy()
+            if thisWidget.Instance then
+                thisWidget.Instance:Destroy()
+            end
         end,
         ChildAdded = function(thisWidget: Types.Table, _thisChild: Types.Widget)
             if thisWidget.RowColumnIndex == 0 then

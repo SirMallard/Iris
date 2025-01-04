@@ -27,7 +27,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
         Update = function(_thisWidget: Types.Separator) end,
         Discard = function(thisWidget: Types.Separator)
-            thisWidget.Instance:Destroy()
+            if thisWidget.Instance then
+                thisWidget.Instance:Destroy()
+            end
         end,
     } :: Types.WidgetClass)
 
@@ -65,7 +67,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Indent.UIPadding.PaddingLeft = UDim.new(0, indentWidth)
         end,
         Discard = function(thisWidget: Types.Indent)
-            thisWidget.Instance:Destroy()
+            if thisWidget.Instance then
+                thisWidget.Instance:Destroy()
+            end
         end,
         ChildAdded = function(thisWidget: Types.Indent, _thisChild: Types.Widget)
             return thisWidget.Instance
@@ -117,7 +121,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         Discard = function(thisWidget: Types.SameLine)
-            thisWidget.Instance:Destroy()
+            if thisWidget.Instance then
+                thisWidget.Instance:Destroy()
+            end
         end,
         ChildAdded = function(thisWidget: Types.SameLine, _thisChild: Types.Widget)
             return thisWidget.Instance
@@ -146,7 +152,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
         Update = function(_thisWidget: Types.Group) end,
         Discard = function(thisWidget: Types.Group)
-            thisWidget.Instance:Destroy()
+            if thisWidget.Instance then
+                thisWidget.Instance:Destroy()
+            end
         end,
         ChildAdded = function(thisWidget: Types.Group, _thisChild: Types.Widget)
             return thisWidget.Instance

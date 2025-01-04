@@ -128,7 +128,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             return thisWidget.Instance
         end,
         Discard = function(thisWidget: Types.MenuBar)
-            thisWidget.Instance:Destroy()
+            if thisWidget.Instance then
+                thisWidget.Instance:Destroy()
+            end
         end,
     } :: Types.WidgetClass)
 
@@ -333,7 +335,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         Discard = function(thisWidget: Types.Menu)
-            thisWidget.Instance:Destroy()
+            if thisWidget.Instance then
+                thisWidget.Instance:Destroy()
+            end
+            if thisWidget.ChildContainer then
+                thisWidget.ChildContainer:Destroy()
+            end
             widgets.discardState(thisWidget)
         end,
     } :: Types.WidgetClass)
@@ -436,7 +443,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         Discard = function(thisWidget: Types.MenuItem)
-            thisWidget.Instance:Destroy()
+            if thisWidget.Instance then
+                thisWidget.Instance:Destroy()
+            end
         end,
     } :: Types.WidgetClass)
 
@@ -582,7 +591,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         Discard = function(thisWidget: Types.MenuToggle)
-            thisWidget.Instance:Destroy()
+            if thisWidget.Instance then
+                thisWidget.Instance:Destroy()
+            end
             widgets.discardState(thisWidget)
         end,
     } :: Types.WidgetClass)

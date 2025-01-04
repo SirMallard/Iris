@@ -15,7 +15,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ["SliceScale"] = 8,
         },
         Discard = function(thisWidget: Types.Image)
-            thisWidget.Instance:Destroy()
+            if thisWidget.Instance then
+                thisWidget.Instance:Destroy()
+            end
         end,
     } :: Types.WidgetClass
 

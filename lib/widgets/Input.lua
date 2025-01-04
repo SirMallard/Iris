@@ -408,7 +408,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     end
                 end,
                 Discard = function(thisWidget: Types.Input<T>)
-                    thisWidget.Instance:Destroy()
+                    if thisWidget.Instance then
+                        thisWidget.Instance:Destroy()
+                    end
                     widgets.discardState(thisWidget)
                 end,
                 GenerateState = function(thisWidget: Types.Input<T>)
@@ -738,7 +740,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     end
                 end,
                 Discard = function(thisWidget: Types.Input<T>)
-                    thisWidget.Instance:Destroy()
+                    if thisWidget.Instance then
+                        thisWidget.Instance:Destroy()
+                    end
                     widgets.discardState(thisWidget)
                 end,
                 GenerateState = function(thisWidget: Types.Input<T>)
@@ -1157,7 +1161,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     end
                 end,
                 Discard = function(thisWidget: Types.Input<T>)
-                    thisWidget.Instance:Destroy()
+                    if thisWidget.Instance then
+                        thisWidget.Instance:Destroy()
+                    end
                     widgets.discardState(thisWidget)
                 end,
                 GenerateState = function(thisWidget: Types.Input<T>)
@@ -1372,7 +1378,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             InputField.MultiLine = thisWidget.arguments.MultiLine or false
         end,
         Discard = function(thisWidget: Types.InputText)
-            thisWidget.Instance:Destroy()
+            if thisWidget.Instance then
+                thisWidget.Instance:Destroy()
+            end
             widgets.discardState(thisWidget)
         end,
         GenerateState = function(thisWidget: Types.InputText)

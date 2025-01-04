@@ -54,7 +54,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Text.Text = thisWidget.arguments.Text
         end,
         Discard = function(thisWidget: Types.Text)
-            thisWidget.Instance:Destroy()
+            if thisWidget.Instance then
+                thisWidget.Instance:Destroy()
+            end
         end,
     } :: Types.WidgetClass)
 
@@ -128,7 +130,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             TextLabel.Text = thisWidget.arguments.Text
         end,
         Discard = function(thisWidget: Types.SeparatorText)
-            thisWidget.Instance:Destroy()
+            if thisWidget.Instance then
+                thisWidget.Instance:Destroy()
+            end
         end,
     } :: Types.WidgetClass)
 end
