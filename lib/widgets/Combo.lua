@@ -448,6 +448,16 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
         Discard = function(thisWidget: Types.Combo)
             thisWidget.Instance:Destroy()
+
+			-- If we are discarding the current combo active, we need to hide it
+			if OpenedCombo and OpenedCombo == thisWidget then
+				OpenedCombo = nil
+				AnyOpenedCombo = false
+				
+				local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
+				ChildContainer.Visible = false
+			end
+
             widgets.discardState(thisWidget)
         end,
     } :: Types.WidgetClass)
