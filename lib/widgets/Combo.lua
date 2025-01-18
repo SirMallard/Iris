@@ -136,27 +136,30 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         local PreviewContainer = Combo.PreviewContainer :: TextButton
         local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
 
-        local height = math.min(thisWidget.UIListLayout.AbsoluteContentSize.Y + 2 * Iris._config.WindowPadding.Y, workspace.CurrentCamera.ViewportSize.Y / 2)
-        ChildContainer.Size = UDim2.fromOffset(PreviewContainer.AbsoluteSize.X, height)
-
         local previewPosition: Vector2 = PreviewContainer.AbsolutePosition - widgets.GuiOffset
         local previewSize: Vector2 = PreviewContainer.AbsoluteSize
-        local containerSize: Vector2 = ChildContainer.AbsoluteSize
         local borderSize: number = Iris._config.PopupBorderSize
         local screenSize: Vector2 = ChildContainer.Parent.AbsoluteSize
+        local contentsSize = thisWidget.UIListLayout.AbsoluteContentSize.Y + 2 * Iris._config.WindowPadding.Y
 
         local x: number = previewPosition.X
-        local y: number
+        local y: number = previewPosition.Y + previewSize.Y + borderSize
         local anchor: Vector2 = Vector2.zero
+        local distanceToScreen = screenSize.Y - y
 
-        if previewPosition.Y + containerSize.Y > screenSize.Y then
+        -- Only extend upwards if we cannot fully extend downwards, and we are on the bottom half of the screen.
+        --  i.e. there is more space upwards than there is downwards.
+        if contentsSize > distanceToScreen and y > (screenSize.Y / 2) then
             y = previewPosition.Y - borderSize
             anchor = Vector2.yAxis
-        else
-            y = previewPosition.Y + previewSize.Y + borderSize
+            distanceToScreen = y
         end
+
         ChildContainer.AnchorPoint = anchor
         ChildContainer.Position = UDim2.fromOffset(x, y)
+
+        local height = math.min(contentsSize, distanceToScreen)
+        ChildContainer.Size = UDim2.fromOffset(PreviewContainer.AbsoluteSize.X, height)
     end
 
     widgets.registerEvent("InputBegan", function(inputObject: InputObject)
