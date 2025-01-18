@@ -140,19 +140,19 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         local previewSize: Vector2 = PreviewContainer.AbsoluteSize
         local borderSize: number = Iris._config.PopupBorderSize
         local screenSize: Vector2 = ChildContainer.Parent.AbsoluteSize
-        local contentsSize = thisWidget.UIListLayout.AbsoluteContentSize.Y + 2 * Iris._config.WindowPadding.Y
+        local contentsSize: number = thisWidget.UIListLayout.AbsoluteContentSize.Y + 2 * Iris._config.WindowPadding.Y
 
         local x: number = previewPosition.X
         local y: number = previewPosition.Y + previewSize.Y + borderSize
         local anchor: Vector2 = Vector2.zero
-        local distanceToScreen = screenSize.Y - y
+        local distanceToScreen: number = screenSize.Y - y
 
         -- Only extend upwards if we cannot fully extend downwards, and we are on the bottom half of the screen.
         --  i.e. there is more space upwards than there is downwards.
         if contentsSize > distanceToScreen and y > (screenSize.Y / 2) then
             y = previewPosition.Y - borderSize
             anchor = Vector2.yAxis
-            distanceToScreen = y
+            distanceToScreen = y -- from 0 to the current position
         end
 
         ChildContainer.AnchorPoint = anchor
