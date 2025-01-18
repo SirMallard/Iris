@@ -136,7 +136,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         local PreviewContainer = Combo.PreviewContainer :: TextButton
         local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
 
-        ChildContainer.Size = UDim2.fromOffset(PreviewContainer.AbsoluteSize.X, 0)
+        local height = math.min(thisWidget.UIListLayout.AbsoluteContentSize.Y + 2 * Iris._config.WindowPadding.Y, workspace.CurrentCamera.ViewportSize.Y / 2)
+        ChildContainer.Size = UDim2.fromOffset(PreviewContainer.AbsoluteSize.X, height)
 
         local previewPosition: Vector2 = PreviewContainer.AbsolutePosition - widgets.GuiOffset
         local previewSize: Vector2 = PreviewContainer.AbsoluteSize
@@ -336,7 +337,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local ChildContainer: ScrollingFrame = Instance.new("ScrollingFrame")
             ChildContainer.Name = "ComboContainer"
-            ChildContainer.AutomaticSize = Enum.AutomaticSize.Y
             ChildContainer.BackgroundColor3 = Iris._config.PopupBgColor
             ChildContainer.BackgroundTransparency = Iris._config.PopupBgTransparency
             ChildContainer.BorderSizePixel = 0
@@ -367,6 +367,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ChildContainer.Parent = RootPopupScreenGui
 
             thisWidget.ChildContainer = ChildContainer
+            thisWidget.UIListLayout = ChildContainerUIListLayout
             return Combo
         end,
         Update = function(thisWidget: Types.Combo)
