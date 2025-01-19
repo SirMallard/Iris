@@ -454,7 +454,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             PreviewLabel.Text = if typeof(stateIndex) == "EnumItem" then stateIndex.Name else tostring(stateIndex)
         end,
         Discard = function(thisWidget: Types.Combo)
+			-- If we are discarding the current combo active, we need to hide it
+			if OpenedCombo and OpenedCombo == thisWidget then
+				OpenedCombo = nil
+				AnyOpenedCombo = false
+			end
+
             thisWidget.Instance:Destroy()
+            thisWidget.ChildContainer:Destroy()
             widgets.discardState(thisWidget)
         end,
     } :: Types.WidgetClass)

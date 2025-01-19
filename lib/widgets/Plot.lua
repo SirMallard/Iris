@@ -390,6 +390,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
         Discard = function(thisWidget: Types.PlotLines)
             thisWidget.Instance:Destroy()
+            thisWidget.Tooltip:Destroy()
             widgets.discardState(thisWidget)
         end,
     } :: Types.WidgetClass)
@@ -640,6 +641,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
         Discard = function(thisWidget: Types.PlotHistogram)
             thisWidget.Instance:Destroy()
+            thisWidget.Tooltip:Destroy()
             widgets.discardState(thisWidget)            
         end,
     } :: Types.WidgetClass)

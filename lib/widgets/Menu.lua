@@ -336,7 +336,21 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         Discard = function(thisWidget: Types.Menu)
+            -- properly handle removing a menu if open and deleted
+            if AnyMenuOpen then
+                local parentMenu = thisWidget.parentWidget :: Types.Menu
+                local parentIndex: number? = table.find(MenuStack, parentMenu)
+                if parentIndex then
+                    EmptyMenuStack(parentIndex)
+                    if #MenuStack ~= 0 then
+                        ActiveMenu = parentMenu
+                        AnyMenuOpen = true
+                    end
+                end
+            end
+
             thisWidget.Instance:Destroy()
+            thisWidget.ChildContainer:Destroy()
             widgets.discardState(thisWidget)
         end,
     } :: Types.WidgetClass)
