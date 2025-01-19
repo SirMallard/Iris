@@ -344,7 +344,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ChildContainer.BackgroundTransparency = Iris._config.PopupBgTransparency
             ChildContainer.BorderSizePixel = 0
 
-            ChildContainer.AutomaticSize = Enum.AutomaticSize.Y
             ChildContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
             ChildContainer.ScrollBarImageTransparency = Iris._config.ScrollbarGrabTransparency
             ChildContainer.ScrollBarImageColor3 = Iris._config.ScrollbarGrabColor
