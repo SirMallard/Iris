@@ -130,6 +130,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local AnyOpenedCombo: boolean = false
     local ComboOpenedTick: number = -1
     local OpenedCombo: Types.Combo? = nil
+    local CachedContentSize: number = 0
 
     local function UpdateChildContainerTransform(thisWidget: Types.Combo)
         local Combo = thisWidget.Instance :: Frame
@@ -140,7 +141,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         local previewSize: Vector2 = PreviewContainer.AbsoluteSize
         local borderSize: number = Iris._config.PopupBorderSize
         local screenSize: Vector2 = ChildContainer.Parent.AbsoluteSize
-        local contentsSize: number = thisWidget.UIListLayout.AbsoluteContentSize.Y + 2 * Iris._config.WindowPadding.Y
+
+        local absoluteContentSize = thisWidget.UIListLayout.AbsoluteContentSize.Y
+        CachedContentSize = absoluteContentSize
+
+        local contentsSize: number = absoluteContentSize + 2 * Iris._config.WindowPadding.Y
 
         local x: number = previewPosition.X
         local y: number = previewPosition.Y + previewSize.Y + borderSize
@@ -161,6 +166,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         local height = math.min(contentsSize, distanceToScreen)
         ChildContainer.Size = UDim2.fromOffset(PreviewContainer.AbsoluteSize.X, height)
     end
+
+    table.insert(Iris._postCycleCallbacks, function()
+        if AnyOpenedCombo and OpenedCombo then
+            local contentSize = OpenedCombo.UIListLayout.AbsoluteContentSize.Y
+            if contentSize ~= CachedContentSize then
+                UpdateChildContainerTransform(OpenedCombo)
+            end
+        end
+    end)
 
     widgets.registerEvent("InputBegan", function(inputObject: InputObject)
         if not Iris._started then
