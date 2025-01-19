@@ -272,6 +272,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ChildContainer.ScrollBarThickness = Iris._config.ScrollbarSize
             ChildContainer.CanvasSize = UDim2.fromScale(0, 0)
             ChildContainer.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+            ChildContainer.TopImage = widgets.ICONS.BLANK_SQUARE
+            ChildContainer.MidImage = widgets.ICONS.BLANK_SQUARE
+            ChildContainer.BottomImage = widgets.ICONS.BLANK_SQUARE
 
             ChildContainer.ZIndex = 6
             ChildContainer.LayoutOrder = 6

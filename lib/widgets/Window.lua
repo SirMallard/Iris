@@ -462,6 +462,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ChildContainer.ScrollBarImageColor3 = Iris._config.ScrollbarGrabColor
             ChildContainer.CanvasSize = UDim2.fromScale(0, 0)
             ChildContainer.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+            ChildContainer.TopImage = widgets.ICONS.BLANK_SQUARE
+            ChildContainer.MidImage = widgets.ICONS.BLANK_SQUARE
+            ChildContainer.BottomImage = widgets.ICONS.BLANK_SQUARE
 
             ChildContainer.LayoutOrder = thisWidget.ZIndex + 0xFFFF
             ChildContainer.ClipsDescendants = true

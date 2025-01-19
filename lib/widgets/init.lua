@@ -10,6 +10,7 @@ return function(Iris: Types.Internal)
     widgets.TextService = game:GetService("TextService")
 
     widgets.ICONS = {
+        BLANK_SQUARE = "rbxasset://textures/SurfacesDefault.png",
         RIGHT_POINTING_TRIANGLE = "rbxasset://textures/DeveloperFramework/button_arrow_right.png",
         DOWN_POINTING_TRIANGLE = "rbxasset://textures/DeveloperFramework/button_arrow_down.png",
         MULTIPLICATION_SIGN = "rbxasset://textures/AnimationEditor/icon_close.png", -- best approximation for a close X which roblox supports, needs to be scaled about 2x

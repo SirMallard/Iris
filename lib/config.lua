@@ -20,7 +20,7 @@ local TemplateConfig = {
         PopupBgColor = Color3.fromRGB(20, 20, 20),
         PopupBgTransparency = 0.06,
 
-        ScrollbarGrabColor = Color3.fromRGB(128, 128, 128),
+        ScrollbarGrabColor = Color3.fromRGB(79, 79, 79),
         ScrollbarGrabTransparency = 0,
 
         TitleBgColor = Color3.fromRGB(10, 10, 10),
@@ -141,8 +141,8 @@ local TemplateConfig = {
         MenubarBgColor = Color3.fromRGB(219, 219, 219),
         MenubarBgTransparency = 0,
 
-        ScrollbarGrabColor = Color3.fromRGB(96, 96, 96),
-        ScrollbarGrabTransparency = 0,
+        ScrollbarGrabColor = Color3.fromRGB(176, 176, 176),
+        ScrollbarGrabTransparency = 0.2,
 
         FrameBgColor = Color3.fromRGB(255, 255, 255),
         FrameBgTransparency = 0.6,

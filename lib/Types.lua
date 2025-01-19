@@ -298,6 +298,7 @@ export type WidgetUtility = {
     getMouseLocation: () -> Vector2,
 
     ICONS: {
+        BLANK_SQUARE: string,
         RIGHT_POINTING_TRIANGLE: string,
         DOWN_POINTING_TRIANGLE: string,
         MULTIPLICATION_SIGN: string,
