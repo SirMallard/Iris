@@ -322,7 +322,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         Discard = function(thisWidget: Types.Tab)
+            if thisWidget.state.isOpened.value == true then
+                closeTab(thisWidget.parentWidget, thisWidget.Index)
+            end
+            
             thisWidget.Instance:Destroy()
+            thisWidget.ChildContainer:Destroy()
+            widgets.discardState(thisWidget)
         end
     } :: Types.WidgetClass)
 end

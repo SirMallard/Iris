@@ -176,11 +176,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
     end)
 
-    widgets.registerEvent("InputBegan", function(inputObject: InputObject)
+    local function UpdateComboState(input: InputObject)
         if not Iris._started then
             return
         end
-        if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 and inputObject.UserInputType ~= Enum.UserInputType.MouseButton2 and inputObject.UserInputType ~= Enum.UserInputType.Touch then
+        if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.MouseButton2 and input.UserInputType ~= Enum.UserInputType.Touch and input.UserInputType ~= Enum.UserInputType.MouseWheel then
             return
         end
         if AnyOpenedCombo == false or not OpenedCombo then
@@ -207,7 +207,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
 
         OpenedCombo.state.isOpened:set(false)
-    end)
+    end
+
+    widgets.registerEvent("InputBegan", UpdateComboState)
+
+    widgets.registerEvent("InputChanged", UpdateComboState)
 
     --stylua: ignore
     Iris.WidgetConstructor("Combo", {
@@ -263,7 +267,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             widgets.applyFrameStyle(PreviewContainer, true)
             widgets.UIListLayout(PreviewContainer, Enum.FillDirection.Horizontal, UDim.new(0, 0))
-            widgets.UISizeConstraint(PreviewContainer, Vector2.new(frameHeight + 1))
+            widgets.UISizeConstraint(PreviewContainer, Vector2.new(frameHeight))
 
             PreviewContainer.Parent = Combo
 
@@ -364,6 +368,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ChildContainer.ScrollBarThickness = Iris._config.ScrollbarSize
             ChildContainer.CanvasSize = UDim2.fromScale(0, 0)
             ChildContainer.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+            ChildContainer.TopImage = widgets.ICONS.BLANK_SQUARE
+            ChildContainer.MidImage = widgets.ICONS.BLANK_SQUARE
+            ChildContainer.BottomImage = widgets.ICONS.BLANK_SQUARE
 
             -- appear over everything else
             ChildContainer.ClipsDescendants = true
@@ -465,7 +472,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             PreviewLabel.Text = if typeof(stateIndex) == "EnumItem" then stateIndex.Name else tostring(stateIndex)
         end,
         Discard = function(thisWidget: Types.Combo)
+			-- If we are discarding the current combo active, we need to hide it
+			if OpenedCombo and OpenedCombo == thisWidget then
+				OpenedCombo = nil
+				AnyOpenedCombo = false
+			end
+
             thisWidget.Instance:Destroy()
+            thisWidget.ChildContainer:Destroy()
             widgets.discardState(thisWidget)
         end,
     } :: Types.WidgetClass)
