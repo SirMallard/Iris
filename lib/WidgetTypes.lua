@@ -428,6 +428,8 @@ export type Combo = ParentWidget & {
         index: State<any>,
         isOpened: State<boolean>,
     },
+
+    UIListLayout: UIListLayout,
 } & Opened & Closed & Clicked & Hovered
 
 -- Plot
