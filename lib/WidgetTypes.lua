@@ -483,16 +483,18 @@ export type PlotHistogram = Widget & {
 } & Hovered
 
 export type Table = ParentWidget & {
-    RowColumnIndex: number,
-    InitialNumColumns: number,
+    ColumnIndex: number,
+    RowIndex: number,
     ColumnInstances: { Frame },
-    CellInstances: { Frame },
+    CellInstances: { { Frame } },
 
     arguments: {
         NumColumns: number,
-        RowBg: boolean?,
-        BordersOuter: boolean?,
-        BordersInner: boolean?,
+        Resizable: boolean,
+        Header: boolean,
+        RowBackground: boolean,
+        OuterBorders: boolean,
+        InnerBorders: boolean,
     },
 } & Hovered
 
