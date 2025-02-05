@@ -31,31 +31,43 @@ local Types = require(script.Parent.Parent.Types)
 ]]
 
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
+    local Tables: { Types.Table } = {}
+
+    table.insert(Iris._postCycleCallbacks, function()
+        for _, thisWidget: Types.Table in Tables do
+            thisWidget.RowIndex = 1
+            thisWidget.ColumnIndex = 1
+        end
+    end)
+
+    local function CreateRow(thisWidget: Types.Table, index: number)
+        local Row: Frame = Instance.new("Frame")
+        Row.Name = `Row_{index}`
+        Row.AutomaticSize = Enum.AutomaticSize.Y
+        Row.Size = UDim2.fromScale(1, 0)
+        Row.BackgroundTransparency = 1
+        Row.BorderSizePixel = 0
+        Row.ZIndex = index
+        Row.LayoutOrder = index
+
+        widgets.UIListLayout(Row, Enum.FillDirection.Horizontal, UDim.new())
+
+        return Row
+    end
+
     local function CreateColumn(thisWidget: Types.Table, index: number)
         local Column: Frame = Instance.new("Frame")
         Column.Name = `Column_{index}`
         Column.AutomaticSize = Enum.AutomaticSize.Y
-        Column.Size = UDim2.fromScale(0, 0)
+        Column.Size = UDim2.fromScale(0.25, 0)
         Column.BackgroundTransparency = 1
-        Column.LayoutOrder = index
         Column.ZIndex = index
+        Column.LayoutOrder = index
 
+        widgets.UIPadding(Column, Iris._config.FramePadding)
         widgets.UIListLayout(Column, Enum.FillDirection.Vertical, UDim.new())
 
         return Column
-    end
-
-    local function CreateCell(thisWidget: Types.Table, index: number)
-        local Cell: Frame = Instance.new("Frame")
-        Cell.Name = `Cell_{index}`
-        Cell.AutomaticSize = Enum.AutomaticSize.Y
-        Cell.Size = UDim2.fromScale(1, 0)
-        Cell.ZIndex = index
-        Cell.LayoutOrder = index
-
-        widgets.UIPadding(Cell, Iris._config.FramePadding)
-
-        return Cell
     end
 
     --stylua: ignore
@@ -87,7 +99,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             CellContainer.BackgroundTransparency = 1
             CellContainer.ZIndex = 1
 
-            widgets.UIListLayout(CellContainer, Enum.FillDirection.Horizontal, UDim.new())
+            widgets.UIListLayout(CellContainer, Enum.FillDirection.Vertical, UDim.new())
+            widgets.UIStroke(CellContainer, 1, Iris._config.TableBorderStrongColor, Iris._config.TableBorderStrongTransparency)
 
             CellContainer.Parent = Table
 
@@ -97,13 +110,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             BorderContainer.BackgroundTransparency = 1
             BorderContainer.ZIndex = 2
 
-            widgets.UIStroke(BorderContainer, 1, Iris._config.TableBorderStrongColor, Iris._config.TableBorderStrongTransparency)
-
             BorderContainer.Parent = Table
 
-            thisWidget.ColumnIndex = -1
-            thisWidget.RowIndex = 1
-            thisWidget.ColumnInstances = {}
+            thisWidget.ColumnIndex = 1
+            thisWidget.RowIndex = -1
+            thisWidget.ColumnWidths = {}
+            thisWidget.RowInstances = {}
             thisWidget.CellInstances = {}
 
             return Table
@@ -113,19 +125,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local Table = thisWidget.Instance :: Frame
             local CellContainer: Frame = Table.CellContainer
 
-            if thisWidget.ColumnIndex == -1 then
-                local Size: UDim2 = UDim2.fromScale(1 / thisWidget.arguments.NumColumns, 0)
-                for i = 1, thisWidget.arguments.NumColumns do
-                    local Column: Frame = CreateColumn(thisWidget, i)
-                    Column.Size = Size
-                    table.insert(thisWidget.ColumnInstances, Column)
-                    Column.Parent = CellContainer
-                end
-                thisWidget.ColumnIndex = 1
-
-                if thisWidget.arguments.Header == true then
-                    thisWidget.RowIndex = 0
-                end
+            if thisWidget.RowIndex == -1 then
+                local Size: UDim = UDim.new(1 / thisWidget.arguments.NumColumns, 0)
+                thisWidget.ColumnWidths = table.create(thisWidget.arguments.NumColumns, Size)
+                thisWidget.RowIndex = 1
             end
         end,
         ChildAdded = function(thisWidget: Types.Table, thisChild: Types.Widget)
