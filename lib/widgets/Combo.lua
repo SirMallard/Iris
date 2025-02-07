@@ -130,39 +130,57 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local AnyOpenedCombo: boolean = false
     local ComboOpenedTick: number = -1
     local OpenedCombo: Types.Combo? = nil
+    local CachedContentSize: number = 0
 
     local function UpdateChildContainerTransform(thisWidget: Types.Combo)
         local Combo = thisWidget.Instance :: Frame
         local PreviewContainer = Combo.PreviewContainer :: TextButton
         local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
 
-        ChildContainer.Size = UDim2.fromOffset(PreviewContainer.AbsoluteSize.X, 0)
-
         local previewPosition: Vector2 = PreviewContainer.AbsolutePosition - widgets.GuiOffset
         local previewSize: Vector2 = PreviewContainer.AbsoluteSize
-        local containerSize: Vector2 = ChildContainer.AbsoluteSize
         local borderSize: number = Iris._config.PopupBorderSize
         local screenSize: Vector2 = ChildContainer.Parent.AbsoluteSize
 
-        local x: number = previewPosition.X
-        local y: number
-        local anchor: Vector2 = Vector2.zero
+        local absoluteContentSize = thisWidget.UIListLayout.AbsoluteContentSize.Y
+        CachedContentSize = absoluteContentSize
 
-        if previewPosition.Y + containerSize.Y > screenSize.Y then
+        local contentsSize: number = absoluteContentSize + 2 * Iris._config.WindowPadding.Y
+
+        local x: number = previewPosition.X
+        local y: number = previewPosition.Y + previewSize.Y + borderSize
+        local anchor: Vector2 = Vector2.zero
+        local distanceToScreen: number = screenSize.Y - y
+
+        -- Only extend upwards if we cannot fully extend downwards, and we are on the bottom half of the screen.
+        --  i.e. there is more space upwards than there is downwards.
+        if contentsSize > distanceToScreen and y > (screenSize.Y / 2) then
             y = previewPosition.Y - borderSize
             anchor = Vector2.yAxis
-        else
-            y = previewPosition.Y + previewSize.Y + borderSize
+            distanceToScreen = y -- from 0 to the current position
         end
+
         ChildContainer.AnchorPoint = anchor
         ChildContainer.Position = UDim2.fromOffset(x, y)
+
+        local height = math.min(contentsSize, distanceToScreen)
+        ChildContainer.Size = UDim2.fromOffset(PreviewContainer.AbsoluteSize.X, height)
     end
 
-    widgets.registerEvent("InputBegan", function(inputObject: InputObject)
+    table.insert(Iris._postCycleCallbacks, function()
+        if AnyOpenedCombo and OpenedCombo then
+            local contentSize = OpenedCombo.UIListLayout.AbsoluteContentSize.Y
+            if contentSize ~= CachedContentSize then
+                UpdateChildContainerTransform(OpenedCombo)
+            end
+        end
+    end)
+
+    local function UpdateComboState(input: InputObject)
         if not Iris._started then
             return
         end
-        if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 and inputObject.UserInputType ~= Enum.UserInputType.MouseButton2 and inputObject.UserInputType ~= Enum.UserInputType.Touch then
+        if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.MouseButton2 and input.UserInputType ~= Enum.UserInputType.Touch and input.UserInputType ~= Enum.UserInputType.MouseWheel then
             return
         end
         if AnyOpenedCombo == false or not OpenedCombo then
@@ -189,7 +207,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
 
         OpenedCombo.state.isOpened:set(false)
-    end)
+    end
+
+    widgets.registerEvent("InputBegan", UpdateComboState)
+
+    widgets.registerEvent("InputChanged", UpdateComboState)
 
     --stylua: ignore
     Iris.WidgetConstructor("Combo", {
@@ -245,7 +267,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             widgets.applyFrameStyle(PreviewContainer, true)
             widgets.UIListLayout(PreviewContainer, Enum.FillDirection.Horizontal, UDim.new(0, 0))
-            widgets.UISizeConstraint(PreviewContainer, Vector2.new(frameHeight + 1))
+            widgets.UISizeConstraint(PreviewContainer, Vector2.new(frameHeight))
 
             PreviewContainer.Parent = Combo
 
@@ -336,7 +358,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local ChildContainer: ScrollingFrame = Instance.new("ScrollingFrame")
             ChildContainer.Name = "ComboContainer"
-            ChildContainer.AutomaticSize = Enum.AutomaticSize.Y
             ChildContainer.BackgroundColor3 = Iris._config.PopupBgColor
             ChildContainer.BackgroundTransparency = Iris._config.PopupBgTransparency
             ChildContainer.BorderSizePixel = 0
@@ -347,6 +368,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ChildContainer.ScrollBarThickness = Iris._config.ScrollbarSize
             ChildContainer.CanvasSize = UDim2.fromScale(0, 0)
             ChildContainer.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+            ChildContainer.TopImage = widgets.ICONS.BLANK_SQUARE
+            ChildContainer.MidImage = widgets.ICONS.BLANK_SQUARE
+            ChildContainer.BottomImage = widgets.ICONS.BLANK_SQUARE
 
             -- appear over everything else
             ChildContainer.ClipsDescendants = true
@@ -367,6 +391,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ChildContainer.Parent = RootPopupScreenGui
 
             thisWidget.ChildContainer = ChildContainer
+            thisWidget.UIListLayout = ChildContainerUIListLayout
             return Combo
         end,
         Update = function(thisWidget: Types.Combo)
@@ -447,7 +472,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             PreviewLabel.Text = if typeof(stateIndex) == "EnumItem" then stateIndex.Name else tostring(stateIndex)
         end,
         Discard = function(thisWidget: Types.Combo)
+			-- If we are discarding the current combo active, we need to hide it
+			if OpenedCombo and OpenedCombo == thisWidget then
+				OpenedCombo = nil
+				AnyOpenedCombo = false
+			end
+
             thisWidget.Instance:Destroy()
+            thisWidget.ChildContainer:Destroy()
             widgets.discardState(thisWidget)
         end,
     } :: Types.WidgetClass)

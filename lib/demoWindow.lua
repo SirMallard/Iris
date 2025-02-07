@@ -209,6 +209,12 @@ return function(Iris: Types.Iris)
 
                 Iris.ComboArray({ "Using ComboArray" }, { index = "No Selection" }, { "Red", "Green", "Blue" })
 
+                local heightTestArray = {}
+                for i = 1, 50 do
+                    table.insert(heightTestArray, tostring(i))
+                end
+                Iris.ComboArray({ "Height Test" }, { index = "1" }, heightTestArray)
+
                 local sharedComboIndex2 = Iris.State("7 AM")
 
                 Iris.Combo({ "Combo with Inner widgets" }, { index = sharedComboIndex2 })

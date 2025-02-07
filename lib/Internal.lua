@@ -148,7 +148,9 @@ return function(Iris: Types.Iris): Types.Internal
         self.value = newValue
         self.lastChangeTick = Iris.Internal._cycleTick
         for _, thisWidget: Types.Widget in self.ConnectedWidgets do
-            Internal._widgets[thisWidget.type].UpdateState(thisWidget)
+            if thisWidget.lastCycleTick ~= -1 then
+                Internal._widgets[thisWidget.type].UpdateState(thisWidget)
+            end
         end
 
         for _, callback in self.ConnectedFunctions do

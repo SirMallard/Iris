@@ -272,6 +272,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ChildContainer.ScrollBarThickness = Iris._config.ScrollbarSize
             ChildContainer.CanvasSize = UDim2.fromScale(0, 0)
             ChildContainer.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+            ChildContainer.TopImage = widgets.ICONS.BLANK_SQUARE
+            ChildContainer.MidImage = widgets.ICONS.BLANK_SQUARE
+            ChildContainer.BottomImage = widgets.ICONS.BLANK_SQUARE
 
             ChildContainer.ZIndex = 6
             ChildContainer.LayoutOrder = 6
@@ -333,7 +336,21 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         Discard = function(thisWidget: Types.Menu)
+            -- properly handle removing a menu if open and deleted
+            if AnyMenuOpen then
+                local parentMenu = thisWidget.parentWidget :: Types.Menu
+                local parentIndex: number? = table.find(MenuStack, parentMenu)
+                if parentIndex then
+                    EmptyMenuStack(parentIndex)
+                    if #MenuStack ~= 0 then
+                        ActiveMenu = parentMenu
+                        AnyMenuOpen = true
+                    end
+                end
+            end
+
             thisWidget.Instance:Destroy()
+            thisWidget.ChildContainer:Destroy()
             widgets.discardState(thisWidget)
         end,
     } :: Types.WidgetClass)
