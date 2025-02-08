@@ -487,6 +487,7 @@ export type PlotHistogram = Widget & {
 export type Table = ParentWidget & {
     ColumnIndex: number,
     RowIndex: number,
+    RowContainer: Instance,
     ColumnWidths: { UDim },
     RowInstances: { Frame },
     CellInstances: { { Frame } },

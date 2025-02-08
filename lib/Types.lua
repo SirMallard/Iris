@@ -276,6 +276,14 @@ export type Internal = {
     _GetParentWidget: () -> ParentWidget,
     SetFocusedWindow: (thisWidget: WidgetTypes.Window?) -> (),
 
+    NextColumn: () -> number,
+    NextRow: () -> number,
+    SetColumnIndex: (index: number) -> (),
+    SetRowIndex: (index: number) -> (),
+    NextHeaderColumn: () -> number,
+    SetHeaderColumnIndex: (index: number) -> (),
+    SetColumnWidth: (index: number, width: number | UDim) -> (),
+
     -- Generate
     _generateEmptyVDOM: () -> { [ID]: Widget },
     _generateRootInstance: () -> (),
