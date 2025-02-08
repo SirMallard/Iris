@@ -6,7 +6,6 @@ local Types = require(script.Parent.Parent.Types)
 	Iris.Table(
 		{
 			NumColumns,
-			Resizable,
 			Header,
 			RowBackground,
 			OuterBorders,
@@ -32,7 +31,6 @@ local Types = require(script.Parent.Parent.Types)
 
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local Tables: { Types.Table } = {}
-    local ActiveTable: Types.Table? = nil
 
     table.insert(Iris._postCycleCallbacks, function()
         for _, thisWidget: Types.Table in Tables do
@@ -41,22 +39,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
     end)
 
-    local function CreateRow(thisWidget: Types.Table, index: number)
-        local Row: Frame = Instance.new("Frame")
-        Row.Name = `Row_{index}`
-        Row.AutomaticSize = Enum.AutomaticSize.Y
-        Row.Size = UDim2.fromScale(1, 0)
-        Row.BackgroundTransparency = 1
-        Row.BorderSizePixel = 0
-        Row.ZIndex = index
-        Row.LayoutOrder = index
-
-        widgets.UIListLayout(Row, Enum.FillDirection.Horizontal, UDim.new())
-
-        return Row
-    end
-
-    local function CreateCell(thisWidget: Types.Table, index: number, width: UDim)
+    local function GenerateCell(thisWidget: Types.Table, index: number, width: UDim)
         local Cell: Frame = Instance.new("Frame")
         Cell.Name = `Cell_{index}`
         Cell.AutomaticSize = Enum.AutomaticSize.Y
@@ -64,6 +47,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Cell.BackgroundTransparency = 1
         Cell.ZIndex = index
         Cell.LayoutOrder = index
+        Cell.ClipsDescendants = true
 
         widgets.UIPadding(Cell, Iris._config.FramePadding)
         widgets.UIListLayout(Cell, Enum.FillDirection.Vertical, UDim.new())
@@ -71,79 +55,55 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         return Cell
     end
 
-    local function AppendRow(thisWidget: Types.Table)
-        local index = #thisWidget.RowInstances + 1
-        local Row = CreateRow(thisWidget, index)
-        for columnIndex = 1, thisWidget.arguments.NumColumns do
-            local Cell = CreateCell(thisWidget, columnIndex, thisWidget.ColumnWidths[columnIndex])
-            Cell.Parent = Row
-            table.insert(thisWidget.CellInstances, Cell)
-        end
-
-        Row.Parent = thisWidget.RowContainer
-        table.insert(thisWidget.RowInstances, Row)
-    end
-
-    Iris.NextColumn = function(): number
-        assert(ActiveTable ~= nil, "Iris.NextColumn() can only called within a table.")
-
-        local columnIndex = ActiveTable.ColumnIndex
-        if columnIndex == ActiveTable.arguments.NumColumns then
-            ActiveTable.ColumnIndex = 1
-            ActiveTable.RowIndex += 1
+    -- creates a new row and all columns, and adds all to the table's row and cell instance tables, but does not parent
+    local function GenerateRow(thisWidget: Types.Table, index: number)
+        local Row: Frame = Instance.new("Frame")
+        Row.Name = `Row_{index}`
+        Row.AutomaticSize = Enum.AutomaticSize.Y
+        Row.Size = UDim2.fromScale(1, 0)
+        if index == 0 then
+            Row.BackgroundColor3 = Iris._config.TableHeaderColor
+            Row.BackgroundTransparency = Iris._config.TableHeaderTransparency
+        elseif thisWidget.arguments.RowBackground == true then
+            if (index % 2) == 0 then
+                Row.BackgroundColor3 = Iris._config.TableRowBgAltColor
+                Row.BackgroundTransparency = Iris._config.TableRowBgAltTransparency
+            else
+                Row.BackgroundColor3 = Iris._config.TableRowBgColor
+                Row.BackgroundTransparency = Iris._config.TableRowBgTransparency
+            end
         else
-            ActiveTable.ColumnIndex += 1
+            Row.BackgroundTransparency = 1
         end
-        return ActiveTable.ColumnIndex
-    end
+        Row.BorderSizePixel = 0
+        Row.ZIndex = index
+        Row.LayoutOrder = index
+        Row.ClipsDescendants = true
 
-    Iris.NextRow = function(): number
-        assert(ActiveTable ~= nil, "Iris.NextRow() can only called within a table.")
-        ActiveTable.ColumnIndex = 1
-        ActiveTable.RowIndex += 1
-        return ActiveTable.RowIndex
-    end
+        widgets.UIListLayout(Row, Enum.FillDirection.Horizontal, UDim.new())
 
-    Iris.SetColumnIndex = function(index: number): ()
-        assert(ActiveTable ~= nil, "Iris.SetColumnIndex() can only called within a table.")
-        assert((index >= 1) and (index <= ActiveTable.arguments.NumColumns), `The index must be between 1 and {ActiveTable.arguments.NumColumns}, inclusive.`)
-        ActiveTable.ColumnIndex = index
-    end
+        thisWidget.CellInstances[index] = table.create(thisWidget.arguments.NumColumns)
+        for columnIndex = 1, thisWidget.arguments.NumColumns do
+            local Cell = GenerateCell(thisWidget, columnIndex, thisWidget.state.widths.value[columnIndex])
+            Cell.Parent = Row
+            thisWidget.CellInstances[index][columnIndex] = Cell
+        end
 
-    Iris.SetRowIndex = function(index: number): ()
-        assert(ActiveTable ~= nil, "Iris.SetRowIndex() can only called within a table.")
-        assert(index >= 1, "The index must be greater or equal to 1.")
-        ActiveTable.RowIndex = index
-    end
+        thisWidget.RowInstances[index] = Row
 
-    Iris.NextHeaderColumn = function(): number
-        assert(ActiveTable ~= nil, "Iris.NextHeaderColumn() can only called within a table.")
-
-        ActiveTable.RowIndex = 0
-        ActiveTable.ColumnIndex += 1
-
-        return ActiveTable.ColumnIndex
-    end
-
-    Iris.SetHeaderColumnIndex = function(index: number): ()
-        return
-    end
-
-    Iris.SetColumnWidth = function(index: number, width: number | UDim): ()
-        return
+        return Row
     end
 
     --stylua: ignore
     Iris.WidgetConstructor("Table", {
-        hasState = false,
+        hasState = true,
         hasChildren = true,
         Args = {
             NumColumns = 1,
-            Resizable = 2,
-            Header = 3,
-            RowBackground = 4,
-            OuterBorders = 5,
-            InnerBorders = 6
+            Header = 2,
+            RowBackground = 3,
+            OuterBorders = 4,
+            InnerBorders = 5
         },
         Events = {},
         Generate = function(thisWidget: Types.Table)
@@ -177,29 +137,71 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             BorderContainer.Parent = Table
 
             thisWidget.ColumnIndex = 1
-            thisWidget.RowIndex = -1
-            thisWidget.ColumnWidths = {}
+            thisWidget.RowIndex = 1
             thisWidget.RowInstances = {}
             thisWidget.CellInstances = {}
 
             return Table
         end,
+        GenerateState = function(thisWidget: Types.Table)
+            if thisWidget.state.widths == nil then
+                local Widths: { UDim } = table.create(thisWidget.arguments.NumColumns, UDim.new(1 / thisWidget.arguments.NumColumns, 0))
+                thisWidget.state.widths = Iris._widgetState(thisWidget, "widths", Widths)
+            end
+        end,
         Update = function(thisWidget: Types.Table)
             assert(thisWidget.arguments.NumColumns >= 1, "Iris.Table must have at least one column.")
-            local Table = thisWidget.Instance :: Frame
-            local RowContainer: Frame = Table.RowContainer
 
-            if thisWidget.RowIndex == -1 then
-                local Size: UDim = UDim.new(1 / thisWidget.arguments.NumColumns, 0)
-                thisWidget.ColumnWidths = table.create(thisWidget.arguments.NumColumns, Size)
-                thisWidget.RowIndex = 1
+            for rowIndex: number, row: Frame in thisWidget.RowInstances do
+                if rowIndex == 0 then
+                    row.BackgroundColor3 = Iris._config.TableHeaderColor
+                    row.BackgroundTransparency = Iris._config.TableHeaderTransparency
+                elseif thisWidget.arguments.RowBackground == true then
+                    if (rowIndex % 2) == 0 then
+                        row.BackgroundColor3 = Iris._config.TableRowBgAltColor
+                        row.BackgroundTransparency = Iris._config.TableRowBgAltTransparency
+                    else
+                        row.BackgroundColor3 = Iris._config.TableRowBgColor
+                        row.BackgroundTransparency = Iris._config.TableRowBgTransparency
+                    end
+                else
+                    row.BackgroundTransparency = 1
+                end
+            end
+
+            local HeaderRow: Frame? = thisWidget.RowInstances[0]
+            if HeaderRow then
+                HeaderRow.Visible = thisWidget.arguments.Header
+            end
+        end,
+        UpdateState = function(thisWidget: Types.Table)
+            for rowIndex: number, row: { Frame } in thisWidget.CellInstances do
+                for columnIndex: number, cell: Frame in row do
+                    cell.Size = UDim2.new(thisWidget.state.widths.value[columnIndex], UDim.new())
+                end
             end
         end,
         ChildAdded = function(thisWidget: Types.Table, thisChild: Types.Widget)
-            
+            local rowIndex: number = thisWidget.RowIndex
+            local columnIndex: number = thisWidget.ColumnIndex
+            -- determine if the row exists yet
+            local Row: Frame = thisWidget.RowInstances[rowIndex]
+
+            if Row ~= nil then
+                return thisWidget.CellInstances[rowIndex][columnIndex]
+            end
+
+            Row = GenerateRow(thisWidget, rowIndex)
+            if rowIndex == 0 then
+                Row.Visible = thisWidget.arguments.Header
+            end
+            Row.Parent = thisWidget.RowContainer
+
+            return thisWidget.CellInstances[rowIndex][columnIndex]
         end,
         Discard = function(thisWidget: Types.Table)
-            thisWidget.Instance:Destroy()            
+            thisWidget.Instance:Destroy()     
+            widgets.discardState(thisWidget)       
         end
     } :: Types.WidgetClass)
 end

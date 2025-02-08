@@ -1311,9 +1311,9 @@ return function(Iris: Types.Iris)
             Iris.Text({ "Table with Customizable Arguments" })
             Iris.Table({
                 [Iris.Args.Table.NumColumns] = 4,
-                [Iris.Args.Table.RowBg] = TableRowBg.value,
-                [Iris.Args.Table.BordersOuter] = TableBordersOuter.value,
-                [Iris.Args.Table.BordersInner] = TableBordersInner.value,
+                [Iris.Args.Table.RowBackground] = TableRowBg.value,
+                [Iris.Args.Table.OuterBorders] = TableBordersOuter.value,
+                [Iris.Args.Table.InnerBorders] = TableBordersInner.value,
             })
             do
                 for i = 1, TableNumRows:get() do

@@ -488,17 +488,19 @@ export type Table = ParentWidget & {
     ColumnIndex: number,
     RowIndex: number,
     RowContainer: Instance,
-    ColumnWidths: { UDim },
     RowInstances: { Frame },
     CellInstances: { { Frame } },
 
     arguments: {
         NumColumns: number,
-        Resizable: boolean,
         Header: boolean,
         RowBackground: boolean,
         OuterBorders: boolean,
         InnerBorders: boolean,
+    },
+
+    state: {
+        widths: State<{ UDim }>,
     },
 } & Hovered
 
