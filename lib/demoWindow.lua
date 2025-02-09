@@ -1271,10 +1271,9 @@ return function(Iris: Types.Iris)
             Iris.Table({ 3 })
             do
                 for i = 1, 4 do
-                    Iris.NextRow()
                     for i2 = 1, 3 do
-                        Iris.NextColumn()
                         Iris.Text({ `Row: {i}, Column: {i2}` })
+                        Iris.NextColumn()
                     end
                 end
             end
@@ -1293,8 +1292,8 @@ return function(Iris: Types.Iris)
             do
                 for i = 1, 4 do
                     for i2 = 1, 2 do
-                        Iris.NextColumn()
                         Iris.Text({ `Row: {i}, Column: {i2}` })
+                        Iris.NextColumn()
                     end
                 end
             end
@@ -1318,12 +1317,12 @@ return function(Iris: Types.Iris)
             do
                 for i = 1, TableNumRows:get() do
                     for i2 = 1, 4 do
-                        Iris.NextColumn()
                         if TableUseButtons.value then
                             Iris.Button({ `Month: {i}, Week: {i2}` })
                         else
                             Iris.Text({ `Month: {i}, Week: {i2}` })
                         end
+                        Iris.NextColumn()
                     end
                 end
             end

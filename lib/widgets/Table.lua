@@ -30,12 +30,17 @@ local Types = require(script.Parent.Parent.Types)
 ]]
 
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
-    local Tables: { Types.Table } = {}
+    local Tables: { [Types.ID]: Types.Table } = {}
 
     table.insert(Iris._postCycleCallbacks, function()
         for _, thisWidget: Types.Table in Tables do
             thisWidget.RowIndex = 1
             thisWidget.ColumnIndex = 1
+
+            -- update the border container size to be the same, albeit *every* frame!
+            local Table = thisWidget.Instance :: Frame
+            local BorderContainer: Frame = Table.BorderContainer
+            BorderContainer.Size = UDim2.new(1, 0, 0, thisWidget.RowContainer.AbsoluteSize.Y)
         end
     end)
 
@@ -53,6 +58,32 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         widgets.UIListLayout(Cell, Enum.FillDirection.Vertical, UDim.new())
 
         return Cell
+    end
+
+    local function GenerateColumnBorder(thisWidget: Types.Table, index: number, style: "Light" | "Strong")
+        local Border: ImageButton = Instance.new("ImageButton")
+        Border.Name = `Border_{index}`
+        Border.AnchorPoint = Vector2.new(0.5, 0)
+        Border.Size = UDim2.new(0, 1, 1, 0)
+        Border.BackgroundColor3 = Iris._config[`TableBorder{style}Color`]
+        Border.BackgroundTransparency = Iris._config[`TableBorder{style}Transparency`]
+        Border.BorderSizePixel = 0
+        Border.AutoButtonColor = false
+        Border.Image = ""
+        Border.ImageTransparency = 1
+        Border.ZIndex = index
+        Border.LayoutOrder = index
+
+        widgets.applyInteractionHighlights("Background", Border, Border, {
+            Color = Iris._config[`TableBorder{style}Color`],
+            Transparency = Iris._config[`TableBorder{style}Transparency`],
+            HoveredColor = Iris._config.ResizeGripHoveredColor,
+            HoveredTransparency = Iris._config.ResizeGripHoveredTransparency,
+            ActiveColor = Iris._config.ResizeGripActiveColor,
+            ActiveTransparency = Iris._config.ResizeGripActiveTransparency,
+        })
+
+        return Border
     end
 
     -- creates a new row and all columns, and adds all to the table's row and cell instance tables, but does not parent
@@ -76,8 +107,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Row.BackgroundTransparency = 1
         end
         Row.BorderSizePixel = 0
-        Row.ZIndex = index
-        Row.LayoutOrder = index
+        Row.ZIndex = 2 * index - 1
+        Row.LayoutOrder = 2 * index - 1
         Row.ClipsDescendants = true
 
         widgets.UIListLayout(Row, Enum.FillDirection.Horizontal, UDim.new())
@@ -94,6 +125,27 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         return Row
     end
 
+    local function GenerateRowBorder(thisWidget: Types.Table, index: number, style: "Light" | "Strong")
+        local Border = Instance.new("Frame")
+        Border.Name = `Border_{index}`
+        Border.Size = UDim2.new(1, 0, 0, 0)
+        Border.BackgroundTransparency = 1
+        Border.ZIndex = 2 * index
+        Border.LayoutOrder = 2 * index
+
+        local Line = Instance.new("Frame")
+        Line.Name = "Line"
+        Line.AnchorPoint = Vector2.new(0, 0.5)
+        Line.Size = UDim2.new(1, 0, 0, 1)
+        Line.BackgroundColor3 = Iris._config[`TableBorder{style}Color`]
+        Line.BackgroundTransparency = Iris._config[`TableBorder{style}Transparency`]
+        Line.BorderSizePixel = 0
+
+        Line.Parent = Border
+
+        return Border
+    end
+
     --stylua: ignore
     Iris.WidgetConstructor("Table", {
         hasState = true,
@@ -107,6 +159,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         },
         Events = {},
         Generate = function(thisWidget: Types.Table)
+            Tables[thisWidget.ID] = thisWidget
             local Table: Frame = Instance.new("Frame")
             Table.Name = "Iris_Table"
             Table.AutomaticSize = Enum.AutomaticSize.Y
@@ -123,7 +176,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             RowContainer.ZIndex = 1
 
             widgets.UIListLayout(RowContainer, Enum.FillDirection.Vertical, UDim.new())
-            widgets.UIStroke(RowContainer, 1, Iris._config.TableBorderStrongColor, Iris._config.TableBorderStrongTransparency)
 
             RowContainer.Parent = Table
 			thisWidget.RowContainer = RowContainer
@@ -134,12 +186,16 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             BorderContainer.BackgroundTransparency = 1
             BorderContainer.ZIndex = 2
 
+            widgets.UIStroke(BorderContainer, 1, Iris._config.TableBorderStrongColor, Iris._config.TableBorderStrongTransparency)
+
             BorderContainer.Parent = Table
 
             thisWidget.ColumnIndex = 1
             thisWidget.RowIndex = 1
             thisWidget.RowInstances = {}
             thisWidget.CellInstances = {}
+            thisWidget.RowBorders = {}
+            thisWidget.ColumnBorders = {}
 
             return Table
         end,
@@ -147,6 +203,19 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             if thisWidget.state.widths == nil then
                 local Widths: { UDim } = table.create(thisWidget.arguments.NumColumns, UDim.new(1 / thisWidget.arguments.NumColumns, 0))
                 thisWidget.state.widths = Iris._widgetState(thisWidget, "widths", Widths)
+            end
+
+            local Table = thisWidget.Instance :: Frame
+            local BorderContainer: Frame = Table.BorderContainer
+            local Position: UDim = UDim.new()
+
+            for index = 1, thisWidget.arguments.NumColumns - 1 do
+                Position += thisWidget.state.widths.value[index]
+                local Border = GenerateColumnBorder(thisWidget, index, "Light")
+                Border.Position = UDim2.new(Position, UDim.new())
+                Border.Visible = thisWidget.arguments.InnerBorders
+                thisWidget.ColumnBorders[index] = Border
+                Border.Parent = BorderContainer
             end
         end,
         Update = function(thisWidget: Types.Table)
@@ -168,17 +237,41 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     row.BackgroundTransparency = 1
                 end
             end
+            
+            for rowIndex: number, Border: Frame in thisWidget.RowBorders do
+                Border.Visible = thisWidget.arguments.InnerBorders
+            end
 
+            for _, Border: GuiButton in thisWidget.ColumnBorders do
+                Border.Visible = thisWidget.arguments.InnerBorders
+            end
+            
+            -- the header border visibility must be updated after settings all borders
+            -- visiblity or not
             local HeaderRow: Frame? = thisWidget.RowInstances[0]
-            if HeaderRow then
+            local HeaderBorder: Frame? = thisWidget.RowBorders[0]
+            if HeaderRow ~= nil then
                 HeaderRow.Visible = thisWidget.arguments.Header
             end
+            if HeaderBorder ~= nil then
+                HeaderBorder.Visible = thisWidget.arguments.Header
+            end
+
+            local Table = thisWidget.Instance :: Frame
+            local BorderContainer = Table.BorderContainer :: Frame
+            BorderContainer.UIStroke.Enabled = thisWidget.arguments.OuterBorders
         end,
         UpdateState = function(thisWidget: Types.Table)
             for rowIndex: number, row: { Frame } in thisWidget.CellInstances do
                 for columnIndex: number, cell: Frame in row do
                     cell.Size = UDim2.new(thisWidget.state.widths.value[columnIndex], UDim.new())
                 end
+            end
+
+            local Position: UDim = UDim.new()
+            for index = 1, thisWidget.arguments.NumColumns - 1 do
+                Position += thisWidget.state.widths.value[index]
+                thisWidget.ColumnBorders[index].Position = UDim2.new(Position, UDim.new())
             end
         end,
         ChildAdded = function(thisWidget: Types.Table, thisChild: Types.Widget)
@@ -197,9 +290,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
             Row.Parent = thisWidget.RowContainer
 
+            if rowIndex > 0 then
+                local Border = GenerateRowBorder(thisWidget, rowIndex - 1, if rowIndex == 1 then "Strong" else "Light")
+                Border.Visible = thisWidget.arguments.InnerBorders and (if rowIndex == 1 then thisWidget.arguments.Header and (thisWidget.RowInstances[0] ~= nil) else true)
+                thisWidget.RowBorders[rowIndex - 1] = Border
+                Border.Parent = thisWidget.RowContainer
+            end
+
             return thisWidget.CellInstances[rowIndex][columnIndex]
         end,
         Discard = function(thisWidget: Types.Table)
+            Tables[thisWidget.ID] = nil
             thisWidget.Instance:Destroy()     
             widgets.discardState(thisWidget)       
         end

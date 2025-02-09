@@ -591,7 +591,7 @@ export type Iris = {
     ImageButton: WidgetCall<ImageButton, WidgetArguments, nil>,
 
     -- Table Widget Api
-    Table: WidgetCall<Table, WidgetArguments, nil>,
+    Table: WidgetCall<Table, WidgetArguments, WidgetStates?>,
     NextColumn: () -> number,
     NextRow: () -> number,
     SetColumnIndex: (index: number) -> (),

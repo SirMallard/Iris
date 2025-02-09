@@ -1879,7 +1879,8 @@ return function(Iris: Types.Iris)
         assert(Table ~= nil, "Iris.SetColumnWidth() can only called when directly within a table.")
         assert((index >= 1) and (index <= Table.arguments.NumColumns), `The index must be between 1 and {Table.arguments.NumColumns}, inclusive.`)
 
-        Table.state.widths[index] = width
-        Table.state.widths:set(Table.state.widths.value, true)
+        local oldValue: UDim = Table.state.widths.value[index]
+        Table.state.widths.value[index] = width
+        Table.state.widths:set(Table.state.widths.value, width ~= oldValue)
     end
 end

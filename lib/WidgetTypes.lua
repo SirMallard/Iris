@@ -296,6 +296,8 @@ export type Image = Widget & {
     },
 } & Hovered
 
+-- ooops, may have overriden a Roblox type, and then got a weird type message
+-- let's just hope I don't have to use a Roblox ImageButton type anywhere by name in this file
 export type ImageButton = Image & Clicked & RightClicked & DoubleClicked & CtrlClicked
 
 -- Tree
@@ -487,9 +489,11 @@ export type PlotHistogram = Widget & {
 export type Table = ParentWidget & {
     ColumnIndex: number,
     RowIndex: number,
-    RowContainer: Instance,
+    RowContainer: Frame,
     RowInstances: { Frame },
     CellInstances: { { Frame } },
+    RowBorders: { Frame },
+    ColumnBorders: { GuiButton },
 
     arguments: {
         NumColumns: number,
