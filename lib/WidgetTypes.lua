@@ -494,6 +494,7 @@ export type Table = ParentWidget & {
     CellInstances: { { Frame } },
     RowBorders: { Frame },
     ColumnBorders: { GuiButton },
+    RowCycles: { number },
 
     arguments: {
         NumColumns: number,

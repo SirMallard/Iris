@@ -34,6 +34,23 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
     table.insert(Iris._postCycleCallbacks, function()
         for _, thisWidget: Types.Table in Tables do
+            for rowIndex: number, cycleTick: number in thisWidget.RowCycles do
+                if cycleTick < Iris._cycleTick - 1 then
+                    local Row: Frame = thisWidget.RowInstances[rowIndex]
+                    local RowBorder: Frame = thisWidget.RowBorders[rowIndex - 1]
+                    if Row ~= nil then
+                        Row:Destroy()
+                    end
+                    if RowBorder ~= nil then
+                        RowBorder:Destroy()
+                    end
+                    thisWidget.RowInstances[rowIndex] = nil
+                    thisWidget.RowBorders[rowIndex] = nil
+                    thisWidget.CellInstances[rowIndex] = nil
+                    thisWidget.RowCycles[rowIndex] = nil
+                end
+            end
+
             thisWidget.RowIndex = 1
             thisWidget.ColumnIndex = 1
 
@@ -196,6 +213,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             thisWidget.CellInstances = {}
             thisWidget.RowBorders = {}
             thisWidget.ColumnBorders = {}
+            thisWidget.RowCycles = {}
 
             return Table
         end,
@@ -279,6 +297,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local columnIndex: number = thisWidget.ColumnIndex
             -- determine if the row exists yet
             local Row: Frame = thisWidget.RowInstances[rowIndex]
+            thisWidget.RowCycles[rowIndex] = Iris._cycleTick
 
             if Row ~= nil then
                 return thisWidget.CellInstances[rowIndex][columnIndex]
