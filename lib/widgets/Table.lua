@@ -45,7 +45,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         RowBorder:Destroy()
                     end
                     thisWidget.RowInstances[rowIndex] = nil
-                    thisWidget.RowBorders[rowIndex] = nil
+                    thisWidget.RowBorders[rowIndex - 1] = nil
                     thisWidget.CellInstances[rowIndex] = nil
                     thisWidget.RowCycles[rowIndex] = nil
                 end

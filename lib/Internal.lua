@@ -486,6 +486,12 @@ return function(Iris: Types.Iris): Types.Internal
             end
         end
 
+        -- since rows are not instances, but will be removed if not updated, we have to add specific table code.
+        if parentWidget.type == "Table" then
+            local Table = parentWidget :: Types.Table
+            Table.RowCycles[Table.RowIndex] = Internal._cycleTick
+        end
+
         if Internal._deepCompare(thisWidget.providedArguments, arguments) == false then
             -- the widgets arguments have changed, the widget should update to reflect changes.
             -- providedArguments is the frozen table which will not change.
