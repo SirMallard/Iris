@@ -31,6 +31,9 @@ local Types = require(script.Parent.Parent.Types)
 
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local Tables: { [Types.ID]: Types.Table } = {}
+    local AnyActiveTable: boolean = false
+    local ActiveTable: Types.Table? = nil
+    local ActiveColumn: number = 0
 
     table.insert(Iris._postCycleCallbacks, function()
         for _, thisWidget: Types.Table in Tables do
@@ -61,6 +64,40 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
     end)
 
+    local function UpdateActiveColumn()
+        if AnyActiveTable == false or ActiveTable == nil then
+            return
+        end
+
+        local TableWidth: number = ActiveTable.RowContainer.AbsoluteSize.Y
+
+        -- handle logic.
+    end
+
+    local function ColumnMouseDown(thisWidget: Types.Table, index: number)
+        AnyActiveTable = true
+        ActiveTable = thisWidget
+        ActiveColumn = index
+    end
+
+    widgets.registerEvent("InputChanged", function()
+        if not Iris._started then
+            return
+        end
+        UpdateActiveColumn()
+    end)
+
+    widgets.registerEvent("InputEnded", function(inputObject: InputObject)
+        if not Iris._started then
+            return
+        end
+        if inputObject.UserInputType == Enum.UserInputType.MouseButton1 and AnyActiveTable then
+            AnyActiveTable = false
+            ActiveTable = nil
+            ActiveColumn = 0
+        end
+    end)
+
     local function GenerateCell(thisWidget: Types.Table, index: number, width: UDim)
         local Cell: Frame = Instance.new("Frame")
         Cell.Name = `Cell_{index}`
@@ -73,6 +110,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
         widgets.UIPadding(Cell, Iris._config.FramePadding)
         widgets.UIListLayout(Cell, Enum.FillDirection.Vertical, UDim.new())
+        -- widgets.UISizeConstraint(Cell, Vector2.new(10, 0))
 
         return Cell
     end
@@ -81,17 +119,26 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         local Border: ImageButton = Instance.new("ImageButton")
         Border.Name = `Border_{index}`
         Border.AnchorPoint = Vector2.new(0.5, 0)
-        Border.Size = UDim2.new(0, 1, 1, 0)
-        Border.BackgroundColor3 = Iris._config[`TableBorder{style}Color`]
-        Border.BackgroundTransparency = Iris._config[`TableBorder{style}Transparency`]
-        Border.BorderSizePixel = 0
+        Border.Size = UDim2.new(0, 5, 1, 0)
+        Border.BackgroundTransparency = 1
         Border.AutoButtonColor = false
         Border.Image = ""
         Border.ImageTransparency = 1
         Border.ZIndex = index
         Border.LayoutOrder = index
 
-        widgets.applyInteractionHighlights("Background", Border, Border, {
+        local Line = Instance.new("Frame")
+        Line.Name = "Line"
+        Line.AnchorPoint = Vector2.new(0.5, 0)
+        Line.Size = UDim2.new(0, 1, 1, 0)
+        Line.Position = UDim2.fromScale(0.5, 0)
+        Line.BackgroundColor3 = Iris._config[`TableBorder{style}Color`]
+        Line.BackgroundTransparency = Iris._config[`TableBorder{style}Transparency`]
+        Line.BorderSizePixel = 0
+
+        Line.Parent = Border
+
+        widgets.applyInteractionHighlights("Background", Border, Line, {
             Color = Iris._config[`TableBorder{style}Color`],
             Transparency = Iris._config[`TableBorder{style}Transparency`],
             HoveredColor = Iris._config.ResizeGripHoveredColor,
@@ -99,6 +146,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ActiveColor = Iris._config.ResizeGripActiveColor,
             ActiveTransparency = Iris._config.ResizeGripActiveTransparency,
         })
+
+        widgets.applyButtonDown(Border, function()
+            ColumnMouseDown(thisWidget, index)
+        end)
 
         return Border
     end
@@ -215,6 +266,20 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             thisWidget.ColumnBorders = {}
             thisWidget.RowCycles = {}
 
+            print(Table)
+
+            local callbackIndex: number = #Iris._postCycleCallbacks + 1
+            local desiredCycleTick: number = Iris._cycleTick + 1
+            Iris._postCycleCallbacks[callbackIndex] = function()
+                if Iris._cycleTick >= desiredCycleTick then
+                    if thisWidget.lastCycleTick ~= -1 then
+                        thisWidget.state.widths.lastChangeTick = Iris._cycleTick
+                        Iris._widgets["Table"].UpdateState(thisWidget)
+                    end
+                    Iris._postCycleCallbacks[callbackIndex] = nil
+                end
+            end
+
             return Table
         end,
         GenerateState = function(thisWidget: Types.Table)
@@ -227,7 +292,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local BorderContainer: Frame = Table.BorderContainer
             local Position: UDim = UDim.new()
 
-            for index = 1, thisWidget.arguments.NumColumns - 1 do
+            for index = 1, thisWidget.arguments.NumColumns do
                 Position += thisWidget.state.widths.value[index]
                 local Border = GenerateColumnBorder(thisWidget, index, "Light")
                 Border.Position = UDim2.new(Position, UDim.new())
@@ -280,16 +345,21 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             BorderContainer.UIStroke.Enabled = thisWidget.arguments.OuterBorders
         end,
         UpdateState = function(thisWidget: Types.Table)
-            for rowIndex: number, row: { Frame } in thisWidget.CellInstances do
-                for columnIndex: number, cell: Frame in row do
-                    cell.Size = UDim2.new(thisWidget.state.widths.value[columnIndex], UDim.new())
-                end
+            local ColumnWidths = thisWidget.state.widths.value
+            local TotalWidth: UDim = UDim.new()
+            for index = 1, thisWidget.arguments.NumColumns do
+                TotalWidth += ColumnWidths[index]
             end
 
             local Position: UDim = UDim.new()
-            for index = 1, thisWidget.arguments.NumColumns - 1 do
-                Position += thisWidget.state.widths.value[index]
+            for index = 1, thisWidget.arguments.NumColumns do
+                local Width: UDim = UDim.new(ColumnWidths[index].Scale, ColumnWidths[index].Offset - (ColumnWidths[index].Scale * TotalWidth.Offset))
+                Position += Width
                 thisWidget.ColumnBorders[index].Position = UDim2.new(Position, UDim.new())
+
+                for _, row: { Frame } in thisWidget.CellInstances do
+                    row[index].Size = UDim2.new(Width, UDim.new())
+                end
             end
         end,
         ChildAdded = function(thisWidget: Types.Table, thisChild: Types.Widget)
