@@ -246,8 +246,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return Combo.PreviewContainer
             end),
             ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
-				local Combo = thisWidget.Instance :: Frame
-                return Combo.PreviewContainer
+                return thisWidget.Instance
             end),
         },
         Generate = function(thisWidget: Types.Combo)
