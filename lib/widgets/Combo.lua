@@ -235,11 +235,19 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     return thisWidget.lastClosedTick == Iris._cycleTick
                 end,
             },
+			["changed"] = {
+				["Init"] = function(_thisWidget: Types.Combo) end,
+				["Get"] = function(thisWidget: Types.Combo)
+					return thisWidget.lastChangedTick == Iris._cycleTick
+				end,
+			},
             ["clicked"] = widgets.EVENTS.click(function(thisWidget: Types.Widget)
-                return thisWidget.Instance
+				local Combo = thisWidget.Instance :: Frame
+                return Combo.PreviewContainer
             end),
             ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
-                return thisWidget.Instance
+				local Combo = thisWidget.Instance :: Frame
+                return Combo.PreviewContainer
             end),
         },
         Generate = function(thisWidget: Types.Combo)
@@ -432,6 +440,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
             thisWidget.state.index:onChange(function()
                 if thisWidget.state.isOpened.value then
+					thisWidget.lastChangedTick = Iris._cycleTick + 1
                     thisWidget.state.isOpened:set(false)
                 end
             end)
