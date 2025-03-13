@@ -34,6 +34,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local AnyActiveTable: boolean = false
     local ActiveTable: Types.Table? = nil
     local ActiveColumn: number = 0
+    local TableWidths: { UDim } = {}
+    local MousePositionX = 0
 
     table.insert(Iris._postCycleCallbacks, function()
         for _, thisWidget: Types.Table in Tables do
@@ -69,7 +71,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             return
         end
 
-        local TableWidth: number = ActiveTable.RowContainer.AbsoluteSize.Y
+        local DeltaX: number = widgets.getMouseLocation().X - MousePositionX
+
+        local LeftX: number = 0
 
         -- handle logic.
     end
@@ -78,6 +82,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         AnyActiveTable = true
         ActiveTable = thisWidget
         ActiveColumn = index
+        TableWidths = thisWidget.Widths
+        MousePositionX = widgets.getMouseLocation().X
     end
 
     widgets.registerEvent("InputChanged", function()
@@ -95,6 +101,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             AnyActiveTable = false
             ActiveTable = nil
             ActiveColumn = 0
+            TableWidths = {}
+            MousePositionX = 0
         end
     end)
 
@@ -183,7 +191,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
         thisWidget.CellInstances[index] = table.create(thisWidget.arguments.NumColumns)
         for columnIndex = 1, thisWidget.arguments.NumColumns do
-            local Cell = GenerateCell(thisWidget, columnIndex, thisWidget.state.widths.value[columnIndex])
+            local Cell = GenerateCell(thisWidget, columnIndex, thisWidget.Widths[index])
             Cell.Parent = Row
             thisWidget.CellInstances[index][columnIndex] = Cell
         end
@@ -284,18 +292,16 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
         GenerateState = function(thisWidget: Types.Table)
             if thisWidget.state.widths == nil then
-                local Widths: { UDim } = table.create(thisWidget.arguments.NumColumns, UDim.new(1 / thisWidget.arguments.NumColumns, 0))
+                local Widths: { number } = table.create(thisWidget.arguments.NumColumns, 1 / thisWidget.arguments.NumColumns)
                 thisWidget.state.widths = Iris._widgetState(thisWidget, "widths", Widths)
+                thisWidget.Widths = {}
             end
 
             local Table = thisWidget.Instance :: Frame
             local BorderContainer: Frame = Table.BorderContainer
-            local Position: UDim = UDim.new()
 
             for index = 1, thisWidget.arguments.NumColumns do
-                Position += thisWidget.state.widths.value[index]
                 local Border = GenerateColumnBorder(thisWidget, index, "Light")
-                Border.Position = UDim2.new(Position, UDim.new())
                 Border.Visible = thisWidget.arguments.InnerBorders
                 thisWidget.ColumnBorders[index] = Border
                 Border.Parent = BorderContainer
@@ -345,18 +351,37 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             BorderContainer.UIStroke.Enabled = thisWidget.arguments.OuterBorders
         end,
         UpdateState = function(thisWidget: Types.Table)
-            local ColumnWidths = thisWidget.state.widths.value
-            local TotalWidth: UDim = UDim.new()
+            local ColumnWidths: { number } = thisWidget.state.widths.value
+            
+            -- we split the space between absolute width, and scale
+            -- we calculate the total width, so we can remove any offsets from the scales
+            -- the applied order is Offset, then scale the remaining space
+            local TotalWidth = UDim.new()
+            local NumScale = 0
             for index = 1, thisWidget.arguments.NumColumns do
-                TotalWidth += ColumnWidths[index]
+                local Width: number = ColumnWidths[index]
+                TotalWidth += UDim.new(if Width <= 1 then Width else 0, if Width > 1 then Width else 0)
+                if Width > 1 then
+                    NumScale += 1
+                end
             end
+
+            -- how much to remove to account for the absolute widths
+            local ScaleOffset = if NumScale == 0 then 0 else TotalWidth.Offset / NumScale
 
             local Position: UDim = UDim.new()
             for index = 1, thisWidget.arguments.NumColumns do
-                local Width: UDim = UDim.new(ColumnWidths[index].Scale, ColumnWidths[index].Offset - (ColumnWidths[index].Scale * TotalWidth.Offset))
+                local ColumnWidth: number = ColumnWidths[index]
+
+                -- determine the scale and offset
+                local Scale: number = if ColumnWidth <= 1 then ColumnWidth else 0
+                local Offset: number = (if ColumnWidth > 1 then ColumnWidth else 0) - (if ColumnWidth <= 1 then ScaleOffset else 0)
+                local Width: UDim = UDim.new(math.max(0, Scale), math.max(0, Offset))
+                -- add to the internal copy
+                thisWidget.Widths[index] = Width
                 Position += Width
                 thisWidget.ColumnBorders[index].Position = UDim2.new(Position, UDim.new())
-
+                
                 for _, row: { Frame } in thisWidget.CellInstances do
                     row[index].Size = UDim2.new(Width, UDim.new())
                 end

@@ -495,6 +495,7 @@ export type Table = ParentWidget & {
     RowBorders: { Frame },
     ColumnBorders: { GuiButton },
     RowCycles: { number },
+    Widths: { UDim },
 
     arguments: {
         NumColumns: number,
@@ -505,7 +506,7 @@ export type Table = ParentWidget & {
     },
 
     state: {
-        widths: State<{ UDim }>,
+        widths: State<{ number }>,
     },
 } & Hovered
 
