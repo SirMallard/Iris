@@ -1,8 +1,8 @@
 ---
-sidebar_position: 3	
+sidebar_position: 3
 ---
 
-# Understanding State	
+# Understanding State
 
 An Iris State object is simply a table containg a value, and an array of connected widgets. It provides functions to
 get or set the value, the latter of which will update any widgets UI that are dependent on that state. Functions can

@@ -235,14 +235,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     return thisWidget.lastClosedTick == Iris._cycleTick
                 end,
             },
-			["changed"] = {
-				["Init"] = function(_thisWidget: Types.Combo) end,
-				["Get"] = function(thisWidget: Types.Combo)
-					return thisWidget.lastChangedTick == Iris._cycleTick
-				end,
-			},
+            ["changed"] = {
+                ["Init"] = function(_thisWidget: Types.Combo) end,
+                ["Get"] = function(thisWidget: Types.Combo)
+                    return thisWidget.lastChangedTick == Iris._cycleTick
+                end,
+            },
             ["clicked"] = widgets.EVENTS.click(function(thisWidget: Types.Widget)
-				local Combo = thisWidget.Instance :: Frame
+                local Combo = thisWidget.Instance :: Frame
                 return Combo.PreviewContainer
             end),
             ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
@@ -439,7 +439,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
             thisWidget.state.index:onChange(function()
                 if thisWidget.state.isOpened.value then
-					thisWidget.lastChangedTick = Iris._cycleTick + 1
+                    thisWidget.lastChangedTick = Iris._cycleTick + 1
                     thisWidget.state.isOpened:set(false)
                 end
             end)
@@ -480,11 +480,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             PreviewLabel.Text = if typeof(stateIndex) == "EnumItem" then stateIndex.Name else tostring(stateIndex)
         end,
         Discard = function(thisWidget: Types.Combo)
-			-- If we are discarding the current combo active, we need to hide it
-			if OpenedCombo and OpenedCombo == thisWidget then
-				OpenedCombo = nil
-				AnyOpenedCombo = false
-			end
+            -- If we are discarding the current combo active, we need to hide it
+            if OpenedCombo and OpenedCombo == thisWidget then
+                OpenedCombo = nil
+                AnyOpenedCombo = false
+            end
 
             thisWidget.Instance:Destroy()
             thisWidget.ChildContainer:Destroy()

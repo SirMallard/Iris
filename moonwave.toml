@@ -14,20 +14,20 @@ classes = ["Iris", "State"]
 [[classOrder]]
 section = "Widgets"
 classes = [
-	"Window",
-	"Menu",
-	"Format",
-	"Text",
-	"Basic",
-	"Tree",
+    "Window",
+    "Menu",
+    "Format",
+    "Text",
+    "Basic",
+    "Tree",
     "Tab",
     "Image",
-	"Input",
-	"Drag",
-	"Slider",
-	"Combo",
-	"Plot",
-	"Table",
+    "Input",
+    "Drag",
+    "Slider",
+    "Combo",
+    "Plot",
+    "Table",
 ]
 
 [[classOrder]]

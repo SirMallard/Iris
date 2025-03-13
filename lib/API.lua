@@ -1523,7 +1523,7 @@ return function(Iris: Types.Iris)
         Events = {
             opened: () -> boolean,
             closed: () -> boolean,
-			changed: () -> boolean,
+            changed: () -> boolean,
             clicked: () -> boolean,
             hovered: () -> boolean
         }
