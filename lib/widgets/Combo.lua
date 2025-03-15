@@ -437,15 +437,16 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             if thisWidget.state.index == nil then
                 thisWidget.state.index = Iris._widgetState(thisWidget, "index", "No Selection")
             end
+            if thisWidget.state.isOpened == nil then
+                thisWidget.state.isOpened = Iris._widgetState(thisWidget, "isOpened", false)
+            end
+            
             thisWidget.state.index:onChange(function()
                 thisWidget.lastChangedTick = Iris._cycleTick + 1
                 if thisWidget.state.isOpened.value then
                     thisWidget.state.isOpened:set(false)
                 end
             end)
-            if thisWidget.state.isOpened == nil then
-                thisWidget.state.isOpened = Iris._widgetState(thisWidget, "isOpened", false)
-            end
         end,
         UpdateState = function(thisWidget: Types.Combo)
             local Combo = thisWidget.Instance :: Frame
