@@ -1510,7 +1510,7 @@ return function(Iris: Types.Iris)
         @tag HasChildren
         @tag HasState
         
-        A selection box to choose a value from a range of values.
+        A dropdown menu box to make a selection from a list of values.
         
         ```lua
         hasChildren = true
@@ -1523,6 +1523,7 @@ return function(Iris: Types.Iris)
         Events = {
             opened: () -> boolean,
             closed: () -> boolean,
+            changed: () -> boolean,
             clicked: () -> boolean,
             hovered: () -> boolean
         }

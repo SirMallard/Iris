@@ -70,9 +70,9 @@ outside of an Iris widget, or spawn a new thread. The example below demonstrates
 --- bad_example.lua
 -----------------------
  4| Iris.Window({"Async Window"})
- 5| 	-- this code yeilds which will prevent Iris from finishing before the next frame
- 6| 	local response = httpService:GetAsync(...)
- 7| 	Iris.Text(response)
+ 5|     -- this code yeilds which will prevent Iris from finishing before the next frame
+ 6|     local response = httpService:GetAsync(...)
+ 7|     Iris.Text(response)
  8| Iris.End()
 
 ------------------------
@@ -81,11 +81,11 @@ outside of an Iris widget, or spawn a new thread. The example below demonstrates
  4| local response = "NONE"
  5| 
  6| Iris.Window({"Async Window"})
- 7| 	-- we use another thread to ensure the thread Iris is in will finish before the next frame
- 8| 	task.spawn(function()
- 9| 		response = httpService:GetAsync(...)
-10| 	end)
-11| 	Iris.Text(response)
+ 7|     -- we use another thread to ensure the thread Iris is in will finish before the next frame
+ 8|     task.spawn(function()
+ 9|         response = httpService:GetAsync(...)
+10|     end)
+11|     Iris.Text(response)
 12| Iris.End()
 ```
 
@@ -106,7 +106,7 @@ children and make it clearer to see where an `Iris.End()` statement must go. For
 ```lua
  4| Iris.Window({ "Do-End Block" })
  5| do
- 6| 	Iris.Text({ "Text goes here." })
+ 6|     Iris.Text({ "Text goes here." })
  7| end
  8| Iris.End()
 ```
@@ -117,7 +117,7 @@ This issue may also arise if some of your code either yields or errors and there
 
 ```lua
  4| Iris.Window({ "Valid Code with Error" })
- 5| 	error("Something has gone wrong. :(") -- errors within Iris
+ 5|     error("Something has gone wrong. :(") -- errors within Iris
  6| Iris.End()
 
  7| Iris.Window({ "Asynchronous Code" })
