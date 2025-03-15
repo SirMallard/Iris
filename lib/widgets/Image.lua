@@ -19,8 +19,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
     } :: Types.WidgetClass
 
-	--stylua: ignore
-	Iris.WidgetConstructor("Image", widgets.extend(abstractImage, {
+    --stylua: ignore
+    Iris.WidgetConstructor("Image", widgets.extend(abstractImage, {
             Events = {
                 ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
                     return thisWidget.Instance
@@ -67,8 +67,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     Image.ResampleMode = thisWidget.arguments.ResampleMode
                 end
             end,
-		} :: Types.WidgetClass)
-	)
+        } :: Types.WidgetClass)
+    )
 
     --stylua: ignore
     Iris.WidgetConstructor("ImageButton", widgets.extend(abstractImage, {

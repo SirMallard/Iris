@@ -1045,9 +1045,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 local desiredCycleTick: number = Iris._cycleTick + 1
                 Iris._postCycleCallbacks[callbackIndex] = function()
                     if Iris._cycleTick >= desiredCycleTick then
-						if thisWidget.lastCycleTick ~= -1 then
-                        	ChildContainer.CanvasPosition = Vector2.new(0, stateScrollDistance)
-						end
+                        if thisWidget.lastCycleTick ~= -1 then
+                            ChildContainer.CanvasPosition = Vector2.new(0, stateScrollDistance)
+                        end
                         Iris._postCycleCallbacks[callbackIndex] = nil
                     end
                 end

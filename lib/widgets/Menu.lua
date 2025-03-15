@@ -445,11 +445,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             TextLabel.Text = thisWidget.arguments.Text
             if thisWidget.arguments.KeyCode then
-				if thisWidget.arguments.ModifierKey then
-					Shortcut.Text = thisWidget.arguments.ModifierKey.Name .. " + " .. thisWidget.arguments.KeyCode.Name
-				else
-					Shortcut.Text = thisWidget.arguments.KeyCode.Name
-				end
+                if thisWidget.arguments.ModifierKey then
+                    Shortcut.Text = thisWidget.arguments.ModifierKey.Name .. " + " .. thisWidget.arguments.KeyCode.Name
+                else
+                    Shortcut.Text = thisWidget.arguments.KeyCode.Name
+                end
             end
         end,
         Discard = function(thisWidget: Types.MenuItem)
@@ -579,11 +579,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             TextLabel.Text = thisWidget.arguments.Text
             if thisWidget.arguments.KeyCode then
-				if thisWidget.arguments.ModifierKey then
-					Shortcut.Text = thisWidget.arguments.ModifierKey.Name .. " + " .. thisWidget.arguments.KeyCode.Name
-				else
-					Shortcut.Text = thisWidget.arguments.KeyCode.Name
-				end
+                if thisWidget.arguments.ModifierKey then
+                    Shortcut.Text = thisWidget.arguments.ModifierKey.Name .. " + " .. thisWidget.arguments.KeyCode.Name
+                else
+                    Shortcut.Text = thisWidget.arguments.KeyCode.Name
+                end
             end
         end,
         UpdateState = function(thisWidget: Types.MenuToggle)
