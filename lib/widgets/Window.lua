@@ -818,7 +818,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ResizeBorder.Position = UDim2.fromOffset(-Iris._config.WindowResizePadding.X, -Iris._config.WindowResizePadding.Y)
             ResizeBorder.BackgroundTransparency = 1
             ResizeBorder.BorderSizePixel = 0
-            ResizeBorder.Active = true
+            ResizeBorder.Active = false
             ResizeBorder.Selectable = false
             ResizeBorder.ClipsDescendants = false
             ResizeBorder.Parent = WindowButton
