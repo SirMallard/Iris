@@ -438,8 +438,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 thisWidget.state.index = Iris._widgetState(thisWidget, "index", "No Selection")
             end
             thisWidget.state.index:onChange(function()
+                thisWidget.lastChangedTick = Iris._cycleTick + 1
                 if thisWidget.state.isOpened.value then
-                    thisWidget.lastChangedTick = Iris._cycleTick + 1
                     thisWidget.state.isOpened:set(false)
                 end
             end)
