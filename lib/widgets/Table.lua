@@ -34,7 +34,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local AnyActiveTable: boolean = false
     local ActiveTable: Types.Table? = nil
     local ActiveColumn: number = 0
-    local TableWidths: { UDim } = {}
+    local ActiveColumnWidth: number = -1
     local MousePositionX = 0
 
     table.insert(Iris._postCycleCallbacks, function()
@@ -71,18 +71,39 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             return
         end
 
+        local widths: Types.State<{ number }> = ActiveTable.state.widths
+        local Table = ActiveTable.Instance :: Frame
+        local BorderContainer = Table.BorderContainer :: Frame
+
+        if ActiveColumnWidth == -1 then
+            ActiveColumnWidth = widths.value[ActiveColumn]
+        end
         local DeltaX: number = widgets.getMouseLocation().X - MousePositionX
 
-        local LeftX: number = 0
+        local LeftX: number
+        if ActiveColumn == 1 then
+            LeftX = BorderContainer.AbsolutePosition.X - widgets.GuiOffset.X
+        else
+            LeftX = BorderContainer:FindFirstChild(`Border_{ActiveColumn - 1}`).AbsolutePosition.X + 2.5 - widgets.GuiOffset.X
+        end
 
-        -- handle logic.
+        local OffsetX: number = MousePositionX - LeftX
+        local Ratio: number = ActiveColumnWidth / OffsetX
+        local NewWidth: number
+        if ActiveColumnWidth <= 1 then -- scale
+            NewWidth = math.clamp(math.round(Ratio * (OffsetX + DeltaX) * 1000), 1, 1000) * 0.001
+        else -- offset
+            NewWidth = math.max(2, math.round(Ratio * (OffsetX + DeltaX)))
+        end
+        widths.value[ActiveColumn] = NewWidth
+        widths:set(widths.value, true)
     end
 
     local function ColumnMouseDown(thisWidget: Types.Table, index: number)
         AnyActiveTable = true
         ActiveTable = thisWidget
         ActiveColumn = index
-        TableWidths = thisWidget.Widths
+        ActiveColumnWidth = -1
         MousePositionX = widgets.getMouseLocation().X
     end
 
@@ -101,7 +122,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             AnyActiveTable = false
             ActiveTable = nil
             ActiveColumn = 0
-            TableWidths = {}
+            ActiveColumnWidth = -1
             MousePositionX = 0
         end
     end)
@@ -261,6 +282,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             BorderContainer.Size = UDim2.fromScale(1, 1)
             BorderContainer.BackgroundTransparency = 1
             BorderContainer.ZIndex = 2
+            BorderContainer.ClipsDescendants = true
 
             widgets.UIStroke(BorderContainer, 1, Iris._config.TableBorderStrongColor, Iris._config.TableBorderStrongTransparency)
 
@@ -274,8 +296,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             thisWidget.ColumnBorders = {}
             thisWidget.RowCycles = {}
 
-            print(Table)
-
             local callbackIndex: number = #Iris._postCycleCallbacks + 1
             local desiredCycleTick: number = Iris._cycleTick + 1
             Iris._postCycleCallbacks[callbackIndex] = function()
@@ -288,14 +308,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
             end
 
+            print(Table)
             return Table
         end,
         GenerateState = function(thisWidget: Types.Table)
             if thisWidget.state.widths == nil then
                 local Widths: { number } = table.create(thisWidget.arguments.NumColumns, 1 / thisWidget.arguments.NumColumns)
                 thisWidget.state.widths = Iris._widgetState(thisWidget, "widths", Widths)
-                thisWidget.Widths = {}
             end
+            thisWidget.Widths = {}
 
             local Table = thisWidget.Instance :: Frame
             local BorderContainer: Frame = Table.BorderContainer
@@ -414,9 +435,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             return thisWidget.CellInstances[rowIndex][columnIndex]
         end,
         Discard = function(thisWidget: Types.Table)
+            print("Discard?")
             Tables[thisWidget.ID] = nil
-            thisWidget.Instance:Destroy()     
-            widgets.discardState(thisWidget)       
+            thisWidget.Instance:Destroy()
+            widgets.discardState(thisWidget)
         end
     } :: Types.WidgetClass)
 end
