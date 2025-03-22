@@ -561,17 +561,27 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     if dataType == "Color3" or dataType == "Color4" then
                         rightPadding += Iris._config.ItemInnerSpacing.X + textHeight
 
+                        local ColorButton: TextButton = Instance.new("TextButton")
+                        ColorButton.Name = "ColorButton"
+                        ColorButton.Size = UDim2.fromOffset(textHeight, textHeight)
+                        ColorButton.LayoutOrder = 5
+                        ColorButton.Text = ""
+                        ColorButton.AutoButtonColor = false
+                        ColorButton.BackgroundTransparency = 1
+                        ColorButton.BorderSizePixel = 0
+
                         local ColorBox: ImageLabel = Instance.new("ImageLabel")
                         ColorBox.Name = "ColorBox"
                         ColorBox.BorderSizePixel = 0
-                        ColorBox.Size = UDim2.fromOffset(textHeight, textHeight)
-                        ColorBox.LayoutOrder = 5
+                        ColorBox.Size = UDim2.fromScale(1, 1)
                         ColorBox.Image = widgets.ICONS.ALPHA_BACKGROUND_TEXTURE
                         ColorBox.ImageTransparency = 1
 
                         widgets.applyFrameStyle(ColorBox, true)
+                        widgets.applyButtonClick(ColorButton, function() end)
 
-                        ColorBox.Parent = Drag
+                        ColorButton.Parent = Drag
+                        ColorBox.Parent = ColorButton
                     end
 
                     -- we divide the total area evenly between each field. This includes accounting for any additional boxes and the offset.
@@ -786,7 +796,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     end
 
                     if dataType == "Color3" or dataType == "Color4" then
-                        local ColorBox: ImageLabel = Drag.ColorBox
+                        local ColorBox: ImageLabel = Drag.ColorButton.ColorBox
 
                         ColorBox.BackgroundColor3 = widget.state.color.value
 
