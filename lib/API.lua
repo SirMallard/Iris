@@ -154,6 +154,19 @@ return function(Iris: Types.Iris)
 
         The opened menu will be a vertically listed box below or next to the button.
 
+        ```lua
+            Iris.Window({"Menu Demo"})
+                Iris.MenuBar()
+                    Iris.Menu({"Test Menu"})
+                        Iris.Button({"Menu Option 1"})
+                        Iris.Button({"Menu Option 2"})
+                    Iris.End()
+                Iris.End()
+            Iris.End()
+        ```
+
+        ![Example menu](../assets/basicMenu.gif)
+
         :::info
         There are widgets which are designed for being parented to a menu whilst other happens to work. There is nothing
         preventing you from adding any widget as a child, but the behaviour is unexplained and not intended.
@@ -185,7 +198,17 @@ return function(Iris: Types.Iris)
         
         Creates a button within a menu. The optional KeyCode and ModiferKey arguments will show the keys next
         to the title, but **will not** bind any connection to them. You will need to do this yourself.
-        
+
+        ```lua
+        Iris.Window({"MenuToggle Demo"})
+		    Iris.MenuBar()
+			    Iris.MenuToggle({"Menu Item"})
+		    Iris.End()
+	    Iris.End()
+        ```
+
+        ![Example Menu Item](../assets/basicMenuItem.gif)
+
         ```lua
         hasChildren = false
         hasState = false
@@ -211,6 +234,16 @@ return function(Iris: Types.Iris)
         Creates a togglable button within a menu. The optional KeyCode and ModiferKey arguments act the same
         as the MenuItem. It is not visually the same as a checkbox, but has the same functionality.
         
+        ```lua
+        Iris.Window({"MenuToggle Demo"})
+		    Iris.MenuBar()
+			    Iris.MenuToggle({"Menu Toggle"})
+		    Iris.End()
+	    Iris.End()
+        ```
+
+        ![Example Menu Toggle](../assets/basicMenuToggle.gif)
+
         ```lua
         hasChildren = false
         hasState = true
@@ -262,7 +295,7 @@ return function(Iris: Types.Iris)
         @tag HasChildren
         
         Indents its child widgets.
-        
+
         ```lua
         hasChildren = true
         hasState = false
