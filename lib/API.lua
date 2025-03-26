@@ -201,10 +201,10 @@ return function(Iris: Types.Iris)
 
         ```lua
         Iris.Window({"MenuToggle Demo"})
-		    Iris.MenuBar()
-			    Iris.MenuToggle({"Menu Item"})
-		    Iris.End()
-	    Iris.End()
+            Iris.MenuBar()
+                Iris.MenuToggle({"Menu Item"})
+            Iris.End()
+        Iris.End()
         ```
 
         ![Example Menu Item](../assets/basicMenuItem.gif)
@@ -236,10 +236,10 @@ return function(Iris: Types.Iris)
         
         ```lua
         Iris.Window({"MenuToggle Demo"})
-		    Iris.MenuBar()
-			    Iris.MenuToggle({"Menu Toggle"})
-		    Iris.End()
-	    Iris.End()
+            Iris.MenuBar()
+                Iris.MenuToggle({"Menu Toggle"})
+            Iris.End()
+        Iris.End()
         ```
 
         ![Example Menu Toggle](../assets/basicMenuToggle.gif)
