@@ -24,7 +24,7 @@ return function(Iris: Types.Iris)
         Iris.End()
         ```
 
-        ![Example window](../assets/basicWindow.png)
+        ![Example window](../assets/api/window/basicWindow.png)
 
         If you do not want the code inside a window to run unless it is open then you can use the following:
         ```lua
@@ -101,7 +101,7 @@ return function(Iris: Types.Iris)
         Iris.Tooltip({"My custom tooltip"})
         ```
 
-        ![Basic tooltip example](../assets/basicTooltip.png)
+        ![Basic tooltip example](../assets/api/window/basicTooltip.png)
         
         ```lua
         hasChildren = false
@@ -165,7 +165,7 @@ return function(Iris: Types.Iris)
             Iris.End()
         ```
 
-        ![Example menu](../assets/basicMenu.gif)
+        ![Example menu](../assets/api/menu/basicMenu.gif)
 
         :::info
         There are widgets which are designed for being parented to a menu whilst other happens to work. There is nothing
@@ -207,7 +207,7 @@ return function(Iris: Types.Iris)
         Iris.End()
         ```
 
-        ![Example Menu Item](../assets/basicMenuItem.gif)
+        ![Example Menu Item](../assets/api/menu/basicMenuItem.gif)
 
         ```lua
         hasChildren = false
@@ -242,7 +242,7 @@ return function(Iris: Types.Iris)
         Iris.End()
         ```
 
-        ![Example Menu Toggle](../assets/basicMenuToggle.gif)
+        ![Example Menu Toggle](../assets/api/menu/basicMenuToggle.gif)
 
         ```lua
         hasChildren = false
