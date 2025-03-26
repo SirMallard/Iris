@@ -282,6 +282,16 @@ return function(Iris: Types.Iris)
         A vertical or horizonal line, depending on the context, which visually seperates widgets.
         
         ```lua
+        Iris.Window({"Separator Demo"})
+		    Iris.Text({"Some text here!"})
+		    Iris.Separator()
+		    Iris.Text({"This text has been separated!"})
+	    Iris.End()
+        ```
+
+        ![Example Separator](../assets/api/format/basicSeparator.png)
+
+        ```lua
         hasChildren = false
         hasState = false
         ```
@@ -295,6 +305,17 @@ return function(Iris: Types.Iris)
         @tag HasChildren
         
         Indents its child widgets.
+
+        ```lua
+        Iris.Window({"Indent Demo"})
+            Iris.Text({"Unindented text!"})
+            Iris.Indent()
+                Iris.Text({"This text has been indented!"})
+            Iris.End()
+        Iris.End()
+        ```
+
+        ![Example Indent](../assets/api/format/basicIndent.png)
 
         ```lua
         hasChildren = true
@@ -313,6 +334,19 @@ return function(Iris: Types.Iris)
         @tag HasChildren
         
         Positions its children in a row, horizontally.
+
+        ```lua
+        Iris.Window({"Same Line Demo"})
+            Iris.Text({"All of these buttons are on the same line!"})
+            Iris.SameLine()
+                Iris.Button({"Button 1"})
+                Iris.Button({"Button 2"})
+                Iris.Button({"Button 3"})
+            Iris.End()
+	    Iris.End()
+        ```
+
+        ![Example SameLine](../assets/api/format/basicSameLine.png)
         
         ```lua
         hasChildren = true
@@ -359,7 +393,14 @@ return function(Iris: Types.Iris)
         A text label to display the text argument.
         The Wrapped argument will make the text wrap around if it is cut off by its parent.
         The Color argument will change the color of the text, by default it is defined in the configuration file.
-        The RichText argument will 
+
+        ```lua
+        Iris.Window({"Text Demo"})
+		    Iris.Text({"This is regular text"})
+	    Iris.End()
+        ```
+
+        ![Example Text](../assets/api/text/basicText.png)
 
         ```lua
         hasChildren = false
@@ -436,6 +477,16 @@ return function(Iris: Types.Iris)
         when an [Iris.Tree](Tree#Tree) or [Iris.CollapsingHeader](Tree#CollapsingHeader) is not appropriate.
 
         Visually a full width thin line with a text label clipping out part of the line.
+
+        ```lua
+        Iris.Window({"Separator Text Demo"})
+            Iris.Text({"Regular Text"})
+            Iris.SeparatorText({"This is a separator with text"})
+            Iris.Text({"More Regular Text"})
+	    Iris.End()
+        ```
+
+        ![Example Separator Text](../assets/api/text/basicSeparatorText.png)
         
         ```lua
         hasChildren = false
@@ -454,7 +505,18 @@ return function(Iris: Types.Iris)
         @tag HasState
 
         A field which allows the user to enter text.
-        
+
+        ```lua
+        Iris.Window({"Input Text Demo"})
+		    local inputtedText = Iris.State("")
+
+		    Iris.InputText({"Enter text here:"}, {text = inputtedText})
+		    Iris.Text({"You entered: " .. inputtedText:get()})
+	    Iris.End()
+        ```
+
+        ![Example Input Text](..assets/api/text/basicInputText.gif)
+
         ```lua
         hasChildren = false
         hasState = true
