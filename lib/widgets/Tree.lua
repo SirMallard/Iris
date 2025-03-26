@@ -51,7 +51,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
         GenerateState = function(thisWidget: Types.CollapsingHeader)
             if thisWidget.state.isUncollapsed == nil then
-                thisWidget.state.isUncollapsed = Iris._widgetState(thisWidget, "isUncollapsed", false)
+                thisWidget.state.isUncollapsed = Iris._widgetState(thisWidget, "isUncollapsed", thisWidget.arguments.DefaultOpen or false)
             end
         end,
     } :: Types.WidgetClass
@@ -64,6 +64,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ["Text"] = 1,
                 ["SpanAvailWidth"] = 2,
                 ["NoIndent"] = 3,
+                ["DefaultOpen"] = 4,
             },
             Generate = function(thisWidget: Types.Tree)
                 local Tree: Frame = Instance.new("Frame")
@@ -186,6 +187,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         widgets.extend(abstractTree, {
             Args = {
                 ["Text"] = 1,
+                ["DefaultOpen"] = 2
             },
             Generate = function(thisWidget: Types.CollapsingHeader)
                 local CollapsingHeader: Frame = Instance.new("Frame")
