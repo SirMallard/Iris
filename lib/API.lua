@@ -1534,6 +1534,8 @@ return function(Iris: Types.Iris)
         }
         ```
     ]=]
+    Iris.ColorPicker = wrapper("ColorPicker")
+
     Iris.Selectable = wrapper("Selectable")
 
     --[=[
