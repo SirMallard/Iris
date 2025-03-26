@@ -296,8 +296,6 @@ return function(Iris: Types.Iris)
         
         Indents its child widgets.
 
-        ![Example Separator](../assets/basicWindow.png)
-        
         ```lua
         hasChildren = true
         hasState = false
