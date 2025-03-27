@@ -9,7 +9,7 @@ unlisted: true
 Iris is an Immediate mode GUI Library for Roblox, Based on [Dear ImGui](https://github.com/ocornut/imgui). It solves the same problems as Dear ImGui: providing a simple and bloat-free UI system, designed for visualisation and debugging. It is fast, portable, and self-contained (no external dependencies).
 
 <div align="center">
-    <img src="assets/docs/demoWindow.png"/>
+    <img src="/Iris/assets/docs/demoWindow.png"/>
 </div>
 
 ## What is Dear ImGui, and why is it important?

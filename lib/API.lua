@@ -24,7 +24,7 @@ return function(Iris: Types.Iris)
         Iris.End()
         ```
 
-        ![Example window](../assets/api/window/basicWindow.png)
+        ![Example window](/Iris/assets/api/window/basicWindow.png)
 
         If you do not want the code inside a window to run unless it is open then you can use the following:
         ```lua
@@ -101,7 +101,7 @@ return function(Iris: Types.Iris)
         Iris.Tooltip({"My custom tooltip"})
         ```
 
-        ![Basic tooltip example](../assets/api/window/basicTooltip.png)
+        ![Basic tooltip example](/Iris/assets/api/window/basicTooltip.png)
         
         ```lua
         hasChildren = false
@@ -165,7 +165,7 @@ return function(Iris: Types.Iris)
             Iris.End()
         ```
 
-        ![Example menu](../assets/api/menu/basicMenu.gif)
+        ![Example menu](/Iris/assets/api/menu/basicMenu.gif)
 
         :::info
         There are widgets which are designed for being parented to a menu whilst other happens to work. There is nothing
@@ -207,7 +207,7 @@ return function(Iris: Types.Iris)
         Iris.End()
         ```
 
-        ![Example Menu Item](../assets/api/menu/basicMenuItem.gif)
+        ![Example Menu Item](/Iris/assets/api/menu/basicMenuItem.gif)
 
         ```lua
         hasChildren = false
@@ -242,7 +242,7 @@ return function(Iris: Types.Iris)
         Iris.End()
         ```
 
-        ![Example Menu Toggle](../assets/api/menu/basicMenuToggle.gif)
+        ![Example Menu Toggle](/Iris/assets/api/menu/basicMenuToggle.gif)
 
         ```lua
         hasChildren = false
@@ -283,13 +283,13 @@ return function(Iris: Types.Iris)
         
         ```lua
         Iris.Window({"Separator Demo"})
-		    Iris.Text({"Some text here!"})
-		    Iris.Separator()
-		    Iris.Text({"This text has been separated!"})
-	    Iris.End()
+            Iris.Text({"Some text here!"})
+            Iris.Separator()
+            Iris.Text({"This text has been separated!"})
+        Iris.End()
         ```
 
-        ![Example Separator](../assets/api/format/basicSeparator.png)
+        ![Example Separator](/Iris/assets/api/format/basicSeparator.png)
 
         ```lua
         hasChildren = false
@@ -315,7 +315,7 @@ return function(Iris: Types.Iris)
         Iris.End()
         ```
 
-        ![Example Indent](../assets/api/format/basicIndent.png)
+        ![Example Indent](/Iris/assets/api/format/basicIndent.png)
 
         ```lua
         hasChildren = true
@@ -343,10 +343,10 @@ return function(Iris: Types.Iris)
                 Iris.Button({"Button 2"})
                 Iris.Button({"Button 3"})
             Iris.End()
-	    Iris.End()
+        Iris.End()
         ```
 
-        ![Example SameLine](../assets/api/format/basicSameLine.png)
+        ![Example SameLine](/Iris/assets/api/format/basicSameLine.png)
         
         ```lua
         hasChildren = true
@@ -396,11 +396,11 @@ return function(Iris: Types.Iris)
 
         ```lua
         Iris.Window({"Text Demo"})
-		    Iris.Text({"This is regular text"})
-	    Iris.End()
+            Iris.Text({"This is regular text"})
+        Iris.End()
         ```
 
-        ![Example Text](../assets/api/text/basicText.png)
+        ![Example Text](/Iris/assets/api/text/basicText.png)
 
         ```lua
         hasChildren = false
@@ -483,10 +483,10 @@ return function(Iris: Types.Iris)
             Iris.Text({"Regular Text"})
             Iris.SeparatorText({"This is a separator with text"})
             Iris.Text({"More Regular Text"})
-	    Iris.End()
+        Iris.End()
         ```
 
-        ![Example Separator Text](../assets/api/text/basicSeparatorText.png)
+        ![Example Separator Text](/Iris/assets/api/text/basicSeparatorText.png)
         
         ```lua
         hasChildren = false
@@ -508,14 +508,14 @@ return function(Iris: Types.Iris)
 
         ```lua
         Iris.Window({"Input Text Demo"})
-		    local inputtedText = Iris.State("")
+            local inputtedText = Iris.State("")
 
-		    Iris.InputText({"Enter text here:"}, {text = inputtedText})
-		    Iris.Text({"You entered: " .. inputtedText:get()})
-	    Iris.End()
+            Iris.InputText({"Enter text here:"}, {text = inputtedText})
+            Iris.Text({"You entered: " .. inputtedText:get()})
+        Iris.End()
         ```
 
-        ![Example Input Text](..assets/api/text/basicInputText.gif)
+        ![Example Input Text](/Iris/assets/api/text/basicInputText.gif)
 
         ```lua
         hasChildren = false
