@@ -33,7 +33,7 @@ end)
 ```
 </div>
 <div style={{"width": "50%", "display": "flex", "justify-content": "center", "align-items": "center"}}>
-    <img src="../assets/docs/simpleExample1.png" />
+    <img src="/Iris/assets/docs/simpleExample1.png" />
 </div>
 </div>
 
@@ -101,7 +101,7 @@ end)
 ```
 </div>
 <div style={{"width":"50%", "display": "flex", "justify-content": "center", "align-items": "center"}}>
-    <img src="../assets/docs/simpleExample2.png" />
+    <img src="/Iris/assets/docs/simpleExample2.png" />
 </div>
 </div>
 
