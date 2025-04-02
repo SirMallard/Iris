@@ -720,7 +720,7 @@ return function(Iris: Types.Iris): Types.Internal
         @function _generateEmptyVDOM
         @return { [ID]: Widget }
 
-        Creates the VDOM at the start of each frame containing jsut the root instance.
+        Creates the VDOM at the start of each frame containing just the root instance.
     ]=]
     function Internal._generateEmptyVDOM(): { [Types.ID]: Types.Widget }
         return {
