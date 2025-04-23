@@ -911,9 +911,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
             end
             if thisWidget.arguments.NoBackground then
-                -- ChildContainer.BackgroundTransparency = 1
+                WindowButton.BackgroundTransparency = 1
             else
-                -- ChildContainer.BackgroundTransparency = 1
+                WindowButton.BackgroundTransparency = Iris._config.WindowBgTransparency
             end
 
             -- TitleBar buttons
