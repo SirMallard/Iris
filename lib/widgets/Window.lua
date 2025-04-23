@@ -405,7 +405,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local WindowButton: TextButton = Instance.new("TextButton")
             WindowButton.Name = "WindowButton"
             WindowButton.Size = UDim2.fromOffset(0, 0)
-            WindowButton.BackgroundTransparency = 1
+            WindowButton.BackgroundTransparency = Iris._config.WindowBgTransparency
+            WindowButton.BackgroundColor3 = Iris._config.WindowBgColor
             WindowButton.BorderSizePixel = 0
             WindowButton.Text = ""
             WindowButton.ClipsDescendants = false
@@ -419,6 +420,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             WindowButton.SelectionBehaviorLeft = Enum.SelectionBehavior.Stop
             WindowButton.SelectionBehaviorRight = Enum.SelectionBehavior.Stop
 
+            widgets.UICorner(WindowButton, Iris._config.WindowRounding)
             widgets.UIStroke(WindowButton, Iris._config.WindowBorderSize, Iris._config.BorderColor, Iris._config.BorderTransparency)
 
             WindowButton.Parent = Window
@@ -453,8 +455,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local ChildContainer: ScrollingFrame = Instance.new("ScrollingFrame")
             ChildContainer.Name = "WindowContainer"
             ChildContainer.Size = UDim2.fromScale(1, 1)
-            ChildContainer.BackgroundColor3 = Iris._config.WindowBgColor
-            ChildContainer.BackgroundTransparency = Iris._config.WindowBgTransparency
+            ChildContainer.BackgroundTransparency = 1
             ChildContainer.BorderSizePixel = 0
 
             ChildContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
@@ -512,6 +513,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             TitleBar.ClipsDescendants = true
 
             TitleBar.Parent = Content
+
+            -- Place a UICorner into the title bar aswell to make all corners of the window
+            -- rounded (top left + top right corner)
+            -- This does introduce the issue of creating small gapsin the bottom left + bottom right
+            -- corners of title bar since those corners also get rounded
+            widgets.UICorner(TitleBar, Iris._config.WindowRounding)
 
             widgets.UIPadding(TitleBar, Vector2.new(Iris._config.FramePadding.X))
             widgets.UIListLayout(TitleBar, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
@@ -904,9 +911,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
             end
             if thisWidget.arguments.NoBackground then
-                ChildContainer.BackgroundTransparency = 1
+                -- ChildContainer.BackgroundTransparency = 1
             else
-                ChildContainer.BackgroundTransparency = Iris._config.WindowBgTransparency
+                -- ChildContainer.BackgroundTransparency = 1
             end
 
             -- TitleBar buttons

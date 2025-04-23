@@ -478,6 +478,7 @@ export type Config = {
     FrameBorderSize: number,
     FrameRounding: number,
     GrabRounding: number,
+    WindowRounding: number,
     WindowBorderSize: number,
     WindowTitleAlign: Enum.LeftRight,
     PopupBorderSize: number,
