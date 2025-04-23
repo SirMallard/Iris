@@ -516,7 +516,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             -- Place a UICorner into the title bar aswell to make all corners of the window
             -- rounded (top left + top right corner)
-            -- This does introduce the issue of creating small gapsin the bottom left + bottom right
+            -- This does introduce the issue of creating small gaps in the bottom left + bottom right
             -- corners of title bar since those corners also get rounded
             widgets.UICorner(TitleBar, Iris._config.WindowRounding)
 
@@ -655,6 +655,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             LeftResizeGrip.ZIndex = 3
             LeftResizeGrip.Parent = WindowButton
 
+            widgets.UICorner(LeftResizeGrip, Iris._config.WindowRounding)
             widgets.applyInteractionHighlights("Image", LeftResizeGrip, LeftResizeGrip, {
                 Color = Iris._config.ResizeGripColor,
                 Transparency = 1,
@@ -691,6 +692,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             RightResizeGrip.ZIndex = 3
             RightResizeGrip.Parent = WindowButton
 
+            widgets.UICorner(RightResizeGrip, Iris._config.WindowRounding)
             widgets.applyInteractionHighlights("Image", RightResizeGrip, RightResizeGrip, {
                 Color = Iris._config.ResizeGripColor,
                 Transparency = Iris._config.ResizeGripTransparency,
