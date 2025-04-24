@@ -754,7 +754,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             LeftResizeBorder.Name = "LeftResizeBorder"
             LeftResizeBorder.AnchorPoint = Vector2.new(1, .5)
             LeftResizeBorder.Position = UDim2.fromScale(0, .5)
-            LeftResizeBorder.Size = UDim2.new(0, Iris._config.WindowResizePadding.X, 1, 2 * Iris._config.WindowBorderSize)
+            LeftResizeBorder.Size = UDim2.new(0, Iris._config.WindowResizePadding.X, 1, -(Iris._config.WindowRounding + (2 * Iris._config.WindowBorderSize)))
             LeftResizeBorder.Transparency = 1
             LeftResizeBorder.Image = widgets.ICONS.BORDER
             LeftResizeBorder.ResampleMode = Enum.ResamplerMode.Pixelated
@@ -772,7 +772,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             RightResizeBorder.Name = "RightResizeBorder"
             RightResizeBorder.AnchorPoint = Vector2.new(0, .5)
             RightResizeBorder.Position = UDim2.fromScale(1, .5)
-            RightResizeBorder.Size = UDim2.new(0, Iris._config.WindowResizePadding.X, 1, 2 * Iris._config.WindowBorderSize)
+            RightResizeBorder.Size = UDim2.new(0, Iris._config.WindowResizePadding.X, 1, -(Iris._config.WindowRounding + (2 * Iris._config.WindowBorderSize)))
             RightResizeBorder.Transparency = 1
             RightResizeBorder.Image = widgets.ICONS.BORDER
             RightResizeBorder.ResampleMode = Enum.ResamplerMode.Pixelated
@@ -790,7 +790,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             TopResizeBorder.Name = "TopResizeBorder"
             TopResizeBorder.AnchorPoint = Vector2.new(.5, 1)
             TopResizeBorder.Position = UDim2.fromScale(.5, 0)
-            TopResizeBorder.Size = UDim2.new(1, 2 * Iris._config.WindowBorderSize, 0, Iris._config.WindowResizePadding.Y)
+            TopResizeBorder.Size = UDim2.new(1, -(Iris._config.WindowRounding + (2 * Iris._config.WindowBorderSize)), 0, Iris._config.WindowResizePadding.Y)
             TopResizeBorder.Transparency = 1
             TopResizeBorder.Image = widgets.ICONS.BORDER
             TopResizeBorder.ResampleMode = Enum.ResamplerMode.Pixelated
@@ -808,7 +808,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             BottomResizeBorder.Name = "BottomResizeBorder"
             BottomResizeBorder.AnchorPoint = Vector2.new(.5, 0)
             BottomResizeBorder.Position = UDim2.fromScale(.5, 1)
-            BottomResizeBorder.Size = UDim2.new(1, 2 * Iris._config.WindowBorderSize, 0, Iris._config.WindowResizePadding.Y)
+            BottomResizeBorder.Size = UDim2.new(1, -(Iris._config.WindowRounding + (2 * Iris._config.WindowBorderSize)), 0, Iris._config.WindowResizePadding.Y)
             BottomResizeBorder.Transparency = 1
             BottomResizeBorder.Image = widgets.ICONS.BORDER
             BottomResizeBorder.ResampleMode = Enum.ResamplerMode.Pixelated
