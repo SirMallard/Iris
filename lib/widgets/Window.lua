@@ -907,6 +907,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
             local WindowButton = Window.WindowButton :: TextButton
             local Content = WindowButton.Content :: Frame
+            local UIStroke = Content.UIStroke :: UIStroke
             local Items = Content.Items :: Frame
             local TitleBar = Items.TitleBar :: Frame
             local Title: TextLabel = TitleBar.Title
@@ -964,6 +965,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Content.BackgroundTransparency = 1
             else
                 Content.BackgroundTransparency = Iris._config.WindowBgTransparency
+            end
+
+            if thisWidget.arguments.NoMenu and thisWidget.arguments.NoTitleBar then
+                UIStroke.Enabled = false
+                Items.Position = UDim2.fromOffset(0, 0)
+            else
+                UIStroke.Enabled = true
+                Items.Position = UDim2.fromOffset(0, -8)
             end
 
             -- TitleBar buttons
