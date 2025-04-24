@@ -1010,7 +1010,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
             local WindowButton = Window.WindowButton :: TextButton
             local Content = WindowButton.Content :: Frame
-            local TitleBar = Content.Items.TitleBar :: Frame
+            local UIStroke = Content.UIStroke :: UIStroke
+            local Items = Content.Items :: Frame
+            local TitleBar = Items.TitleBar :: Frame
             local MenuBar: Frame? = Content:FindFirstChild("MenuBar")
             local LeftResizeGrip: TextButton = WindowButton.LeftResizeGrip
             local RightResizeGrip: TextButton = WindowButton.RightResizeGrip
@@ -1044,6 +1046,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             if stateIsUncollapsed then
                 TitleBar.CollapseButton.Arrow.Image = widgets.ICONS.DOWN_POINTING_TRIANGLE
+                Items.Position = UDim2.new(0, 0, 0, -8) -- Move title bar up to hide corners
+                UIStroke.Enabled = true
+
                 if MenuBar then
                     MenuBar.Visible = not thisWidget.arguments.NoMenu
                 end
@@ -1061,6 +1066,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             else
                 local collapsedHeight: number = TitleBar.AbsoluteSize.Y -- Iris._config.TextSize + Iris._config.FramePadding.Y * 2
                 TitleBar.CollapseButton.Arrow.Image = widgets.ICONS.RIGHT_POINTING_TRIANGLE
+
+                Items.Position = UDim2.new(0, 0, 0, 0) -- Place the title bar back to its original position
+                WindowButton.Position = UDim2.fromOffset(statePosition.X, statePosition.Y - 8) -- Counters the title bar moving
+                UIStroke.Enabled = false
 
                 if MenuBar then
                     MenuBar.Visible = false
