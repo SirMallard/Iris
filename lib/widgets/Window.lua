@@ -910,7 +910,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local Items = Content.Items :: Frame
             local TitleBar = Items.TitleBar :: Frame
             local Title: TextLabel = TitleBar.Title
-            local MenuBar: Frame? = Content:FindFirstChild("MenuBar")
+            local MenuBar: Frame? = Items:FindFirstChild("Iris_MenuBar")
             local LeftResizeGrip: TextButton = WindowButton.LeftResizeGrip
             local RightResizeGrip: TextButton = WindowButton.RightResizeGrip
             local LeftResizeBorder: Frame = WindowButton.LeftResizeBorder
@@ -940,8 +940,18 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
             if thisWidget.arguments.NoTitleBar then
                 TitleBar.Visible = false
+
+                if MenuBar then
+                    local UICorner = MenuBar.UICorner :: UICorner
+                    UICorner.CornerRadius = UDim.new(0, Iris._config.WindowRounding)
+                end
             else
                 TitleBar.Visible = true
+
+                if MenuBar then
+                    local UICorner = MenuBar.UICorner :: UICorner
+                    UICorner.CornerRadius = UDim.new(0, 0)
+                end
             end
             if MenuBar then
                 if thisWidget.arguments.NoMenu then
