@@ -105,12 +105,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Args = {},
         Events = {},
         Generate = function(thisWidget: Types.MenuBar)
-            --[[
-            TODO:
-            Update this widget to allow it to be rounded if the window
-            does not have a title bar
-            ]]
-
             local MenuBar: Frame = Instance.new("Frame")
             MenuBar.Name = "Iris_MenuBar"
             MenuBar.Size = UDim2.fromScale(1, 0)
