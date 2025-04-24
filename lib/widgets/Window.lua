@@ -549,13 +549,21 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             TitleBar.BorderSizePixel = 0
             TitleBar.ClipsDescendants = true
 
-            TitleBar.Parent = Items
-
-            -- Place a UICorner into the title bar aswell to make all corners of the window
-            -- rounded (top left + top right corner)
-            -- This does introduce the issue of creating small gaps in the bottom left + bottom right
-            -- corners of title bar since those corners also get rounded
             widgets.UICorner(TitleBar, Iris._config.WindowRounding)
+
+            local TitleStroke = Instance.new("UIStroke")
+            TitleStroke.Name = "UIStroke"
+            TitleStroke.Thickness = 0.1
+            TitleStroke.LineJoinMode = Enum.LineJoinMode.Bevel
+            TitleStroke.Color = TitleBar.BackgroundColor3
+            TitleStroke.Parent = TitleBar
+
+            local TitleGradient = Instance.new("UIGradient")
+            TitleGradient.Rotation = 90
+            TitleGradient.Transparency = NumberSequence.new(1, 0)
+            TitleGradient.Parent = TitleStroke
+
+            TitleBar.Parent = Items
 
             widgets.UIPadding(TitleBar, Vector2.new(Iris._config.FramePadding.X))
             widgets.UIListLayout(TitleBar, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
@@ -1079,6 +1087,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
 
             if stateIsUncollapsed then
+                TitleBar.UIStroke.Enabled = true
                 TitleBar.CollapseButton.Arrow.Image = widgets.ICONS.DOWN_POINTING_TRIANGLE
                 Items.Position = UDim2.new(0, 0, 0, -8) -- Move title bar up to hide corners
                 TopResizeBorder.Position = UDim2.new(0.5, 0, 0, -8)
@@ -1101,6 +1110,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             else
                 local collapsedHeight: number = TitleBar.AbsoluteSize.Y -- Iris._config.TextSize + Iris._config.FramePadding.Y * 2
                 TitleBar.CollapseButton.Arrow.Image = widgets.ICONS.RIGHT_POINTING_TRIANGLE
+                TitleBar.UIStroke.Enabled = false
 
                 Items.Position = UDim2.new(0, 0, 0, 0) -- Place the title bar back to its original position
                 WindowButton.Position = UDim2.fromOffset(statePosition.X, statePosition.Y - 8) -- Counters the title bar moving
@@ -1130,6 +1140,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 Iris.SetFocusedWindow(nil)
             end
+
+            TitleBar.UIStroke.Color = TitleBar.BackgroundColor3
 
             -- cant update canvasPosition in this cycle because scrollingframe isint ready to be changed
             if stateScrollDistance and stateScrollDistance ~= 0 then
