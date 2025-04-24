@@ -152,7 +152,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 local Window = focusedWindow.Instance :: Frame
                 local WindowButton = Window.WindowButton :: TextButton
                 local Content = WindowButton.Content :: Frame
-                local TitleBar: Frame = Content.TitleBar
+                local TitleBar: Frame = Content.Items.TitleBar
                 -- update appearance to unfocus
                 if focusedWindow.state.isUncollapsed.value then
                     TitleBar.BackgroundColor3 = Iris._config.TitleBgColor
@@ -175,7 +175,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local Window = thisWidget.Instance :: Frame
             local WindowButton = Window.WindowButton :: TextButton
             local Content = WindowButton.Content :: Frame
-            local TitleBar: Frame = Content.TitleBar
+            local TitleBar: Frame = Content.Items.TitleBar
 
             TitleBar.BackgroundColor3 = Iris._config.TitleBgActiveColor
             TitleBar.BackgroundTransparency = Iris._config.TitleBgActiveTransparency
@@ -405,8 +405,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local WindowButton: TextButton = Instance.new("TextButton")
             WindowButton.Name = "WindowButton"
             WindowButton.Size = UDim2.fromOffset(0, 0)
-            WindowButton.BackgroundTransparency = Iris._config.WindowBgTransparency
-            WindowButton.BackgroundColor3 = Iris._config.WindowBgColor
+            WindowButton.BackgroundTransparency = 1
             WindowButton.BorderSizePixel = 0
             WindowButton.Text = ""
             WindowButton.ClipsDescendants = false
@@ -439,16 +438,54 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
             end)
 
+
             local Content: Frame = Instance.new("Frame")
             Content.Name = "Content"
             Content.AnchorPoint = Vector2.new(0.5, 0.5)
             Content.Position = UDim2.fromScale(0.5, 0.5)
             Content.Size = UDim2.fromScale(1, 1)
-            Content.BackgroundTransparency = 1
-            Content.ClipsDescendants = true
+            Content.BackgroundTransparency = Iris._config.WindowBgTransparency
+            Content.BackgroundColor3 = Iris._config.WindowBgColor
+            Content.ClipsDescendants = false
+
+            widgets.UICorner(Content, Iris._config.WindowRounding)
+
+            -- A stroke is added to not round the top 2 corners since those corners
+            -- Will be rounded by the title bar or the menu bar
+            -- Source:
+            -- https://devforum.roblox.com/t/working-method-for-rounding-only-certain-corners-on-a-ui-element-without-using-images-or-any-other-external-program/3189528
+
+            -- widgets.UIStroke assumes a LineJoinMode of "Round" where as we need "Bevel"
+            local Stroke = Instance.new("UIStroke")
+            Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            Stroke.LineJoinMode = Enum.LineJoinMode.Bevel
+            Stroke.Thickness = 0.1
+            Stroke.Color = Iris._config.WindowBgColor
+            Stroke.Transparency = Iris._config.WindowBgTransparency
+            Stroke.Parent = Content
+
+            -- No widgets.UiGradient so we must create it manully here
+            local Gradient = Instance.new("UIGradient")
+            Gradient.Rotation = 90
+            Gradient.Transparency = NumberSequence.new({
+                NumberSequenceKeypoint.new(0, 0, 0),
+                NumberSequenceKeypoint.new(0.5, 0, 0),
+                NumberSequenceKeypoint.new(1, 1, 0)
+            })
+            Gradient.Parent = Stroke
+
             Content.Parent = WindowButton
 
-            local UIListLayout: UIListLayout = widgets.UIListLayout(Content, Enum.FillDirection.Vertical, UDim.new(0, 0))
+            local Items: Frame = Instance.new("Frame")
+            Items.Name = "Items"
+            Items.Size = UDim2.fromScale(1, 1)
+            Items.Position = UDim2.new(0, 0, 0, -(Iris._config.WindowRounding / 2))
+            Items.BackgroundTransparency = 1
+            Items.BorderSizePixel = 0
+            Items.ClipsDescendants = true
+            Items.Parent = Content
+
+            local UIListLayout: UIListLayout = widgets.UIListLayout(Items, Enum.FillDirection.Vertical, UDim.new(0, 0))
             UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
             UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 
@@ -472,7 +509,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             widgets.UIPadding(ChildContainer, Iris._config.WindowPadding)
 
-            ChildContainer.Parent = Content
+            ChildContainer.Parent = Items
 
             local UIFlexItem: UIFlexItem = Instance.new("UIFlexItem")
             UIFlexItem.FlexMode = Enum.UIFlexMode.Fill
@@ -512,7 +549,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             TitleBar.BorderSizePixel = 0
             TitleBar.ClipsDescendants = true
 
-            TitleBar.Parent = Content
+            TitleBar.Parent = Items
 
             -- Place a UICorner into the title bar aswell to make all corners of the window
             -- rounded (top left + top right corner)
@@ -625,7 +662,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Title.BackgroundTransparency = 1
             Title.LayoutOrder = 1
             Title.ClipsDescendants = true
-            
+
             widgets.UIPadding(Title, Vector2.new(0, Iris._config.FramePadding.Y))
             widgets.applyTextStyle(Title)
             Title.TextXAlignment = Enum.TextXAlignment[Iris._config.WindowTitleAlign.Name] :: Enum.TextXAlignment
@@ -870,7 +907,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
             local WindowButton = Window.WindowButton :: TextButton
             local Content = WindowButton.Content :: Frame
-            local TitleBar = Content.TitleBar :: Frame
+            local Items = Content.Items :: Frame
+            local TitleBar = Items.TitleBar :: Frame
             local Title: TextLabel = TitleBar.Title
             local MenuBar: Frame? = Content:FindFirstChild("MenuBar")
             local LeftResizeGrip: TextButton = WindowButton.LeftResizeGrip
@@ -913,9 +951,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
             end
             if thisWidget.arguments.NoBackground then
-                WindowButton.BackgroundTransparency = 1
+                Content.BackgroundTransparency = 1
             else
-                WindowButton.BackgroundTransparency = Iris._config.WindowBgTransparency
+                Content.BackgroundTransparency = Iris._config.WindowBgTransparency
             end
 
             -- TitleBar buttons
@@ -952,7 +990,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         ChildAdded = function(thisWidget: Types.Window, thisChid: Types.Widget)
             local Window = thisWidget.Instance :: Frame
             local WindowButton = Window.WindowButton :: TextButton
-            local Content = WindowButton.Content :: Frame
+            local Content = WindowButton.Content.Items :: Frame
             if thisChid.type == "MenuBar" then
                 local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
                 thisChid.Instance.ZIndex = ChildContainer.ZIndex + 1
@@ -972,7 +1010,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
             local WindowButton = Window.WindowButton :: TextButton
             local Content = WindowButton.Content :: Frame
-            local TitleBar = Content.TitleBar :: Frame
+            local TitleBar = Content.Items.TitleBar :: Frame
             local MenuBar: Frame? = Content:FindFirstChild("MenuBar")
             local LeftResizeGrip: TextButton = WindowButton.LeftResizeGrip
             local RightResizeGrip: TextButton = WindowButton.RightResizeGrip
