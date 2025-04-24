@@ -789,7 +789,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local TopResizeBorder: ImageButton = Instance.new("ImageButton")
             TopResizeBorder.Name = "TopResizeBorder"
             TopResizeBorder.AnchorPoint = Vector2.new(.5, 1)
-            TopResizeBorder.Position = UDim2.fromScale(.5, 0)
+            TopResizeBorder.Position = UDim2.new(0.5, 0, 0, -8)
             TopResizeBorder.Size = UDim2.new(1, -(Iris._config.WindowRounding + (2 * Iris._config.WindowBorderSize)), 0, Iris._config.WindowResizePadding.Y)
             TopResizeBorder.Transparency = 1
             TopResizeBorder.Image = widgets.ICONS.BORDER
@@ -860,8 +860,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local ResizeBorder: Frame = Instance.new("Frame")
             ResizeBorder.Name = "ResizeBorder"
-            ResizeBorder.Size = UDim2.new(1, Iris._config.WindowResizePadding.X * 2, 1, Iris._config.WindowResizePadding.Y * 2)
-            ResizeBorder.Position = UDim2.fromOffset(-Iris._config.WindowResizePadding.X, -Iris._config.WindowResizePadding.Y)
+            ResizeBorder.Size = UDim2.new(1, Iris._config.WindowResizePadding.X * 2, 1, (Iris._config.WindowResizePadding.Y * 2) + 8)
+            ResizeBorder.Position = UDim2.fromOffset(-Iris._config.WindowResizePadding.X, -(Iris._config.WindowResizePadding.Y + 8))
             ResizeBorder.BackgroundTransparency = 1
             ResizeBorder.BorderSizePixel = 0
             ResizeBorder.Active = false
@@ -1047,6 +1047,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             if stateIsUncollapsed then
                 TitleBar.CollapseButton.Arrow.Image = widgets.ICONS.DOWN_POINTING_TRIANGLE
                 Items.Position = UDim2.new(0, 0, 0, -8) -- Move title bar up to hide corners
+                TopResizeBorder.Position = UDim2.new(0.5, 0, 0, -8)
                 UIStroke.Enabled = true
 
                 if MenuBar then
@@ -1069,6 +1070,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 Items.Position = UDim2.new(0, 0, 0, 0) -- Place the title bar back to its original position
                 WindowButton.Position = UDim2.fromOffset(statePosition.X, statePosition.Y - 8) -- Counters the title bar moving
+                TopResizeBorder.Position = UDim2.new(0.5, 0, 0, 0)
                 UIStroke.Enabled = false
 
                 if MenuBar then
