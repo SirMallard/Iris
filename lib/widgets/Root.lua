@@ -88,6 +88,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             PseudoWindow.Visible = false
 
+            widgets.UICorner(PseudoWindow, Iris._config.WindowRounding)
             widgets.UIPadding(PseudoWindow, Iris._config.WindowPadding)
             widgets.UIListLayout(PseudoWindow, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
 
