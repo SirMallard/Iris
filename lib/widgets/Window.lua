@@ -676,6 +676,23 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Title.Parent = TitleBar
 
             local ResizeButtonSize: number = Iris._config.TextSize + Iris._config.FramePadding.X
+            local ResizeGripParent = WindowButton
+
+            if Iris._config.WindowRounding > 0 then
+                if Iris._config.WindowRounding > ResizeButtonSize then
+                    ResizeButtonSize = Iris._config.WindowRounding * 2
+                end
+
+                local Canvas = Instance.new("CanvasGroup")
+                Canvas.Name = "Grips"
+                Canvas.Size = UDim2.fromScale(1, 1)
+                Canvas.BackgroundTransparency = 1
+                Canvas.Parent = WindowButton
+
+                widgets.UICorner(Canvas, Iris._config.WindowRounding)
+
+                ResizeGripParent = Canvas
+            end
 
             local LeftResizeGrip = Instance.new("ImageButton")
             LeftResizeGrip.Name = "LeftResizeGrip"
@@ -690,9 +707,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             LeftResizeGrip.ImageTransparency = 1
             LeftResizeGrip.AutoButtonColor = false
             LeftResizeGrip.ZIndex = 3
-            LeftResizeGrip.Parent = WindowButton
+            LeftResizeGrip.Parent = ResizeGripParent
 
-            widgets.UICorner(LeftResizeGrip, Iris._config.WindowRounding)
             widgets.applyInteractionHighlights("Image", LeftResizeGrip, LeftResizeGrip, {
                 Color = Iris._config.ResizeGripColor,
                 Transparency = 1,
@@ -727,9 +743,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             RightResizeGrip.ImageTransparency = Iris._config.ResizeGripTransparency
             RightResizeGrip.AutoButtonColor = false
             RightResizeGrip.ZIndex = 3
-            RightResizeGrip.Parent = WindowButton
+            RightResizeGrip.Parent = ResizeGripParent
 
-            widgets.UICorner(RightResizeGrip, Iris._config.WindowRounding)
             widgets.applyInteractionHighlights("Image", RightResizeGrip, RightResizeGrip, {
                 Color = Iris._config.ResizeGripColor,
                 Transparency = Iris._config.ResizeGripTransparency,
@@ -912,8 +927,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local TitleBar = Items.TitleBar :: Frame
             local Title: TextLabel = TitleBar.Title
             local MenuBar: Frame? = Items:FindFirstChild("Iris_MenuBar")
-            local LeftResizeGrip: TextButton = WindowButton.LeftResizeGrip
-            local RightResizeGrip: TextButton = WindowButton.RightResizeGrip
+            local LeftResizeGrip: TextButton = WindowButton:FindFirstChild("LeftResizeGrip") or WindowButton.Grips:FindFirstChild("LeftResizeGrip")
+            local RightResizeGrip: TextButton = WindowButton:FindFirstChild("RightResizeGrip") or WindowButton.Grips:FindFirstChild("RightResizeGrip")
             local LeftResizeBorder: Frame = WindowButton.LeftResizeBorder
             local RightResizeBorder: Frame = WindowButton.RightResizeBorder
             local TopResizeBorder: Frame = WindowButton.TopResizeBorder
@@ -1033,8 +1048,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local Items = Content.Items :: Frame
             local TitleBar = Items.TitleBar :: Frame
             local MenuBar: Frame? = Content:FindFirstChild("MenuBar")
-            local LeftResizeGrip: TextButton = WindowButton.LeftResizeGrip
-            local RightResizeGrip: TextButton = WindowButton.RightResizeGrip
+            local LeftResizeGrip: TextButton = WindowButton:FindFirstChild("LeftResizeGrip") or WindowButton.Grips:FindFirstChild("LeftResizeGrip")
+            local RightResizeGrip: TextButton = WindowButton:FindFirstChild("RightResizeGrip") or WindowButton.Grips:FindFirstChild("RightResizeGrip")
             local LeftResizeBorder: Frame = WindowButton.LeftResizeBorder
             local RightResizeBorder: Frame = WindowButton.RightResizeBorder
             local TopResizeBorder: Frame = WindowButton.TopResizeBorder
