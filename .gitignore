@@ -11,4 +11,6 @@ node_modules/
 dev.*.lua
 package*
 
+tests/benchmarks
+
 sourcemap.json
