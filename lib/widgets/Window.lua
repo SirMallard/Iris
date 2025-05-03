@@ -152,7 +152,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 local Window = focusedWindow.Instance :: Frame
                 local WindowButton = Window.WindowButton :: TextButton
                 local Content = WindowButton.Content :: Frame
-                local TitleBar: Frame = Content.TitleBar
+                local TitleBar: Frame = Content.Items.TitleBar
                 -- update appearance to unfocus
                 if focusedWindow.state.isUncollapsed.value then
                     TitleBar.BackgroundColor3 = Iris._config.TitleBgColor
@@ -175,7 +175,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local Window = thisWidget.Instance :: Frame
             local WindowButton = Window.WindowButton :: TextButton
             local Content = WindowButton.Content :: Frame
-            local TitleBar: Frame = Content.TitleBar
+            local TitleBar: Frame = Content.Items.TitleBar
 
             TitleBar.BackgroundColor3 = Iris._config.TitleBgActiveColor
             TitleBar.BackgroundTransparency = Iris._config.TitleBgActiveTransparency
@@ -419,6 +419,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             WindowButton.SelectionBehaviorLeft = Enum.SelectionBehavior.Stop
             WindowButton.SelectionBehaviorRight = Enum.SelectionBehavior.Stop
 
+            widgets.UICorner(WindowButton, Iris._config.WindowRounding)
             widgets.UIStroke(WindowButton, Iris._config.WindowBorderSize, Iris._config.BorderColor, Iris._config.BorderTransparency)
 
             WindowButton.Parent = Window
@@ -437,24 +438,61 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
             end)
 
+
             local Content: Frame = Instance.new("Frame")
             Content.Name = "Content"
             Content.AnchorPoint = Vector2.new(0.5, 0.5)
             Content.Position = UDim2.fromScale(0.5, 0.5)
             Content.Size = UDim2.fromScale(1, 1)
-            Content.BackgroundTransparency = 1
-            Content.ClipsDescendants = true
+            Content.BackgroundTransparency = Iris._config.WindowBgTransparency
+            Content.BackgroundColor3 = Iris._config.WindowBgColor
+            Content.ClipsDescendants = false
+
+            widgets.UICorner(Content, Iris._config.WindowRounding)
+
+            -- A stroke is added to not round the top 2 corners since those corners
+            -- Will be rounded by the title bar or the menu bar
+            -- Source:
+            -- https://devforum.roblox.com/t/working-method-for-rounding-only-certain-corners-on-a-ui-element-without-using-images-or-any-other-external-program/3189528
+
+            -- widgets.UIStroke assumes a LineJoinMode of "Round" where as we need "Bevel"
+            local Stroke = Instance.new("UIStroke")
+            Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            Stroke.LineJoinMode = Enum.LineJoinMode.Bevel
+            Stroke.Thickness = 0.1
+            Stroke.Color = Iris._config.WindowBgColor
+            Stroke.Transparency = Iris._config.WindowBgTransparency
+            Stroke.Parent = Content
+
+            -- No widgets.UiGradient so we must create it manully here
+            local Gradient = Instance.new("UIGradient")
+            Gradient.Rotation = 90
+            Gradient.Transparency = NumberSequence.new({
+                NumberSequenceKeypoint.new(0, 0, 0),
+                NumberSequenceKeypoint.new(0.5, 0, 0),
+                NumberSequenceKeypoint.new(1, 1, 0)
+            })
+            Gradient.Parent = Stroke
+
             Content.Parent = WindowButton
 
-            local UIListLayout: UIListLayout = widgets.UIListLayout(Content, Enum.FillDirection.Vertical, UDim.new(0, 0))
+            local Items: Frame = Instance.new("Frame")
+            Items.Name = "Items"
+            Items.Size = UDim2.fromScale(1, 1)
+            Items.Position = UDim2.new(0, 0, 0, -(Iris._config.WindowRounding / 2))
+            Items.BackgroundTransparency = 1
+            Items.BorderSizePixel = 0
+            Items.ClipsDescendants = true
+            Items.Parent = Content
+
+            local UIListLayout: UIListLayout = widgets.UIListLayout(Items, Enum.FillDirection.Vertical, UDim.new(0, 0))
             UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
             UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 
             local ChildContainer: ScrollingFrame = Instance.new("ScrollingFrame")
             ChildContainer.Name = "WindowContainer"
             ChildContainer.Size = UDim2.fromScale(1, 1)
-            ChildContainer.BackgroundColor3 = Iris._config.WindowBgColor
-            ChildContainer.BackgroundTransparency = Iris._config.WindowBgTransparency
+            ChildContainer.BackgroundTransparency = 1
             ChildContainer.BorderSizePixel = 0
 
             ChildContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
@@ -471,7 +509,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             widgets.UIPadding(ChildContainer, Iris._config.WindowPadding)
 
-            ChildContainer.Parent = Content
+            ChildContainer.Parent = Items
 
             local UIFlexItem: UIFlexItem = Instance.new("UIFlexItem")
             UIFlexItem.FlexMode = Enum.UIFlexMode.Fill
@@ -511,7 +549,21 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             TitleBar.BorderSizePixel = 0
             TitleBar.ClipsDescendants = true
 
-            TitleBar.Parent = Content
+            widgets.UICorner(TitleBar, Iris._config.WindowRounding)
+
+            local TitleStroke = Instance.new("UIStroke")
+            TitleStroke.Name = "UIStroke"
+            TitleStroke.Thickness = 0.1
+            TitleStroke.LineJoinMode = Enum.LineJoinMode.Bevel
+            TitleStroke.Color = TitleBar.BackgroundColor3
+            TitleStroke.Parent = TitleBar
+
+            local TitleGradient = Instance.new("UIGradient")
+            TitleGradient.Rotation = 90
+            TitleGradient.Transparency = NumberSequence.new(1, 0)
+            TitleGradient.Parent = TitleStroke
+
+            TitleBar.Parent = Items
 
             widgets.UIPadding(TitleBar, Vector2.new(Iris._config.FramePadding.X))
             widgets.UIListLayout(TitleBar, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
@@ -618,7 +670,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Title.BackgroundTransparency = 1
             Title.LayoutOrder = 1
             Title.ClipsDescendants = true
-            
+
             widgets.UIPadding(Title, Vector2.new(0, Iris._config.FramePadding.Y))
             widgets.applyTextStyle(Title)
             Title.TextXAlignment = Enum.TextXAlignment[Iris._config.WindowTitleAlign.Name] :: Enum.TextXAlignment
@@ -632,6 +684,23 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Title.Parent = TitleBar
 
             local ResizeButtonSize: number = Iris._config.TextSize + Iris._config.FramePadding.X
+            local ResizeGripParent = WindowButton
+
+            if Iris._config.WindowRounding > 0 then
+                if Iris._config.WindowRounding > ResizeButtonSize then
+                    ResizeButtonSize = Iris._config.WindowRounding * 2
+                end
+
+                local Canvas = Instance.new("CanvasGroup")
+                Canvas.Name = "Grips"
+                Canvas.Size = UDim2.fromScale(1, 1)
+                Canvas.BackgroundTransparency = 1
+                Canvas.Parent = WindowButton
+
+                widgets.UICorner(Canvas, Iris._config.WindowRounding)
+
+                ResizeGripParent = Canvas
+            end
 
             local LeftResizeGrip = Instance.new("ImageButton")
             LeftResizeGrip.Name = "LeftResizeGrip"
@@ -646,7 +715,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             LeftResizeGrip.ImageTransparency = 1
             LeftResizeGrip.AutoButtonColor = false
             LeftResizeGrip.ZIndex = 3
-            LeftResizeGrip.Parent = WindowButton
+            LeftResizeGrip.Parent = ResizeGripParent
 
             widgets.applyInteractionHighlights("Image", LeftResizeGrip, LeftResizeGrip, {
                 Color = Iris._config.ResizeGripColor,
@@ -682,7 +751,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             RightResizeGrip.ImageTransparency = Iris._config.ResizeGripTransparency
             RightResizeGrip.AutoButtonColor = false
             RightResizeGrip.ZIndex = 3
-            RightResizeGrip.Parent = WindowButton
+            RightResizeGrip.Parent = ResizeGripParent
 
             widgets.applyInteractionHighlights("Image", RightResizeGrip, RightResizeGrip, {
                 Color = Iris._config.ResizeGripColor,
@@ -708,7 +777,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             LeftResizeBorder.Name = "LeftResizeBorder"
             LeftResizeBorder.AnchorPoint = Vector2.new(1, .5)
             LeftResizeBorder.Position = UDim2.fromScale(0, .5)
-            LeftResizeBorder.Size = UDim2.new(0, Iris._config.WindowResizePadding.X, 1, 2 * Iris._config.WindowBorderSize)
+            LeftResizeBorder.Size = UDim2.new(0, Iris._config.WindowResizePadding.X, 1, -(Iris._config.WindowRounding + (2 * Iris._config.WindowBorderSize)))
             LeftResizeBorder.Transparency = 1
             LeftResizeBorder.Image = widgets.ICONS.BORDER
             LeftResizeBorder.ResampleMode = Enum.ResamplerMode.Pixelated
@@ -726,7 +795,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             RightResizeBorder.Name = "RightResizeBorder"
             RightResizeBorder.AnchorPoint = Vector2.new(0, .5)
             RightResizeBorder.Position = UDim2.fromScale(1, .5)
-            RightResizeBorder.Size = UDim2.new(0, Iris._config.WindowResizePadding.X, 1, 2 * Iris._config.WindowBorderSize)
+            RightResizeBorder.Size = UDim2.new(0, Iris._config.WindowResizePadding.X, 1, -(Iris._config.WindowRounding + (2 * Iris._config.WindowBorderSize)))
             RightResizeBorder.Transparency = 1
             RightResizeBorder.Image = widgets.ICONS.BORDER
             RightResizeBorder.ResampleMode = Enum.ResamplerMode.Pixelated
@@ -743,8 +812,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local TopResizeBorder: ImageButton = Instance.new("ImageButton")
             TopResizeBorder.Name = "TopResizeBorder"
             TopResizeBorder.AnchorPoint = Vector2.new(.5, 1)
-            TopResizeBorder.Position = UDim2.fromScale(.5, 0)
-            TopResizeBorder.Size = UDim2.new(1, 2 * Iris._config.WindowBorderSize, 0, Iris._config.WindowResizePadding.Y)
+            TopResizeBorder.Position = UDim2.new(0.5, 0, 0, -8)
+            TopResizeBorder.Size = UDim2.new(1, -(Iris._config.WindowRounding + (2 * Iris._config.WindowBorderSize)), 0, Iris._config.WindowResizePadding.Y)
             TopResizeBorder.Transparency = 1
             TopResizeBorder.Image = widgets.ICONS.BORDER
             TopResizeBorder.ResampleMode = Enum.ResamplerMode.Pixelated
@@ -762,7 +831,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             BottomResizeBorder.Name = "BottomResizeBorder"
             BottomResizeBorder.AnchorPoint = Vector2.new(.5, 0)
             BottomResizeBorder.Position = UDim2.fromScale(.5, 1)
-            BottomResizeBorder.Size = UDim2.new(1, 2 * Iris._config.WindowBorderSize, 0, Iris._config.WindowResizePadding.Y)
+            BottomResizeBorder.Size = UDim2.new(1, -(Iris._config.WindowRounding + (2 * Iris._config.WindowBorderSize)), 0, Iris._config.WindowResizePadding.Y)
             BottomResizeBorder.Transparency = 1
             BottomResizeBorder.Image = widgets.ICONS.BORDER
             BottomResizeBorder.ResampleMode = Enum.ResamplerMode.Pixelated
@@ -814,8 +883,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local ResizeBorder: Frame = Instance.new("Frame")
             ResizeBorder.Name = "ResizeBorder"
-            ResizeBorder.Size = UDim2.new(1, Iris._config.WindowResizePadding.X * 2, 1, Iris._config.WindowResizePadding.Y * 2)
-            ResizeBorder.Position = UDim2.fromOffset(-Iris._config.WindowResizePadding.X, -Iris._config.WindowResizePadding.Y)
+            ResizeBorder.Size = UDim2.new(1, Iris._config.WindowResizePadding.X * 2, 1, (Iris._config.WindowResizePadding.Y * 2) + 8)
+            ResizeBorder.Position = UDim2.fromOffset(-Iris._config.WindowResizePadding.X, -(Iris._config.WindowResizePadding.Y + 8))
             ResizeBorder.BackgroundTransparency = 1
             ResizeBorder.BorderSizePixel = 0
             ResizeBorder.Active = false
@@ -861,11 +930,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
             local WindowButton = Window.WindowButton :: TextButton
             local Content = WindowButton.Content :: Frame
-            local TitleBar = Content.TitleBar :: Frame
+            local UIStroke = Content.UIStroke :: UIStroke
+            local Items = Content.Items :: Frame
+            local TitleBar = Items.TitleBar :: Frame
             local Title: TextLabel = TitleBar.Title
-            local MenuBar: Frame? = Content:FindFirstChild("MenuBar")
-            local LeftResizeGrip: TextButton = WindowButton.LeftResizeGrip
-            local RightResizeGrip: TextButton = WindowButton.RightResizeGrip
+            local MenuBar: Frame? = Items:FindFirstChild("Iris_MenuBar")
+            local LeftResizeGrip: TextButton = WindowButton:FindFirstChild("LeftResizeGrip") or WindowButton.Grips:FindFirstChild("LeftResizeGrip")
+            local RightResizeGrip: TextButton = WindowButton:FindFirstChild("RightResizeGrip") or WindowButton.Grips:FindFirstChild("RightResizeGrip")
             local LeftResizeBorder: Frame = WindowButton.LeftResizeBorder
             local RightResizeBorder: Frame = WindowButton.RightResizeBorder
             local TopResizeBorder: Frame = WindowButton.TopResizeBorder
@@ -893,8 +964,18 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
             if thisWidget.arguments.NoTitleBar then
                 TitleBar.Visible = false
+
+                if MenuBar then
+                    local UICorner = MenuBar.UICorner :: UICorner
+                    UICorner.CornerRadius = UDim.new(0, Iris._config.WindowRounding)
+                end
             else
                 TitleBar.Visible = true
+
+                if MenuBar then
+                    local UICorner = MenuBar.UICorner :: UICorner
+                    UICorner.CornerRadius = UDim.new(0, 0)
+                end
             end
             if MenuBar then
                 if thisWidget.arguments.NoMenu then
@@ -904,9 +985,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
             end
             if thisWidget.arguments.NoBackground then
-                ChildContainer.BackgroundTransparency = 1
+                Content.BackgroundTransparency = 1
             else
-                ChildContainer.BackgroundTransparency = Iris._config.WindowBgTransparency
+                Content.BackgroundTransparency = Iris._config.WindowBgTransparency
+            end
+
+            if thisWidget.arguments.NoMenu and thisWidget.arguments.NoTitleBar then
+                UIStroke.Enabled = false
+                Items.Position = UDim2.fromOffset(0, 0)
+            else
+                UIStroke.Enabled = true
+                Items.Position = UDim2.fromOffset(0, -8)
             end
 
             -- TitleBar buttons
@@ -943,7 +1032,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         ChildAdded = function(thisWidget: Types.Window, thisChid: Types.Widget)
             local Window = thisWidget.Instance :: Frame
             local WindowButton = Window.WindowButton :: TextButton
-            local Content = WindowButton.Content :: Frame
+            local Content = WindowButton.Content.Items :: Frame
             if thisChid.type == "MenuBar" then
                 local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
                 thisChid.Instance.ZIndex = ChildContainer.ZIndex + 1
@@ -963,10 +1052,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
             local WindowButton = Window.WindowButton :: TextButton
             local Content = WindowButton.Content :: Frame
-            local TitleBar = Content.TitleBar :: Frame
+            local UIStroke = Content.UIStroke :: UIStroke
+            local Items = Content.Items :: Frame
+            local TitleBar = Items.TitleBar :: Frame
             local MenuBar: Frame? = Content:FindFirstChild("MenuBar")
-            local LeftResizeGrip: TextButton = WindowButton.LeftResizeGrip
-            local RightResizeGrip: TextButton = WindowButton.RightResizeGrip
+            local LeftResizeGrip: TextButton = WindowButton:FindFirstChild("LeftResizeGrip") or WindowButton.Grips:FindFirstChild("LeftResizeGrip")
+            local RightResizeGrip: TextButton = WindowButton:FindFirstChild("RightResizeGrip") or WindowButton.Grips:FindFirstChild("RightResizeGrip")
             local LeftResizeBorder: Frame = WindowButton.LeftResizeBorder
             local RightResizeBorder: Frame = WindowButton.RightResizeBorder
             local TopResizeBorder: Frame = WindowButton.TopResizeBorder
@@ -996,7 +1087,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
 
             if stateIsUncollapsed then
+                TitleBar.UIStroke.Enabled = true
                 TitleBar.CollapseButton.Arrow.Image = widgets.ICONS.DOWN_POINTING_TRIANGLE
+                Items.Position = UDim2.new(0, 0, 0, -8) -- Move title bar up to hide corners
+                TopResizeBorder.Position = UDim2.new(0.5, 0, 0, -8)
+                UIStroke.Enabled = true
+
                 if MenuBar then
                     MenuBar.Visible = not thisWidget.arguments.NoMenu
                 end
@@ -1014,6 +1110,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             else
                 local collapsedHeight: number = TitleBar.AbsoluteSize.Y -- Iris._config.TextSize + Iris._config.FramePadding.Y * 2
                 TitleBar.CollapseButton.Arrow.Image = widgets.ICONS.RIGHT_POINTING_TRIANGLE
+                TitleBar.UIStroke.Enabled = false
+
+                Items.Position = UDim2.new(0, 0, 0, 0) -- Place the title bar back to its original position
+                WindowButton.Position = UDim2.fromOffset(statePosition.X, statePosition.Y - 8) -- Counters the title bar moving
+                TopResizeBorder.Position = UDim2.new(0.5, 0, 0, 0)
+                UIStroke.Enabled = false
 
                 if MenuBar then
                     MenuBar.Visible = false
@@ -1038,6 +1140,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 Iris.SetFocusedWindow(nil)
             end
+
+            TitleBar.UIStroke.Color = TitleBar.BackgroundColor3
 
             -- cant update canvasPosition in this cycle because scrollingframe isint ready to be changed
             if stateScrollDistance and stateScrollDistance ~= 0 then

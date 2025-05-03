@@ -115,6 +115,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             MenuBar.LayoutOrder = thisWidget.ZIndex
             MenuBar.ClipsDescendants = true
 
+            -- This corner instance will be modified by the window
+            widgets.UICorner(MenuBar, 0)
             widgets.UIPadding(MenuBar, Vector2.new(Iris._config.WindowPadding.X, 1))
             widgets.UIListLayout(MenuBar, Enum.FillDirection.Horizontal, UDim.new()).VerticalAlignment = Enum.VerticalAlignment.Center
             widgets.applyFrameStyle(MenuBar, true, true)
@@ -122,7 +124,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             return MenuBar
         end,
         Update = function(_thisWidget: Types.Widget)
-            
+
         end,
         ChildAdded = function(thisWidget: Types.MenuBar, _thisChild: Types.Widget)
             return thisWidget.Instance
