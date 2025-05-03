@@ -820,7 +820,11 @@ return function(Iris: Types.Iris): Types.Internal
 
         local discriminator = Internal._usedIDs[ID]
 
-        return ID .. ":" .. discriminator .. ":" .. table.concat(Internal._pushedIds, "\\")
+        if #Internal._pushedIds == 0 then
+            return ID .. ":" .. discriminator
+        else
+            return ID .. ":" .. discriminator .. ":" .. table.concat(Internal._pushedIds, "\\")
+        end
     end
 
     --[=[
