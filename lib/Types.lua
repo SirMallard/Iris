@@ -225,7 +225,7 @@ export type Internal = {
     -- ID
     _IDStack: { ID },
     _usedIDs: { [ID]: number },
-    _pushedId: ID?,
+    _pushedIds: { ID },
     _nextWidgetId: ID?,
 
     -- VDOM

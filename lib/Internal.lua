@@ -47,7 +47,7 @@ return function(Iris: Types.Iris): Types.Internal
     -- ID
     Internal._IDStack = { "R" }
     Internal._usedIDs = {} -- hash of IDs which are already used in a cycle, value is the # of occurances so that getID can assign a unique ID for each occurance
-    Internal._pushedId = nil
+    Internal._pushedIds = {}
     Internal._nextWidgetId = nil
 
     -- State
@@ -99,7 +99,7 @@ return function(Iris: Types.Iris): Types.Internal
 
         ```lua
         local state = Iris.State(0) -- we initialise the state with a value of 0
-        
+
         -- these are equivalent. Ideally you should use `:get()` and ignore `.value`.
         print(state:get())
         print(state.value)
@@ -124,7 +124,7 @@ return function(Iris: Types.Iris): Types.Internal
         @within State
         @method get<T>
         @return T
-        
+
         Returns the states current value.
     ]=]
     function StateClass:get<T>(): T -- you can also simply use .value
@@ -137,7 +137,7 @@ return function(Iris: Types.Iris): Types.Internal
         @param newValue T
         @param force boolean? -- force an update to all connections
         @return T
-        
+
         Allows the caller to assign the state object a new value, and returns the new value.
     ]=]
     function StateClass:set<T>(newValue: T, force: true?): T
@@ -164,7 +164,7 @@ return function(Iris: Types.Iris): Types.Internal
         @method onChange<T>
         @param callback (newValue: T) -> ()
         @return () -> ()
-        
+
         Allows the caller to connect a callback which is called when the states value is changed.
 
         :::caution
@@ -202,7 +202,7 @@ return function(Iris: Types.Iris): Types.Internal
     --[=[
         @within Internal
         @function _cycle
-        
+
         Called every frame to handle all of the widget management. Any previous frame data is ammended and everything updates.
     ]=]
     function Internal._cycle(deltaTime: number)
@@ -296,6 +296,12 @@ return function(Iris: Types.Iris): Types.Internal
             -- has to be larger than 1 because of the check that it isnt below 1 in Iris.End
             Internal._stackIndex = 1
             error("Too few calls to Iris.End().", 0)
+        end
+
+        -- Errors if the end user forgot to pop all their ids as they would leak over into the next frame
+        -- could also just clear, but that might be confusing behaviour.
+        if #Internal._pushedIds ~= 0 then
+            error("Too few calls to Iris.PopId().", 0)
         end
 
         --debug.profileend()
@@ -812,9 +818,13 @@ return function(Iris: Types.Iris): Types.Internal
             Internal._usedIDs[ID] = 1
         end
 
-        local discriminator = if Internal._pushedId then Internal._pushedId else Internal._usedIDs[ID]
+        local discriminator = Internal._usedIDs[ID]
 
-        return ID .. ":" .. discriminator
+        if #Internal._pushedIds == 0 then
+            return ID .. ":" .. discriminator
+        else
+            return ID .. ":" .. discriminator .. ":" .. table.concat(Internal._pushedIds, "\\")
+        end
     end
 
     --[=[

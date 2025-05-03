@@ -144,7 +144,7 @@ end
     @method Connect
     @param callback () -> () -- the callback containg the Iris code
     @return () -> () -- call to disconnect it
-    
+
     Connects a function which will execute every Iris cycle. [Iris.Init] must be called before connecting.
 
     A cycle is determined by the `eventConnection` passed to [Iris.Init] (default to [RunService.Heartbeat]).
@@ -168,7 +168,7 @@ end
     @param userInstance GuiObject -- the Roblox [Instance] to insert into Iris
 
     Inserts any Roblox [Instance] into Iris.
-    
+
     The parent of the inserted instance can either be determined by the `_config.Parent`
     property or by the current parent widget from the stack.
 ]=]
@@ -193,7 +193,7 @@ end
     Iris.Text({"Above and outside the tree"})
 
     -- A Tree widget can contain children.
-    -- We must therefore remember to call `Iris.End()` 
+    -- We must therefore remember to call `Iris.End()`
     Iris.Tree({"My First Tree"})
         -- Widgets placed here **will** be inside the tree
         Iris.Text({"Tree item 1"})
@@ -206,7 +206,7 @@ end
     :::caution Caution: Error
     Seeing the error `Callback has too few calls to Iris.End()` or `Callback has too many calls to Iris.End()`?
     Using the wrong amount of `Iris.End()` calls in your code will lead to an error.
-    
+
     Each widget called which might have children should be paired with a call to `Iris.End()`, **even if the Widget doesnt currently have any children**.
     :::
 ]=]
@@ -336,22 +336,26 @@ Internal._globalRefreshRequested = false -- UpdatingGlobalConfig changes this to
     @function PushId
     @param id ID -- custom id
 
-    Sets the id discriminator for the next widgets. Use [Iris.PopId] to remove it.
+    Pushes an id onto the id stack for all future widgets. Use [Iris.PopId] to pop it off the stack.
 ]=]
 function Iris.PushId(ID: Types.ID)
     assert(typeof(ID) == "string", "The ID argument to Iris.PushId() to be a string.")
 
-    Internal._pushedId = tostring(ID)
+    table.insert(Internal._pushedIds, ID)
 end
 
 --[=[
     @within Iris
     @function PopID
 
-    Removes the id discriminator set by [Iris.PushId].
+    Removes the most recent pushed id from the id stack.
 ]=]
 function Iris.PopId()
-    Internal._pushedId = nil
+    if #Internal._pushedIds == 0 then
+        return
+    end
+
+    table.remove(Internal._pushedIds)
 end
 
 --[=[
@@ -472,7 +476,7 @@ end
     @tag State
 
     Returns a state object linked to a local variable.
-    
+
     The passed variable is used to check whether the state object should update. The callback method is used to change the local variable when the state changes.
 
     The existence of such a function is to make working with local variables easier.
@@ -493,7 +497,7 @@ end
     static int myNumber = 5;
     ImGui::DragInt("My number", &myNumber); // Here in C++, we can directly pass the variable.
     ```
-    
+
     :::warning Update Order
     If the variable and state value are different when calling this, the variable value takes precedence.
 
@@ -537,10 +541,10 @@ end
     @tag State
 
     Similar to Iris.VariableState but takes a table and key to modify a specific value and a callback to determine whether to update the value.
-    
+
     The passed table and key are used to check the value. The callback is called when the state changes value and determines whether we update the table.
     This is useful if we want to monitor a table value which needs to call other functions when changed.
-    
+
     Since tables are pass-by-reference, we can modify the table anywhere and it will update all other instances. Therefore, we don't need a callback by default.
     ```lua
     local data = {
