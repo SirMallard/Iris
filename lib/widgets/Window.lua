@@ -405,7 +405,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local WindowButton: TextButton = Instance.new("TextButton")
             WindowButton.Name = "WindowButton"
             WindowButton.Size = UDim2.fromOffset(0, 0)
-            WindowButton.BackgroundTransparency = 1
+            WindowButton.BackgroundColor3 = Iris._config.MenubarBgColor
+            WindowButton.BackgroundTransparency = Iris._config.MenubarBgTransparency
             WindowButton.BorderSizePixel = 0
             WindowButton.Text = ""
             WindowButton.ClipsDescendants = false
@@ -863,7 +864,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local Content = WindowButton.Content :: Frame
             local TitleBar = Content.TitleBar :: Frame
             local Title: TextLabel = TitleBar.Title
-            local MenuBar: Frame? = Content:FindFirstChild("MenuBar")
+            local MenuBar: Frame? = Content:FindFirstChild("Iris_MenuBar")
             local LeftResizeGrip: TextButton = WindowButton.LeftResizeGrip
             local RightResizeGrip: TextButton = WindowButton.RightResizeGrip
             local LeftResizeBorder: Frame = WindowButton.LeftResizeBorder
@@ -964,7 +965,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local WindowButton = Window.WindowButton :: TextButton
             local Content = WindowButton.Content :: Frame
             local TitleBar = Content.TitleBar :: Frame
-            local MenuBar: Frame? = Content:FindFirstChild("MenuBar")
+            local MenuBar: Frame? = Content:FindFirstChild("Iris_MenuBar")
             local LeftResizeGrip: TextButton = WindowButton.LeftResizeGrip
             local RightResizeGrip: TextButton = WindowButton.RightResizeGrip
             local LeftResizeBorder: Frame = WindowButton.LeftResizeBorder
