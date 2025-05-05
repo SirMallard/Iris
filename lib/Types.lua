@@ -480,6 +480,7 @@ export type Config = {
     GrabRounding: number,
     WindowBorderSize: number,
     WindowTitleAlign: Enum.LeftRight,
+    WindowRounding: number,
     PopupBorderSize: number,
     PopupRounding: number,
     ScrollbarSize: number,
