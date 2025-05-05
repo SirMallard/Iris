@@ -1,0 +1,9 @@
+:root {
+    --ifm-color-primary-lightest: rgb(179 214 253);
+    --ifm-color-primary-lighter: rgb(142 193 252);
+    --ifm-color-primary-light: rgb(104 173 251);
+    --ifm-color-primary: rgb(66, 150, 250);
+    --ifm-color-primary-dark: rgb(53 122 200);
+    --ifm-color-primary-darker: rgb(40 91 150);
+    --ifm-color-primary-darkest: rgb(26 61 100);
+}

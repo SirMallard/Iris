@@ -25,7 +25,7 @@ Iris.Init()
 Iris:Connect(Iris.ShowDemoWindow)
 ```
 If we then run the game, we should see the Iris Demo Window appear on the screen. This shows that Iris
-is working properly and we can start writing our own code. Check [here](intro.md) for some example code,
+is working properly and we can start writing our own code. Check [here](./intro.md) for some example code,
 read through the [`demoWindow.lua`](https://github.com/SirMallard/Iris/blob/main/lib/demoWindow.lua)
 file to see how the demo window works, or check the rest of the documentation for each widget.
 

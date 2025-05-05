@@ -1,5 +1,22 @@
+title = "Iris"
 gitSourceBranch = "main"
 changelog = true
+
+[home]
+enabled = true
+includeReadme = "docs/iris.md"
+
+[[home.features]]
+title = "Fast, portable, self-contained"
+description = "Iris is a standalone module, with no dependencies, designed to be as lightweight and easy on resources whilst providing a rich experience."
+
+[[home.features]]
+title = "Favouring simplicity and functionality"
+description = "Iris favours writing as little code as possible. You describe what you want and Iris organises handles everything else."
+
+[[home.features]]
+title = "Wide range of widgets"
+description = "Iris offers a wide assortment of widgets, from handling user interaction to displaying complex information, all with rich customisability."
 
 # navbar
 [[navbar.items]]
@@ -37,9 +54,11 @@ classes = ["Internal"]
 onBrokenMarkdownLinks = "warn"
 onBrokenLinks = "ignore"
 trailingSlash = false
+tagline = "Immediate-mode GUI library for Roblox"
+
 [docusarus.themeConfig.prism]
 additionalLangues = ["lua", "luau", "cpp"]
 
 [footer]
 style = "dark"
-copyright = "©2024 Michael_48 & SirMallard"
+copyright = "©2025 Michael_48 & SirMallard"

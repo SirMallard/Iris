@@ -24,7 +24,7 @@ return function(Iris: Types.Iris)
         Iris.End()
         ```
 
-        ![Example window](../assets/basicWindow.png)
+        ![Example window](/Iris/assets/api/window/basicWindow.png)
 
         If you do not want the code inside a window to run unless it is open then you can use the following:
         ```lua
@@ -101,7 +101,7 @@ return function(Iris: Types.Iris)
         Iris.Tooltip({"My custom tooltip"})
         ```
 
-        ![Basic tooltip example](../assets/basicTooltip.png)
+        ![Basic tooltip example](/Iris/assets/api/window/basicTooltip.png)
         
         ```lua
         hasChildren = false
@@ -154,6 +154,19 @@ return function(Iris: Types.Iris)
 
         The opened menu will be a vertically listed box below or next to the button.
 
+        ```lua
+            Iris.Window({"Menu Demo"})
+                Iris.MenuBar()
+                    Iris.Menu({"Test Menu"})
+                        Iris.Button({"Menu Option 1"})
+                        Iris.Button({"Menu Option 2"})
+                    Iris.End()
+                Iris.End()
+            Iris.End()
+        ```
+
+        ![Example menu](/Iris/assets/api/menu/basicMenu.gif)
+
         :::info
         There are widgets which are designed for being parented to a menu whilst other happens to work. There is nothing
         preventing you from adding any widget as a child, but the behaviour is unexplained and not intended.
@@ -185,7 +198,17 @@ return function(Iris: Types.Iris)
         
         Creates a button within a menu. The optional KeyCode and ModiferKey arguments will show the keys next
         to the title, but **will not** bind any connection to them. You will need to do this yourself.
-        
+
+        ```lua
+        Iris.Window({"MenuToggle Demo"})
+            Iris.MenuBar()
+                Iris.MenuToggle({"Menu Item"})
+            Iris.End()
+        Iris.End()
+        ```
+
+        ![Example Menu Item](/Iris/assets/api/menu/basicMenuItem.gif)
+
         ```lua
         hasChildren = false
         hasState = false
@@ -211,6 +234,16 @@ return function(Iris: Types.Iris)
         Creates a togglable button within a menu. The optional KeyCode and ModiferKey arguments act the same
         as the MenuItem. It is not visually the same as a checkbox, but has the same functionality.
         
+        ```lua
+        Iris.Window({"MenuToggle Demo"})
+            Iris.MenuBar()
+                Iris.MenuToggle({"Menu Toggle"})
+            Iris.End()
+        Iris.End()
+        ```
+
+        ![Example Menu Toggle](/Iris/assets/api/menu/basicMenuToggle.gif)
+
         ```lua
         hasChildren = false
         hasState = true
@@ -249,6 +282,16 @@ return function(Iris: Types.Iris)
         A vertical or horizonal line, depending on the context, which visually seperates widgets.
         
         ```lua
+        Iris.Window({"Separator Demo"})
+            Iris.Text({"Some text here!"})
+            Iris.Separator()
+            Iris.Text({"This text has been separated!"})
+        Iris.End()
+        ```
+
+        ![Example Separator](/Iris/assets/api/format/basicSeparator.png)
+
+        ```lua
         hasChildren = false
         hasState = false
         ```
@@ -262,7 +305,18 @@ return function(Iris: Types.Iris)
         @tag HasChildren
         
         Indents its child widgets.
-        
+
+        ```lua
+        Iris.Window({"Indent Demo"})
+            Iris.Text({"Unindented text!"})
+            Iris.Indent()
+                Iris.Text({"This text has been indented!"})
+            Iris.End()
+        Iris.End()
+        ```
+
+        ![Example Indent](/Iris/assets/api/format/basicIndent.png)
+
         ```lua
         hasChildren = true
         hasState = false
@@ -280,6 +334,19 @@ return function(Iris: Types.Iris)
         @tag HasChildren
         
         Positions its children in a row, horizontally.
+
+        ```lua
+        Iris.Window({"Same Line Demo"})
+            Iris.Text({"All of these buttons are on the same line!"})
+            Iris.SameLine()
+                Iris.Button({"Button 1"})
+                Iris.Button({"Button 2"})
+                Iris.Button({"Button 3"})
+            Iris.End()
+        Iris.End()
+        ```
+
+        ![Example SameLine](/Iris/assets/api/format/basicSameLine.png)
         
         ```lua
         hasChildren = true
@@ -326,7 +393,14 @@ return function(Iris: Types.Iris)
         A text label to display the text argument.
         The Wrapped argument will make the text wrap around if it is cut off by its parent.
         The Color argument will change the color of the text, by default it is defined in the configuration file.
-        The RichText argument will 
+
+        ```lua
+        Iris.Window({"Text Demo"})
+            Iris.Text({"This is regular text"})
+        Iris.End()
+        ```
+
+        ![Example Text](/Iris/assets/api/text/basicText.png)
 
         ```lua
         hasChildren = false
@@ -403,6 +477,16 @@ return function(Iris: Types.Iris)
         when an [Iris.Tree](Tree#Tree) or [Iris.CollapsingHeader](Tree#CollapsingHeader) is not appropriate.
 
         Visually a full width thin line with a text label clipping out part of the line.
+
+        ```lua
+        Iris.Window({"Separator Text Demo"})
+            Iris.Text({"Regular Text"})
+            Iris.SeparatorText({"This is a separator with text"})
+            Iris.Text({"More Regular Text"})
+        Iris.End()
+        ```
+
+        ![Example Separator Text](/Iris/assets/api/text/basicSeparatorText.png)
         
         ```lua
         hasChildren = false
@@ -421,7 +505,18 @@ return function(Iris: Types.Iris)
         @tag HasState
 
         A field which allows the user to enter text.
-        
+
+        ```lua
+        Iris.Window({"Input Text Demo"})
+            local inputtedText = Iris.State("")
+
+            Iris.InputText({"Enter text here:"}, {text = inputtedText})
+            Iris.Text({"You entered: " .. inputtedText:get()})
+        Iris.End()
+        ```
+
+        ![Example Input Text](/Iris/assets/api/text/basicInputText.gif)
+
         ```lua
         hasChildren = false
         hasState = true

@@ -304,14 +304,17 @@ export type ImageButton = Image & Clicked & RightClicked & DoubleClicked & CtrlC
 
 export type Tree = CollapsingHeader & {
     arguments: {
+        Text: string,
         SpanAvailWidth: boolean?,
         NoIndent: boolean?,
+        DefaultOpen: true?,
     },
 }
 
 export type CollapsingHeader = ParentWidget & {
     arguments: {
         Text: string?,
+        DefaultOpen: true?,
     },
 
     state: {
