@@ -73,6 +73,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
 
         local widths: Types.State<{ number }> = ActiveTable.state.widths
+        local Columns: number = ActiveTable.arguments.NumColumns
         local Table = ActiveTable.Instance :: Frame
         local BorderContainer = Table.BorderContainer :: Frame
 
@@ -82,43 +83,58 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
         local DeltaX: number = widgets.getMouseLocation().X - MousePositionX
 
-        local LeftX: number
+        local LeftX: number -- the start of the current column
+        local CurrentX: number = BorderContainer:FindFirstChild(`Border_{ActiveColumn}`).AbsolutePosition.X + 2.5 - BorderContainer.AbsolutePosition.X -- the current column position
+        local RightX: number -- the end of the next column
         if ActiveColumn == 1 then
-            LeftX = BorderContainer.AbsolutePosition.X - widgets.GuiOffset.X
+            LeftX = 0
         else
-            LeftX = BorderContainer:FindFirstChild(`Border_{ActiveColumn - 1}`).AbsolutePosition.X + 2.5 - widgets.GuiOffset.X
+            LeftX = BorderContainer:FindFirstChild(`Border_{ActiveColumn - 1}`).AbsolutePosition.X + 2.5 - BorderContainer.AbsolutePosition.X
+        end
+        if ActiveColumn == Columns then
+            RightX = BorderContainer.AbsoluteSize.X
+        else
+            RightX = BorderContainer:FindFirstChild(`Border_{ActiveColumn + 1}`).AbsolutePosition.X + 2.5 - BorderContainer.AbsolutePosition.X
         end
 
+        local Padding: number = 2 * Iris._config.CellPadding.X
         local LeftStretch: boolean = ActiveLeftWidth <= 1
-        local RightStretch: boolean = ActiveRightWidth <= 1
         local LeftOffset: number = MousePositionX - LeftX
         local LeftRatio: number = ActiveLeftWidth / LeftOffset
-        local LeftWidth: number
-        if LeftStretch then -- stretch
-            LeftWidth = 0.001 * math.clamp(math.round(1000 * LeftRatio * (LeftOffset + DeltaX)), 1, 1000)
-        else -- fixed
-            LeftWidth = math.max(2, math.round(LeftRatio * (LeftOffset + DeltaX)))
-        end
-        widths.value[ActiveColumn] = LeftWidth
 
-        if ActiveRightWidth ~= -1 and (LeftStretch or ActiveColumn + 1 == ActiveTable.arguments.NumColumns) then
-            local RightX: number
-            if ActiveColumn == ActiveTable.arguments.NumColumns then
-                RightX = BorderContainer.AbsolutePosition.X + BorderContainer.AbsoluteSize.X - widgets.GuiOffset.X
-            else
-                RightX = BorderContainer:FindFirstChild(`Border_{ActiveColumn + 1}`).AbsolutePosition.X + 2.5 - widgets.GuiOffset.X
-            end
-            local RightOffset: number = RightX - MousePositionX
-            local RightRatio: number = ActiveRightWidth / RightOffset
-            local RightWidth: number
-
-            if ActiveRightWidth <= 1 then -- stretch
-                RightWidth = 0.001 * math.clamp(math.round(1000 * RightRatio * (RightOffset - DeltaX)), 1, 1000)
-            else -- fixed
-                RightWidth = math.max(2, math.round(RightRatio * (RightOffset - DeltaX)))
-            end
-            widths.value[ActiveColumn + 1] = RightWidth
+        if LeftStretch then
+            widths.value[ActiveColumn] = 0.5
+        else
+            local Next = Columns - ActiveColumn
+            local Max: number = Table.AbsoluteSize.X - LeftX - (Next * 2 * Iris._config.CellPadding.X) - Next
+            widths.value[ActiveColumn] = math.clamp(math.round(ActiveLeftWidth + DeltaX), Padding, Max)
         end
+
+        -- if LeftStretch then -- stretch
+        --     LeftWidth = 0.001 * math.clamp(math.round(1000 * LeftRatio * (LeftOffset + DeltaX)), 1, 1000)
+        -- else -- fixed
+        --     LeftWidth = math.clamp(math.round(LeftRatio * (LeftOffset + DeltaX)), 2 * Iris._config.CellPadding.X, BorderContainer.AbsoluteSize.X - LeftOffset - 2 * Iris._config.CellPadding.X)
+        -- end
+        -- widths.value[ActiveColumn] = LeftWidth
+
+        -- if ActiveRightWidth ~= -1 and (LeftStretch or ActiveColumn + 1 == ActiveTable.arguments.NumColumns) then
+        --     local RightX: number
+        --     if ActiveColumn == ActiveTable.arguments.NumColumns then
+        --         RightX = BorderContainer.AbsolutePosition.X + BorderContainer.AbsoluteSize.X - widgets.GuiOffset.X
+        --     else
+        --         RightX = BorderContainer:FindFirstChild(`Border_{ActiveColumn + 1}`).AbsolutePosition.X + 2.5 - widgets.GuiOffset.X
+        --     end
+        --     local RightOffset: number = RightX - MousePositionX
+        --     local RightRatio: number = ActiveRightWidth / RightOffset
+        --     local RightWidth: number
+
+        --     if ActiveRightWidth <= 1 then -- stretch
+        --         RightWidth = 0.001 * math.clamp(math.round(1000 * RightRatio * (RightOffset - DeltaX)), 1, 1000)
+        --     else -- fixed
+        --         RightWidth = math.max(2, math.round(RightRatio * (RightOffset - DeltaX)))
+        --     end
+        --     widths.value[ActiveColumn + 1] = RightWidth
+        -- end
 
         widths:set(widths.value, true)
     end
