@@ -81,6 +81,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ActiveLeftWidth = widths.value[ActiveColumn]
             ActiveRightWidth = widths.value[ActiveColumn + 1] or -1
         end
+        local TableX: number = BorderContainer.AbsolutePosition.X - widgets.GuiOffset.X
         local DeltaX: number = widgets.getMouseLocation().X - MousePositionX
 
         local LeftX: number -- the start of the current column
@@ -99,15 +100,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
         local Padding: number = 2 * Iris._config.CellPadding.X
         local LeftStretch: boolean = ActiveLeftWidth <= 1
-        local LeftOffset: number = MousePositionX - LeftX
+        local LeftOffset: number = (MousePositionX - TableX) - LeftX
         local LeftRatio: number = ActiveLeftWidth / LeftOffset
 
         if LeftStretch then
-            widths.value[ActiveColumn] = 0.5
+            local Change: number = LeftRatio * DeltaX
+            widths.value[ActiveColumn] = ActiveLeftWidth + Change
         else
             local Next = Columns - ActiveColumn
-            local Max: number = Table.AbsoluteSize.X - LeftX - (Next * 2 * Iris._config.CellPadding.X) - Next
-            widths.value[ActiveColumn] = math.clamp(math.round(ActiveLeftWidth + DeltaX), Padding, Max)
+            widths.value[ActiveColumn] = math.clamp(math.round(ActiveLeftWidth + DeltaX), Padding, Table.AbsoluteSize.X - LeftX - (Next * 2 * Iris._config.CellPadding.X) - Next)
         end
 
         -- if LeftStretch then -- stretch
