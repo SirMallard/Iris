@@ -70,8 +70,11 @@ Iris.Events = {}
     If the `eventConnection` is `false` then Iris will not create a cycle loop and the user will need to call [Internal._cycle] every frame.
 ]=]
 function Iris.Init(parentInstance: Instance?, eventConnection: (RBXScriptSignal | (() -> number) | false)?): Types.Iris
-    assert(Internal._started == false, "Iris.Init() can only be called once.")
     assert(Internal._shutdown == false, "Iris.Init() cannot be called once shutdown.")
+
+    if Internal._started then
+        return Iris
+    end
 
     if parentInstance == nil then
         -- coalesce to playerGui
