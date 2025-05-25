@@ -105,37 +105,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
         if LeftStretch then
             local Change: number = LeftRatio * DeltaX
-            widths.value[ActiveColumn] = ActiveLeftWidth + Change
+            widths.value[ActiveColumn] = math.clamp(ActiveLeftWidth + Change, 0.005, 1.000)
         else
             local Next = Columns - ActiveColumn
             widths.value[ActiveColumn] = math.clamp(math.round(ActiveLeftWidth + DeltaX), Padding, Table.AbsoluteSize.X - LeftX - (Next * 2 * Iris._config.CellPadding.X) - Next)
         end
-
-        -- if LeftStretch then -- stretch
-        --     LeftWidth = 0.001 * math.clamp(math.round(1000 * LeftRatio * (LeftOffset + DeltaX)), 1, 1000)
-        -- else -- fixed
-        --     LeftWidth = math.clamp(math.round(LeftRatio * (LeftOffset + DeltaX)), 2 * Iris._config.CellPadding.X, BorderContainer.AbsoluteSize.X - LeftOffset - 2 * Iris._config.CellPadding.X)
-        -- end
-        -- widths.value[ActiveColumn] = LeftWidth
-
-        -- if ActiveRightWidth ~= -1 and (LeftStretch or ActiveColumn + 1 == ActiveTable.arguments.NumColumns) then
-        --     local RightX: number
-        --     if ActiveColumn == ActiveTable.arguments.NumColumns then
-        --         RightX = BorderContainer.AbsolutePosition.X + BorderContainer.AbsoluteSize.X - widgets.GuiOffset.X
-        --     else
-        --         RightX = BorderContainer:FindFirstChild(`Border_{ActiveColumn + 1}`).AbsolutePosition.X + 2.5 - widgets.GuiOffset.X
-        --     end
-        --     local RightOffset: number = RightX - MousePositionX
-        --     local RightRatio: number = ActiveRightWidth / RightOffset
-        --     local RightWidth: number
-
-        --     if ActiveRightWidth <= 1 then -- stretch
-        --         RightWidth = 0.001 * math.clamp(math.round(1000 * RightRatio * (RightOffset - DeltaX)), 1, 1000)
-        --     else -- fixed
-        --         RightWidth = math.max(2, math.round(RightRatio * (RightOffset - DeltaX)))
-        --     end
-        --     widths.value[ActiveColumn + 1] = RightWidth
-        -- end
 
         widths:set(widths.value, true)
     end
@@ -182,7 +156,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
         widgets.UIPadding(Cell, Iris._config.CellPadding)
         widgets.UIListLayout(Cell, Enum.FillDirection.Vertical, UDim.new())
-        -- widgets.UISizeConstraint(Cell, Vector2.new(10, 0))
+        -- widgets.UISizeConstraint(Cell, Vector2.new(2 * Iris._config.CellPadding.X, 0))
 
         return Cell
     end
@@ -425,24 +399,23 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local NumStretch: number = 0
             for index = 1, thisWidget.arguments.NumColumns do
                 local Width: number = ColumnWidths[index]
-                TotalWidth += UDim.new(if Width <= 1 then Width else 0, if Width > 1 then Width else 0)
-                if Width > 1 then
+                TotalWidth += UDim.new(if Width <= 1 then math.clamp(Width, 0.005, 1) else 0, if Width > 1 then math.max(Width, 2 * Iris._config.CellPadding.X) else 0)
+                if Width <= 1 then
                     NumStretch += 1
                 end
             end
 
             -- how much to remove to account for the absolute widths
-            local FixedOffset: number = if NumStretch == 0 then 0 else TotalWidth.Offset / NumStretch
-            local StretchRatio: number = 1 / TotalWidth.Scale
+            local FixedOffset: number = if NumStretch == 0 then 0 else TotalWidth.Offset * TotalWidth.Scale / NumStretch
 
             local Position: UDim = UDim.new()
             for index = 1, thisWidget.arguments.NumColumns do
                 local ColumnWidth: number = ColumnWidths[index]
 
                 -- determine the scale and offset
-                local Stretch: number = if ColumnWidth <= 1 then ColumnWidth * StretchRatio else 0
-                local Fixed: number = math.max(0, if ColumnWidth > 1 then ColumnWidth else 0) - (if ColumnWidth <= 1 then FixedOffset else 0)
-                local Width: UDim = UDim.new(math.max(0, Stretch), Fixed)
+                local Stretch: number = if ColumnWidth <= 1 then math.clamp(ColumnWidth, 0.005, 1) else 0
+                local Fixed: number = math.max(2 * Iris._config.CellPadding.X, if ColumnWidth > 1 then ColumnWidth else 0) - (if ColumnWidth <= 1 then FixedOffset else 0)
+                local Width: UDim = UDim.new(Stretch, Fixed)
                 -- add to the internal copy
                 thisWidget.Widths[index] = Width
                 Position += Width
