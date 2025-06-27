@@ -144,8 +144,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
     end)
 
-    local function GenerateCell(thisWidget: Types.Table, index: number, width: UDim)
-        local Cell: Frame = Instance.new("Frame")
+    local function GenerateCell(thisWidget: Types.Table, index: number, width: UDim, header: boolean)
+        local Cell: TextButton
+        if header then
+            Cell = Instance.new("TextButton")
+            Cell.Text = ""
+        else
+            Cell = (Instance.new("Frame") :: GuiObject) :: TextButton
+        end
         Cell.Name = `Cell_{index}`
         Cell.AutomaticSize = Enum.AutomaticSize.Y
         Cell.Size = UDim2.new(width, UDim.new())
@@ -153,6 +159,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Cell.ZIndex = index
         Cell.LayoutOrder = index
         Cell.ClipsDescendants = true
+
+        if header then
+            widgets.applyInteractionHighlights("Background", Cell, Cell, {
+                Color = Iris._config.HeaderColor,
+                Transparency = 1,
+                HoveredColor = Iris._config.HeaderHoveredColor,
+                HoveredTransparency = Iris._config.HeaderHoveredTransparency,
+                ActiveColor = Iris._config.HeaderActiveColor,
+                ActiveTransparency = Iris._config.HeaderActiveTransparency,
+            })
+        end
 
         widgets.UIPadding(Cell, Iris._config.CellPadding)
         widgets.UIListLayout(Cell, Enum.FillDirection.Vertical, UDim.new())
@@ -229,7 +246,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
         thisWidget.CellInstances[index] = table.create(thisWidget.arguments.NumColumns)
         for columnIndex = 1, thisWidget.arguments.NumColumns do
-            local Cell = GenerateCell(thisWidget, columnIndex, thisWidget.Widths[index])
+            local Cell = GenerateCell(thisWidget, columnIndex, thisWidget.Widths[index], index == 0)
             Cell.Parent = Row
             thisWidget.CellInstances[index][columnIndex] = Cell
         end
