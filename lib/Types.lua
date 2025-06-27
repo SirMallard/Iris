@@ -225,6 +225,7 @@ export type Internal = {
     -- ID
     _IDStack: { ID },
     _usedIDs: { [ID]: number },
+    _newID: boolean,
     _pushedIds: { ID },
     _nextWidgetId: ID?,
 
