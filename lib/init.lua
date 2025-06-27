@@ -314,6 +314,7 @@ function Iris.PopConfig()
 end
 
 --[=[
+
     @within Iris
     @prop TemplateConfig { [string]: { [string]: any } }
 
@@ -341,6 +342,7 @@ Internal._globalRefreshRequested = false -- UpdatingGlobalConfig changes this to
 function Iris.PushId(ID: Types.ID)
     assert(typeof(ID) == "string", "The ID argument to Iris.PushId() to be a string.")
 
+    Internal._newID = true
     table.insert(Internal._pushedIds, ID)
 end
 

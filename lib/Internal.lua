@@ -48,6 +48,7 @@ return function(Iris: Types.Iris): Types.Internal
     Internal._IDStack = { "R" }
     Internal._usedIDs = {} -- hash of IDs which are already used in a cycle, value is the # of occurances so that getID can assign a unique ID for each occurance
     Internal._pushedIds = {}
+    Internal._newID = false
     Internal._nextWidgetId = nil
 
     -- State
@@ -812,16 +813,20 @@ return function(Iris: Types.Iris): Types.Internal
             levelInfo = debug.info(i, "l")
         end
 
-        if Internal._usedIDs[ID] then
+        local discriminator = Internal._usedIDs[ID]
+        if discriminator then
             Internal._usedIDs[ID] += 1
+            discriminator += 1
         else
             Internal._usedIDs[ID] = 1
+            discriminator = 1
         end
-
-        local discriminator = Internal._usedIDs[ID]
 
         if #Internal._pushedIds == 0 then
             return ID .. ":" .. discriminator
+        elseif Internal._newID then
+            Internal._newID = false
+            return ID .. "::" .. table.concat(Internal._pushedIds, "\\")
         else
             return ID .. ":" .. discriminator .. ":" .. table.concat(Internal._pushedIds, "\\")
         end
