@@ -69,9 +69,13 @@ Iris.Events = {}
 
     If the `eventConnection` is `false` then Iris will not create a cycle loop and the user will need to call [Internal._cycle] every frame.
 ]=]
-function Iris.Init(parentInstance: Instance?, eventConnection: (RBXScriptSignal | (() -> number) | false)?): Types.Iris
-    assert(Internal._started == false, "Iris.Init() can only be called once.")
+function Iris.Init(parentInstance: Instance?, eventConnection: (RBXScriptSignal | (() -> number) | false)?, allowMultipleInits: boolean): Types.Iris
     assert(Internal._shutdown == false, "Iris.Init() cannot be called once shutdown.")
+    assert(Internal._started == false or allowMultipleInits == true, "Iris.Init() can only be called once.")
+
+    if Internal._started then
+        return Iris
+    end
 
     if parentInstance == nil then
         -- coalesce to playerGui
@@ -314,6 +318,7 @@ function Iris.PopConfig()
 end
 
 --[=[
+
     @within Iris
     @prop TemplateConfig { [string]: { [string]: any } }
 
@@ -341,6 +346,7 @@ Internal._globalRefreshRequested = false -- UpdatingGlobalConfig changes this to
 function Iris.PushId(ID: Types.ID)
     assert(typeof(ID) == "string", "The ID argument to Iris.PushId() to be a string.")
 
+    Internal._newID = true
     table.insert(Internal._pushedIds, ID)
 end
 

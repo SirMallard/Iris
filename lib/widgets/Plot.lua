@@ -343,13 +343,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 local count: number = #values - 1
                 local numLines: number = #thisWidget.Lines
 
-                local min: number = thisWidget.arguments.Min
-                local max: number = thisWidget.arguments.Max
+                local min: number = thisWidget.arguments.Min or math.huge
+                local max: number = thisWidget.arguments.Max or -math.huge
 
                 if min == nil or max == nil then
                     for _, value: number in values do
-                        min = math.min(min or value, value)
-                        max = math.max(max or value, value)
+                        min = math.min(min, value)
+                        max = math.max(max, value)
                     end
                 end
 
@@ -595,8 +595,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 local count: number = #values
                 local numBlocks: number = #thisWidget.Blocks
 
-                local min: number = thisWidget.arguments.Min
-                local max: number = thisWidget.arguments.Max
+                local min: number = thisWidget.arguments.Min or math.huge
+                local max: number = thisWidget.arguments.Max or -math.huge
                 local baseline: number = thisWidget.arguments.BaseLine or 0
 
                 if min == nil or max == nil then

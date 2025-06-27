@@ -225,6 +225,7 @@ export type Internal = {
     -- ID
     _IDStack: { ID },
     _usedIDs: { [ID]: number },
+    _newID: boolean,
     _pushedIds: { ID },
     _nextWidgetId: ID?,
 
@@ -618,7 +619,7 @@ export type Iris = {
         -------------
     ]]
 
-    Init: (playerInstance: BasePlayerGui?, eventConnection: (RBXScriptConnection | () -> () | false)?) -> Iris,
+    Init: (playerInstance: BasePlayerGui?, eventConnection: (RBXScriptConnection | () -> () | false)?, allowMultipleInits: boolean?) -> Iris,
     Shutdown: () -> (),
     Connect: (self: Iris, callback: () -> ()) -> () -> (),
     Append: (userInstance: GuiObject) -> (),
