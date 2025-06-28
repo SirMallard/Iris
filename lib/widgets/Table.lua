@@ -31,19 +31,34 @@ local Types = require(script.Parent.Parent.Types)
 
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local Tables: { [Types.ID]: Types.Table } = {}
-    local AnyActiveTable: boolean = false
+    local TableMinWidths: { [Types.Table]: { number } } = {}
+    local AnyActiveTable = false
     local ActiveTable: Types.Table? = nil
-    local ActiveColumn: number = 0
-    local ActiveLeftWidth: number = -1
-    local ActiveRightWidth: number = -1
+    local ActiveColumn = 0
+    local ActiveLeftWidth = -1
+    local ActiveRightWidth = -1
     local MousePositionX = 0
 
+    local function CalculateMinColumnWidth(thisWidget: Types.Table, index: number)
+        local width = 0
+        for _, row in thisWidget.CellInstances do
+            local cell = row[index]
+            for _, child in cell:GetChildren() do
+                if child:IsA("GuiObject") then
+                    width = math.max(width, child.AbsoluteSize.X)
+                end
+            end
+        end
+
+        thisWidget.MinWidths[index] = width + 2 * Iris._config.CellPadding.X
+    end
+
     table.insert(Iris._postCycleCallbacks, function()
-        for _, thisWidget: Types.Table in Tables do
-            for rowIndex: number, cycleTick: number in thisWidget.RowCycles do
+        for _, thisWidget in Tables do
+            for rowIndex, cycleTick in thisWidget.RowCycles do
                 if cycleTick < Iris._cycleTick - 1 then
-                    local Row: Frame = thisWidget.RowInstances[rowIndex]
-                    local RowBorder: Frame = thisWidget.RowBorders[rowIndex - 1]
+                    local Row = thisWidget.RowInstances[rowIndex]
+                    local RowBorder = thisWidget.RowBorders[rowIndex - 1]
                     if Row ~= nil then
                         Row:Destroy()
                     end
@@ -65,6 +80,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local BorderContainer: Frame = Table.BorderContainer
             BorderContainer.Size = UDim2.new(1, 0, 0, thisWidget.RowContainer.AbsoluteSize.Y)
         end
+
+        for thisWidget, columns in TableMinWidths do
+            for _, column in columns do
+                CalculateMinColumnWidth(thisWidget, column)
+            end
+            table.clear(columns)
+        end
     end)
 
     local function UpdateActiveColumn()
@@ -72,8 +94,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             return
         end
 
-        local widths: Types.State<{ number }> = ActiveTable.state.widths
-        local Columns: number = ActiveTable.arguments.NumColumns
+        local widths = ActiveTable.state.widths
+        local Columns = ActiveTable.arguments.NumColumns
         local Table = ActiveTable.Instance :: Frame
         local BorderContainer = Table.BorderContainer :: Frame
 
@@ -98,13 +120,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             RightX = BorderContainer:FindFirstChild(`Border_{ActiveColumn + 1}`).AbsolutePosition.X + 2.5 - BorderContainer.AbsolutePosition.X
         end
 
-        local Padding: number = 2 * Iris._config.CellPadding.X
-        local LeftStretch: boolean = ActiveLeftWidth <= 1
-        local LeftOffset: number = (MousePositionX - TableX) - LeftX
-        local LeftRatio: number = ActiveLeftWidth / LeftOffset
+        local Padding = 2 * Iris._config.CellPadding.X
+        local LeftStretch = ActiveLeftWidth <= 1
+        local LeftOffset = (MousePositionX - TableX) - LeftX
+        local LeftRatio = ActiveLeftWidth / LeftOffset
 
         if LeftStretch then
-            local Change: number = LeftRatio * DeltaX
+            local Change = LeftRatio * DeltaX
             widths.value[ActiveColumn] = math.clamp(ActiveLeftWidth + Change, 0.005, 1.000)
         else
             local Next = Columns - ActiveColumn
@@ -179,7 +201,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     end
 
     local function GenerateColumnBorder(thisWidget: Types.Table, index: number, style: "Light" | "Strong")
-        local Border: ImageButton = Instance.new("ImageButton")
+        local Border = Instance.new("ImageButton")
         Border.Name = `Border_{index}`
         Border.AnchorPoint = Vector2.new(0.5, 0)
         Border.Size = UDim2.new(0, 5, 1, 0)
@@ -201,9 +223,22 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
         Line.Parent = Border
 
-        widgets.applyInteractionHighlights("Background", Border, Line, {
-            Color = Iris._config[`TableBorder{style}Color`],
-            Transparency = Iris._config[`TableBorder{style}Transparency`],
+        local Hover = Instance.new("Frame")
+        Hover.Name = "Hover"
+        Hover.AnchorPoint = Vector2.new(0.5, 0)
+        Hover.Size = UDim2.new(0, 1, 1, 0)
+        Hover.Position = UDim2.fromScale(0.5, 0)
+        Hover.BackgroundColor3 = Iris._config[`TableBorder{style}Color`]
+        Hover.BackgroundTransparency = Iris._config[`TableBorder{style}Transparency`]
+        Hover.BorderSizePixel = 0
+
+        Hover.Visible = thisWidget.arguments.Resizable
+
+        Hover.Parent = Border
+
+        widgets.applyInteractionHighlights("Background", Border, Hover, {
+            Color = Iris._config.ResizeGripColor,
+            Transparency = 1,
             HoveredColor = Iris._config.ResizeGripHoveredColor,
             HoveredTransparency = Iris._config.ResizeGripHoveredTransparency,
             ActiveColor = Iris._config.ResizeGripActiveColor,
@@ -211,7 +246,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         })
 
         widgets.applyButtonDown(Border, function()
-            ColumnMouseDown(thisWidget, index)
+            if thisWidget.arguments.Resizable then
+                ColumnMouseDown(thisWidget, index)
+            end
         end)
 
         return Border
@@ -287,12 +324,16 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             RowBackground = 3,
             OuterBorders = 4,
             InnerBorders = 5,
-            NoResize = 6
+            Resizable = 6,
+            FixedWidth = 7,
+            ProportionalWidth = 8,
         },
         Events = {},
         Generate = function(thisWidget: Types.Table)
             Tables[thisWidget.ID] = thisWidget
-            local Table: Frame = Instance.new("Frame")
+            TableMinWidths[thisWidget] = {}
+
+            local Table = Instance.new("Frame")
             Table.Name = "Iris_Table"
             Table.AutomaticSize = Enum.AutomaticSize.Y
             Table.Size = UDim2.fromScale(1, 0)
@@ -300,7 +341,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Table.ZIndex = thisWidget.ZIndex
             Table.LayoutOrder = thisWidget.ZIndex
 
-            local RowContainer: Frame = Instance.new("Frame")
+            local RowContainer = Instance.new("Frame")
             RowContainer.Name = "RowContainer"
             RowContainer.AutomaticSize = Enum.AutomaticSize.Y
             RowContainer.Size = UDim2.fromScale(1, 0)
@@ -312,7 +353,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             RowContainer.Parent = Table
 			thisWidget.RowContainer = RowContainer
 
-            local BorderContainer: Frame = Instance.new("Frame")
+            local BorderContainer = Instance.new("Frame")
             BorderContainer.Name = "BorderContainer"
             BorderContainer.Size = UDim2.fromScale(1, 1)
             BorderContainer.BackgroundTransparency = 1
@@ -331,8 +372,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             thisWidget.ColumnBorders = {}
             thisWidget.RowCycles = {}
 
-            local callbackIndex: number = #Iris._postCycleCallbacks + 1
-            local desiredCycleTick: number = Iris._cycleTick + 1
+            local callbackIndex = #Iris._postCycleCallbacks + 1
+            local desiredCycleTick = Iris._cycleTick + 1
             Iris._postCycleCallbacks[callbackIndex] = function()
                 if Iris._cycleTick >= desiredCycleTick then
                     if thisWidget.lastCycleTick ~= -1 then
@@ -351,7 +392,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 local Widths: { number } = table.create(thisWidget.arguments.NumColumns, 1 / thisWidget.arguments.NumColumns)
                 thisWidget.state.widths = Iris._widgetState(thisWidget, "widths", Widths)
             end
-            thisWidget.Widths = {}
+            thisWidget.Widths = table.create(thisWidget.arguments.NumColumns, UDim.new())
+            thisWidget.MinWidths = table.create(thisWidget.arguments.NumColumns, 0)
 
             local Table = thisWidget.Instance :: Frame
             local BorderContainer: Frame = Table.BorderContainer
@@ -364,7 +406,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         Update = function(thisWidget: Types.Table)
-            assert(thisWidget.arguments.NumColumns >= 1, "Iris.Table must have at least one column.")
+            local NumColumns = thisWidget.arguments.NumColumns
+            assert(NumColumns >= 1, "Iris.Table must have at least one column.")
+
+            if thisWidget.Widths ~= nil and #thisWidget.Widths ~= NumColumns then
+                thisWidget.arguments.NumColumns = #thisWidget.Widths
+                -- redraw the entire widget
+            end
 
             for rowIndex: number, row: Frame in thisWidget.RowInstances do
                 if rowIndex == 0 then
@@ -390,6 +438,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             for _, Border: GuiButton in thisWidget.ColumnBorders do
                 Border.Visible = thisWidget.arguments.InnerBorders
             end
+
+            for _, border in thisWidget.ColumnBorders do
+                local hover = border:FindFirstChild("Hover") :: Frame?
+                if hover then
+                    hover.Visible = thisWidget.arguments.Resizable
+                end
+            end
             
             -- the header border visibility must be updated after settings all borders
             -- visiblity or not
@@ -405,49 +460,94 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local Table = thisWidget.Instance :: Frame
             local BorderContainer = Table.BorderContainer :: Frame
             BorderContainer.UIStroke.Enabled = thisWidget.arguments.OuterBorders
+
+            for index = 1, thisWidget.arguments.NumColumns do
+                table.insert(TableMinWidths[thisWidget], index)
+            end
+
+            if thisWidget.Widths ~= nil then
+                Iris._widgets["Table"].UpdateState(thisWidget)
+            end
         end,
         UpdateState = function(thisWidget: Types.Table)
-            local ColumnWidths: { number } = thisWidget.state.widths.value
+            local ColumnWidths = thisWidget.state.widths.value
+            local MinWidths = thisWidget.MinWidths
             
-            -- we split the space between fixed and stretch width
-            -- we calculate the total width, so we can remove any fixed offsets from the stretch
-            -- the applied order is fixed, then scale the remaining space
-            local TotalWidth: UDim = UDim.new()
-            local NumStretch: number = 0
-            for index = 1, thisWidget.arguments.NumColumns do
-                local Width: number = ColumnWidths[index]
-                TotalWidth += UDim.new(if Width <= 1 then math.clamp(Width, 0.005, 1) else 0, if Width > 1 then math.max(Width, 2 * Iris._config.CellPadding.X) else 0)
-                if Width <= 1 then
-                    NumStretch += 1
+            local Fixed = thisWidget.arguments.FixedWidth
+            local Proportional = thisWidget.arguments.ProportionalWidth
+
+            if not thisWidget.arguments.Resizable then
+                if Fixed then
+                    if Proportional then
+                        for index = 1, thisWidget.arguments.NumColumns do
+                            ColumnWidths[index] = MinWidths[index]
+                        end
+                    else
+                        local maxWidth = 0
+                        for _, width in MinWidths do
+                            maxWidth = math.max(maxWidth, width)
+                        end
+                        for index = 1, thisWidget.arguments.NumColumns do
+                            ColumnWidths[index] = maxWidth
+                        end
+                    end
+                else
+                    if Proportional then
+                        local TotalWidth = 0
+                        for _, width in MinWidths do
+                            TotalWidth += width
+                        end
+                        local Ratio = 1 / TotalWidth
+                        for index = 1, thisWidget.arguments.NumColumns do
+                            ColumnWidths[index] = Ratio * MinWidths[index]
+                        end
+                    else
+                        local width = 1 / thisWidget.arguments.NumColumns
+                        for index = 1, thisWidget.arguments.NumColumns do
+                            ColumnWidths[index] = width
+                        end
+                    end
                 end
             end
 
-            -- how much to remove to account for the absolute widths
-            local FixedOffset: number = if NumStretch == 0 then 0 else TotalWidth.Offset * TotalWidth.Scale / NumStretch
-
-            local Position: UDim = UDim.new()
+            local Position = UDim.new()
             for index = 1, thisWidget.arguments.NumColumns do
-                local ColumnWidth: number = ColumnWidths[index]
+                local ColumnWidth = ColumnWidths[index]
 
-                -- determine the scale and offset
-                local Stretch: number = if ColumnWidth <= 1 then math.clamp(ColumnWidth, 0.005, 1) else 0
-                local Fixed: number = math.max(2 * Iris._config.CellPadding.X, if ColumnWidth > 1 then ColumnWidth else 0) - (if ColumnWidth <= 1 then FixedOffset else 0)
-                local Width: UDim = UDim.new(Stretch, Fixed)
-                -- add to the internal copy
+                local Width = UDim.new(
+                    if Fixed then 0 else math.clamp(ColumnWidth, 0, 1),
+                    if Fixed then math.max(ColumnWidth, 2 * Iris._config.CellPadding.X) else 2 * Iris._config.CellPadding.X
+                )
                 thisWidget.Widths[index] = Width
                 Position += Width
                 thisWidget.ColumnBorders[index].Position = UDim2.new(Position, UDim.new())
-                
-                for _, row: { Frame } in thisWidget.CellInstances do
+
+                for _, row in thisWidget.CellInstances do
                     row[index].Size = UDim2.new(Width, UDim.new())
                 end
             end
+
+            -- -- we split the space between fixed and stretch width
+            -- -- we calculate the total width, so we can remove any fixed offsets from the stretch
+            -- -- the applied order is fixed, then scale the remaining space
+            -- local TotalWidth: UDim = UDim.new()
+            -- local NumStretch: number = 0
+            -- for index = 1, thisWidget.arguments.NumColumns do
+            --     local Width: number = ColumnWidths[index]
+            --     TotalWidth += UDim.new(if Width <= 1 then math.clamp(Width, 0.005, 1) else 0, if Width > 1 then math.max(Width, 2 * Iris._config.CellPadding.X) else 0)
+            --     if Width <= 1 then
+            --         NumStretch += 1
+            --     end
+            -- end
+
+            -- -- how much to remove to account for the absolute widths
+            -- local FixedOffset: number = if NumStretch == 0 then 0 else TotalWidth.Offset * TotalWidth.Scale / NumStretch
         end,
         ChildAdded = function(thisWidget: Types.Table, thisChild: Types.Widget)
-            local rowIndex: number = thisWidget.RowIndex
-            local columnIndex: number = thisWidget.ColumnIndex
+            local rowIndex = thisWidget.RowIndex
+            local columnIndex = thisWidget.ColumnIndex
             -- determine if the row exists yet
-            local Row: Frame = thisWidget.RowInstances[rowIndex]
+            local Row = thisWidget.RowInstances[rowIndex]
             thisWidget.RowCycles[rowIndex] = Iris._cycleTick
 
             if Row ~= nil then
@@ -467,10 +567,22 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Border.Parent = thisWidget.RowContainer
             end
 
+            table.insert(TableMinWidths[thisWidget], columnIndex)
+
             return thisWidget.CellInstances[rowIndex][columnIndex]
         end,
+        ChildDiscarded = function(thisWidget: Types.Table, thisChild: Types.Widget)
+            local Cell = thisChild.Instance.Parent
+
+            if Cell ~= nil then
+                local columnIndex = tonumber(Cell.Name:sub(6))
+                
+                if columnIndex then
+                    table.insert(TableMinWidths[thisWidget], columnIndex)
+                end
+            end
+        end,
         Discard = function(thisWidget: Types.Table)
-            print("Discard?")
             Tables[thisWidget.ID] = nil
             thisWidget.Instance:Destroy()
             widgets.discardState(thisWidget)

@@ -499,6 +499,7 @@ export type Table = ParentWidget & {
     ColumnBorders: { GuiButton },
     RowCycles: { number },
     Widths: { UDim },
+    MinWidths: { number },
 
     arguments: {
         NumColumns: number,
@@ -506,6 +507,9 @@ export type Table = ParentWidget & {
         RowBackground: boolean,
         OuterBorders: boolean,
         InnerBorders: boolean,
+        Resizable: boolean,
+        FixedWidth: boolean,
+        ProportionalWidth: boolean,
     },
 
     state: {
