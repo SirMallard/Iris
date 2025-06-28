@@ -50,7 +50,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end
 
-        thisWidget.MinWidths[index] = width + 2 * Iris._config.CellPadding.X
+        thisWidget.MinWidths[index] = width
     end
 
     table.insert(Iris._postCycleCallbacks, function()
@@ -120,7 +120,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             RightX = BorderContainer:FindFirstChild(`Border_{ActiveColumn + 1}`).AbsolutePosition.X + 2.5 - BorderContainer.AbsolutePosition.X
         end
 
-        local Padding = 2 * Iris._config.CellPadding.X
+        local Padding = 0
         local LeftStretch = ActiveLeftWidth <= 1
         local LeftOffset = (MousePositionX - TableX) - LeftX
         local LeftRatio = ActiveLeftWidth / LeftOffset
@@ -130,7 +130,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             widths.value[ActiveColumn] = math.clamp(ActiveLeftWidth + Change, 0.005, 1.000)
         else
             local Next = Columns - ActiveColumn
-            widths.value[ActiveColumn] = math.clamp(math.round(ActiveLeftWidth + DeltaX), Padding, Table.AbsoluteSize.X - LeftX - (Next * 2 * Iris._config.CellPadding.X) - Next)
+            widths.value[ActiveColumn] = math.clamp(math.round(ActiveLeftWidth + DeltaX), Padding, Table.AbsoluteSize.X - LeftX - (Next * 0) - Next)
         end
 
         widths:set(widths.value, true)
@@ -195,7 +195,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
         widgets.UIPadding(Cell, Iris._config.CellPadding)
         widgets.UIListLayout(Cell, Enum.FillDirection.Vertical, UDim.new())
-        -- widgets.UISizeConstraint(Cell, Vector2.new(2 * Iris._config.CellPadding.X, 0))
+        widgets.UISizeConstraint(Cell, Vector2.new(2 * Iris._config.CellPadding.X, 0))
 
         return Cell
     end
@@ -210,7 +210,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Border.Image = ""
         Border.ImageTransparency = 1
         Border.ZIndex = index
-        Border.LayoutOrder = index
+        Border.LayoutOrder = 2 * index
 
         local Line = Instance.new("Frame")
         Line.Name = "Line"
@@ -360,6 +360,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             BorderContainer.ZIndex = 2
             BorderContainer.ClipsDescendants = true
 
+            widgets.UIListLayout(BorderContainer, Enum.FillDirection.Horizontal, UDim.new())
+            
             widgets.UIStroke(BorderContainer, 1, Iris._config.TableBorderStrongColor, Iris._config.TableBorderStrongTransparency)
 
             BorderContainer.Parent = Table
@@ -398,11 +400,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local Table = thisWidget.Instance :: Frame
             local BorderContainer: Frame = Table.BorderContainer
 
+            thisWidget.CellInstances[-1] = table.create(thisWidget.arguments.NumColumns)
             for index = 1, thisWidget.arguments.NumColumns do
                 local Border = GenerateColumnBorder(thisWidget, index, "Light")
                 Border.Visible = thisWidget.arguments.InnerBorders
                 thisWidget.ColumnBorders[index] = Border
                 Border.Parent = BorderContainer
+
+                local Cell = GenerateCell(thisWidget, index, thisWidget.Widths[index], false)
+                Cell.LayoutOrder = 2 * index - 1
+                thisWidget.CellInstances[-1][index] = Cell
+                Cell.Parent = BorderContainer
             end
         end,
         Update = function(thisWidget: Types.Table)
@@ -470,6 +478,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         UpdateState = function(thisWidget: Types.Table)
+            local NumColumns = thisWidget.arguments.NumColumns
             local ColumnWidths = thisWidget.state.widths.value
             local MinWidths = thisWidget.MinWidths
             
@@ -479,7 +488,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             if not thisWidget.arguments.Resizable then
                 if Fixed then
                     if Proportional then
-                        for index = 1, thisWidget.arguments.NumColumns do
+                        for index = 1, NumColumns do
                             ColumnWidths[index] = MinWidths[index]
                         end
                     else
@@ -487,7 +496,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         for _, width in MinWidths do
                             maxWidth = math.max(maxWidth, width)
                         end
-                        for index = 1, thisWidget.arguments.NumColumns do
+                        for index = 1, NumColumns do
                             ColumnWidths[index] = maxWidth
                         end
                     end
@@ -498,12 +507,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                             TotalWidth += width
                         end
                         local Ratio = 1 / TotalWidth
-                        for index = 1, thisWidget.arguments.NumColumns do
+                        for index = 1, NumColumns do
                             ColumnWidths[index] = Ratio * MinWidths[index]
                         end
                     else
-                        local width = 1 / thisWidget.arguments.NumColumns
-                        for index = 1, thisWidget.arguments.NumColumns do
+                        local width = 1 / NumColumns
+                        for index = 1, NumColumns do
                             ColumnWidths[index] = width
                         end
                     end
@@ -511,12 +520,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
 
             local Position = UDim.new()
-            for index = 1, thisWidget.arguments.NumColumns do
+            for index = 1, NumColumns do
                 local ColumnWidth = ColumnWidths[index]
 
                 local Width = UDim.new(
                     if Fixed then 0 else math.clamp(ColumnWidth, 0, 1),
-                    if Fixed then math.max(ColumnWidth, 2 * Iris._config.CellPadding.X) else 2 * Iris._config.CellPadding.X
+                    if Fixed then math.max(ColumnWidth, 0) else 0
                 )
                 thisWidget.Widths[index] = Width
                 Position += Width
@@ -525,6 +534,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 for _, row in thisWidget.CellInstances do
                     row[index].Size = UDim2.new(Width, UDim.new())
                 end
+
+                thisWidget.CellInstances[-1][index].Size = UDim2.new(Width + UDim.new(0,
+                    (if index > 1 then -2.5 else 0) +
+                    (if index < NumColumns then -2.5 else 0)
+                ), UDim.new())
             end
 
             -- -- we split the space between fixed and stretch width
@@ -534,7 +548,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             -- local NumStretch: number = 0
             -- for index = 1, thisWidget.arguments.NumColumns do
             --     local Width: number = ColumnWidths[index]
-            --     TotalWidth += UDim.new(if Width <= 1 then math.clamp(Width, 0.005, 1) else 0, if Width > 1 then math.max(Width, 2 * Iris._config.CellPadding.X) else 0)
+            --     TotalWidth += UDim.new(if Width <= 1 then math.clamp(Width, 0.005, 1) else 0, if Width > 1 then math.max(Width, 0) else 0)
             --     if Width <= 1 then
             --         NumStretch += 1
             --     end
