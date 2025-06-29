@@ -95,42 +95,51 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
 
         local widths = ActiveTable.state.widths
-        local Columns = ActiveTable.arguments.NumColumns
+        local NumColumns = ActiveTable.arguments.NumColumns
         local Table = ActiveTable.Instance :: Frame
         local BorderContainer = Table.BorderContainer :: Frame
+        local Fixed = ActiveTable.arguments.FixedWidth
+        local Padding = 2 * Iris._config.CellPadding.X
 
         if ActiveLeftWidth == -1 then
             ActiveLeftWidth = widths.value[ActiveColumn]
+            if ActiveLeftWidth == 0 then
+                ActiveLeftWidth = Padding / Table.AbsoluteSize.X
+            end
             ActiveRightWidth = widths.value[ActiveColumn + 1] or -1
+            if ActiveRightWidth == 0 then
+                ActiveRightWidth = Padding / Table.AbsoluteSize.X
+            end
         end
-        local TableX: number = BorderContainer.AbsolutePosition.X - widgets.GuiOffset.X
-        local DeltaX: number = widgets.getMouseLocation().X - MousePositionX
 
+        local BorderX = BorderContainer.AbsolutePosition.X
         local LeftX: number -- the start of the current column
-        local CurrentX: number = BorderContainer:FindFirstChild(`Border_{ActiveColumn}`).AbsolutePosition.X + 2.5 - BorderContainer.AbsolutePosition.X -- the current column position
+        local CurrentX: number = BorderContainer:FindFirstChild(`Border_{ActiveColumn}`).AbsolutePosition.X + 3 - BorderX -- the current column position
         local RightX: number -- the end of the next column
         if ActiveColumn == 1 then
             LeftX = 0
         else
-            LeftX = BorderContainer:FindFirstChild(`Border_{ActiveColumn - 1}`).AbsolutePosition.X + 2.5 - BorderContainer.AbsolutePosition.X
+            LeftX = math.floor(BorderContainer:FindFirstChild(`Border_{ActiveColumn - 1}`).AbsolutePosition.X + 3 - BorderX)
         end
-        if ActiveColumn == Columns then
+        if ActiveColumn >= NumColumns - 1 then
             RightX = BorderContainer.AbsoluteSize.X
         else
-            RightX = BorderContainer:FindFirstChild(`Border_{ActiveColumn + 1}`).AbsolutePosition.X + 2.5 - BorderContainer.AbsolutePosition.X
+            RightX = math.floor(BorderContainer:FindFirstChild(`Border_{ActiveColumn + 1}`).AbsolutePosition.X + 3 - BorderX)
         end
 
-        local Padding = 0
-        local LeftStretch = ActiveLeftWidth <= 1
+        local TableX: number = BorderX - widgets.GuiOffset.X
+        local DeltaX: number = math.clamp(widgets.getMouseLocation().X, LeftX + TableX + Padding, RightX + TableX - Padding) - MousePositionX
         local LeftOffset = (MousePositionX - TableX) - LeftX
         local LeftRatio = ActiveLeftWidth / LeftOffset
 
-        if LeftStretch then
-            local Change = LeftRatio * DeltaX
-            widths.value[ActiveColumn] = math.clamp(ActiveLeftWidth + Change, 0.005, 1.000)
+        if Fixed then
+            widths.value[ActiveColumn] = math.clamp(math.round(ActiveLeftWidth + DeltaX), Padding, Table.AbsoluteSize.X - LeftX)
         else
-            local Next = Columns - ActiveColumn
-            widths.value[ActiveColumn] = math.clamp(math.round(ActiveLeftWidth + DeltaX), Padding, Table.AbsoluteSize.X - LeftX - (Next * 0) - Next)
+            local Change = LeftRatio * DeltaX
+            widths.value[ActiveColumn] = math.clamp(ActiveLeftWidth + Change, 0, (RightX - LeftX - Padding) / Table.AbsoluteSize.X)
+            if ActiveColumn < NumColumns then
+                widths.value[ActiveColumn + 1] = math.clamp(ActiveRightWidth - Change, 0, 1)
+            end
         end
 
         widths:set(widths.value, true)
@@ -171,6 +180,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         if header then
             Cell = Instance.new("TextButton")
             Cell.Text = ""
+            Cell.AutoButtonColor = false
         else
             Cell = (Instance.new("Frame") :: GuiObject) :: TextButton
         end
@@ -203,7 +213,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local function GenerateColumnBorder(thisWidget: Types.Table, index: number, style: "Light" | "Strong")
         local Border = Instance.new("ImageButton")
         Border.Name = `Border_{index}`
-        Border.AnchorPoint = Vector2.new(0.5, 0)
         Border.Size = UDim2.new(0, 5, 1, 0)
         Border.BackgroundTransparency = 1
         Border.AutoButtonColor = false
@@ -214,9 +223,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
         local Line = Instance.new("Frame")
         Line.Name = "Line"
-        Line.AnchorPoint = Vector2.new(0.5, 0)
         Line.Size = UDim2.new(0, 1, 1, 0)
-        Line.Position = UDim2.fromScale(0.5, 0)
+        Line.Position = UDim2.fromOffset(2, 0)
         Line.BackgroundColor3 = Iris._config[`TableBorder{style}Color`]
         Line.BackgroundTransparency = Iris._config[`TableBorder{style}Transparency`]
         Line.BorderSizePixel = 0
@@ -225,9 +233,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
         local Hover = Instance.new("Frame")
         Hover.Name = "Hover"
-        Hover.AnchorPoint = Vector2.new(0.5, 0)
         Hover.Size = UDim2.new(0, 1, 1, 0)
-        Hover.Position = UDim2.fromScale(0.5, 0)
+        Hover.Position = UDim2.fromOffset(2, 0)
         Hover.BackgroundColor3 = Iris._config[`TableBorder{style}Color`]
         Hover.BackgroundTransparency = Iris._config[`TableBorder{style}Transparency`]
         Hover.BorderSizePixel = 0
@@ -390,24 +397,30 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             return Table
         end,
         GenerateState = function(thisWidget: Types.Table)
+            local NumColumns = thisWidget.arguments.NumColumns
             if thisWidget.state.widths == nil then
-                local Widths: { number } = table.create(thisWidget.arguments.NumColumns, 1 / thisWidget.arguments.NumColumns)
+                local Widths: { number } = table.create(NumColumns, 1 / NumColumns)
                 thisWidget.state.widths = Iris._widgetState(thisWidget, "widths", Widths)
             end
-            thisWidget.Widths = table.create(thisWidget.arguments.NumColumns, UDim.new())
-            thisWidget.MinWidths = table.create(thisWidget.arguments.NumColumns, 0)
+            thisWidget.Widths = table.create(NumColumns, UDim.new())
+            thisWidget.MinWidths = table.create(NumColumns, 0)
 
             local Table = thisWidget.Instance :: Frame
             local BorderContainer: Frame = Table.BorderContainer
 
-            thisWidget.CellInstances[-1] = table.create(thisWidget.arguments.NumColumns)
-            for index = 1, thisWidget.arguments.NumColumns do
+            thisWidget.CellInstances[-1] = table.create(NumColumns)
+            for index = 1, NumColumns do
                 local Border = GenerateColumnBorder(thisWidget, index, "Light")
                 Border.Visible = thisWidget.arguments.InnerBorders
                 thisWidget.ColumnBorders[index] = Border
                 Border.Parent = BorderContainer
 
                 local Cell = GenerateCell(thisWidget, index, thisWidget.Widths[index], false)
+                local UISizeConstraint = Cell:FindFirstChild("UISizeConstraint") :: UISizeConstraint
+                UISizeConstraint.MinSize = Vector2.new(
+                    2 * Iris._config.CellPadding.X + (if index > 1 then -2 else 0) + (if index < NumColumns then -3 else 0),
+                    0
+                )
                 Cell.LayoutOrder = 2 * index - 1
                 thisWidget.CellInstances[-1][index] = Cell
                 Cell.Parent = BorderContainer
@@ -536,26 +549,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
 
                 thisWidget.CellInstances[-1][index].Size = UDim2.new(Width + UDim.new(0,
-                    (if index > 1 then -2.5 else 0) +
-                    (if index < NumColumns then -2.5 else 0)
+                    (if index > 1 then -2 else 0) +
+                    (if index < NumColumns then -3 else 0)
                 ), UDim.new())
             end
-
-            -- -- we split the space between fixed and stretch width
-            -- -- we calculate the total width, so we can remove any fixed offsets from the stretch
-            -- -- the applied order is fixed, then scale the remaining space
-            -- local TotalWidth: UDim = UDim.new()
-            -- local NumStretch: number = 0
-            -- for index = 1, thisWidget.arguments.NumColumns do
-            --     local Width: number = ColumnWidths[index]
-            --     TotalWidth += UDim.new(if Width <= 1 then math.clamp(Width, 0.005, 1) else 0, if Width > 1 then math.max(Width, 0) else 0)
-            --     if Width <= 1 then
-            --         NumStretch += 1
-            --     end
-            -- end
-
-            -- -- how much to remove to account for the absolute widths
-            -- local FixedOffset: number = if NumStretch == 0 then 0 else TotalWidth.Offset * TotalWidth.Scale / NumStretch
         end,
         ChildAdded = function(thisWidget: Types.Table, thisChild: Types.Widget)
             local rowIndex = thisWidget.RowIndex
