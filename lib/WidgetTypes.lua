@@ -490,16 +490,16 @@ export type PlotHistogram = Widget & {
 } & Hovered
 
 export type Table = ParentWidget & {
-    ColumnIndex: number,
-    RowIndex: number,
-    RowContainer: Frame,
-    RowInstances: { Frame },
-    CellInstances: { { Frame } },
-    RowBorders: { Frame },
-    ColumnBorders: { GuiButton },
-    RowCycles: { number },
-    Widths: { UDim },
-    MinWidths: { number },
+    _columnIndex: number,
+    _rowIndex: number,
+    _rowContainer: Frame,
+    _rowInstances: { Frame },
+    _cellInstances: { { Frame } },
+    _rowBorders: { Frame },
+    _columnBorders: { GuiButton },
+    _rowCycles: { number },
+    _widths: { UDim },
+    _minWidths: { number },
 
     arguments: {
         NumColumns: number,

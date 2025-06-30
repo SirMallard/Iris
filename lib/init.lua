@@ -294,10 +294,12 @@ function Iris.PushConfig(deltaStyle: { [string]: any })
         -- compare tables
         if Internal._deepCompare(ID:get(), deltaStyle) == false then
             -- refresh local
-            Internal._localRefreshActive = true
             ID:set(deltaStyle)
+            Internal._refreshStack[Internal._refreshLevel] = true
+            Internal._refreshCounter += 1
         end
     end
+    Internal._refreshLevel += 1
 
     Internal._config = setmetatable(deltaStyle, {
         __index = Internal._config,
@@ -313,7 +315,12 @@ end
     Each call to [Iris.PopConfig] should match a call to [Iris.PushConfig].
 ]=]
 function Iris.PopConfig()
-    Internal._localRefreshActive = false
+    Internal._refreshLevel -= 1
+    if Internal._refreshStack[Internal._refreshLevel] == true then
+        Internal._refreshCounter -= 1
+        Internal._refreshStack[Internal._refreshLevel] = nil
+    end
+
     Internal._config = getmetatable(Internal._config :: any).__index
 end
 

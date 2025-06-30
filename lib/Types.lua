@@ -205,7 +205,9 @@ export type Internal = {
 
     -- Refresh
     _globalRefreshRequested: boolean,
-    _localRefreshActive: boolean,
+    _refreshCounter: number,
+    _refreshLevel: number,
+    _refreshStack: { boolean },
 
     -- Widgets & Instances
     _widgets: { [string]: WidgetClass },

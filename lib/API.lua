@@ -2,8 +2,8 @@ local Types = require(script.Parent.Types)
 
 return function(Iris: Types.Iris)
     -- basic wrapper for nearly every widget, saves space.
-    local function wrapper(name: string)
-        return function(arguments: Types.WidgetArguments?, states: Types.WidgetStates?): Types.Widget
+    local function wrapper(name)
+        return function(arguments, states)
             return Iris.Internal._Insert(name, arguments, states)
         end
     end
@@ -1905,14 +1905,14 @@ return function(Iris: Types.Iris)
         local Table = Iris.Internal._GetParentWidget() :: Types.Table
         assert(Table ~= nil, "Iris.NextColumn() can only called when directly within a table.")
 
-        local columnIndex = Table.ColumnIndex
+        local columnIndex = Table._columnIndex
         if columnIndex == Table.arguments.NumColumns then
-            Table.ColumnIndex = 1
-            Table.RowIndex += 1
+            Table._columnIndex = 1
+            Table._rowIndex += 1
         else
-            Table.ColumnIndex += 1
+            Table._columnIndex += 1
         end
-        return Table.ColumnIndex
+        return Table._columnIndex
     end
 
     --[=[
@@ -1925,9 +1925,9 @@ return function(Iris: Types.Iris)
     Iris.NextRow = function(): number
         local Table = Iris.Internal._GetParentWidget() :: Types.Table
         assert(Table ~= nil, "Iris.NextRow() can only called when directly within a table.")
-        Table.ColumnIndex = 1
-        Table.RowIndex += 1
-        return Table.RowIndex
+        Table._columnIndex = 1
+        Table._rowIndex += 1
+        return Table._rowIndex
     end
 
     --[=[
@@ -1941,24 +1941,24 @@ return function(Iris: Types.Iris)
         local Table = Iris.Internal._GetParentWidget() :: Types.Table
         assert(Table ~= nil, "Iris.SetColumnIndex() can only called when directly within a table.")
         assert((index >= 1) and (index <= Table.arguments.NumColumns), `The index must be between 1 and {Table.arguments.NumColumns}, inclusive.`)
-        Table.ColumnIndex = index
+        Table._columnIndex = index
     end
 
     Iris.SetRowIndex = function(index: number): ()
         local Table = Iris.Internal._GetParentWidget() :: Types.Table
         assert(Table ~= nil, "Iris.SetRowIndex() can only called when directly within a table.")
         assert(index >= 1, "The index must be greater or equal to 1.")
-        Table.RowIndex = index
+        Table._rowIndex = index
     end
 
     Iris.NextHeaderColumn = function(): number
         local Table = Iris.Internal._GetParentWidget() :: Types.Table
         assert(Table ~= nil, "Iris.NextHeaderColumn() can only called when directly within a table.")
 
-        Table.RowIndex = 0
-        Table.ColumnIndex = (Table.ColumnIndex % Table.arguments.NumColumns) + 1
+        Table._rowIndex = 0
+        Table._columnIndex = (Table._columnIndex % Table.arguments.NumColumns) + 1
 
-        return Table.ColumnIndex
+        return Table._columnIndex
     end
 
     Iris.SetHeaderColumnIndex = function(index: number): ()
@@ -1966,8 +1966,8 @@ return function(Iris: Types.Iris)
         assert(Table ~= nil, "Iris.SetHeaderColumnIndex() can only called when directly within a table.")
         assert((index >= 1) and (index <= Table.arguments.NumColumns), `The index must be between 1 and {Table.arguments.NumColumns}, inclusive.`)
 
-        Table.RowIndex = 0
-        Table.ColumnIndex = index
+        Table._rowIndex = 0
+        Table._columnIndex = index
     end
 
     Iris.SetColumnWidth = function(index: number, width: UDim): ()

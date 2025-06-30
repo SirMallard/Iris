@@ -25,7 +25,9 @@ return function(Iris: Types.Iris): Types.Internal
 
     -- Refresh
     Internal._globalRefreshRequested = false -- refresh means that all GUI is destroyed and regenerated, usually because a style change was made and needed to be propogated to all UI
-    Internal._localRefreshActive = false -- if true, when _Insert is called, the widget called will be regenerated
+    Internal._refreshCounter = 0 -- if true, when _Insert is called, the widget called will be regenerated
+    Internal._refreshLevel = 1
+    Internal._refreshStack = table.create(16)
 
     -- Widgets & Instances
     Internal._widgets = {}
@@ -469,7 +471,7 @@ return function(Iris: Types.Iris): Types.Internal
         local lastWidget: Types.Widget? = Internal._lastVDOM[ID]
         if lastWidget and widgetType == lastWidget.type then
             -- found a matching widget from last frame.
-            if Internal._localRefreshActive then
+            if Internal._refreshCounter > 0 then
                 -- we are redrawing every widget.
                 Internal._DiscardWidget(lastWidget)
                 lastWidget = nil
@@ -496,7 +498,7 @@ return function(Iris: Types.Iris): Types.Internal
         -- since rows are not instances, but will be removed if not updated, we have to add specific table code.
         if parentWidget.type == "Table" then
             local Table = parentWidget :: Types.Table
-            Table.RowCycles[Table.RowIndex] = Internal._cycleTick
+            Table._rowCycles[Table._rowIndex] = Internal._cycleTick
         end
 
         if Internal._deepCompare(thisWidget.providedArguments, arguments) == false then
