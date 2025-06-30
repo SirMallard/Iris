@@ -50,7 +50,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end
 
-        thisWidget.MinWidths[index] = width
+        thisWidget.MinWidths[index] = width + 2 * Iris._config.CellPadding.X
     end
 
     table.insert(Iris._postCycleCallbacks, function()
@@ -79,6 +79,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local Table = thisWidget.Instance :: Frame
             local BorderContainer: Frame = Table.BorderContainer
             BorderContainer.Size = UDim2.new(1, 0, 0, thisWidget.RowContainer.AbsoluteSize.Y)
+            thisWidget.ColumnBorders[0].Size = UDim2.new(0, 5, 0, thisWidget.RowContainer.AbsoluteSize.Y)
         end
 
         for thisWidget, columns in TableMinWidths do
@@ -112,7 +113,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end
 
-        local BorderX = BorderContainer.AbsolutePosition.X
+        local BorderX = Table.AbsolutePosition.X
         local LeftX: number -- the start of the current column
         local CurrentX: number = BorderContainer:FindFirstChild(`Border_{ActiveColumn}`).AbsolutePosition.X + 3 - BorderX -- the current column position
         local RightX: number -- the end of the next column
@@ -122,7 +123,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             LeftX = math.floor(BorderContainer:FindFirstChild(`Border_{ActiveColumn - 1}`).AbsolutePosition.X + 3 - BorderX)
         end
         if ActiveColumn >= NumColumns - 1 then
-            RightX = BorderContainer.AbsoluteSize.X
+            RightX = Table.AbsoluteSize.X
         else
             RightX = math.floor(BorderContainer:FindFirstChild(`Border_{ActiveColumn + 1}`).AbsolutePosition.X + 3 - BorderX)
         end
@@ -221,10 +222,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Border.ZIndex = index
         Border.LayoutOrder = 2 * index
 
+        local offset = if index == thisWidget.arguments.NumColumns then 3 else 2
+
         local Line = Instance.new("Frame")
         Line.Name = "Line"
         Line.Size = UDim2.new(0, 1, 1, 0)
-        Line.Position = UDim2.fromOffset(2, 0)
+        Line.Position = UDim2.fromOffset(offset, 0)
         Line.BackgroundColor3 = Iris._config[`TableBorder{style}Color`]
         Line.BackgroundTransparency = Iris._config[`TableBorder{style}Transparency`]
         Line.BorderSizePixel = 0
@@ -234,7 +237,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         local Hover = Instance.new("Frame")
         Hover.Name = "Hover"
         Hover.Size = UDim2.new(0, 1, 1, 0)
-        Hover.Position = UDim2.fromOffset(2, 0)
+        Hover.Position = UDim2.fromOffset(offset, 0)
         Hover.BackgroundColor3 = Iris._config[`TableBorder{style}Color`]
         Hover.BackgroundTransparency = Iris._config[`TableBorder{style}Transparency`]
         Hover.BorderSizePixel = 0
@@ -334,6 +337,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Resizable = 6,
             FixedWidth = 7,
             ProportionalWidth = 8,
+            LimitTableWidth = 9,
         },
         Events = {},
         Generate = function(thisWidget: Types.Table)
@@ -355,6 +359,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             RowContainer.BackgroundTransparency = 1
             RowContainer.ZIndex = 1
 
+            widgets.UISizeConstraint(RowContainer)
             widgets.UIListLayout(RowContainer, Enum.FillDirection.Vertical, UDim.new())
 
             RowContainer.Parent = Table
@@ -367,8 +372,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             BorderContainer.ZIndex = 2
             BorderContainer.ClipsDescendants = true
 
+            widgets.UISizeConstraint(BorderContainer)            
             widgets.UIListLayout(BorderContainer, Enum.FillDirection.Horizontal, UDim.new())
-            
             widgets.UIStroke(BorderContainer, 1, Iris._config.TableBorderStrongColor, Iris._config.TableBorderStrongTransparency)
 
             BorderContainer.Parent = Table
@@ -425,6 +430,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 thisWidget.CellInstances[-1][index] = Cell
                 Cell.Parent = BorderContainer
             end
+
+            local TableColumnBorder = GenerateColumnBorder(thisWidget, NumColumns, "Strong")
+            thisWidget.ColumnBorders[0] = TableColumnBorder
+            TableColumnBorder.Parent = Table
         end,
         Update = function(thisWidget: Types.Table)
             local NumColumns = thisWidget.arguments.NumColumns
@@ -435,7 +444,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 -- redraw the entire widget
             end
 
-            for rowIndex: number, row: Frame in thisWidget.RowInstances do
+            for rowIndex, row in thisWidget.RowInstances do
                 if rowIndex == 0 then
                     row.BackgroundColor3 = Iris._config.TableHeaderColor
                     row.BackgroundTransparency = Iris._config.TableHeaderTransparency
@@ -460,11 +469,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Border.Visible = thisWidget.arguments.InnerBorders
             end
 
-            for _, border in thisWidget.ColumnBorders do
+            for index, border in thisWidget.ColumnBorders do
                 local hover = border:FindFirstChild("Hover") :: Frame?
                 if hover then
                     hover.Visible = thisWidget.arguments.Resizable
                 end
+
+            end
+
+            if thisWidget.ColumnBorders[NumColumns] ~= nil then
+                thisWidget.ColumnBorders[NumColumns].Visible = not thisWidget.arguments.LimitTableWidth and (not thisWidget.arguments.ProportionalWidth or thisWidget.arguments.Resizable)
+                thisWidget.ColumnBorders[0].Visible = thisWidget.arguments.LimitTableWidth
             end
             
             -- the header border visibility must be updated after settings all borders
@@ -491,6 +506,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         UpdateState = function(thisWidget: Types.Table)
+            local Table = thisWidget.Instance :: Frame
+            local BorderContainer = Table.BorderContainer :: Frame
+            local RowContainer = Table.RowContainer :: Frame
             local NumColumns = thisWidget.arguments.NumColumns
             local ColumnWidths = thisWidget.state.widths.value
             local MinWidths = thisWidget.MinWidths
@@ -542,17 +560,33 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 )
                 thisWidget.Widths[index] = Width
                 Position += Width
-                thisWidget.ColumnBorders[index].Position = UDim2.new(Position, UDim.new())
 
                 for _, row in thisWidget.CellInstances do
                     row[index].Size = UDim2.new(Width, UDim.new())
                 end
 
                 thisWidget.CellInstances[-1][index].Size = UDim2.new(Width + UDim.new(0,
-                    (if index > 1 then -2 else 0) +
-                    (if index < NumColumns then -3 else 0)
+                    (if index > 1 then -2 else 0) - 3
                 ), UDim.new())
             end
+
+            -- if the table has a fixed width and we want to cap it, we calculate the table width necessary
+            local Width = Position.Offset
+            if not thisWidget.arguments.FixedWidth or not thisWidget.arguments.LimitTableWidth then
+                Width = math.huge
+            end
+
+            BorderContainer.UISizeConstraint.MaxSize = Vector2.new(Width, math.huge)
+            RowContainer.UISizeConstraint.MaxSize = Vector2.new(Width, math.huge)
+            thisWidget.ColumnBorders[0].Position = UDim2.new(0, Width - 3, 0, 0)
+
+            -- for _, row in thisWidget.RowInstances do
+            --     row.Size = Width
+            -- end
+            -- for _, border in thisWidget.RowBorders do
+            --     border.Size = Width
+            -- end
+            -- BorderContainer.Size = UDim2.new(Position, BorderContainer.Size.Y)
         end,
         ChildAdded = function(thisWidget: Types.Table, thisChild: Types.Widget)
             local rowIndex = thisWidget.RowIndex

@@ -510,6 +510,7 @@ export type Table = ParentWidget & {
         Resizable: boolean,
         FixedWidth: boolean,
         ProportionalWidth: boolean,
+        LimitTableWidth: boolean,
     },
 
     state: {
