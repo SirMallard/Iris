@@ -31,7 +31,7 @@ local Types = require(script.Parent.Parent.Types)
 
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local Tables: { [Types.ID]: Types.Table } = {}
-    local TableMinWidths: { [Types.Table]: { number } } = {}
+    local TableMinWidths: { [Types.Table]: { boolean } } = {}
     local AnyActiveTable = false
     local ActiveTable: Types.Table? = nil
     local ActiveColumn = 0
@@ -83,10 +83,16 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
 
         for thisWidget, columns in TableMinWidths do
-            for _, column in columns do
+            local refresh = false
+            for column, _ in columns do
                 CalculateMinColumnWidth(thisWidget, column)
+                refresh = true
             end
-            table.clear(columns)
+            if refresh then
+                table.clear(columns)
+                print(thisWidget._minWidths)
+                Iris._widgets["Table"].UpdateState(thisWidget)
+            end
         end
     end)
 
@@ -293,7 +299,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
         thisWidget._cellInstances[index] = table.create(thisWidget.arguments.NumColumns)
         for columnIndex = 1, thisWidget.arguments.NumColumns do
-            local Cell = GenerateCell(thisWidget, columnIndex, thisWidget._widths[index], index == 0)
+            local Cell = GenerateCell(thisWidget, columnIndex, thisWidget._widths[columnIndex], index == 0)
             Cell.Parent = Row
             thisWidget._cellInstances[index][columnIndex] = Cell
         end
@@ -442,6 +448,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             if thisWidget._widths ~= nil and #thisWidget._widths ~= NumColumns then
                 -- disallow changing the number of columns. It's too much effort
                 thisWidget.arguments.NumColumns = #thisWidget._widths
+                warn("NumColumns cannot change once set. See documentation.")
             end
 
             for rowIndex, row in thisWidget._rowInstances do
@@ -466,7 +473,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
 
             for _, Border: GuiButton in thisWidget._columnBorders do
-                Border.Visible = thisWidget.arguments.InnerBorders
+                Border.Visible = thisWidget.arguments.InnerBorders or thisWidget.arguments.Resizable
             end
 
             for index, border in thisWidget._columnBorders do
@@ -477,8 +484,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
 
             if thisWidget._columnBorders[NumColumns] ~= nil then
-                thisWidget._columnBorders[NumColumns].Visible = not thisWidget.arguments.LimitTableWidth and (not thisWidget.arguments.ProportionalWidth or thisWidget.arguments.Resizable)
-                thisWidget._columnBorders[0].Visible = thisWidget.arguments.LimitTableWidth
+                thisWidget._columnBorders[NumColumns].Visible =
+                    not thisWidget.arguments.LimitTableWidth and (thisWidget.arguments.Resizable or thisWidget.arguments.InnerBorders)
+                thisWidget._columnBorders[0].Visible =
+                    thisWidget.arguments.LimitTableWidth and (thisWidget.arguments.Resizable or thisWidget.arguments.OuterBorders)
             end
             
             -- the header border visibility must be updated after settings all borders
@@ -489,7 +498,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 HeaderRow.Visible = thisWidget.arguments.Header
             end
             if HeaderBorder ~= nil then
-                HeaderBorder.Visible = thisWidget.arguments.Header
+                HeaderBorder.Visible = thisWidget.arguments.Header and thisWidget.arguments.InnerBorders
             end
 
             local Table = thisWidget.Instance :: Frame
@@ -497,7 +506,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             BorderContainer.UIStroke.Enabled = thisWidget.arguments.OuterBorders
 
             for index = 1, thisWidget.arguments.NumColumns do
-                table.insert(TableMinWidths[thisWidget], index)
+                TableMinWidths[thisWidget][index] = true
             end
 
             if thisWidget._widths ~= nil then
@@ -598,12 +607,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             if rowIndex > 0 then
                 local Border = GenerateRowBorder(thisWidget, rowIndex - 1, if rowIndex == 1 then "Strong" else "Light")
-                Border.Visible = thisWidget.arguments.InnerBorders and (if rowIndex == 1 then thisWidget.arguments.Header and (thisWidget._rowInstances[0] ~= nil) else true)
+                Border.Visible = thisWidget.arguments.InnerBorders and (if rowIndex == 1 then (thisWidget.arguments.Header and thisWidget.arguments.InnerBorders) and (thisWidget._rowInstances[0] ~= nil) else true)
                 thisWidget._rowBorders[rowIndex - 1] = Border
                 Border.Parent = thisWidget._rowContainer
             end
 
-            table.insert(TableMinWidths[thisWidget], columnIndex)
+            TableMinWidths[thisWidget][columnIndex] = true
 
             return thisWidget._cellInstances[rowIndex][columnIndex]
         end,
@@ -614,7 +623,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 local columnIndex = tonumber(Cell.Name:sub(6))
                 
                 if columnIndex then
-                    table.insert(TableMinWidths[thisWidget], columnIndex)
+                    TableMinWidths[thisWidget][columnIndex] = true
                 end
             end
         end,

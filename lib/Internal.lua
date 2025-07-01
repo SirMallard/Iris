@@ -219,7 +219,7 @@ return function(Iris: Types.Iris): Types.Internal
             Iris.ForceRefresh()
         end
 
-        for _, widget: Types.Widget in Internal._lastVDOM do
+        for _, widget in Internal._lastVDOM do
             if widget.lastCycleTick ~= Internal._cycleTick and (widget.lastCycleTick ~= -1) then
                 -- a widget which used to be rendered was not called last frame, so we discard it.
                 -- if the cycle tick is -1 we have already discarded it.
@@ -235,7 +235,7 @@ return function(Iris: Types.Iris): Types.Internal
 
         -- anything that wnats to run before the frame.
         task.spawn(function()
-            for _, callback: () -> () in Internal._postCycleCallbacks do
+            for _, callback in Internal._postCycleCallbacks do
                 callback()
             end
         end)
@@ -245,7 +245,7 @@ return function(Iris: Types.Iris): Types.Internal
             --debug.profilebegin("Iris Refresh")
             Internal._generateSelectionImageObject()
             Internal._globalRefreshRequested = false
-            for _, widget: Types.Widget in Internal._lastVDOM do
+            for _, widget in Internal._lastVDOM do
                 Internal._DiscardWidget(widget)
             end
             Internal._generateRootInstance()
@@ -269,7 +269,7 @@ return function(Iris: Types.Iris): Types.Internal
         -- if we are running in Studio, we want full error tracebacks, so we don't have
         -- any pcall to protect from an error.
         if Internal._fullErrorTracebacks then
-            for _, callback: () -> () in Internal._connectedFunctions do
+            for _, callback in Internal._connectedFunctions do
                 callback()
             end
         else

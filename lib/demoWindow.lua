@@ -1261,61 +1261,158 @@ return function(Iris: Types.Iris)
             -- Dear ImGui utilizes the same trick, but its less useful here because the Retained mode Backend
             Iris.End()
         else
-            Iris.SameLine()
+            Iris.Tree({ "Basic" })
             do
-                Iris.Text({ "Table using NextRow and NextColumn syntax:" })
-                helpMarker("calling Iris.NextRow() in the outer loop, and Iris.NextColumn()in the inner loop")
-            end
-            Iris.End()
+                Iris.SameLine()
+                do
+                    Iris.Text({ "Table using NextColumn syntax:" })
+                    helpMarker("calling Iris.NextColumn() in the inner loop,\nwhich automatically goes to the next row at the end.")
+                end
+                Iris.End()
 
-            Iris.Table({ 3 })
-            do
-                for i = 1, 4 do
-                    for i2 = 1, 3 do
-                        Iris.Text({ `Row: {i}, Column: {i2}` })
-                        Iris.NextColumn()
+                Iris.Table({ 3 })
+                do
+                    for i = 1, 4 do
+                        for i2 = 1, 3 do
+                            Iris.Text({ `Row: {i}, Column: {i2}` })
+                            Iris.NextColumn()
+                        end
                     end
                 end
-            end
-            Iris.End()
+                Iris.End()
 
-            Iris.Text({ "" })
+                Iris.Text({ "" })
 
-            Iris.SameLine()
-            do
-                Iris.Text({ "Table using NextColumn only syntax:" })
-                helpMarker("only calling Iris.NextColumn() in the inner loop, the result is identical")
-            end
-            Iris.End()
+                Iris.SameLine()
+                do
+                    Iris.Text({ "Table using NextColumn and NextRow syntax:" })
+                    helpMarker("Calling Iris.NextColumn() in the inner loop and Iris.NextRow() in the outer loop,\nto acehieve a visually identical result. Technically they are not the same.")
+                end
+                Iris.End()
 
-            Iris.Table({ 2 })
-            do
-                for i = 1, 4 do
-                    for i2 = 1, 2 do
-                        Iris.Text({ `Row: {i}, Column: {i2}` })
-                        Iris.NextColumn()
+                Iris.Table({ 3 })
+                do
+                    for j = 1, 4 do
+                        for i = 1, 3 do
+                            Iris.Text({ `Row: {j}, Column: {i}` })
+                            Iris.NextColumn()
+                        end
+                        Iris.NextRow()
                     end
                 end
+                Iris.End()
             end
             Iris.End()
 
-            Iris.Separator()
+            Iris.Tree({ "Headers, borders and backgrounds" })
+            do
+                local Type = Iris.State(0)
+                local Header = Iris.State(false)
+                local RowBackgrounds = Iris.State(false)
+                local OuterBorders = Iris.State(true)
+                local InnerBorders = Iris.State(true)
 
-            local TableRowBg = Iris.State(false)
-            local TableBordersOuter = Iris.State(false)
-            local TableBordersInner = Iris.State(true)
+                Iris.Checkbox({ "Table header row" }, { isChecked = Header })
+                Iris.Checkbox({ "Table row backgrounds" }, { isChecked = RowBackgrounds })
+                Iris.Checkbox({ "Table outer border" }, { isChecked = OuterBorders })
+                Iris.Checkbox({ "Table inner borders" }, { isChecked = InnerBorders })
+                Iris.SameLine()
+                do
+                    Iris.Text({ "Cell contents" })
+                    Iris.RadioButton({ "Text", 0 }, { index = Type })
+                    Iris.RadioButton({ "Fill button", 1 }, { index = Type })
+                end
+                Iris.End()
+
+                Iris.Table({ 3, Header.value, RowBackgrounds.value, OuterBorders.value, InnerBorders.value })
+                do
+                    Iris.SetHeaderColumnIndex(1)
+                    for j = 0, 4 do
+                        for i = 1, 3 do
+                            if Type.value == 0 then
+                                Iris.Text({ `Cell ({i}, {j})` })
+                            else
+                                Iris.Button({ `Cell ({i}, {j})`, UDim2.fromScale(1, 0) })
+                            end
+                            Iris.NextColumn()
+                        end
+                    end
+                end
+                Iris.End()
+            end
+            Iris.End()
+
+            Iris.Tree({ "Sizing" })
+            do
+                local Resizable = Iris.State(false)
+                Iris.Checkbox({ "Resizable" }, { isChecked = Resizable })
+
+                Iris.SeparatorText({ "stretch, equal" })
+                Iris.Table({ 3, false, true, true, true, Resizable.value })
+                do
+                    for j = 1, 3 do
+                        for i = 1, 3 do
+                            Iris.Text({ "stretch" })
+                            Iris.NextColumn()
+                        end
+                    end
+                end
+                Iris.End()
+                Iris.Table({ 3, false, true, true, true, Resizable.value })
+                do
+                    for j = 1, 3 do
+                        for i = 1, 3 do
+                            Iris.Text({ string.rep(string.char(64 + i), 4 * i) })
+                            Iris.NextColumn()
+                        end
+                    end
+                end
+                Iris.End()
+
+                Iris.SeparatorText({ "stretch, proportional" })
+                Iris.Table({ 3, false, true, true, true, Resizable.value, false, true })
+                do
+                    for j = 1, 3 do
+                        for i = 1, 3 do
+                            Iris.Text({ "stretch" })
+                            Iris.NextColumn()
+                        end
+                    end
+                end
+                Iris.End()
+                Iris.Table({ 3, false, true, true, true, Resizable.value, false, true })
+                do
+                    for j = 1, 3 do
+                        for i = 1, 3 do
+                            Iris.Text({ string.rep(string.char(64 + i), 4 * i) })
+                            Iris.NextColumn()
+                        end
+                    end
+                end
+                Iris.End()
+            end
+            Iris.End()
+
+            Iris.Tree({ "Resizable" })
+            do
+            end
+            Iris.End()
+
+            local NumRows = Iris.State(3)
+            local RowBackground = Iris.State(false)
+            local OuterBorders = Iris.State(false)
+            local InnerBorders = Iris.State(true)
             local TableUseButtons = Iris.State(true)
-            local TableNumRows = Iris.State(3)
 
             Iris.Text({ "Table with Customizable Arguments" })
             Iris.Table({
                 [Iris.Args.Table.NumColumns] = 4,
-                [Iris.Args.Table.RowBackground] = TableRowBg.value,
-                [Iris.Args.Table.OuterBorders] = TableBordersOuter.value,
-                [Iris.Args.Table.InnerBorders] = TableBordersInner.value,
+                [Iris.Args.Table.RowBackground] = RowBackground.value,
+                [Iris.Args.Table.OuterBorders] = OuterBorders.value,
+                [Iris.Args.Table.InnerBorders] = InnerBorders.value,
             })
             do
-                for i = 1, TableNumRows:get() do
+                for i = 1, NumRows:get() do
                     for i2 = 1, 4 do
                         if TableUseButtons.value then
                             Iris.Button({ `Month: {i}, Week: {i2}` })
@@ -1328,9 +1425,9 @@ return function(Iris: Types.Iris)
             end
             Iris.End()
 
-            Iris.Checkbox({ "RowBg" }, { isChecked = TableRowBg })
-            Iris.Checkbox({ "BordersOuter" }, { isChecked = TableBordersOuter })
-            Iris.Checkbox({ "BordersInner" }, { isChecked = TableBordersInner })
+            Iris.Checkbox({ "RowBg" }, { isChecked = RowBackground })
+            Iris.Checkbox({ "BordersOuter" }, { isChecked = OuterBorders })
+            Iris.Checkbox({ "BordersInner" }, { isChecked = InnerBorders })
 
             Iris.SameLine()
             do
@@ -1344,7 +1441,7 @@ return function(Iris: Types.Iris)
                 [Iris.Args.InputNum.Min] = 0,
                 [Iris.Args.InputNum.Max] = 100,
                 [Iris.Args.InputNum.Format] = "%d",
-            }, { number = TableNumRows })
+            }, { number = NumRows })
 
             Iris.End()
         end
