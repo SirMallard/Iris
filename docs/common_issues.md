@@ -8,7 +8,7 @@ When using Iris you may run into different issues. The most common ones are expl
 below and explain why the issue arises and how to fix it.
 
 ## Iris.Init() can only be called once.
-:::danger[Error]
+:::danger Error
 `Iris.Init() can only be called once.`
 :::
 
@@ -45,7 +45,7 @@ order and therefore any client-wide initialisation can happen before anything th
 relies on it does.
 
 ## Iris:Connect() was called before calling Iris.Init(); always initialise Iris first.
-:::caution[Warn]
+:::caution Warn
 `Iris:Connect() was called before calling Iris.Init(); always initialise Iris first.`
 :::
 
@@ -57,7 +57,7 @@ initalise Iris before any other Iris code runs and therefore you can ensure cons
 ordering.
 
 ## Iris cycleCoroutine took to long to yield. Connected functions should not yield.
-:::danger[Error]
+:::danger Error
 `Iris cycleCoroutine took to long to yield. Connected functions should not yield.`
 :::
 
@@ -93,7 +93,7 @@ These examples are fairly simple, but when you are integrating Iris directly int
 it should become much clearer.
 
 ## Too few calls to Iris.End()., Too many calls to Iris.End().
-:::danger[Error]
+:::danger Error
 `Too few calls to Iris.End().`, `Too many calls to Iris.End().`
 :::
 

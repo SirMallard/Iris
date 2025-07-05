@@ -254,7 +254,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local Combo: Frame = Instance.new("Frame")
             Combo.Name = "Iris_Combo"
-            Combo.Size = UDim2.fromScale(1, 0)
+            Combo.Size = UDim2.new(Iris._config.ItemWidth, UDim.new())
             Combo.AutomaticSize = Enum.AutomaticSize.Y
             Combo.BackgroundTransparency = 1
             Combo.BorderSizePixel = 0

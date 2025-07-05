@@ -8,11 +8,8 @@ local TemplateConfig = {
         -- Dear ImGui uses 110, 110, 125
         -- The Roblox window selection highlight is 67, 191, 254
         BorderColor = Color3.fromRGB(110, 110, 125),
-        BorderActiveColor = Color3.fromRGB(160, 160, 175), -- does not exist in Dear ImGui
-
-        -- BorderTransparency will be problematic for non UIStroke border implimentations
-        -- is not implimented because of this
         BorderTransparency = 0.5,
+        BorderActiveColor = Color3.fromRGB(160, 160, 175), -- does not exist in Dear ImGui
         BorderActiveTransparency = 0.3,
 
         WindowBgColor = Color3.fromRGB(15, 15, 15),

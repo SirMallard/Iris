@@ -213,7 +213,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Generate = function(thisWidget: Types.PlotLines)
             local PlotLines: Frame = Instance.new("Frame")
             PlotLines.Name = "Iris_PlotLines"
-            PlotLines.Size = UDim2.fromScale(1, 0)
+            PlotLines.Size = UDim2.new(Iris._config.ItemWidth, UDim.new())
             PlotLines.BackgroundTransparency = 1
             PlotLines.BorderSizePixel = 0
             PlotLines.ZIndex = thisWidget.ZIndex
@@ -467,7 +467,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Generate = function(thisWidget: Types.PlotHistogram)
             local PlotHistogram: Frame = Instance.new("Frame")
             PlotHistogram.Name = "Iris_PlotHistogram"
-            PlotHistogram.Size = UDim2.fromScale(1, 0)
+            PlotHistogram.Size = UDim2.new(Iris._config.ItemWidth, UDim.new())
             PlotHistogram.BackgroundTransparency = 1
             PlotHistogram.BorderSizePixel = 0
             PlotHistogram.ZIndex = thisWidget.ZIndex

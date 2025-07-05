@@ -73,7 +73,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Generate = function(thisWidget: Types.SeparatorText)
             local SeparatorText = Instance.new("Frame")
             SeparatorText.Name = "Iris_SeparatorText"
-            SeparatorText.Size = UDim2.fromScale(1, 0)
+            SeparatorText.Size = UDim2.new(Iris._config.ItemWidth, UDim.new())
             SeparatorText.BackgroundTransparency = 1
             SeparatorText.BorderSizePixel = 0
             SeparatorText.AutomaticSize = Enum.AutomaticSize.Y
