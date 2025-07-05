@@ -1345,103 +1345,212 @@ return function(Iris: Types.Iris)
             Iris.Tree({ "Sizing" })
             do
                 local Resizable = Iris.State(false)
+                local LimitWidth = Iris.State(false)
                 Iris.Checkbox({ "Resizable" }, { isChecked = Resizable })
+                Iris.Checkbox({ "Limit Table Width" }, { isChecked = LimitWidth })
 
-                Iris.SeparatorText({ "stretch, equal" })
-                Iris.Table({ 3, false, true, true, true, Resizable.value })
                 do
-                    for j = 1, 3 do
-                        for i = 1, 3 do
-                            Iris.Text({ "stretch" })
-                            Iris.NextColumn()
+                    Iris.SeparatorText({ "stretch, equal" })
+                    Iris.Table({ 3, false, true, true, true, Resizable.value })
+                    do
+                        for j = 1, 3 do
+                            for i = 1, 3 do
+                                Iris.Text({ "stretch" })
+                                Iris.NextColumn()
+                            end
                         end
                     end
-                end
-                Iris.End()
-                Iris.Table({ 3, false, true, true, true, Resizable.value })
-                do
-                    for j = 1, 3 do
-                        for i = 1, 3 do
-                            Iris.Text({ string.rep(string.char(64 + i), 4 * i) })
-                            Iris.NextColumn()
+                    Iris.End()
+                    Iris.Table({ 3, false, true, true, true, Resizable.value })
+                    do
+                        for j = 1, 3 do
+                            for i = 1, 3 do
+                                Iris.Text({ string.rep(string.char(64 + i), 4 * i) })
+                                Iris.NextColumn()
+                            end
                         end
                     end
+                    Iris.End()
                 end
-                Iris.End()
 
-                Iris.SeparatorText({ "stretch, proportional" })
-                Iris.Table({ 3, false, true, true, true, Resizable.value, false, true })
                 do
-                    for j = 1, 3 do
-                        for i = 1, 3 do
-                            Iris.Text({ "stretch" })
-                            Iris.NextColumn()
+                    Iris.SeparatorText({ "stretch, proportional" })
+                    Iris.Table({ 3, false, true, true, true, Resizable.value, false, true })
+                    do
+                        for j = 1, 3 do
+                            for i = 1, 3 do
+                                Iris.Text({ "stretch" })
+                                Iris.NextColumn()
+                            end
                         end
                     end
-                end
-                Iris.End()
-                Iris.Table({ 3, false, true, true, true, Resizable.value, false, true })
-                do
-                    for j = 1, 3 do
-                        for i = 1, 3 do
-                            Iris.Text({ string.rep(string.char(64 + i), 4 * i) })
-                            Iris.NextColumn()
+                    Iris.End()
+                    Iris.Table({ 3, false, true, true, true, Resizable.value, false, true })
+                    do
+                        for j = 1, 3 do
+                            for i = 1, 3 do
+                                Iris.Text({ string.rep(string.char(64 + i), 4 * i) })
+                                Iris.NextColumn()
+                            end
                         end
                     end
+                    Iris.End()
                 end
-                Iris.End()
+
+                do
+                    Iris.SeparatorText({ "fixed, equal" })
+                    Iris.Table({ 3, false, true, true, true, Resizable.value, true, false, LimitWidth.value })
+                    do
+                        for j = 1, 3 do
+                            for i = 1, 3 do
+                                Iris.Text({ "fixed" })
+                                Iris.NextColumn()
+                            end
+                        end
+                    end
+                    Iris.End()
+                    Iris.Table({ 3, false, true, true, true, Resizable.value, true, false, LimitWidth.value })
+                    do
+                        for j = 1, 3 do
+                            for i = 1, 3 do
+                                Iris.Text({ string.rep(string.char(64 + i), 4 * i) })
+                                Iris.NextColumn()
+                            end
+                        end
+                    end
+                    Iris.End()
+                end
+
+                do
+                    Iris.SeparatorText({ "fixed, proportional" })
+                    Iris.Table({ 3, false, true, true, true, Resizable.value, true, true, LimitWidth.value })
+                    do
+                        for j = 1, 3 do
+                            for i = 1, 3 do
+                                Iris.Text({ "fixed" })
+                                Iris.NextColumn()
+                            end
+                        end
+                    end
+                    Iris.End()
+                    Iris.Table({ 3, false, true, true, true, Resizable.value, true, true, LimitWidth.value })
+                    do
+                        for j = 1, 3 do
+                            for i = 1, 3 do
+                                Iris.Text({ string.rep(string.char(64 + i), 4 * i) })
+                                Iris.NextColumn()
+                            end
+                        end
+                    end
+                    Iris.End()
+                end
             end
             Iris.End()
 
             Iris.Tree({ "Resizable" })
             do
-            end
-            Iris.End()
+                local NumColumns = Iris.State(4)
+                local NumRows = Iris.State(3)
+                local TableUseButtons = Iris.State(false)
 
-            local NumRows = Iris.State(3)
-            local RowBackground = Iris.State(false)
-            local OuterBorders = Iris.State(false)
-            local InnerBorders = Iris.State(true)
-            local TableUseButtons = Iris.State(true)
+                local HeaderState = Iris.State(true)
+                local BackgroundState = Iris.State(true)
+                local OuterBorderState = Iris.State(true)
+                local InnerBorderState = Iris.State(true)
+                local ResizableState = Iris.State(false)
+                local FixedWidthState = Iris.State(false)
+                local ProportionalWidthState = Iris.State(false)
+                local LimitTableWidthState = Iris.State(false)
 
-            Iris.Text({ "Table with Customizable Arguments" })
-            Iris.Table({
-                [Iris.Args.Table.NumColumns] = 4,
-                [Iris.Args.Table.RowBackground] = RowBackground.value,
-                [Iris.Args.Table.OuterBorders] = OuterBorders.value,
-                [Iris.Args.Table.InnerBorders] = InnerBorders.value,
-            })
-            do
-                for i = 1, NumRows:get() do
-                    for i2 = 1, 4 do
-                        if TableUseButtons.value then
-                            Iris.Button({ `Month: {i}, Week: {i2}` })
-                        else
-                            Iris.Text({ `Month: {i}, Week: {i2}` })
+                local AddExtra = Iris.State(false)
+
+                local WidthState = Iris.State(table.create(10, 100))
+
+                Iris.SliderNum({ "Num Columns", 1, 1, 10 }, { number = NumColumns })
+                Iris.SliderNum({ "Number of rows", 1, 0, 100 }, { number = NumRows })
+
+                Iris.SameLine()
+                do
+                    Iris.RadioButton({ "Buttons", true }, { index = TableUseButtons })
+                    Iris.RadioButton({ "Text", false }, { index = TableUseButtons })
+                end
+                Iris.End()
+
+                Iris.Table({ 3 })
+                do
+                    Iris.Checkbox({ "Show Header Row" }, { isChecked = HeaderState })
+                    Iris.NextColumn()
+                    Iris.Checkbox({ "Show Row Backgrounds" }, { isChecked = BackgroundState })
+                    Iris.NextColumn()
+                    Iris.Checkbox({ "Show Outer Border" }, { isChecked = OuterBorderState })
+                    Iris.NextColumn()
+                    Iris.Checkbox({ "Show Inner Border" }, { isChecked = InnerBorderState })
+                    Iris.NextColumn()
+                    Iris.Checkbox({ "Resizable" }, { isChecked = ResizableState })
+                    Iris.NextColumn()
+                    Iris.Checkbox({ "Fixed Width" }, { isChecked = FixedWidthState })
+                    Iris.NextColumn()
+                    Iris.Checkbox({ "Proportional Width" }, { isChecked = ProportionalWidthState })
+                    Iris.NextColumn()
+                    Iris.Checkbox({ "Limit Table Width" }, { isChecked = LimitTableWidthState })
+                    Iris.NextColumn()
+                    Iris.Checkbox({ "Add extra" }, { isChecked = AddExtra })
+                    Iris.NextColumn()
+                end
+                Iris.End()
+
+                for i = 1, NumColumns.value do
+                    local increment = if FixedWidthState.value == true then 1 else 0.05
+                    local min = if FixedWidthState.value == true then 2 else 0.05
+                    local max = if FixedWidthState.value == true then 480 else 1
+                    Iris.SliderNum({ `Column {i} Width`, increment, min, max }, {
+                        number = Iris.TableState(WidthState.value, i, function(value: number)
+                            -- we have to force the state to change, because comparing two tables is equal
+                            WidthState.value[i] = value
+                            WidthState:set(WidthState.value, true)
+                            return false
+                        end),
+                    })
+                end
+
+                Iris.PushConfig({
+                    NumColumns = NumColumns.value,
+                })
+                Iris.Table(
+                    { NumColumns.value, HeaderState.value, BackgroundState.value, OuterBorderState.value, InnerBorderState.value, ResizableState.value, FixedWidthState.value, ProportionalWidthState.value, LimitTableWidthState.value },
+                    { widths = WidthState }
+                )
+                do
+                    Iris.SetHeaderColumnIndex(1)
+                    for i = 0, NumRows:get() do
+                        for j = 1, NumColumns.value do
+                            if i == 0 then
+                                if TableUseButtons.value then
+                                    Iris.Button({ `H: {j}` })
+                                else
+                                    Iris.Text({ `H: {j}` })
+                                end
+                            else
+                                if TableUseButtons.value then
+                                    Iris.Button({ `R: {i}, C: {j}` })
+                                    Iris.Button({ string.rep("...", j) })
+                                else
+                                    Iris.Text({ `R: {i}, C: {j}` })
+                                    Iris.Text({ string.rep("...", j) })
+                                end
+                            end
+                            Iris.NextColumn()
                         end
-                        Iris.NextColumn()
+                    end
+
+                    if AddExtra.value then
+                        Iris.Text({ "A really long piece of text!" })
                     end
                 end
+                Iris.End()
+                Iris.PopConfig()
             end
             Iris.End()
-
-            Iris.Checkbox({ "RowBg" }, { isChecked = RowBackground })
-            Iris.Checkbox({ "BordersOuter" }, { isChecked = OuterBorders })
-            Iris.Checkbox({ "BordersInner" }, { isChecked = InnerBorders })
-
-            Iris.SameLine()
-            do
-                Iris.RadioButton({ "Buttons", true }, { index = TableUseButtons })
-                Iris.RadioButton({ "Text", false }, { index = TableUseButtons })
-            end
-            Iris.End()
-
-            Iris.InputNum({
-                [Iris.Args.InputNum.Text] = "Number of rows",
-                [Iris.Args.InputNum.Min] = 0,
-                [Iris.Args.InputNum.Max] = 100,
-                [Iris.Args.InputNum.Format] = "%d",
-            }, { number = NumRows })
 
             Iris.End()
         end

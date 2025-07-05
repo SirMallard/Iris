@@ -90,7 +90,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
             if refresh then
                 table.clear(columns)
-                print(thisWidget._minWidths)
                 Iris._widgets["Table"].UpdateState(thisWidget)
             end
         end
@@ -121,7 +120,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
         local BorderX = Table.AbsolutePosition.X
         local LeftX: number -- the start of the current column
-        local CurrentX: number = BorderContainer:FindFirstChild(`Border_{ActiveColumn}`).AbsolutePosition.X + 3 - BorderX -- the current column position
+        -- local CurrentX: number = BorderContainer:FindFirstChild(`Border_{ActiveColumn}`).AbsolutePosition.X + 3 - BorderX -- the current column position
         local RightX: number -- the end of the next column
         if ActiveColumn == 1 then
             LeftX = 0
@@ -629,6 +628,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
         Discard = function(thisWidget: Types.Table)
             Tables[thisWidget.ID] = nil
+            TableMinWidths[thisWidget] = nil
             thisWidget.Instance:Destroy()
             widgets.discardState(thisWidget)
         end
