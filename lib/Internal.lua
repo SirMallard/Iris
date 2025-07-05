@@ -209,7 +209,7 @@ return function(Iris: Types.Iris): Types.Internal
         Called every frame to handle all of the widget management. Any previous frame data is ammended and everything updates.
     ]=]
     function Internal._cycle(deltaTime: number)
-        --debug.profilebegin("Iris/Cycle")
+        -- debug.profilebegin("Iris/Cycle")
         if Iris.Disabled then
             return -- Stops all rendering, effectively freezes the current frame with no interaction.
         end
@@ -235,9 +235,11 @@ return function(Iris: Types.Iris): Types.Internal
 
         -- anything that wnats to run before the frame.
         task.spawn(function()
+            -- debug.profilebegin("Iris/PostCycleCallbacks")
             for _, callback in Internal._postCycleCallbacks do
                 callback()
             end
+            -- debug.profileend()
         end)
 
         if Internal._globalRefreshRequested then
@@ -269,11 +271,12 @@ return function(Iris: Types.Iris): Types.Internal
         -- if we are running in Studio, we want full error tracebacks, so we don't have
         -- any pcall to protect from an error.
         if Internal._fullErrorTracebacks then
+            -- debug.profilebegin("Iris/Cycle/Callback")
             for _, callback in Internal._connectedFunctions do
                 callback()
             end
         else
-            --debug.profilebegin("Iris/Generate")
+            -- debug.profilebegin("Iris/Cycle/Coroutine")
 
             -- each frame we check on our thread status.
             local coroutineStatus = coroutine.status(Internal._cycleCoroutine)
@@ -292,7 +295,7 @@ return function(Iris: Types.Iris): Types.Internal
                 -- should never reach this (nothing you can do).
                 error("unrecoverable state")
             end
-            --debug.profileend()
+            -- debug.profileend()
         end
 
         if Internal._stackIndex ~= 1 then
@@ -307,7 +310,7 @@ return function(Iris: Types.Iris): Types.Internal
             error("Too few calls to Iris.PopId().", 0)
         end
 
-        --debug.profileend()
+        -- debug.profileend()
     end
 
     --[=[
