@@ -512,7 +512,7 @@ end
     ImGui::DragInt("My number", &myNumber); // Here in C++, we can directly pass the variable.
     ```
 
-    :::warning Update Order
+    :::caution Caution: Update Order
     If the variable and state value are different when calling this, the variable value takes precedence.
 
     Therefore, if you update the state using `state.value = ...` then it will be overwritten by the variable value.
@@ -592,7 +592,7 @@ end
     Iris.Checkbox({ "Started" }, { isChecked = state })
     ```
 
-    :::warning Update Order
+    :::caution Caution: Update Order
     If the table value and state value are different when calling this, the table value value takes precedence.
 
     Therefore, if you update the state using `state.value = ...` then it will be overwritten by the table value.

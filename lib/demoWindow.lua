@@ -1819,7 +1819,6 @@ return function(Iris: Types.Iris)
             do
                 Iris.Table({ 3, false, false, false })
                 do
-                    Iris.NextColumn()
                     Iris.Checkbox({ "NoTitleBar" }, { isChecked = NoTitleBar })
                     Iris.NextColumn()
                     Iris.Checkbox({ "NoBackground" }, { isChecked = NoBackground })
@@ -1837,6 +1836,7 @@ return function(Iris: Types.Iris)
                     Iris.Checkbox({ "NoNav" }, { isChecked = NoNav })
                     Iris.NextColumn()
                     Iris.Checkbox({ "NoMenu" }, { isChecked = NoMenu })
+                    Iris.NextColumn()
                 end
                 Iris.End()
             end

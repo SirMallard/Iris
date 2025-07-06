@@ -601,7 +601,7 @@ export type Iris = {
     SetRowIndex: (index: number) -> (),
     NextHeaderColumn: () -> number,
     SetHeaderColumnIndex: (index: number) -> (),
-    SetColumnWidth: (index: number, width: UDim) -> (),
+    SetColumnWidth: (index: number, width: number) -> (),
 
     --[[
         ---------

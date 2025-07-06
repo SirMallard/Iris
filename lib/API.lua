@@ -1868,6 +1868,30 @@ return function(Iris: Types.Iris)
     --[=[
         @class Table
         Table Widget API
+
+        Example usage for creating a simple table:
+        ```lua
+        Iris.Table({ 4, true })
+        do
+            Iris.SetHeaderColumnIndex(1)
+
+            -- for each row
+            for i = 0, 10 do
+
+                -- for each column
+                for j = 1, 4 do
+                    if i == 0 then
+                        -- 
+                        Iris.Text({ `H: {j}` })
+                    else
+                        Iris.Text({ `R: {i}, C: {j}` })
+                    end
+
+                    -- move the next column (and row when necessary)
+                    Iris.NextColumn()
+                end
+            end
+        ```
     ]=]
 
     --[=[
@@ -1892,7 +1916,7 @@ return function(Iris: Types.Iris)
 
         LimitTableWidth is used when FixedWidth is true. It will cut off the table horizontally after the last column.
 
-        :::warning
+        :::info
         Once the NumColumns is set, it is not possible to change it without some extra code. The best way to do this is by using
         `Iris.PushConfig()` and `Iris.PopConfig()` which will automatically redraw the widget when the columns change.
 
@@ -1906,6 +1930,11 @@ return function(Iris: Types.Iris)
         Iris.End()
         Iris.PopConfig()
         ```
+
+        :::danger Error: nil
+        Always ensure that the number of elements in the widths state is greater or equal to the
+        new number of columns when changing the number of columns.
+        :::
         :::
         
         ```lua
@@ -1936,8 +1965,8 @@ return function(Iris: Types.Iris)
         @within Table
         @function NextColumn
         
-        In a table, moves to the next available cell. if the current cell is in the last column,
-        then the next cell will be the first column of the next row.
+        In a table, moves to the next available cell. If the current cell is in the last column,
+        then moves to the cell in the first column of the next row.
     ]=]
     Iris.NextColumn = function(): number
         local Table = Iris.Internal._GetParentWidget() :: Types.Table
@@ -1957,8 +1986,7 @@ return function(Iris: Types.Iris)
         @within Table
         @function NextRow
         
-        In a table, moves to the next available row,
-        skipping cells in the previous column if the last cell wasn't in the last column
+        In a table, moves to the cell in the first column of the next row.
     ]=]
     Iris.NextRow = function(): number
         local Table = Iris.Internal._GetParentWidget() :: Types.Table
@@ -1973,7 +2001,9 @@ return function(Iris: Types.Iris)
         @function SetColumnIndex
         @param index number
         
-        In a table, directly sets the index of the column.
+        In a table, moves to the cell in the given column in the same previous row.
+
+        Will erorr if the given index is not in the range of 1 to NumColumns.
     ]=]
     Iris.SetColumnIndex = function(index: number): ()
         local Table = Iris.Internal._GetParentWidget() :: Types.Table
@@ -1982,6 +2012,13 @@ return function(Iris: Types.Iris)
         Table._columnIndex = index
     end
 
+    --[=[
+        @within Table
+        @function SetRowIndex
+        @param index number
+
+        In a table, moves to the cell in the given row with the same previous column.
+    ]=]
     Iris.SetRowIndex = function(index: number): ()
         local Table = Iris.Internal._GetParentWidget() :: Types.Table
         assert(Table ~= nil, "Iris.SetRowIndex() can only called when directly within a table.")
@@ -1989,6 +2026,13 @@ return function(Iris: Types.Iris)
         Table._rowIndex = index
     end
 
+    --[=[
+        @within Table
+        @function NextHeaderColumn
+
+        In a table, moves to the cell in the next column in the header row (row index 0). Will loop around
+        from the last column to the first.
+    ]=]
     Iris.NextHeaderColumn = function(): number
         local Table = Iris.Internal._GetParentWidget() :: Types.Table
         assert(Table ~= nil, "Iris.NextHeaderColumn() can only called when directly within a table.")
@@ -1999,6 +2043,15 @@ return function(Iris: Types.Iris)
         return Table._columnIndex
     end
 
+    --[=[
+        @within Table
+        @function SetHeaderColumnIndex
+        @param index number
+
+        In a table, moves to the cell in the given column in the header row (row index 0).
+
+        Will erorr if the given index is not in the range of 1 to NumColumns.
+    ]=]
     Iris.SetHeaderColumnIndex = function(index: number): ()
         local Table = Iris.Internal._GetParentWidget() :: Types.Table
         assert(Table ~= nil, "Iris.SetHeaderColumnIndex() can only called when directly within a table.")
@@ -2008,12 +2061,24 @@ return function(Iris: Types.Iris)
         Table._columnIndex = index
     end
 
-    Iris.SetColumnWidth = function(index: number, width: UDim): ()
+    --[=[
+        @within Table
+        @function SetColumnWidth
+        @param index number
+        @param width number
+
+        In a table, sets the width of the given column to the given value by changing the
+        Table's widths state. When the FixedWidth argument is true, the width should be in
+        pixels >2, otherwise as a float between 0 and 1.
+
+        Will erorr if the given index is not in the range of 1 to NumColumns.
+    ]=]
+    Iris.SetColumnWidth = function(index: number, width: number): ()
         local Table = Iris.Internal._GetParentWidget() :: Types.Table
         assert(Table ~= nil, "Iris.SetColumnWidth() can only called when directly within a table.")
         assert((index >= 1) and (index <= Table.arguments.NumColumns), `The index must be between 1 and {Table.arguments.NumColumns}, inclusive.`)
 
-        local oldValue: UDim = Table.state.widths.value[index]
+        local oldValue = Table.state.widths.value[index]
         Table.state.widths.value[index] = width
         Table.state.widths:set(Table.state.widths.value, width ~= oldValue)
     end

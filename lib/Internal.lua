@@ -114,7 +114,7 @@ return function(Iris: Types.Iris): Types.Internal
         end)
         ```
 
-        :::caution
+        :::caution Caution: Callbacks
         Never call `:set()` on a state when inside the `:onChange()` callback of the same state. This will cause a continous callback.
 
         Never chain states together so that each state changes the value of another state in a cyclic nature. This will cause a continous callback.
@@ -170,7 +170,7 @@ return function(Iris: Types.Iris): Types.Internal
 
         Allows the caller to connect a callback which is called when the states value is changed.
 
-        :::caution
+        :::caution Caution: Single
         Calling `:onChange()` every frame will add a new function every frame.
         You must ensure you are only calling `:onChange()` once for each callback for the state's entire lifetime.
         :::
