@@ -2,11 +2,11 @@ local Iris = require(script.Parent.Iris)
 local Input = require(script.Parent.UserInputService)
 
 -- Create the plugin toolbar, button and dockwidget for Iris to work in.
-local widgetInfo: DockWidgetPluginGuiInfo = DockWidgetPluginGuiInfo.new(Enum.InitialDockState.Float, false, false, 200, 300)
+local widgetInfo = DockWidgetPluginGuiInfo.new(Enum.InitialDockState.Float, false, false, 200, 300)
 
-local Toolbar: PluginToolbar = plugin:CreateToolbar("Iris")
-local ToggleButton: PluginToolbarButton = Toolbar:CreateButton("Toggle Iris", "Toggle Iris running in a plugin window.", "rbxasset://textures/AnimationEditor/icon_checkmark.png")
-local IrisWidget: DockWidgetPluginGui = plugin:CreateDockWidgetPluginGui("IrisWidget", widgetInfo)
+local Toolbar = plugin:CreateToolbar("Iris")
+local ToggleButton = Toolbar:CreateButton("Toggle Iris", "Toggle Iris running in a plugin window.", "rbxasset://textures/AnimationEditor/icon_checkmark.png")
+local IrisWidget = plugin:CreateDockWidgetPluginGui("IrisWidget", widgetInfo)
 
 -- defein the widget and button properties
 IrisWidget.Name = "Iris"
@@ -14,7 +14,7 @@ IrisWidget.Title = "Iris"
 IrisWidget.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ToggleButton.ClickableWhenViewportHidden = true
 
-local IrisEnabled: boolean = false
+local IrisEnabled = false
 Input.SinkFrame.Parent = IrisWidget
 
 -- configure a few things within Iris. We need to provide our own UserInputService and change the config.

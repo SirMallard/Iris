@@ -14,9 +14,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Separator.BackgroundTransparency = Iris._config.SeparatorTransparency
             Separator.BorderSizePixel = 0
             if thisWidget.parentWidget.type == "SameLine" then
-                Separator.Size = UDim2.new(0, 1, 1, 0)
+                Separator.Size = UDim2.new(0, 1, Iris._config.ItemWidth.Scale, Iris._config.ItemWidth.Offset)
             else
-                Separator.Size = UDim2.new(1, 0, 0, 1)
+                Separator.Size = UDim2.new(Iris._config.ItemWidth.Scale, Iris._config.ItemWidth.Offset, 0, 1)
             end
             Separator.LayoutOrder = thisWidget.ZIndex
 
@@ -44,7 +44,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Indent.Name = "Iris_Indent"
             Indent.BackgroundTransparency = 1
             Indent.BorderSizePixel = 0
-            Indent.Size = UDim2.fromScale(1, 0)
+            Indent.Size = UDim2.new(Iris._config.ItemWidth, UDim.new())
             Indent.AutomaticSize = Enum.AutomaticSize.Y
             Indent.LayoutOrder = thisWidget.ZIndex
 
@@ -87,7 +87,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             SameLine.Name = "Iris_SameLine"
             SameLine.BackgroundTransparency = 1
             SameLine.BorderSizePixel = 0
-            SameLine.Size = UDim2.fromScale(1, 0)
+            SameLine.Size = UDim2.new(Iris._config.ItemWidth, UDim.new())
             SameLine.AutomaticSize = Enum.AutomaticSize.Y
             SameLine.LayoutOrder = thisWidget.ZIndex
 

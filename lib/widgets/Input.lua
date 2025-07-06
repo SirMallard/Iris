@@ -265,7 +265,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Generate = function(thisWidget: Types.Input<T>)
                     local Input: Frame = Instance.new("Frame")
                     Input.Name = "Iris_Input" .. dataType
-                    Input.Size = UDim2.fromScale(1, 0)
+                    Input.Size = UDim2.new(Iris._config.ItemWidth, UDim.new())
                     Input.BackgroundTransparency = 1
                     Input.BorderSizePixel = 0
                     Input.LayoutOrder = thisWidget.ZIndex
@@ -546,7 +546,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                     local Drag: Frame = Instance.new("Frame")
                     Drag.Name = "Iris_Drag" .. dataType
-                    Drag.Size = UDim2.fromScale(1, 0)
+                    Drag.Size = UDim2.new(Iris._config.ItemWidth, UDim.new())
                     Drag.BackgroundTransparency = 1
                     Drag.BorderSizePixel = 0
                     Drag.LayoutOrder = thisWidget.ZIndex
@@ -946,7 +946,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Generate = function(thisWidget: Types.Input<T>)
                     local Slider: Frame = Instance.new("Frame")
                     Slider.Name = "Iris_Slider" .. dataType
-                    Slider.Size = UDim2.fromScale(1, 0)
+                    Slider.Size = UDim2.new(Iris._config.ItemWidth, UDim.new())
                     Slider.BackgroundTransparency = 1
                     Slider.BorderSizePixel = 0
                     Slider.LayoutOrder = thisWidget.ZIndex
@@ -1313,7 +1313,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local InputText: Frame = Instance.new("Frame")
             InputText.Name = "Iris_InputText"
             InputText.AutomaticSize = Enum.AutomaticSize.Y
-            InputText.Size = UDim2.fromScale(1, 0)
+            InputText.Size = UDim2.new(Iris._config.ItemWidth, UDim.new())
             InputText.BackgroundTransparency = 1
             InputText.BorderSizePixel = 0
             InputText.ZIndex = thisWidget.ZIndex
