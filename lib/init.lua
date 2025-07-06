@@ -60,6 +60,7 @@ Iris.Events = {}
     @function Init
     @param parentInstance Instance? -- where Iris will place widgets UIs under, defaulting to [PlayerGui]
     @param eventConnection (RBXScriptSignal | () -> () | false)? -- the event to determine an Iris cycle, defaulting to [Heartbeat]
+    @param allowMultipleInits boolean? -- allows subsequent calls 'Iris.Init()' to do nothing rather than error about initialising again, defaulting to false
     @return Iris
 
     Initializes Iris and begins rendering. Can only be called once.
