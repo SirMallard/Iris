@@ -57,5 +57,5 @@ jobs:
 
       - name: Publish
         run: |
-          rbxcloud experience publish -a ${{ secrets.PLACE_KEY }} -u 2823622397 -p 7245022703 -t published -f Iris.rbxl
+          rbxcloud experience publish -a ${{ secrets.PLACE_KEY }} -u 2823622397 -i 7245022703 -t published -f Iris.rbxl
         shell: bash
