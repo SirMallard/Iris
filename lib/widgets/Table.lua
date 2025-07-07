@@ -593,6 +593,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             -- determine if the row exists yet
             local Row = thisWidget._rowInstances[rowIndex]
             thisWidget._rowCycles[rowIndex] = Iris._cycleTick
+            TableMinWidths[thisWidget][columnIndex] = true
 
             if Row ~= nil then
                 return thisWidget._cellInstances[rowIndex][columnIndex]
@@ -610,8 +611,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 thisWidget._rowBorders[rowIndex - 1] = Border
                 Border.Parent = thisWidget._rowContainer
             end
-
-            TableMinWidths[thisWidget][columnIndex] = true
 
             return thisWidget._cellInstances[rowIndex][columnIndex]
         end,
