@@ -403,7 +403,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
             end
 
-            print(Table)
             return Table
         end,
         GenerateState = function(thisWidget: Types.Table)
