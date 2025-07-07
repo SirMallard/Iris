@@ -12,16 +12,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Aftman
-        uses: ok-nick/setup-aftman@v0.4.2
-        with:
-          version: v0.3.0
+      - name: Install Rokit
+        run: |
+          curl -sSf https://raw.githubusercontent.com/rojo-rbx/rokit/main/scripts/install.sh | bash
+          echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
+        shell: bash
+
+      - name: Install Tools
+        run: |
+          rokit install --no-trust-check
+        shell: bash
 
       - name: Login
-        run: wally login --token ${{ secrets.WALLY_TOKEN }}
+        run: |
+          wally login --token ${{ secrets.WALLY_TOKEN }}
+        shell: bash
 
       - name: Publish
-        run: wally publish
+        run: |
+          wally publish
+        shell: bash
 
   publish-demo-place:
     name: "Publish Roblox Demo Place"
@@ -29,14 +39,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Aftman
-        uses: ok-nick/setup-aftman@v0.4.2
-        with:
-          version: v0.3.0
+      - name: Install Rokit
+        run: |
+          curl -sSf https://raw.githubusercontent.com/rojo-rbx/rokit/main/scripts/install.sh | bash
+          echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
+        shell: bash
+
+      - name: Install Tools
+        run: |
+          rokit install --no-trust-check
+        shell: bash
 
       - name: Build place file
-        run: rojo build -o Iris.rbxl ./demo.project.json
+        run: |
+          rojo build -o Iris.rbxl ./demo.project.json
+        shell: bash
 
       - name: Publish
+        run: |
+          rbxcloud experience publish -a ${{ secrets.PLACE_KEY }} -u 2823622397 -p 7245022703 -t published -f Iris.rbxl
         shell: bash
-        run: rbxcloud experience publish -a ${{ secrets.PLACE_KEY }} -u 2823622397 -p 7245022703 -t published -f Iris.rbxl
