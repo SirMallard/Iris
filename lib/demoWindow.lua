@@ -1353,8 +1353,8 @@ return function(Iris: Types.Iris)
                     Iris.SeparatorText({ "stretch, equal" })
                     Iris.Table({ 3, false, true, true, true, Resizable.value })
                     do
-                        for j = 1, 3 do
-                            for i = 1, 3 do
+                        for _ = 1, 3 do
+                            for _ = 1, 3 do
                                 Iris.Text({ "stretch" })
                                 Iris.NextColumn()
                             end
@@ -1363,7 +1363,7 @@ return function(Iris: Types.Iris)
                     Iris.End()
                     Iris.Table({ 3, false, true, true, true, Resizable.value })
                     do
-                        for j = 1, 3 do
+                        for _ = 1, 3 do
                             for i = 1, 3 do
                                 Iris.Text({ string.rep(string.char(64 + i), 4 * i) })
                                 Iris.NextColumn()
@@ -1377,8 +1377,8 @@ return function(Iris: Types.Iris)
                     Iris.SeparatorText({ "stretch, proportional" })
                     Iris.Table({ 3, false, true, true, true, Resizable.value, false, true })
                     do
-                        for j = 1, 3 do
-                            for i = 1, 3 do
+                        for _ = 1, 3 do
+                            for _ = 1, 3 do
                                 Iris.Text({ "stretch" })
                                 Iris.NextColumn()
                             end
@@ -1387,7 +1387,7 @@ return function(Iris: Types.Iris)
                     Iris.End()
                     Iris.Table({ 3, false, true, true, true, Resizable.value, false, true })
                     do
-                        for j = 1, 3 do
+                        for _ = 1, 3 do
                             for i = 1, 3 do
                                 Iris.Text({ string.rep(string.char(64 + i), 4 * i) })
                                 Iris.NextColumn()
@@ -1401,8 +1401,8 @@ return function(Iris: Types.Iris)
                     Iris.SeparatorText({ "fixed, equal" })
                     Iris.Table({ 3, false, true, true, true, Resizable.value, true, false, LimitWidth.value })
                     do
-                        for j = 1, 3 do
-                            for i = 1, 3 do
+                        for _ = 1, 3 do
+                            for _ = 1, 3 do
                                 Iris.Text({ "fixed" })
                                 Iris.NextColumn()
                             end
@@ -1411,7 +1411,7 @@ return function(Iris: Types.Iris)
                     Iris.End()
                     Iris.Table({ 3, false, true, true, true, Resizable.value, true, false, LimitWidth.value })
                     do
-                        for j = 1, 3 do
+                        for _ = 1, 3 do
                             for i = 1, 3 do
                                 Iris.Text({ string.rep(string.char(64 + i), 4 * i) })
                                 Iris.NextColumn()
@@ -1425,8 +1425,8 @@ return function(Iris: Types.Iris)
                     Iris.SeparatorText({ "fixed, proportional" })
                     Iris.Table({ 3, false, true, true, true, Resizable.value, true, true, LimitWidth.value })
                     do
-                        for j = 1, 3 do
-                            for i = 1, 3 do
+                        for _ = 1, 3 do
+                            for _ = 1, 3 do
                                 Iris.Text({ "fixed" })
                                 Iris.NextColumn()
                             end
@@ -1435,7 +1435,7 @@ return function(Iris: Types.Iris)
                     Iris.End()
                     Iris.Table({ 3, false, true, true, true, Resizable.value, true, true, LimitWidth.value })
                     do
-                        for j = 1, 3 do
+                        for _ = 1, 3 do
                             for i = 1, 3 do
                                 Iris.Text({ string.rep(string.char(64 + i), 4 * i) })
                                 Iris.NextColumn()

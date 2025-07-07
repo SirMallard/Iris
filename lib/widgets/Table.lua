@@ -181,7 +181,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
     end)
 
-    local function GenerateCell(thisWidget: Types.Table, index: number, width: UDim, header: boolean)
+    local function GenerateCell(_thisWidget: Types.Table, index: number, width: UDim, header: boolean)
         local Cell: TextButton
         if header then
             Cell = Instance.new("TextButton")
@@ -308,7 +308,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         return Row
     end
 
-    local function GenerateRowBorder(thisWidget: Types.Table, index: number, style: "Light" | "Strong")
+    local function GenerateRowBorder(_thisWidget: Types.Table, index: number, style: "Light" | "Strong")
         local Border = Instance.new("Frame")
         Border.Name = `Border_{index}`
         Border.Size = UDim2.new(1, 0, 0, 0)
@@ -466,7 +466,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
             end
             
-            for rowIndex: number, Border: Frame in thisWidget._rowBorders do
+            for _, Border: Frame in thisWidget._rowBorders do
                 Border.Visible = thisWidget.arguments.InnerBorders
             end
 
@@ -474,7 +474,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Border.Visible = thisWidget.arguments.InnerBorders or thisWidget.arguments.Resizable
             end
 
-            for index, border in thisWidget._columnBorders do
+            for _, border in thisWidget._columnBorders do
                 local hover = border:FindFirstChild("Hover") :: Frame?
                 if hover then
                     hover.Visible = thisWidget.arguments.Resizable
@@ -586,7 +586,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             RowContainer.UISizeConstraint.MaxSize = Vector2.new(Width, math.huge)
             thisWidget._columnBorders[0].Position = UDim2.new(0, Width - 3, 0, 0)
         end,
-        ChildAdded = function(thisWidget: Types.Table, thisChild: Types.Widget)
+        ChildAdded = function(thisWidget: Types.Table, _: Types.Widget)
             local rowIndex = thisWidget._rowIndex
             local columnIndex = thisWidget._columnIndex
             -- determine if the row exists yet
