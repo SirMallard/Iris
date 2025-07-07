@@ -52,6 +52,7 @@ export type InputColor3 = WidgetTypes.InputColor3
 export type InputColor4 = WidgetTypes.InputColor4
 export type InputEnum = WidgetTypes.InputEnum
 export type InputText = WidgetTypes.InputText
+export type ColorPicker = WidgetTypes.ColorPicker
 export type Selectable = WidgetTypes.Selectable
 export type Combo = WidgetTypes.Combo
 export type ProgressBar = WidgetTypes.ProgressBar
@@ -586,6 +587,7 @@ export type Iris = {
     ComboEnum: WidgetCall<Combo, WidgetArguments, WidgetStates?, Enum>,
     InputEnum: WidgetCall<Combo, WidgetArguments, WidgetStates?, Enum>,
 
+    ColorPicker: WidgetCall<ColorPicker, WidgetArguments, WidgetStates?>,
     ProgressBar: WidgetCall<ProgressBar, WidgetArguments, WidgetStates?>,
     PlotLines: WidgetCall<PlotLines, WidgetArguments, WidgetStates?>,
     PlotHistogram: WidgetCall<PlotHistogram, WidgetArguments, WidgetStates?>,

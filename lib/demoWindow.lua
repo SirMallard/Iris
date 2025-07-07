@@ -492,6 +492,19 @@ return function(Iris: Types.Iris)
                 Iris.DragNum({ "Slide Float", 0.001, -10, 10 })
                 Iris.DragNum({ "Percentage", 1, 0, 100, "%d %%" })
                 Iris.PopConfig()
+
+                Iris.Separator()
+
+                Iris.Text({ "Color Picker" })
+                local pickerColor = Iris.State(Color3.new(1, 0, 0))
+                Iris.InputColor3({ "Picked Color", UseFloats:get(), UseHSV:get() }, { color = pickerColor })
+                local compareColor = Iris.State(Color3.new(0, 1, 0))
+                local shouldCompare = Iris.Checkbox({ "Compare Colors" })
+                local shouldCompareValue = shouldCompare.state.isChecked:get()
+                if shouldCompareValue then
+                    Iris.InputColor3({ "Compare Color" }, { color = compareColor })
+                end
+                Iris.ColorPicker({ shouldCompareValue and compareColor:get() or false }, { color = pickerColor })
             end
             Iris.End()
         end,
