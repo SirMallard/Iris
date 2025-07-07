@@ -205,7 +205,9 @@ export type Internal = {
 
     -- Refresh
     _globalRefreshRequested: boolean,
-    _localRefreshActive: boolean,
+    _refreshCounter: number,
+    _refreshLevel: number,
+    _refreshStack: { boolean },
 
     -- Widgets & Instances
     _widgets: { [string]: WidgetClass },
@@ -428,6 +430,8 @@ export type Config = {
     TableRowBgTransparency: number,
     TableRowBgAltColor: Color3,
     TableRowBgAltTransparency: number,
+    TableHeaderColor: Color3,
+    TableHeaderTransparency: number,
 
     NavWindowingHighlightColor: Color3,
     NavWindowingHighlightTransparency: number,
@@ -590,10 +594,14 @@ export type Iris = {
     ImageButton: WidgetCall<ImageButton, WidgetArguments, nil>,
 
     -- Table Widget Api
-    Table: WidgetCall<Table, WidgetArguments, nil>,
-    NextColumn: () -> (),
-    SetColumnIndex: (columnIndex: number) -> (),
-    NextRow: () -> (),
+    Table: WidgetCall<Table, WidgetArguments, WidgetStates?>,
+    NextColumn: () -> number,
+    NextRow: () -> number,
+    SetColumnIndex: (index: number) -> (),
+    SetRowIndex: (index: number) -> (),
+    NextHeaderColumn: () -> number,
+    SetHeaderColumnIndex: (index: number) -> (),
+    SetColumnWidth: (index: number, width: number) -> (),
 
     --[[
         ---------

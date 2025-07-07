@@ -79,6 +79,8 @@ local TemplateConfig = {
         TableRowBgTransparency = 1,
         TableRowBgAltColor = Color3.fromRGB(255, 255, 255),
         TableRowBgAltTransparency = 0.94,
+        TableHeaderColor = Color3.fromRGB(48, 48, 51),
+        TableHeaderTransparency = 0,
 
         NavWindowingHighlightColor = Color3.fromRGB(255, 255, 255),
         NavWindowingHighlightTransparency = 0.3,
@@ -190,6 +192,8 @@ local TemplateConfig = {
         TableRowBgTransparency = 1,
         TableRowBgAltColor = Color3.fromRGB(77, 77, 77),
         TableRowBgAltTransparency = 0.91,
+        TableHeaderColor = Color3.fromRGB(199, 222, 250),
+        TableHeaderTransparency = 0,
 
         NavWindowingHighlightColor = Color3.fromRGB(179, 179, 179),
         NavWindowingHighlightTransparency = 0.3,

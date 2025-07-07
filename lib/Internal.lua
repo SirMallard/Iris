@@ -25,7 +25,9 @@ return function(Iris: Types.Iris): Types.Internal
 
     -- Refresh
     Internal._globalRefreshRequested = false -- refresh means that all GUI is destroyed and regenerated, usually because a style change was made and needed to be propogated to all UI
-    Internal._localRefreshActive = false -- if true, when _Insert is called, the widget called will be regenerated
+    Internal._refreshCounter = 0 -- if true, when _Insert is called, the widget called will be regenerated
+    Internal._refreshLevel = 1
+    Internal._refreshStack = table.create(16)
 
     -- Widgets & Instances
     Internal._widgets = {}
@@ -112,7 +114,7 @@ return function(Iris: Types.Iris): Types.Internal
         end)
         ```
 
-        :::caution
+        :::caution Caution: Callbacks
         Never call `:set()` on a state when inside the `:onChange()` callback of the same state. This will cause a continous callback.
 
         Never chain states together so that each state changes the value of another state in a cyclic nature. This will cause a continous callback.
@@ -168,7 +170,7 @@ return function(Iris: Types.Iris): Types.Internal
 
         Allows the caller to connect a callback which is called when the states value is changed.
 
-        :::caution
+        :::caution Caution: Single
         Calling `:onChange()` every frame will add a new function every frame.
         You must ensure you are only calling `:onChange()` once for each callback for the state's entire lifetime.
         :::
@@ -207,7 +209,7 @@ return function(Iris: Types.Iris): Types.Internal
         Called every frame to handle all of the widget management. Any previous frame data is ammended and everything updates.
     ]=]
     function Internal._cycle(deltaTime: number)
-        --debug.profilebegin("Iris/Cycle")
+        -- debug.profilebegin("Iris/Cycle")
         if Iris.Disabled then
             return -- Stops all rendering, effectively freezes the current frame with no interaction.
         end
@@ -217,7 +219,7 @@ return function(Iris: Types.Iris): Types.Internal
             Iris.ForceRefresh()
         end
 
-        for _, widget: Types.Widget in Internal._lastVDOM do
+        for _, widget in Internal._lastVDOM do
             if widget.lastCycleTick ~= Internal._cycleTick and (widget.lastCycleTick ~= -1) then
                 -- a widget which used to be rendered was not called last frame, so we discard it.
                 -- if the cycle tick is -1 we have already discarded it.
@@ -233,9 +235,11 @@ return function(Iris: Types.Iris): Types.Internal
 
         -- anything that wnats to run before the frame.
         task.spawn(function()
-            for _, callback: () -> () in Internal._postCycleCallbacks do
+            -- debug.profilebegin("Iris/PostCycleCallbacks")
+            for _, callback in Internal._postCycleCallbacks do
                 callback()
             end
+            -- debug.profileend()
         end)
 
         if Internal._globalRefreshRequested then
@@ -243,7 +247,7 @@ return function(Iris: Types.Iris): Types.Internal
             --debug.profilebegin("Iris Refresh")
             Internal._generateSelectionImageObject()
             Internal._globalRefreshRequested = false
-            for _, widget: Types.Widget in Internal._lastVDOM do
+            for _, widget in Internal._lastVDOM do
                 Internal._DiscardWidget(widget)
             end
             Internal._generateRootInstance()
@@ -267,11 +271,12 @@ return function(Iris: Types.Iris): Types.Internal
         -- if we are running in Studio, we want full error tracebacks, so we don't have
         -- any pcall to protect from an error.
         if Internal._fullErrorTracebacks then
-            for _, callback: () -> () in Internal._connectedFunctions do
+            -- debug.profilebegin("Iris/Cycle/Callback")
+            for _, callback in Internal._connectedFunctions do
                 callback()
             end
         else
-            --debug.profilebegin("Iris/Generate")
+            -- debug.profilebegin("Iris/Cycle/Coroutine")
 
             -- each frame we check on our thread status.
             local coroutineStatus = coroutine.status(Internal._cycleCoroutine)
@@ -290,7 +295,7 @@ return function(Iris: Types.Iris): Types.Internal
                 -- should never reach this (nothing you can do).
                 error("unrecoverable state")
             end
-            --debug.profileend()
+            -- debug.profileend()
         end
 
         if Internal._stackIndex ~= 1 then
@@ -305,7 +310,7 @@ return function(Iris: Types.Iris): Types.Internal
             error("Too few calls to Iris.PopId().", 0)
         end
 
-        --debug.profileend()
+        -- debug.profileend()
     end
 
     --[=[
@@ -469,7 +474,7 @@ return function(Iris: Types.Iris): Types.Internal
         local lastWidget: Types.Widget? = Internal._lastVDOM[ID]
         if lastWidget and widgetType == lastWidget.type then
             -- found a matching widget from last frame.
-            if Internal._localRefreshActive then
+            if Internal._refreshCounter > 0 then
                 -- we are redrawing every widget.
                 Internal._DiscardWidget(lastWidget)
                 lastWidget = nil
@@ -491,6 +496,12 @@ return function(Iris: Types.Iris): Types.Internal
                     thisWidget.Instance.LayoutOrder = thisWidget.ZIndex
                 end
             end
+        end
+
+        -- since rows are not instances, but will be removed if not updated, we have to add specific table code.
+        if parentWidget.type == "Table" then
+            local Table = parentWidget :: Types.Table
+            Table._rowCycles[Table._rowIndex] = Internal._cycleTick
         end
 
         if Internal._deepCompare(thisWidget.providedArguments, arguments) == false then

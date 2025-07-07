@@ -295,10 +295,12 @@ function Iris.PushConfig(deltaStyle: { [string]: any })
         -- compare tables
         if Internal._deepCompare(ID:get(), deltaStyle) == false then
             -- refresh local
-            Internal._localRefreshActive = true
             ID:set(deltaStyle)
+            Internal._refreshStack[Internal._refreshLevel] = true
+            Internal._refreshCounter += 1
         end
     end
+    Internal._refreshLevel += 1
 
     Internal._config = setmetatable(deltaStyle, {
         __index = Internal._config,
@@ -314,7 +316,12 @@ end
     Each call to [Iris.PopConfig] should match a call to [Iris.PushConfig].
 ]=]
 function Iris.PopConfig()
-    Internal._localRefreshActive = false
+    Internal._refreshLevel -= 1
+    if Internal._refreshStack[Internal._refreshLevel] == true then
+        Internal._refreshCounter -= 1
+        Internal._refreshStack[Internal._refreshLevel] = nil
+    end
+
     Internal._config = getmetatable(Internal._config :: any).__index
 end
 
@@ -505,7 +512,7 @@ end
     ImGui::DragInt("My number", &myNumber); // Here in C++, we can directly pass the variable.
     ```
 
-    :::warning Update Order
+    :::caution Caution: Update Order
     If the variable and state value are different when calling this, the variable value takes precedence.
 
     Therefore, if you update the state using `state.value = ...` then it will be overwritten by the variable value.
@@ -585,7 +592,7 @@ end
     Iris.Checkbox({ "Started" }, { isChecked = state })
     ```
 
-    :::warning Update Order
+    :::caution Caution: Update Order
     If the table value and state value are different when calling this, the table value value takes precedence.
 
     Therefore, if you update the state using `state.value = ...` then it will be overwritten by the table value.

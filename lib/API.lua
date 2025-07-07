@@ -2,8 +2,8 @@ local Types = require(script.Parent.Types)
 
 return function(Iris: Types.Iris)
     -- basic wrapper for nearly every widget, saves space.
-    local function wrapper(name: string)
-        return function(arguments: Types.WidgetArguments?, states: Types.WidgetStates?): Types.Widget
+    local function wrapper(name)
+        return function(arguments, states)
             return Iris.Internal._Insert(name, arguments, states)
         end
     end
@@ -1868,6 +1868,30 @@ return function(Iris: Types.Iris)
     --[=[
         @class Table
         Table Widget API
+
+        Example usage for creating a simple table:
+        ```lua
+        Iris.Table({ 4, true })
+        do
+            Iris.SetHeaderColumnIndex(1)
+
+            -- for each row
+            for i = 0, 10 do
+
+                -- for each column
+                for j = 1, 4 do
+                    if i == 0 then
+                        -- 
+                        Iris.Text({ `H: {j}` })
+                    else
+                        Iris.Text({ `R: {i}, C: {j}` })
+                    end
+
+                    -- move the next column (and row when necessary)
+                    Iris.NextColumn()
+                end
+            end
+        ```
     ]=]
 
     --[=[
@@ -1876,19 +1900,62 @@ return function(Iris: Types.Iris)
         @tag Widget
         @tag HasChildren
         
-        A layout widget which allows children to be displayed in configurable columns and rows.
+        A layout widget which allows children to be displayed in configurable columns and rows. Highly configurable for many different
+        options, with options for custom width columns as configured by the user, or automatically use the best size.
+
+        When Resizable is enabled, the vertical columns can be dragged horizontally to increase or decrease space. This is linked to
+        the widths state, which controls the width of each column. This is also dependent on whether the FixedWidth argument is enabled.
+        By default, the columns will scale with the width of the table overall, therefore taking up a percentage, and the widths will be
+        in the range of 0 to 1 as a float. If FixedWidth is enabled, then the widths will be in pixels and have a value of > 2 as an
+        integer.
+
+        ProportionalWidth determines whether each column has the same width, or individual. By default, each column will take up an equal
+        proportion of the total table width. If true, then the columns will be allocated a width proportional to their total content size,
+        meaning wider columns take up a greater share of the total available space. For a fixed width table, by default each column will
+        take the max width of all the columns. When true, each column width will the minimum to fit the children within.
+
+        LimitTableWidth is used when FixedWidth is true. It will cut off the table horizontally after the last column.
+
+        :::info
+        Once the NumColumns is set, it is not possible to change it without some extra code. The best way to do this is by using
+        `Iris.PushConfig()` and `Iris.PopConfig()` which will automatically redraw the widget when the columns change.
+
+        ```lua
+        local numColumns = 4
+        Iris.PushConfig({ columns = numColumns })
+        Iris.Table({ numColumns, ...})
+        do
+            ...
+        end
+        Iris.End()
+        Iris.PopConfig()
+        ```
+
+        :::danger Error: nil
+        Always ensure that the number of elements in the widths state is greater or equal to the
+        new number of columns when changing the number of columns.
+        :::
+        :::
         
         ```lua
         hasChildren = true
         hasState = false
         Arguments = {
-            NumColumns = number,
-            RowBg = boolean? = false, -- whether the row backgrounds alternate a background fill.
-            BordersOuter = boolean? = false,
-            BordersInner = boolean? = false, -- borders on each cell.
+            NumColumns: number, -- number of columns in the table, cannot be changed
+            Header: boolean? = false, -- display a header row for each column
+            RowBackground: boolean? = false, -- alternating row background colours
+            OuterBorders: boolean? = false, -- outer border on the entire table
+            InnerBorders: boolean? = false, -- inner bordres on the entire table
+            Resizable: boolean? = false, -- the columns can be resized by dragging or state
+            FixedWidth: boolean? = false, -- columns takes up a fixed pixel width, rather than a proportion of the total available
+            ProportionalWidth: boolean? = false, -- minimises the width of each column individually
+            LimitTableWidth: boolean? = false, -- when a fixed width, cut of any unused space
         }
         Events = {
             hovered: () -> boolean
+        }
+        States = {
+            widths: State<{ number }>? -- the widths of each column if Resizable
         }
         ```
     ]=]
@@ -1898,13 +1965,35 @@ return function(Iris: Types.Iris)
         @within Table
         @function NextColumn
         
-        In a table, moves to the next available cell. if the current cell is in the last column,
-        then the next cell will be the first column of the next row.
+        In a table, moves to the next available cell. If the current cell is in the last column,
+        then moves to the cell in the first column of the next row.
     ]=]
-    Iris.NextColumn = function()
-        local parentWidget = Iris.Internal._GetParentWidget() :: Types.Table
-        assert(parentWidget.type == "Table", "Iris.NextColumn() can only be called within a table.")
-        parentWidget.RowColumnIndex += 1
+    Iris.NextColumn = function(): number
+        local Table = Iris.Internal._GetParentWidget() :: Types.Table
+        assert(Table ~= nil, "Iris.NextColumn() can only called when directly within a table.")
+
+        local columnIndex = Table._columnIndex
+        if columnIndex == Table.arguments.NumColumns then
+            Table._columnIndex = 1
+            Table._rowIndex += 1
+        else
+            Table._columnIndex += 1
+        end
+        return Table._columnIndex
+    end
+
+    --[=[
+        @within Table
+        @function NextRow
+        
+        In a table, moves to the cell in the first column of the next row.
+    ]=]
+    Iris.NextRow = function(): number
+        local Table = Iris.Internal._GetParentWidget() :: Types.Table
+        assert(Table ~= nil, "Iris.NextRow() can only called when directly within a table.")
+        Table._columnIndex = 1
+        Table._rowIndex += 1
+        return Table._rowIndex
     end
 
     --[=[
@@ -1912,28 +2001,85 @@ return function(Iris: Types.Iris)
         @function SetColumnIndex
         @param index number
         
-        In a table, directly sets the index of the column.
+        In a table, moves to the cell in the given column in the same previous row.
+
+        Will erorr if the given index is not in the range of 1 to NumColumns.
     ]=]
-    Iris.SetColumnIndex = function(columnIndex: number)
-        local parentWidget = Iris.Internal._GetParentWidget() :: Types.Table
-        assert(parentWidget.type == "Table", "Iris.SetColumnIndex() can only be called within a table.")
-        assert(columnIndex >= parentWidget.InitialNumColumns, "Iris.SetColumnIndex() argument must be in column range.")
-        parentWidget.RowColumnIndex = math.floor(parentWidget.RowColumnIndex / parentWidget.InitialNumColumns) + (columnIndex - 1)
+    Iris.SetColumnIndex = function(index: number): ()
+        local Table = Iris.Internal._GetParentWidget() :: Types.Table
+        assert(Table ~= nil, "Iris.SetColumnIndex() can only called when directly within a table.")
+        assert((index >= 1) and (index <= Table.arguments.NumColumns), `The index must be between 1 and {Table.arguments.NumColumns}, inclusive.`)
+        Table._columnIndex = index
     end
 
     --[=[
         @within Table
-        @function NextRow
-        
-        In a table, moves to the next available row,
-        skipping cells in the previous column if the last cell wasn't in the last column
+        @function SetRowIndex
+        @param index number
+
+        In a table, moves to the cell in the given row with the same previous column.
     ]=]
-    Iris.NextRow = function()
-        -- sets column Index back to 0, increments Row
-        local parentWidget = Iris.Internal._GetParentWidget() :: Types.Table
-        assert(parentWidget.type == "Table", "Iris.NextColumn() can only be called within a table.")
-        local InitialNumColumns: number = parentWidget.InitialNumColumns
-        local nextRow: number = math.floor((parentWidget.RowColumnIndex + 1) / InitialNumColumns) * InitialNumColumns
-        parentWidget.RowColumnIndex = nextRow
+    Iris.SetRowIndex = function(index: number): ()
+        local Table = Iris.Internal._GetParentWidget() :: Types.Table
+        assert(Table ~= nil, "Iris.SetRowIndex() can only called when directly within a table.")
+        assert(index >= 1, "The index must be greater or equal to 1.")
+        Table._rowIndex = index
+    end
+
+    --[=[
+        @within Table
+        @function NextHeaderColumn
+
+        In a table, moves to the cell in the next column in the header row (row index 0). Will loop around
+        from the last column to the first.
+    ]=]
+    Iris.NextHeaderColumn = function(): number
+        local Table = Iris.Internal._GetParentWidget() :: Types.Table
+        assert(Table ~= nil, "Iris.NextHeaderColumn() can only called when directly within a table.")
+
+        Table._rowIndex = 0
+        Table._columnIndex = (Table._columnIndex % Table.arguments.NumColumns) + 1
+
+        return Table._columnIndex
+    end
+
+    --[=[
+        @within Table
+        @function SetHeaderColumnIndex
+        @param index number
+
+        In a table, moves to the cell in the given column in the header row (row index 0).
+
+        Will erorr if the given index is not in the range of 1 to NumColumns.
+    ]=]
+    Iris.SetHeaderColumnIndex = function(index: number): ()
+        local Table = Iris.Internal._GetParentWidget() :: Types.Table
+        assert(Table ~= nil, "Iris.SetHeaderColumnIndex() can only called when directly within a table.")
+        assert((index >= 1) and (index <= Table.arguments.NumColumns), `The index must be between 1 and {Table.arguments.NumColumns}, inclusive.`)
+
+        Table._rowIndex = 0
+        Table._columnIndex = index
+    end
+
+    --[=[
+        @within Table
+        @function SetColumnWidth
+        @param index number
+        @param width number
+
+        In a table, sets the width of the given column to the given value by changing the
+        Table's widths state. When the FixedWidth argument is true, the width should be in
+        pixels >2, otherwise as a float between 0 and 1.
+
+        Will erorr if the given index is not in the range of 1 to NumColumns.
+    ]=]
+    Iris.SetColumnWidth = function(index: number, width: number): ()
+        local Table = Iris.Internal._GetParentWidget() :: Types.Table
+        assert(Table ~= nil, "Iris.SetColumnWidth() can only called when directly within a table.")
+        assert((index >= 1) and (index <= Table.arguments.NumColumns), `The index must be between 1 and {Table.arguments.NumColumns}, inclusive.`)
+
+        local oldValue = Table.state.widths.value[index]
+        Table.state.widths.value[index] = width
+        Table.state.widths:set(Table.state.widths.value, width ~= oldValue)
     end
 end
