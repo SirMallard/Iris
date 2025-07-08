@@ -221,9 +221,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Border.Name = `Border_{index}`
         Border.Size = UDim2.new(0, 5, 1, 0)
         Border.BackgroundTransparency = 1
-        Border.AutoButtonColor = false
         Border.Image = ""
         Border.ImageTransparency = 1
+        Border.AutoButtonColor = false
         Border.ZIndex = index
         Border.LayoutOrder = 2 * index
 
@@ -241,8 +241,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
         local Hover = Instance.new("Frame")
         Hover.Name = "Hover"
-        Hover.Size = UDim2.new(0, 1, 1, 0)
         Hover.Position = UDim2.fromOffset(offset, 0)
+        Hover.Size = UDim2.new(0, 1, 1, 0)
         Hover.BackgroundColor3 = Iris._config[`TableBorder{style}Color`]
         Hover.BackgroundTransparency = Iris._config[`TableBorder{style}Transparency`]
         Hover.BorderSizePixel = 0
@@ -354,8 +354,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Table.AutomaticSize = Enum.AutomaticSize.Y
             Table.Size = UDim2.fromScale(1, 0)
             Table.BackgroundTransparency = 1
-            Table.ZIndex = thisWidget.ZIndex
-            Table.LayoutOrder = thisWidget.ZIndex
 
             local RowContainer = Instance.new("Frame")
             RowContainer.Name = "RowContainer"

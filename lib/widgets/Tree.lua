@@ -26,14 +26,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             widgets.discardState(thisWidget)
         end,
         ChildAdded = function(thisWidget: Types.CollapsingHeader, _thisChild: Types.Widget)
-            local ChildContainer: Frame = thisWidget.ChildContainer :: Frame
+            local ChildContainer = thisWidget.ChildContainer :: Frame
 
             ChildContainer.Visible = thisWidget.state.isUncollapsed.value
 
             return ChildContainer
         end,
         UpdateState = function(thisWidget: Types.CollapsingHeader)
-            local isUncollapsed: boolean = thisWidget.state.isUncollapsed.value
+            local isUncollapsed = thisWidget.state.isUncollapsed.value
             local Tree = thisWidget.Instance :: Frame
             local ChildContainer = thisWidget.ChildContainer :: Frame
             local Header = Tree.Header :: Frame
@@ -67,20 +67,19 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ["DefaultOpen"] = 4,
             },
             Generate = function(thisWidget: Types.Tree)
-                local Tree: Frame = Instance.new("Frame")
+                local Tree = Instance.new("Frame")
                 Tree.Name = "Iris_Tree"
-                Tree.Size = UDim2.new(Iris._config.ItemWidth, UDim.new(0, 0))
                 Tree.AutomaticSize = Enum.AutomaticSize.Y
+                Tree.Size = UDim2.new(Iris._config.ItemWidth, UDim.new(0, 0))
                 Tree.BackgroundTransparency = 1
                 Tree.BorderSizePixel = 0
-                Tree.LayoutOrder = thisWidget.ZIndex
 
                 widgets.UIListLayout(Tree, Enum.FillDirection.Vertical, UDim.new(0, 0))
 
-                local ChildContainer: Frame = Instance.new("Frame")
+                local ChildContainer = Instance.new("Frame")
                 ChildContainer.Name = "TreeContainer"
-                ChildContainer.Size = UDim2.fromScale(1, 0)
                 ChildContainer.AutomaticSize = Enum.AutomaticSize.Y
+                ChildContainer.Size = UDim2.fromScale(1, 0)
                 ChildContainer.BackgroundTransparency = 1
                 ChildContainer.BorderSizePixel = 0
                 ChildContainer.LayoutOrder = 1
@@ -88,20 +87,19 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 -- ChildContainer.ClipsDescendants = true
 
                 widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
-                local ChildContainerPadding: UIPadding = widgets.UIPadding(ChildContainer, Vector2.zero)
-                ChildContainerPadding.PaddingTop = UDim.new(0, Iris._config.ItemSpacing.Y)
+                widgets.UIPadding(ChildContainer, Vector2.zero).PaddingTop = UDim.new(0, Iris._config.ItemSpacing.Y)
 
                 ChildContainer.Parent = Tree
 
-                local Header: Frame = Instance.new("Frame")
+                local Header = Instance.new("Frame")
                 Header.Name = "Header"
-                Header.Size = UDim2.fromScale(1, 0)
                 Header.AutomaticSize = Enum.AutomaticSize.Y
+                Header.Size = UDim2.fromScale(1, 0)
                 Header.BackgroundTransparency = 1
                 Header.BorderSizePixel = 0
                 Header.Parent = Tree
 
-                local Button: TextButton = Instance.new("TextButton")
+                local Button = Instance.new("TextButton")
                 Button.Name = "Button"
                 Button.BackgroundTransparency = 1
                 Button.BorderSizePixel = 0
@@ -117,14 +115,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     ActiveTransparency = Iris._config.HeaderActiveTransparency,
                 })
 
-                local ButtonPadding: UIPadding = widgets.UIPadding(Button, Vector2.zero)
-                ButtonPadding.PaddingLeft = UDim.new(0, Iris._config.FramePadding.X)
-                local ButtonUIListLayout: UIListLayout = widgets.UIListLayout(Button, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.FramePadding.X))
-                ButtonUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+                widgets.UIPadding(Button, Vector2.zero).PaddingLeft = UDim.new(0, Iris._config.FramePadding.X)
+                widgets.UIListLayout(Button, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.FramePadding.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
                 Button.Parent = Header
 
-                local Arrow: ImageLabel = Instance.new("ImageLabel")
+                local Arrow = Instance.new("ImageLabel")
                 Arrow.Name = "Arrow"
                 Arrow.Size = UDim2.fromOffset(Iris._config.TextSize, math.floor(Iris._config.TextSize * 0.7))
                 Arrow.BackgroundTransparency = 1
@@ -135,15 +131,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 Arrow.Parent = Button
 
-                local TextLabel: TextLabel = Instance.new("TextLabel")
+                local TextLabel = Instance.new("TextLabel")
                 TextLabel.Name = "TextLabel"
-                TextLabel.Size = UDim2.fromOffset(0, 0)
                 TextLabel.AutomaticSize = Enum.AutomaticSize.XY
+                TextLabel.Size = UDim2.fromOffset(0, 0)
                 TextLabel.BackgroundTransparency = 1
                 TextLabel.BorderSizePixel = 0
 
-                local TextPadding: UIPadding = widgets.UIPadding(TextLabel, Vector2.zero)
-                TextPadding.PaddingRight = UDim.new(0, 21)
+                widgets.UIPadding(TextLabel, Vector2.zero).PaddingRight = UDim.new(0, 21)
                 widgets.applyTextStyle(TextLabel)
 
                 TextLabel.Parent = Button
@@ -190,20 +185,19 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ["DefaultOpen"] = 2
             },
             Generate = function(thisWidget: Types.CollapsingHeader)
-                local CollapsingHeader: Frame = Instance.new("Frame")
+                local CollapsingHeader = Instance.new("Frame")
                 CollapsingHeader.Name = "Iris_CollapsingHeader"
-                CollapsingHeader.Size = UDim2.new(Iris._config.ItemWidth, UDim.new(0, 0))
                 CollapsingHeader.AutomaticSize = Enum.AutomaticSize.Y
+                CollapsingHeader.Size = UDim2.new(Iris._config.ItemWidth, UDim.new(0, 0))
                 CollapsingHeader.BackgroundTransparency = 1
                 CollapsingHeader.BorderSizePixel = 0
-                CollapsingHeader.LayoutOrder = thisWidget.ZIndex
 
                 widgets.UIListLayout(CollapsingHeader, Enum.FillDirection.Vertical, UDim.new(0, 0))
 
-                local ChildContainer: Frame = Instance.new("Frame")
+                local ChildContainer = Instance.new("Frame")
                 ChildContainer.Name = "CollapsingHeaderContainer"
-                ChildContainer.Size = UDim2.fromScale(1, 0)
                 ChildContainer.AutomaticSize = Enum.AutomaticSize.Y
+                ChildContainer.Size = UDim2.fromScale(1, 0)
                 ChildContainer.BackgroundTransparency = 1
                 ChildContainer.BorderSizePixel = 0
                 ChildContainer.LayoutOrder = 1
@@ -211,23 +205,22 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 -- ChildContainer.ClipsDescendants = true
 
                 widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
-                local ChildContainerPadding: UIPadding = widgets.UIPadding(ChildContainer, Vector2.zero)
-                ChildContainerPadding.PaddingTop = UDim.new(0, Iris._config.ItemSpacing.Y)
+                widgets.UIPadding(ChildContainer, Vector2.zero).PaddingTop = UDim.new(0, Iris._config.ItemSpacing.Y)
 
                 ChildContainer.Parent = CollapsingHeader
 
-                local Header: Frame = Instance.new("Frame")
+                local Header = Instance.new("Frame")
                 Header.Name = "Header"
-                Header.Size = UDim2.fromScale(1, 0)
                 Header.AutomaticSize = Enum.AutomaticSize.Y
+                Header.Size = UDim2.fromScale(1, 0)
                 Header.BackgroundTransparency = 1
                 Header.BorderSizePixel = 0
                 Header.Parent = CollapsingHeader
 
                 local Button = Instance.new("TextButton")
                 Button.Name = "Button"
-                Button.Size = UDim2.new(1, 0, 0, 0)
                 Button.AutomaticSize = Enum.AutomaticSize.Y
+                Button.Size = UDim2.new(1, 0, 0, 0)
                 Button.BackgroundColor3 = Iris._config.HeaderColor
                 Button.BackgroundTransparency = Iris._config.HeaderTransparency
                 Button.BorderSizePixel = 0
@@ -237,8 +230,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 widgets.UIPadding(Button, Iris._config.FramePadding) -- we add a custom padding because it extends on both sides
                 widgets.applyFrameStyle(Button, true)
-                local ButtonUIListLayout: UIListLayout = widgets.UIListLayout(Button, Enum.FillDirection.Horizontal, UDim.new(0, 2 * Iris._config.FramePadding.X))
-                ButtonUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+                widgets.UIListLayout(Button, Enum.FillDirection.Horizontal, UDim.new(0, 2 * Iris._config.FramePadding.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
                 widgets.applyInteractionHighlights("Background", Button, Button, {
                     Color = Iris._config.HeaderColor,
@@ -251,10 +243,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 Button.Parent = Header
 
-                local Arrow: ImageLabel = Instance.new("ImageLabel")
+                local Arrow = Instance.new("ImageLabel")
                 Arrow.Name = "Arrow"
-                Arrow.Size = UDim2.fromOffset(Iris._config.TextSize, math.ceil(Iris._config.TextSize * 0.8))
                 Arrow.AutomaticSize = Enum.AutomaticSize.Y
+                Arrow.Size = UDim2.fromOffset(Iris._config.TextSize, math.ceil(Iris._config.TextSize * 0.8))
                 Arrow.BackgroundTransparency = 1
                 Arrow.BorderSizePixel = 0
                 Arrow.ImageColor3 = Iris._config.TextColor
@@ -263,15 +255,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 Arrow.Parent = Button
 
-                local TextLabel: TextLabel = Instance.new("TextLabel")
+                local TextLabel = Instance.new("TextLabel")
                 TextLabel.Name = "TextLabel"
-                TextLabel.Size = UDim2.fromOffset(0, 0)
                 TextLabel.AutomaticSize = Enum.AutomaticSize.XY
+                TextLabel.Size = UDim2.fromOffset(0, 0)
                 TextLabel.BackgroundTransparency = 1
                 TextLabel.BorderSizePixel = 0
 
-                local TextPadding: UIPadding = widgets.UIPadding(TextLabel, Vector2.zero)
-                TextPadding.PaddingRight = UDim.new(0, 21)
+                widgets.UIPadding(TextLabel, Vector2.zero).PaddingRight = UDim.new(0, 21)
                 widgets.applyTextStyle(TextLabel)
 
                 TextLabel.Parent = Button

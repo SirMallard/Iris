@@ -437,9 +437,9 @@ return function(Iris: Types.Iris)
         }
         ```
     ]=]
-    Iris.TextWrapped = function(arguments: Types.WidgetArguments): Types.Text
+    Iris.TextWrapped = function(arguments: Types.WidgetArguments)
         arguments[2] = true
-        return Iris.Internal._Insert("Text", arguments) :: Types.Text
+        return Iris.Internal._Insert("Text", arguments)
     end
 
     --[=[
@@ -462,10 +462,10 @@ return function(Iris: Types.Iris)
         }
         ```
     ]=]
-    Iris.TextColored = function(arguments: Types.WidgetArguments): Types.Text
+    Iris.TextColored = function(arguments: Types.WidgetArguments)
         arguments[3] = arguments[2]
         arguments[2] = nil
-        return Iris.Internal._Insert("Text", arguments) :: Types.Text
+        return Iris.Internal._Insert("Text", arguments)
     end
 
     --[=[
@@ -1670,9 +1670,9 @@ return function(Iris: Types.Iris)
             defaultState = states
         end
         local thisWidget = Iris.Internal._Insert("Combo", arguments, defaultState)
-        local sharedIndex: Types.State<T> = thisWidget.state.index
+        local sharedIndex = thisWidget.state.index
         for _, Selection in selectionArray do
-            Iris.Internal._Insert("Selectable", { Selection, Selection }, { index = sharedIndex } :: Types.States)
+            Iris.Internal._Insert("Selectable", { Selection, Selection }, { index = sharedIndex })
         end
         Iris.End()
 
@@ -1721,7 +1721,7 @@ return function(Iris: Types.Iris)
         local thisWidget = Iris.Internal._Insert("Combo", arguments, defaultState)
         local sharedIndex = thisWidget.state.index
         for _, Selection in enumType:GetEnumItems() do
-            Iris.Internal._Insert("Selectable", { Selection.Name, Selection }, { index = sharedIndex } :: Types.States)
+            Iris.Internal._Insert("Selectable", { Selection.Name, Selection }, { index = sharedIndex })
         end
         Iris.End()
 
@@ -1968,7 +1968,7 @@ return function(Iris: Types.Iris)
         In a table, moves to the next available cell. If the current cell is in the last column,
         then moves to the cell in the first column of the next row.
     ]=]
-    Iris.NextColumn = function(): number
+    Iris.NextColumn = function()
         local Table = Iris.Internal._GetParentWidget() :: Types.Table
         assert(Table ~= nil, "Iris.NextColumn() can only called when directly within a table.")
 
@@ -1988,7 +1988,7 @@ return function(Iris: Types.Iris)
         
         In a table, moves to the cell in the first column of the next row.
     ]=]
-    Iris.NextRow = function(): number
+    Iris.NextRow = function()
         local Table = Iris.Internal._GetParentWidget() :: Types.Table
         assert(Table ~= nil, "Iris.NextRow() can only called when directly within a table.")
         Table._columnIndex = 1
@@ -2005,7 +2005,7 @@ return function(Iris: Types.Iris)
 
         Will erorr if the given index is not in the range of 1 to NumColumns.
     ]=]
-    Iris.SetColumnIndex = function(index: number): ()
+    Iris.SetColumnIndex = function(index: number)
         local Table = Iris.Internal._GetParentWidget() :: Types.Table
         assert(Table ~= nil, "Iris.SetColumnIndex() can only called when directly within a table.")
         assert((index >= 1) and (index <= Table.arguments.NumColumns), `The index must be between 1 and {Table.arguments.NumColumns}, inclusive.`)
@@ -2019,7 +2019,7 @@ return function(Iris: Types.Iris)
 
         In a table, moves to the cell in the given row with the same previous column.
     ]=]
-    Iris.SetRowIndex = function(index: number): ()
+    Iris.SetRowIndex = function(index: number)
         local Table = Iris.Internal._GetParentWidget() :: Types.Table
         assert(Table ~= nil, "Iris.SetRowIndex() can only called when directly within a table.")
         assert(index >= 1, "The index must be greater or equal to 1.")
@@ -2033,7 +2033,7 @@ return function(Iris: Types.Iris)
         In a table, moves to the cell in the next column in the header row (row index 0). Will loop around
         from the last column to the first.
     ]=]
-    Iris.NextHeaderColumn = function(): number
+    Iris.NextHeaderColumn = function()
         local Table = Iris.Internal._GetParentWidget() :: Types.Table
         assert(Table ~= nil, "Iris.NextHeaderColumn() can only called when directly within a table.")
 
@@ -2052,7 +2052,7 @@ return function(Iris: Types.Iris)
 
         Will erorr if the given index is not in the range of 1 to NumColumns.
     ]=]
-    Iris.SetHeaderColumnIndex = function(index: number): ()
+    Iris.SetHeaderColumnIndex = function(index: number)
         local Table = Iris.Internal._GetParentWidget() :: Types.Table
         assert(Table ~= nil, "Iris.SetHeaderColumnIndex() can only called when directly within a table.")
         assert((index >= 1) and (index <= Table.arguments.NumColumns), `The index must be between 1 and {Table.arguments.NumColumns}, inclusive.`)
@@ -2073,7 +2073,7 @@ return function(Iris: Types.Iris)
 
         Will erorr if the given index is not in the range of 1 to NumColumns.
     ]=]
-    Iris.SetColumnWidth = function(index: number, width: number): ()
+    Iris.SetColumnWidth = function(index: number, width: number)
         local Table = Iris.Internal._GetParentWidget() :: Types.Table
         assert(Table ~= nil, "Iris.SetColumnWidth() can only called when directly within a table.")
         assert((index >= 1) and (index <= Table.arguments.NumColumns), `The index must be between 1 and {Table.arguments.NumColumns}, inclusive.`)

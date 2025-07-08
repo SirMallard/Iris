@@ -1,5 +1,3 @@
-local HttpService: HttpService = game:GetService("HttpService")
-
 local Types = require(script.Parent.Types)
 
 return function(Iris: Types.Iris): Types.Internal
@@ -74,9 +72,9 @@ return function(Iris: Types.Iris): Types.Internal
     ]=]
     Internal._cycleCoroutine = coroutine.create(function()
         while Internal._started do
-            for _, callback: () -> string in Internal._connectedFunctions do
+            for _, callback in Internal._connectedFunctions do
                 debug.profilebegin("Iris/Connection")
-                local status: boolean, _error: string = pcall(callback)
+                local status, _error: string = pcall(callback)
                 debug.profileend()
                 if not status then
                     -- any error reserts the _stackIndex for the next frame and yields the error.
@@ -130,7 +128,7 @@ return function(Iris: Types.Iris): Types.Internal
 
         Returns the states current value.
     ]=]
-    function StateClass:get<T>(): T -- you can also simply use .value
+    function StateClass:get<T>() -- you can also simply use .value
         return self.value
     end
 
@@ -143,7 +141,7 @@ return function(Iris: Types.Iris): Types.Internal
 
         Allows the caller to assign the state object a new value, and returns the new value.
     ]=]
-    function StateClass:set<T>(newValue: T, force: true?): T
+    function StateClass:set<T>(newValue: T, force: true?)
         if newValue == self.value and force ~= true then
             -- no need to update on no change.
             return self.value
@@ -175,7 +173,7 @@ return function(Iris: Types.Iris): Types.Internal
         You must ensure you are only calling `:onChange()` once for each callback for the state's entire lifetime.
         :::
     ]=]
-    function StateClass:onChange<T>(callback: (newValue: T) -> ()): () -> ()
+    function StateClass:onChange<T>(callback: (newValue: T) -> ())
         local connectionIndex: number = #self.ConnectedFunctions + 1
         self.ConnectedFunctions[connectionIndex] = callback
         return function()
@@ -190,7 +188,7 @@ return function(Iris: Types.Iris): Types.Internal
 
         Returns true if the state was changed on this frame.
     ]=]
-    function StateClass:changed<T>(): boolean
+    function StateClass:changed<T>()
         return self.lastChangeTick + 1 == Internal._cycleTick
     end
 
@@ -263,7 +261,7 @@ return function(Iris: Types.Iris): Types.Internal
         -- if Internal.parentInstance:IsA("GuiBase2d") and math.min(Internal.parentInstance.AbsoluteSize.X, Internal.parentInstance.AbsoluteSize.Y) < 100 then
         --     error("Iris Parent Instance is too small")
         -- end
-        local compatibleParent: boolean = (Internal.parentInstance:IsA("GuiBase2d") or Internal.parentInstance:IsA("CoreGui") or Internal.parentInstance:IsA("PluginGui") or Internal.parentInstance:IsA("PlayerGui"))
+        local compatibleParent = (Internal.parentInstance:IsA("GuiBase2d") or Internal.parentInstance:IsA("CoreGui") or Internal.parentInstance:IsA("PluginGui") or Internal.parentInstance:IsA("PlayerGui"))
         if compatibleParent == false then
             error("The Iris parent instance will not display any GUIs.")
         end
@@ -336,7 +334,7 @@ return function(Iris: Types.Iris): Types.Internal
         dumb tables containing all the data but no methods to handle any of the data apart from events.
     ]=]
     function Internal.WidgetConstructor(type: string, widgetClass: Types.WidgetClass)
-        local Fields: { [string]: { [string]: { string } } } = {
+        local Fields = {
             All = {
                 Required = {
                     "Generate", -- generates the instance.
@@ -371,12 +369,12 @@ return function(Iris: Types.Iris): Types.Internal
         -- we ensure all essential functions and properties are present, otherwise the code will break later.
         -- some functions will only be needed if the widget has children or has state.
         local thisWidget = {} :: Types.WidgetClass
-        for _, field: string in Fields.All.Required do
+        for _, field in Fields.All.Required do
             assert(widgetClass[field] ~= nil, `field {field} is missing from widget {type}, it is required for all widgets`)
             thisWidget[field] = widgetClass[field]
         end
 
-        for _, field: string in Fields.All.Optional do
+        for _, field in Fields.All.Optional do
             if widgetClass[field] == nil then
                 -- assign a dummy function which does nothing.
                 thisWidget[field] = Internal._NoOp
@@ -386,11 +384,11 @@ return function(Iris: Types.Iris): Types.Internal
         end
 
         if widgetClass.hasState then
-            for _, field: string in Fields.IfState.Required do
+            for _, field in Fields.IfState.Required do
                 assert(widgetClass[field] ~= nil, `field {field} is missing from widget {type}, it is required for all widgets with state`)
                 thisWidget[field] = widgetClass[field]
             end
-            for _, field: string in Fields.IfState.Optional do
+            for _, field in Fields.IfState.Optional do
                 if widgetClass[field] == nil then
                     thisWidget[field] = Internal._NoOp
                 else
@@ -400,11 +398,11 @@ return function(Iris: Types.Iris): Types.Internal
         end
 
         if widgetClass.hasChildren then
-            for _, field: string in Fields.IfChildren.Required do
+            for _, field in Fields.IfChildren.Required do
                 assert(widgetClass[field] ~= nil, `field {field} is missing from widget {type}, it is required for all widgets with children`)
                 thisWidget[field] = widgetClass[field]
             end
-            for _, field: string in Fields.IfChildren.Optional do
+            for _, field in Fields.IfChildren.Optional do
                 if widgetClass[field] == nil then
                     thisWidget[field] = Internal._NoOp
                 else
@@ -418,13 +416,13 @@ return function(Iris: Types.Iris): Types.Internal
         -- allowing access to the index for each widget argument.
         Iris.Args[type] = thisWidget.Args
 
-        local ArgNames: { [number]: string } = {}
-        for index: string, argument: number in thisWidget.Args do
+        local ArgNames = {}
+        for index, argument in thisWidget.Args do
             ArgNames[argument] = index
         end
         thisWidget.ArgNames = ArgNames
 
-        for index: string, _ in thisWidget.Events do
+        for index, _ in thisWidget.Events do
             if Iris.Events[index] == nil then
                 Iris.Events[index] = function()
                     return Internal._EventCall(Internal._lastWidget, index)
@@ -444,26 +442,26 @@ return function(Iris: Types.Iris): Types.Internal
         Every widget is created through _Insert. An ID is generated based on the line of the calling code and is used to
         find the previous frame widget if it exists. If no widget exists, a new one is created.
     ]=]
-    function Internal._Insert(widgetType: string, args: Types.WidgetArguments?, states: Types.WidgetStates?): Types.Widget
-        local ID: Types.ID = Internal._getID(3)
+    function Internal._Insert(widgetType: string, args: Types.WidgetArguments?, states: Types.WidgetStates?)
+        local ID = Internal._getID(3)
         --debug.profilebegin(ID)
 
         -- fetch the widget class which contains all the functions for the widget.
-        local thisWidgetClass: Types.WidgetClass = Internal._widgets[widgetType]
+        local thisWidgetClass = Internal._widgets[widgetType]
 
         if Internal._VDOM[ID] then
             -- widget already created once this frame, so we can append to it.
             return Internal._ContinueWidget(ID, widgetType)
         end
 
-        local arguments: Types.Arguments = {} :: Types.Arguments
+        local arguments = {} :: Types.Arguments
         if args ~= nil then
             if type(args) ~= "table" then
                 args = { args }
             end
 
             -- convert the arguments to a key-value dictionary so arguments can be referred to by their name and not index.
-            for index: number, argument: Types.Argument in args do
+            for index, argument in args do
                 assert(index > 0, `Widget Arguments must be a positive number, not {index} of type {typeof(index)} for {argument}.`)
                 arguments[thisWidgetClass.ArgNames[index]] = argument
             end
@@ -471,7 +469,7 @@ return function(Iris: Types.Iris): Types.Internal
         -- prevents tampering with the arguments which are used to check for changes.
         table.freeze(arguments)
 
-        local lastWidget: Types.Widget? = Internal._lastVDOM[ID]
+        local lastWidget = Internal._lastVDOM[ID]
         if lastWidget and widgetType == lastWidget.type then
             -- found a matching widget from last frame.
             if Internal._refreshCounter > 0 then
@@ -480,9 +478,9 @@ return function(Iris: Types.Iris): Types.Internal
                 lastWidget = nil
             end
         end
-        local thisWidget: Types.Widget = if lastWidget == nil then Internal._GenNewWidget(widgetType, arguments, states, ID) else lastWidget
+        local thisWidget = if lastWidget == nil then Internal._GenNewWidget(widgetType, arguments, states, ID) else lastWidget
 
-        local parentWidget: Types.ParentWidget = thisWidget.parentWidget
+        local parentWidget = thisWidget.parentWidget
 
         if thisWidget.type ~= "Window" and thisWidget.type ~= "Tooltip" then
             if thisWidget.ZIndex ~= parentWidget.ZOffset then
@@ -545,10 +543,10 @@ return function(Iris: Types.Iris): Types.Internal
         All widgets are created as tables with properties. The widget class contains the functions to create the UI instances and
         update the widget or change state.
     ]=]
-    function Internal._GenNewWidget(widgetType: string, arguments: Types.Arguments, states: Types.WidgetStates?, ID: Types.ID): Types.Widget
-        local parentId: Types.ID = Internal._IDStack[Internal._stackIndex]
+    function Internal._GenNewWidget(widgetType: string, arguments: Types.Arguments, states: Types.WidgetStates?, ID: Types.ID)
+        local parentId = Internal._IDStack[Internal._stackIndex]
         local parentWidget: Types.ParentWidget = Internal._VDOM[parentId]
-        local thisWidgetClass: Types.WidgetClass = Internal._widgets[widgetType]
+        local thisWidgetClass = Internal._widgets[widgetType]
 
         -- widgets are just tables with properties.
         local thisWidget = {} :: Types.Widget
@@ -558,7 +556,7 @@ return function(Iris: Types.Iris): Types.Internal
         thisWidget.type = widgetType
         thisWidget.parentWidget = parentWidget
         thisWidget.trackedEvents = {}
-        thisWidget.UID = HttpService:GenerateGUID(false):sub(0, 8)
+        -- thisWidget.UID = HttpService:GenerateGUID(false):sub(0, 8)
 
         -- widgets have lots of space to ensure they are always visible.
         thisWidget.ZIndex = parentWidget.ZOffset
@@ -582,7 +580,7 @@ return function(Iris: Types.Iris): Types.Internal
         if thisWidgetClass.hasState then
             local stateWidget = thisWidget :: Types.StateWidget
             if states then
-                for index: string, state: Types.State<any> in states do
+                for index, state in states do
                     if not (type(state) == "table" and getmetatable(state :: any) == Internal.StateClass) then
                         -- generate a new state.
                         states[index] = Internal._widgetState(stateWidget, index, state)
@@ -591,7 +589,7 @@ return function(Iris: Types.Iris): Types.Internal
                 end
 
                 stateWidget.state = states
-                for _, state: Types.State<any> in states do
+                for _, state in states do
                     state.ConnectedWidgets[stateWidget.ID] = stateWidget
                 end
             else
@@ -611,7 +609,7 @@ return function(Iris: Types.Iris): Types.Internal
             eventMTParent = thisWidget
         end
 
-        eventMTParent.__index = function(_, eventName: string)
+        eventMTParent.__index = function(_, eventName)
             return function()
                 return Internal._EventCall(thisWidget, eventName)
             end
@@ -630,9 +628,9 @@ return function(Iris: Types.Iris): Types.Internal
         arguments or states.
         Basically equivalent to the end of `Internal._Insert`.
     ]=]
-    function Internal._ContinueWidget(ID: Types.ID, widgetType: string): Types.Widget
-        local thisWidgetClass: Types.WidgetClass = Internal._widgets[widgetType]
-        local thisWidget: Types.Widget = Internal._VDOM[ID]
+    function Internal._ContinueWidget(ID: Types.ID, widgetType: string)
+        local thisWidgetClass = Internal._widgets[widgetType]
+        local thisWidget = Internal._VDOM[ID]
 
         if thisWidgetClass.hasChildren then
             -- a parent widget so we increase our depth.
@@ -678,22 +676,23 @@ return function(Iris: Types.Iris): Types.Internal
         Connects the state to the widget. If no state exists then a new one is created. Called for every state in every
         widget if the user does not provide a state.
     ]=]
-    function Internal._widgetState(thisWidget: Types.StateWidget, stateName: string, initialValue: any): Types.State<any>
-        local ID: Types.ID = thisWidget.ID .. stateName
+    function Internal._widgetState<T>(thisWidget: Types.StateWidget, stateName: string, initialValue: T)
+        local ID = thisWidget.ID .. stateName
         if Internal._states[ID] then
             Internal._states[ID].ConnectedWidgets[thisWidget.ID] = thisWidget
             Internal._states[ID].lastChangeTick = Internal._cycleTick
             return Internal._states[ID]
         else
-            Internal._states[ID] = {
+            local newState = {
                 ID = ID,
                 value = initialValue,
                 lastChangeTick = Internal._cycleTick,
                 ConnectedWidgets = { [thisWidget.ID] = thisWidget },
                 ConnectedFunctions = {},
-            }
-            setmetatable(Internal._states[ID], Internal.StateClass)
-            return Internal._states[ID]
+            } :: Types.State<T>
+            setmetatable(newState, Internal.StateClass)
+            Internal._states[ID] = newState
+            return newState
         end
     end
 
@@ -707,9 +706,9 @@ return function(Iris: Types.Iris): Types.Internal
         A wrapper for any event on any widget. Automatically, Iris does not initialize events unless they are explicitly
         called so in the first frame, the event connections are set up. Every event is a function which returns a boolean.
     ]=]
-    function Internal._EventCall(thisWidget: Types.Widget, eventName: string): boolean
-        local Events: Types.Events = Internal._widgets[thisWidget.type].Events
-        local Event: Types.Event = Events[eventName]
+    function Internal._EventCall(thisWidget: Types.Widget, eventName: string)
+        local Events = Internal._widgets[thisWidget.type].Events
+        local Event = Events[eventName]
         assert(Event ~= nil, `widget {thisWidget.type} has no event of name {eventName}`)
 
         if thisWidget.trackedEvents[eventName] == nil then
@@ -740,7 +739,7 @@ return function(Iris: Types.Iris): Types.Internal
 
         Creates the VDOM at the start of each frame containing just the root instance.
     ]=]
-    function Internal._generateEmptyVDOM(): { [Types.ID]: Types.Widget }
+    function Internal._generateEmptyVDOM()
         return {
             ["R"] = Internal._rootWidget,
         }
@@ -772,26 +771,15 @@ return function(Iris: Types.Iris): Types.Internal
             Internal.SelectionImageObject:Destroy()
         end
 
-        local SelectionImageObject: Frame = Instance.new("Frame")
+        local SelectionImageObject = Instance.new("Frame")
         SelectionImageObject.Position = UDim2.fromOffset(-1, -1)
         SelectionImageObject.Size = UDim2.new(1, 2, 1, 2)
         SelectionImageObject.BackgroundColor3 = Internal._config.SelectionImageObjectColor
         SelectionImageObject.BackgroundTransparency = Internal._config.SelectionImageObjectTransparency
         SelectionImageObject.BorderSizePixel = 0
 
-        local UIStroke: UIStroke = Instance.new("UIStroke")
-        UIStroke.Thickness = 1
-        UIStroke.Color = Internal._config.SelectionImageObjectBorderColor
-        UIStroke.Transparency = Internal._config.SelectionImageObjectBorderTransparency
-        UIStroke.LineJoinMode = Enum.LineJoinMode.Round
-        UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-
-        UIStroke.Parent = SelectionImageObject
-
-        local Rounding: UICorner = Instance.new("UICorner")
-        Rounding.CornerRadius = UDim.new(0, 2)
-
-        Rounding.Parent = SelectionImageObject
+        Internal._utility.UIStroke(SelectionImageObject, 1, Internal._config.SelectionImageObjectBorderColor, Internal._config.SelectionImageObjectBorderTransparency)
+        Internal._utility.UICorner(SelectionImageObject, 2)
 
         Internal.SelectionImageObject = SelectionImageObject
     end
@@ -808,16 +796,16 @@ return function(Iris: Types.Iris): Types.Internal
         created from. This ensures that the function is heuristic and always returns the same
         id for the same widget.
     ]=]
-    function Internal._getID(levelsToIgnore: number): Types.ID
+    function Internal._getID(levelsToIgnore: number)
         if Internal._nextWidgetId then
-            local ID: Types.ID = Internal._nextWidgetId
+            local ID = Internal._nextWidgetId
             Internal._nextWidgetId = nil
             return ID
         end
 
-        local i: number = 1 + (levelsToIgnore or 1)
-        local ID: Types.ID = ""
-        local levelInfo: number = debug.info(i, "l")
+        local i = 1 + (levelsToIgnore or 1)
+        local ID = ""
+        local levelInfo = debug.info(i, "l")
         while levelInfo ~= -1 and levelInfo ~= nil do
             ID ..= "+" .. levelInfo
             i += 1
@@ -855,7 +843,7 @@ return function(Iris: Types.Iris): Types.Internal
         to compare against the other. Used to determine if the arguments of a widget have changed since last
         frame.
     ]=]
-    function Internal._deepCompare(t1: {}, t2: {}): boolean
+    function Internal._deepCompare(t1: {}, t2: {})
         -- unoptimized ?
         for i, v1 in t1 do
             local v2 = t2[i]
@@ -889,7 +877,7 @@ return function(Iris: Types.Iris): Types.Internal
     function Internal._deepCopy(t: {}): {}
         local copy: {} = table.clone(t)
 
-        for k: any, v: any in pairs(t) do
+        for k, v in t do
             if type(v) == "table" then
                 copy[k] = Internal._deepCopy(v)
             end

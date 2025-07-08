@@ -51,15 +51,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end),
         },
         Generate = function(thisWidget: Types.Selectable)
-            local Selectable: Frame = Instance.new("Frame")
+            local Selectable = Instance.new("Frame")
             Selectable.Name = "Iris_Selectable"
             Selectable.Size = UDim2.new(Iris._config.ItemWidth, UDim.new(0, Iris._config.TextSize + 2 * Iris._config.FramePadding.Y - Iris._config.ItemSpacing.Y))
             Selectable.BackgroundTransparency = 1
             Selectable.BorderSizePixel = 0
-            Selectable.ZIndex = 0
-            Selectable.LayoutOrder = thisWidget.ZIndex
 
-            local SelectableButton: TextButton = Instance.new("TextButton")
+            local SelectableButton = Instance.new("TextButton")
             SelectableButton.Name = "SelectableButton"
             SelectableButton.Size = UDim2.new(1, 0, 0, Iris._config.TextSize + 2 * Iris._config.FramePadding.Y)
             SelectableButton.Position = UDim2.fromOffset(0, -bit32.rshift(Iris._config.ItemSpacing.Y, 1)) -- divide by 2
@@ -95,15 +93,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return Selectable
         end,
-        Update = function(thisWidget: Types.Selectable)
-            local Selectable = thisWidget.Instance :: Frame
-            local SelectableButton: TextButton = Selectable.SelectableButton
-            SelectableButton.Text = thisWidget.arguments.Text or "Selectable"
-        end,
-        Discard = function(thisWidget: Types.Selectable)
-            thisWidget.Instance:Destroy()
-            widgets.discardState(thisWidget)
-        end,
         GenerateState = function(thisWidget: Types.Selectable)
             if thisWidget.state.index == nil then
                 if thisWidget.arguments.Index ~= nil then
@@ -112,10 +101,16 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 thisWidget.state.index = Iris._widgetState(thisWidget, "index", false)
             end
         end,
+        Update = function(thisWidget: Types.Selectable)
+            local Selectable = thisWidget.Instance :: Frame
+            local SelectableButton: TextButton = Selectable.SelectableButton
+            SelectableButton.Text = thisWidget.arguments.Text or "Selectable"
+        end,
         UpdateState = function(thisWidget: Types.Selectable)
             local Selectable = thisWidget.Instance :: Frame
             local SelectableButton: TextButton = Selectable.SelectableButton
-            if thisWidget.state.index.value == (thisWidget.arguments.Index or true) then
+            
+            if thisWidget.state.index.value == thisWidget.arguments.Index or thisWidget.state.index.value == true then
                 thisWidget.ButtonColors.Transparency = Iris._config.HeaderTransparency
                 SelectableButton.BackgroundTransparency = Iris._config.HeaderTransparency
                 thisWidget.lastSelectedTick = Iris._cycleTick + 1
@@ -125,32 +120,36 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 thisWidget.lastUnselectedTick = Iris._cycleTick + 1
             end
         end,
+        Discard = function(thisWidget: Types.Selectable)
+            thisWidget.Instance:Destroy()
+            widgets.discardState(thisWidget)
+        end,
     } :: Types.WidgetClass)
 
-    local AnyOpenedCombo: boolean = false
-    local ComboOpenedTick: number = -1
+    local AnyOpenedCombo = false
+    local ComboOpenedTick = -1
     local OpenedCombo: Types.Combo? = nil
-    local CachedContentSize: number = 0
+    local CachedContentSize = 0
 
     local function UpdateChildContainerTransform(thisWidget: Types.Combo)
         local Combo = thisWidget.Instance :: Frame
         local PreviewContainer = Combo.PreviewContainer :: TextButton
         local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
 
-        local previewPosition: Vector2 = PreviewContainer.AbsolutePosition - widgets.GuiOffset
-        local previewSize: Vector2 = PreviewContainer.AbsoluteSize
-        local borderSize: number = Iris._config.PopupBorderSize
+        local previewPosition = PreviewContainer.AbsolutePosition - widgets.GuiOffset
+        local previewSize = PreviewContainer.AbsoluteSize
+        local borderSize = Iris._config.PopupBorderSize
         local screenSize: Vector2 = ChildContainer.Parent.AbsoluteSize
 
         local absoluteContentSize = thisWidget.UIListLayout.AbsoluteContentSize.Y
         CachedContentSize = absoluteContentSize
 
-        local contentsSize: number = absoluteContentSize + 2 * Iris._config.WindowPadding.Y
+        local contentsSize = absoluteContentSize + 2 * Iris._config.WindowPadding.Y
 
-        local x: number = previewPosition.X
-        local y: number = previewPosition.Y + previewSize.Y + borderSize
-        local anchor: Vector2 = Vector2.zero
-        local distanceToScreen: number = screenSize.Y - y
+        local x = previewPosition.X
+        local y = previewPosition.Y + previewSize.Y + borderSize
+        local anchor = Vector2.zero
+        local distanceToScreen = screenSize.Y - y
 
         -- Only extend upwards if we cannot fully extend downwards, and we are on the bottom half of the screen.
         --  i.e. there is more space upwards than there is downwards.
@@ -190,12 +189,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             return
         end
 
-        local MouseLocation: Vector2 = widgets.getMouseLocation()
+        local MouseLocation = widgets.getMouseLocation()
         local Combo = OpenedCombo.Instance :: Frame
         local PreviewContainer: TextButton = Combo.PreviewContainer
         local ChildContainer = OpenedCombo.ChildContainer
-        local rectMin: Vector2 = PreviewContainer.AbsolutePosition - widgets.GuiOffset
-        local rectMax: Vector2 = PreviewContainer.AbsolutePosition - widgets.GuiOffset + PreviewContainer.AbsoluteSize
+        local rectMin = PreviewContainer.AbsolutePosition - widgets.GuiOffset
+        local rectMax = PreviewContainer.AbsolutePosition - widgets.GuiOffset + PreviewContainer.AbsoluteSize
         if widgets.isPosInsideRect(MouseLocation, rectMin, rectMax) then
             return
         end
@@ -250,27 +249,25 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end),
         },
         Generate = function(thisWidget: Types.Combo)
-            local frameHeight: number = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
+            local frameHeight = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
 
-            local Combo: Frame = Instance.new("Frame")
+            local Combo = Instance.new("Frame")
             Combo.Name = "Iris_Combo"
-            Combo.Size = UDim2.new(Iris._config.ItemWidth, UDim.new())
             Combo.AutomaticSize = Enum.AutomaticSize.Y
+            Combo.Size = UDim2.new(Iris._config.ItemWidth, UDim.new())
             Combo.BackgroundTransparency = 1
             Combo.BorderSizePixel = 0
-            Combo.LayoutOrder = thisWidget.ZIndex
 
-            local UIListLayout: UIListLayout = widgets.UIListLayout(Combo, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
-            UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+            widgets.UIListLayout(Combo, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
-            local PreviewContainer: TextButton = Instance.new("TextButton")
+            local PreviewContainer = Instance.new("TextButton")
             PreviewContainer.Name = "PreviewContainer"
-            PreviewContainer.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
             PreviewContainer.AutomaticSize = Enum.AutomaticSize.Y
+            PreviewContainer.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(0, 0))
             PreviewContainer.BackgroundTransparency = 1
             PreviewContainer.Text = ""
-            PreviewContainer.ZIndex = thisWidget.ZIndex + 2
             PreviewContainer.AutoButtonColor = false
+            PreviewContainer.ZIndex = 2
 
             widgets.applyFrameStyle(PreviewContainer, true)
             widgets.UIListLayout(PreviewContainer, Enum.FillDirection.Horizontal, UDim.new(0, 0))
@@ -278,10 +275,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             PreviewContainer.Parent = Combo
 
-            local PreviewLabel: TextLabel = Instance.new("TextLabel")
+            local PreviewLabel = Instance.new("TextLabel")
             PreviewLabel.Name = "PreviewLabel"
-            PreviewLabel.Size = UDim2.new(UDim.new(1, 0), Iris._config.ContentHeight)
             PreviewLabel.AutomaticSize = Enum.AutomaticSize.Y
+            PreviewLabel.Size = UDim2.new(UDim.new(1, 0), Iris._config.ContentHeight)
             PreviewLabel.BackgroundColor3 = Iris._config.FrameBgColor
             PreviewLabel.BackgroundTransparency = Iris._config.FrameBgTransparency
             PreviewLabel.BorderSizePixel = 0
@@ -292,18 +289,18 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             PreviewLabel.Parent = PreviewContainer
 
-            local DropdownButton: TextLabel = Instance.new("TextLabel")
+            local DropdownButton = Instance.new("TextLabel")
             DropdownButton.Name = "DropdownButton"
             DropdownButton.Size = UDim2.new(0, frameHeight, Iris._config.ContentHeight.Scale, math.max(Iris._config.ContentHeight.Offset, frameHeight))
-            DropdownButton.BorderSizePixel = 0
             DropdownButton.BackgroundColor3 = Iris._config.ButtonColor
             DropdownButton.BackgroundTransparency = Iris._config.ButtonTransparency
+            DropdownButton.BorderSizePixel = 0
             DropdownButton.Text = ""
 
-            local padding: number = math.round(frameHeight * 0.2)
-            local dropdownSize: number = frameHeight - 2 * padding
+            local padding = math.round(frameHeight * 0.2)
+            local dropdownSize = frameHeight - 2 * padding
 
-            local Dropdown: ImageLabel = Instance.new("ImageLabel")
+            local Dropdown = Instance.new("ImageLabel")
             Dropdown.Name = "Dropdown"
             Dropdown.AnchorPoint = Vector2.new(0.5, 0.5)
             Dropdown.Size = UDim2.fromOffset(dropdownSize, dropdownSize)
@@ -352,10 +349,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 thisWidget.state.isOpened:set(not thisWidget.state.isOpened.value)
             end)
 
-            local TextLabel: TextLabel = Instance.new("TextLabel")
+            local TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
-            TextLabel.Size = UDim2.fromOffset(0, frameHeight)
             TextLabel.AutomaticSize = Enum.AutomaticSize.X
+            TextLabel.Size = UDim2.fromOffset(0, frameHeight)
             TextLabel.BackgroundTransparency = 1
             TextLabel.BorderSizePixel = 0
 
@@ -363,7 +360,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             TextLabel.Parent = Combo
 
-            local ChildContainer: ScrollingFrame = Instance.new("ScrollingFrame")
+            local ChildContainer = Instance.new("ScrollingFrame")
             ChildContainer.Name = "ComboContainer"
             ChildContainer.BackgroundColor3 = Iris._config.PopupBgColor
             ChildContainer.BackgroundTransparency = Iris._config.PopupBgTransparency
@@ -391,7 +388,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             widgets.UIPadding(ChildContainer, Vector2.new(2, Iris._config.WindowPadding.Y))
             widgets.UISizeConstraint(ChildContainer, Vector2.new(100))
 
-            local ChildContainerUIListLayout: UIListLayout = widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
+            local ChildContainerUIListLayout = widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
             ChildContainerUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 
             local RootPopupScreenGui = Iris._rootInstance and Iris._rootInstance:WaitForChild("PopupScreenGui") :: GuiObject
@@ -400,6 +397,21 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             thisWidget.ChildContainer = ChildContainer
             thisWidget.UIListLayout = ChildContainerUIListLayout
             return Combo
+        end,
+        GenerateState = function(thisWidget: Types.Combo)
+            if thisWidget.state.index == nil then
+                thisWidget.state.index = Iris._widgetState(thisWidget, "index", "No Selection")
+            end
+            if thisWidget.state.isOpened == nil then
+                thisWidget.state.isOpened = Iris._widgetState(thisWidget, "isOpened", false)
+            end
+            
+            thisWidget.state.index:onChange(function()
+                thisWidget.lastChangedTick = Iris._cycleTick + 1
+                if thisWidget.state.isOpened.value then
+                    thisWidget.state.isOpened:set(false)
+                end
+            end)
         end,
         Update = function(thisWidget: Types.Combo)
             local Iris_Combo = thisWidget.Instance :: Frame
@@ -428,25 +440,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 PreviewContainer.Size = UDim2.new(Iris._config.ContentWidth, Iris._config.ContentHeight)
                 PreviewContainer.AutomaticSize = Enum.AutomaticSize.Y
             end
-        end,
-        ChildAdded = function(thisWidget: Types.Combo, _thisChild: Types.Widget)
-            UpdateChildContainerTransform(thisWidget)
-            return thisWidget.ChildContainer
-        end,
-        GenerateState = function(thisWidget: Types.Combo)
-            if thisWidget.state.index == nil then
-                thisWidget.state.index = Iris._widgetState(thisWidget, "index", "No Selection")
-            end
-            if thisWidget.state.isOpened == nil then
-                thisWidget.state.isOpened = Iris._widgetState(thisWidget, "isOpened", false)
-            end
-            
-            thisWidget.state.index:onChange(function()
-                thisWidget.lastChangedTick = Iris._cycleTick + 1
-                if thisWidget.state.isOpened.value then
-                    thisWidget.state.isOpened:set(false)
-                end
-            end)
         end,
         UpdateState = function(thisWidget: Types.Combo)
             local Combo = thisWidget.Instance :: Frame
@@ -477,8 +470,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ChildContainer.Visible = false
             end
 
-            local stateIndex: any = thisWidget.state.index.value
+            local stateIndex = thisWidget.state.index.value
             PreviewLabel.Text = if typeof(stateIndex) == "EnumItem" then stateIndex.Name else tostring(stateIndex)
+        end,
+        ChildAdded = function(thisWidget: Types.Combo, _thisChild: Types.Widget)
+            UpdateChildContainerTransform(thisWidget)
+            return thisWidget.ChildContainer
         end,
         Discard = function(thisWidget: Types.Combo)
             -- If we are discarding the current combo active, we need to hide it

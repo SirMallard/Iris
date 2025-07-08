@@ -1,13 +1,13 @@
 local Types = require(script.Parent.Parent.Types)
 
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
-    local AnyMenuOpen: boolean = false
+    local AnyMenuOpen = false
     local ActiveMenu: Types.Menu? = nil
     local MenuStack: { Types.Menu } = {}
 
     local function EmptyMenuStack(menuIndex: number?)
         for index = #MenuStack, menuIndex and menuIndex + 1 or 1, -1 do
-            local widget: Types.Menu = MenuStack[index]
+            local widget = MenuStack[index]
             widget.state.isOpened:set(false)
 
             widget.Instance.BackgroundColor3 = Iris._config.HeaderColor
@@ -23,7 +23,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     end
 
     local function UpdateChildContainerTransform(thisWidget: Types.Menu)
-        local submenu: boolean = thisWidget.parentWidget.type == "Menu"
+        local submenu = thisWidget.parentWidget.type == "Menu"
 
         local Menu = thisWidget.Instance :: Frame
         local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
@@ -32,15 +32,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             return
         end
 
-        local menuPosition: Vector2 = Menu.AbsolutePosition - widgets.GuiOffset
-        local menuSize: Vector2 = Menu.AbsoluteSize
-        local containerSize: Vector2 = ChildContainer.AbsoluteSize
-        local borderSize: number = Iris._config.PopupBorderSize
+        local menuPosition = Menu.AbsolutePosition - widgets.GuiOffset
+        local menuSize = Menu.AbsoluteSize
+        local containerSize = ChildContainer.AbsoluteSize
+        local borderSize = Iris._config.PopupBorderSize
         local screenSize: Vector2 = ChildContainer.Parent.AbsoluteSize
 
-        local x: number = menuPosition.X
-        local y: number
-        local anchor: Vector2 = Vector2.zero
+        local x = menuPosition.X
+        local y
+        local anchor = Vector2.zero
 
         if submenu then
             if menuPosition.X + containerSize.X > screenSize.X then
@@ -77,12 +77,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
 
         -- this only checks if we clicked outside all the menus. If we clicked in any menu, then the hover function handles this.
-        local isInMenu: boolean = false
-        local MouseLocation: Vector2 = widgets.getMouseLocation()
-        for _, menu: Types.Menu in MenuStack do
-            for _, container: GuiObject in { menu.ChildContainer, menu.Instance } do
-                local rectMin: Vector2 = container.AbsolutePosition - widgets.GuiOffset
-                local rectMax: Vector2 = rectMin + container.AbsoluteSize
+        local isInMenu = false
+        local MouseLocation = widgets.getMouseLocation()
+        for _, menu in MenuStack do
+            for _, container in { menu.ChildContainer, menu.Instance } do
+                local rectMin = container.AbsolutePosition - widgets.GuiOffset
+                local rectMax = rectMin + container.AbsoluteSize
                 if widgets.isPosInsideRect(MouseLocation, rectMin, rectMax) then
                     isInMenu = true
                     break
@@ -104,15 +104,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         hasChildren = true,
         Args = {},
         Events = {},
-        Generate = function(thisWidget: Types.MenuBar)
-            local MenuBar: Frame = Instance.new("Frame")
+        Generate = function(_thisWidget: Types.MenuBar)
+            local MenuBar = Instance.new("Frame")
             MenuBar.Name = "Iris_MenuBar"
-            MenuBar.Size = UDim2.fromScale(1, 0)
             MenuBar.AutomaticSize = Enum.AutomaticSize.Y
+            MenuBar.Size = UDim2.fromScale(1, 0)
             MenuBar.BackgroundColor3 = Iris._config.MenubarBgColor
             MenuBar.BackgroundTransparency = Iris._config.MenubarBgTransparency
             MenuBar.BorderSizePixel = 0
-            MenuBar.LayoutOrder = thisWidget.ZIndex
             MenuBar.ClipsDescendants = true
 
             widgets.UIPadding(MenuBar, Vector2.new(Iris._config.WindowPadding.X, 1))
@@ -173,34 +172,33 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 -- this Menu is a sub-Menu
                 Menu = Instance.new("TextButton")
                 Menu.Name = "Menu"
+                Menu.AutomaticSize = Enum.AutomaticSize.Y
+                Menu.Size = UDim2.fromScale(1, 0)
                 Menu.BackgroundColor3 = Iris._config.HeaderColor
                 Menu.BackgroundTransparency = 1
                 Menu.BorderSizePixel = 0
-                Menu.Size = UDim2.fromScale(1, 0)
                 Menu.Text = ""
-                Menu.AutomaticSize = Enum.AutomaticSize.Y
-                Menu.LayoutOrder = thisWidget.ZIndex
                 Menu.AutoButtonColor = false
 
                 local UIPadding = widgets.UIPadding(Menu, Iris._config.FramePadding)
                 UIPadding.PaddingTop = UIPadding.PaddingTop - UDim.new(0, 1)
                 widgets.UIListLayout(Menu, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
-                local TextLabel: TextLabel = Instance.new("TextLabel")
+                local TextLabel = Instance.new("TextLabel")
                 TextLabel.Name = "TextLabel"
+                TextLabel.AutomaticSize = Enum.AutomaticSize.XY
                 TextLabel.BackgroundTransparency = 1
                 TextLabel.BorderSizePixel = 0
-                TextLabel.AutomaticSize = Enum.AutomaticSize.XY
 
                 widgets.applyTextStyle(TextLabel)
 
                 TextLabel.Parent = Menu
 
-                local frameSize: number = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
-                local padding: number = math.round(0.2 * frameSize)
-                local iconSize: number = frameSize - 2 * padding
+                local frameSize = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
+                local padding = math.round(0.2 * frameSize)
+                local iconSize = frameSize - 2 * padding
 
-                local Icon: ImageLabel = Instance.new("ImageLabel")
+                local Icon = Instance.new("ImageLabel")
                 Icon.Name = "Icon"
                 Icon.Size = UDim2.fromOffset(iconSize, iconSize)
                 Icon.BackgroundTransparency = 1
@@ -220,7 +218,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Menu.BackgroundTransparency = 1
                 Menu.BorderSizePixel = 0
                 Menu.Text = ""
-                Menu.LayoutOrder = thisWidget.ZIndex
                 Menu.AutoButtonColor = false
                 Menu.ClipsDescendants = true
 
@@ -230,7 +227,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             widgets.applyInteractionHighlights("Background", Menu, Menu, thisWidget.ButtonColors)
 
             widgets.applyButtonClick(Menu, function()
-                local openMenu: boolean = if #MenuStack <= 1 then not thisWidget.state.isOpened.value else true
+                local openMenu = if #MenuStack <= 1 then not thisWidget.state.isOpened.value else true
                 thisWidget.state.isOpened:set(openMenu)
 
                 AnyMenuOpen = openMenu
@@ -248,7 +245,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             widgets.applyMouseEnter(Menu, function()
                 if AnyMenuOpen and ActiveMenu and ActiveMenu ~= thisWidget then
                     local parentMenu = thisWidget.parentWidget :: Types.Menu
-                    local parentIndex: number? = table.find(MenuStack, parentMenu)
+                    local parentIndex = table.find(MenuStack, parentMenu)
 
                     EmptyMenuStack(parentIndex)
                     thisWidget.state.isOpened:set(true)
@@ -258,13 +255,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
             end)
 
-            local ChildContainer: ScrollingFrame = Instance.new("ScrollingFrame")
+            local ChildContainer = Instance.new("ScrollingFrame")
             ChildContainer.Name = "MenuContainer"
+            ChildContainer.AutomaticSize = Enum.AutomaticSize.XY
+            ChildContainer.Size = UDim2.fromOffset(0, 0)
             ChildContainer.BackgroundColor3 = Iris._config.PopupBgColor
             ChildContainer.BackgroundTransparency = Iris._config.PopupBgTransparency
             ChildContainer.BorderSizePixel = 0
-            ChildContainer.Size = UDim2.fromOffset(0, 0)
-            ChildContainer.AutomaticSize = Enum.AutomaticSize.XY
 
             ChildContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
             ChildContainer.ScrollBarImageTransparency = Iris._config.ScrollbarGrabTransparency
@@ -288,8 +285,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             widgets.UIStroke(ChildContainer, Iris._config.WindowBorderSize, Iris._config.BorderColor, Iris._config.BorderTransparency)
             widgets.UIPadding(ChildContainer, Vector2.new(2, Iris._config.WindowPadding.Y - Iris._config.ItemSpacing.Y))
             
-            local ChildContainerUIListLayout: UIListLayout = widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, 1))
-            ChildContainerUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+            widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, 1)).VerticalAlignment = Enum.VerticalAlignment.Top
 
             local RootPopupScreenGui = Iris._rootInstance and Iris._rootInstance:FindFirstChild("PopupScreenGui") :: GuiObject
             ChildContainer.Parent = RootPopupScreenGui
@@ -339,7 +335,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             -- properly handle removing a menu if open and deleted
             if AnyMenuOpen then
                 local parentMenu = thisWidget.parentWidget :: Types.Menu
-                local parentIndex: number? = table.find(MenuStack, parentMenu)
+                local parentIndex = table.find(MenuStack, parentMenu)
                 if parentIndex then
                     EmptyMenuStack(parentIndex)
                     if #MenuStack ~= 0 then
@@ -373,14 +369,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end),
         },
         Generate = function(thisWidget: Types.MenuItem)
-            local MenuItem: TextButton = Instance.new("TextButton")
-            MenuItem.Name = "MenuItem"
+            local MenuItem = Instance.new("TextButton")
+            MenuItem.Name = "Iris_MenuItem"
+            MenuItem.AutomaticSize = Enum.AutomaticSize.Y
+            MenuItem.Size = UDim2.fromScale(1, 0)
             MenuItem.BackgroundTransparency = 1
             MenuItem.BorderSizePixel = 0
-            MenuItem.Size = UDim2.fromScale(1, 0)
             MenuItem.Text = ""
-            MenuItem.AutomaticSize = Enum.AutomaticSize.Y
-            MenuItem.LayoutOrder = thisWidget.ZIndex
             MenuItem.AutoButtonColor = false
 
             local UIPadding = widgets.UIPadding(MenuItem, Iris._config.FramePadding)
@@ -403,7 +398,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             widgets.applyMouseEnter(MenuItem, function()
                 local parentMenu = thisWidget.parentWidget :: Types.Menu
                 if AnyMenuOpen and ActiveMenu and ActiveMenu ~= parentMenu then
-                    local parentIndex: number? = table.find(MenuStack, parentMenu)
+                    local parentIndex = table.find(MenuStack, parentMenu)
 
                     EmptyMenuStack(parentIndex)
                     ActiveMenu = parentMenu
@@ -411,22 +406,22 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
             end)
 
-            local TextLabel: TextLabel = Instance.new("TextLabel")
+            local TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
+            TextLabel.AutomaticSize = Enum.AutomaticSize.XY
             TextLabel.BackgroundTransparency = 1
             TextLabel.BorderSizePixel = 0
-            TextLabel.AutomaticSize = Enum.AutomaticSize.XY
 
             widgets.applyTextStyle(TextLabel)
 
             TextLabel.Parent = MenuItem
 
-            local Shortcut: TextLabel = Instance.new("TextLabel")
+            local Shortcut = Instance.new("TextLabel")
             Shortcut.Name = "Shortcut"
+            Shortcut.AutomaticSize = Enum.AutomaticSize.XY
             Shortcut.BackgroundTransparency = 1
             Shortcut.BorderSizePixel = 0
             Shortcut.LayoutOrder = 1
-            Shortcut.AutomaticSize = Enum.AutomaticSize.XY
 
             widgets.applyTextStyle(Shortcut)
 
@@ -484,21 +479,20 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end),
         },
         Generate = function(thisWidget: Types.MenuToggle)
-            local MenuItem: TextButton = Instance.new("TextButton")
-            MenuItem.Name = "MenuItem"
-            MenuItem.BackgroundTransparency = 1
-            MenuItem.BorderSizePixel = 0
-            MenuItem.Size = UDim2.fromScale(1, 0)
-            MenuItem.Text = ""
-            MenuItem.AutomaticSize = Enum.AutomaticSize.Y
-            MenuItem.LayoutOrder = thisWidget.ZIndex
-            MenuItem.AutoButtonColor = false
+            local MenuToggle = Instance.new("TextButton")
+            MenuToggle.Name = "Iris_MenuToggle"
+            MenuToggle.AutomaticSize = Enum.AutomaticSize.Y
+            MenuToggle.Size = UDim2.fromScale(1, 0)
+            MenuToggle.BackgroundTransparency = 1
+            MenuToggle.BorderSizePixel = 0
+            MenuToggle.Text = ""
+            MenuToggle.AutoButtonColor = false
 
-            local UIPadding = widgets.UIPadding(MenuItem, Iris._config.FramePadding)
+            local UIPadding = widgets.UIPadding(MenuToggle, Iris._config.FramePadding)
             UIPadding.PaddingTop = UIPadding.PaddingTop - UDim.new(0, 1)
-            widgets.UIListLayout(MenuItem, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
+            widgets.UIListLayout(MenuToggle, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
-            widgets.applyInteractionHighlights("Background", MenuItem, MenuItem, {
+            widgets.applyInteractionHighlights("Background", MenuToggle, MenuToggle, {
                 Color = Iris._config.HeaderColor,
                 Transparency = 1,
                 HoveredColor = Iris._config.HeaderHoveredColor,
@@ -507,16 +501,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ActiveTransparency = Iris._config.HeaderHoveredTransparency,
             })
 
-            widgets.applyButtonClick(MenuItem, function()
-                local wasChecked: boolean = thisWidget.state.isChecked.value
-                thisWidget.state.isChecked:set(not wasChecked)
+            widgets.applyButtonClick(MenuToggle, function()
+                thisWidget.state.isChecked:set(not thisWidget.state.isChecked.value)
                 EmptyMenuStack()
             end)
 
-            widgets.applyMouseEnter(MenuItem, function()
+            widgets.applyMouseEnter(MenuToggle, function()
                 local parentMenu = thisWidget.parentWidget :: Types.Menu
                 if AnyMenuOpen and ActiveMenu and ActiveMenu ~= parentMenu then
-                    local parentIndex: number? = table.find(MenuStack, parentMenu)
+                    local parentIndex = table.find(MenuStack, parentMenu)
 
                     EmptyMenuStack(parentIndex)
                     ActiveMenu = parentMenu
@@ -524,22 +517,22 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end
             end)
 
-            local TextLabel: TextLabel = Instance.new("TextLabel")
+            local TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
+            TextLabel.AutomaticSize = Enum.AutomaticSize.XY
             TextLabel.BackgroundTransparency = 1
             TextLabel.BorderSizePixel = 0
-            TextLabel.AutomaticSize = Enum.AutomaticSize.XY
 
             widgets.applyTextStyle(TextLabel)
 
-            TextLabel.Parent = MenuItem
+            TextLabel.Parent = MenuToggle
 
-            local Shortcut: TextLabel = Instance.new("TextLabel")
+            local Shortcut = Instance.new("TextLabel")
             Shortcut.Name = "Shortcut"
+            Shortcut.AutomaticSize = Enum.AutomaticSize.XY
             Shortcut.BackgroundTransparency = 1
             Shortcut.BorderSizePixel = 0
             Shortcut.LayoutOrder = 1
-            Shortcut.AutomaticSize = Enum.AutomaticSize.XY
 
             widgets.applyTextStyle(Shortcut)
 
@@ -547,13 +540,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Shortcut.TextColor3 = Iris._config.TextDisabledColor
             Shortcut.TextTransparency = Iris._config.TextDisabledTransparency
 
-            Shortcut.Parent = MenuItem
+            Shortcut.Parent = MenuToggle
 
-            local frameSize: number = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
-            local padding: number = math.round(0.2 * frameSize)
-            local iconSize: number = frameSize - 2 * padding
+            local frameSize = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
+            local padding = math.round(0.2 * frameSize)
+            local iconSize = frameSize - 2 * padding
 
-            local Icon: ImageLabel = Instance.new("ImageLabel")
+            local Icon = Instance.new("ImageLabel")
             Icon.Name = "Icon"
             Icon.Size = UDim2.fromOffset(iconSize, iconSize)
             Icon.BackgroundTransparency = 1
@@ -563,9 +556,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Icon.Image = widgets.ICONS.CHECK_MARK
             Icon.LayoutOrder = 2
 
-            Icon.Parent = MenuItem
+            Icon.Parent = MenuToggle
 
-            return MenuItem
+            return MenuToggle
         end,
         GenerateState = function(thisWidget: Types.MenuToggle)
             if thisWidget.state.isChecked == nil then
@@ -573,9 +566,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         Update = function(thisWidget: Types.MenuToggle)
-            local MenuItem = thisWidget.Instance :: TextButton
-            local TextLabel: TextLabel = MenuItem.TextLabel
-            local Shortcut: TextLabel = MenuItem.Shortcut
+            local MenuToggle = thisWidget.Instance :: TextButton
+            local TextLabel: TextLabel = MenuToggle.TextLabel
+            local Shortcut: TextLabel = MenuToggle.Shortcut
 
             TextLabel.Text = thisWidget.arguments.Text
             if thisWidget.arguments.KeyCode then
@@ -591,10 +584,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local Icon: ImageLabel = MenuItem.Icon
 
             if thisWidget.state.isChecked.value then
-                Icon.Image = widgets.ICONS.CHECK_MARK
+                Icon.ImageTransparency = Iris._config.TextTransparency
                 thisWidget.lastCheckedTick = Iris._cycleTick + 1
             else
-                Icon.Image = ""
+                Icon.ImageTransparency = 1
                 thisWidget.lastUncheckedTick = Iris._cycleTick + 1
             end
         end,

@@ -20,31 +20,29 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 end,
             },
         },
-        Generate = function(thisWidget: Types.ProgressBar)
-            local ProgressBar: Frame = Instance.new("Frame")
+        Generate = function(_thisWidget: Types.ProgressBar)
+            local ProgressBar = Instance.new("Frame")
             ProgressBar.Name = "Iris_ProgressBar"
+            ProgressBar.AutomaticSize = Enum.AutomaticSize.Y
             ProgressBar.Size = UDim2.new(Iris._config.ItemWidth, UDim.new())
             ProgressBar.BackgroundTransparency = 1
-            ProgressBar.AutomaticSize = Enum.AutomaticSize.Y
-            ProgressBar.LayoutOrder = thisWidget.ZIndex
 
-            local UIListLayout: UIListLayout = widgets.UIListLayout(ProgressBar, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
-            UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+            widgets.UIListLayout(ProgressBar, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
-            local Bar: Frame = Instance.new("Frame")
+            local Bar = Instance.new("Frame")
             Bar.Name = "Bar"
+            Bar.AutomaticSize = Enum.AutomaticSize.Y
             Bar.Size = UDim2.new(Iris._config.ContentWidth, Iris._config.ContentHeight)
             Bar.BackgroundColor3 = Iris._config.FrameBgColor
             Bar.BackgroundTransparency = Iris._config.FrameBgTransparency
             Bar.BorderSizePixel = 0
-            Bar.AutomaticSize = Enum.AutomaticSize.Y
             Bar.ClipsDescendants = true
 
             widgets.applyFrameStyle(Bar, true)
 
             Bar.Parent = ProgressBar
 
-            local Progress: TextLabel = Instance.new("TextLabel")
+            local Progress = Instance.new("TextLabel")
             Progress.Name = "Progress"
             Progress.AutomaticSize = Enum.AutomaticSize.Y
             Progress.Size = UDim2.new(UDim.new(0, 0), Iris._config.ContentHeight)
@@ -59,7 +57,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Progress.Text = ""
             Progress.Parent = Bar
 
-            local Value: TextLabel = Instance.new("TextLabel")
+            local Value = Instance.new("TextLabel")
             Value.Name = "Value"
             Value.AutomaticSize = Enum.AutomaticSize.XY
             Value.Size = UDim2.new(UDim.new(0, 0), Iris._config.ContentHeight)
@@ -72,7 +70,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             Value.Parent = Bar
 
-            local TextLabel: TextLabel = Instance.new("TextLabel")
+            local TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
             TextLabel.AutomaticSize = Enum.AutomaticSize.XY
             TextLabel.AnchorPoint = Vector2.new(0, 0.5)
@@ -110,10 +108,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local Progress: TextLabel = Bar.Progress
             local Value: TextLabel = Bar.Value
 
-            local progress: number = thisWidget.state.progress.value
-            progress = math.clamp(progress, 0, 1)
-            local totalWidth: number = Bar.AbsoluteSize.X
-            local textWidth: number = Value.AbsoluteSize.X
+            local progress = math.clamp(thisWidget.state.progress.value, 0, 1)
+            local totalWidth = Bar.AbsoluteSize.X
+            local textWidth = Value.AbsoluteSize.X
             if totalWidth * (1 - progress) < textWidth then
                 Value.AnchorPoint = Vector2.xAxis
                 Value.Position = UDim2.fromScale(1, 0)
@@ -136,8 +133,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
     } :: Types.WidgetClass)
 
-    local function createLine(parent: Frame, index: number): Frame
-        local Block: Frame = Instance.new("Frame")
+    local function createLine(parent: Frame, index: number)
+        local Block = Instance.new("Frame")
         Block.Name = tostring(index)
         Block.AnchorPoint = Vector2.new(0.5, 0.5)
         Block.BackgroundColor3 = Iris._config.PlotLinesColor
@@ -163,11 +160,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         local Background = PlotLines.Background :: Frame
         local Plot = Background.Plot :: Frame
 
-        local mousePosition: Vector2 = widgets.getMouseLocation()
+        local mousePosition = widgets.getMouseLocation()
 
-        local position: Vector2 = Plot.AbsolutePosition - widgets.GuiOffset
-        local scale: number = (mousePosition.X - position.X) / Plot.AbsoluteSize.X
-        local index: number = math.ceil(scale * #thisWidget.Lines)
+        local position = Plot.AbsolutePosition - widgets.GuiOffset
+        local scale = (mousePosition.X - position.X) / Plot.AbsoluteSize.X
+        local index = math.ceil(scale * #thisWidget.Lines)
         local line: Frame? = thisWidget.Lines[index]
 
         if line then
@@ -211,18 +208,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end),
         },
         Generate = function(thisWidget: Types.PlotLines)
-            local PlotLines: Frame = Instance.new("Frame")
+            local PlotLines = Instance.new("Frame")
             PlotLines.Name = "Iris_PlotLines"
             PlotLines.Size = UDim2.new(Iris._config.ItemWidth, UDim.new())
             PlotLines.BackgroundTransparency = 1
             PlotLines.BorderSizePixel = 0
-            PlotLines.ZIndex = thisWidget.ZIndex
-            PlotLines.LayoutOrder = thisWidget.ZIndex
 
-            local UIListLayout: UIListLayout = widgets.UIListLayout(PlotLines, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
-            UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+            widgets.UIListLayout(PlotLines, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
-            local Background: Frame = Instance.new("Frame")
+            local Background = Instance.new("Frame")
             Background.Name = "Background"
             Background.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(1, 0))
             Background.BackgroundColor3 = Iris._config.FrameBgColor
@@ -231,7 +225,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             Background.Parent = PlotLines
 
-            local Plot: Frame = Instance.new("Frame")
+            local Plot = Instance.new("Frame")
             Plot.Name = "Plot"
             Plot.Size = UDim2.fromScale(1, 1)
             Plot.BackgroundTransparency = 1
@@ -243,7 +237,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Iris._widgets.PlotLines.UpdateState(thisWidget)
             end)
 
-            local OverlayText: TextLabel = Instance.new("TextLabel")
+            local OverlayText = Instance.new("TextLabel")
             OverlayText.Name = "OverlayText"
             OverlayText.AutomaticSize = Enum.AutomaticSize.XY
             OverlayText.AnchorPoint = Vector2.new(0.5, 0)
@@ -257,7 +251,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             OverlayText.Parent = Plot
 
-            local Tooltip: TextLabel = Instance.new("TextLabel")
+            local Tooltip = Instance.new("TextLabel")
             Tooltip.Name = "Iris_Tooltip"
             Tooltip.AutomaticSize = Enum.AutomaticSize.XY
             Tooltip.Size = UDim2.fromOffset(0, 0)
@@ -273,7 +267,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 widgets.UICorner(Tooltip, Iris._config.PopupRounding)
             end
 
-            local popup: Instance? = Iris._rootInstance and Iris._rootInstance:FindFirstChild("PopupScreenGui")
+            local popup = Iris._rootInstance and Iris._rootInstance:FindFirstChild("PopupScreenGui")
             Tooltip.Parent = popup and popup:FindFirstChild("TooltipContainer")
 
             thisWidget.Tooltip = Tooltip
@@ -291,14 +285,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             thisWidget.Lines = {}
             thisWidget.HoveredLine = false
 
-            local TextLabel: TextLabel = Instance.new("TextLabel")
+            local TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
             TextLabel.AutomaticSize = Enum.AutomaticSize.XY
             TextLabel.Size = UDim2.fromOffset(0, 0)
             TextLabel.BackgroundTransparency = 1
             TextLabel.BorderSizePixel = 0
-            TextLabel.ZIndex = thisWidget.ZIndex + 3
-            TextLabel.LayoutOrder = thisWidget.ZIndex + 3
+            TextLabel.ZIndex = 3
+            TextLabel.LayoutOrder = 3
 
             widgets.applyTextStyle(TextLabel)
 
@@ -339,15 +333,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 local Background = PlotLines.Background :: Frame
                 local Plot = Background.Plot :: Frame
 
-                local values: { number } = thisWidget.state.values.value
-                local count: number = #values - 1
-                local numLines: number = #thisWidget.Lines
+                local values = thisWidget.state.values.value
+                local count = #values - 1
+                local numLines = #thisWidget.Lines
 
-                local min: number = thisWidget.arguments.Min or math.huge
-                local max: number = thisWidget.arguments.Max or -math.huge
+                local min = thisWidget.arguments.Min or math.huge
+                local max = thisWidget.arguments.Max or -math.huge
 
                 if min == nil or max == nil then
-                    for _, value: number in values do
+                    for _, value in values do
                         min = math.min(min, value)
                         max = math.max(max, value)
                     end
@@ -360,22 +354,22 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     end
                 elseif numLines > count then
                     for _ = count + 1, numLines do
-                        local line: Frame? = table.remove(thisWidget.Lines)
+                        local line = table.remove(thisWidget.Lines)
                         if line then
                             line:Destroy()
                         end
                     end
                 end
 
-                local range: number = max - min
-                local size: Vector2 = Plot.AbsoluteSize
+                local range = max - min
+                local size = Plot.AbsoluteSize
                 
                 for index = 1, count do
-                    local start: number = values[index]
-                    local stop: number = values[index + 1]
-                    local a: Vector2 = size * Vector2.new((index - 1) / count, (max - start) / range)
-                    local b: Vector2 = size * Vector2.new(index / count, (max - stop) / range)
-                    local position: Vector2 = (a + b) / 2
+                    local start = values[index]
+                    local stop = values[index + 1]
+                    local a = size * Vector2.new((index - 1) / count, (max - start) / range)
+                    local b = size * Vector2.new(index / count, (max - stop) / range)
+                    local position = (a + b) / 2
 
                     thisWidget.Lines[index].Size = UDim2.fromOffset((b - a).Magnitude + 1, 1)
                     thisWidget.Lines[index].Position = UDim2.fromOffset(position.X, position.Y)
@@ -395,8 +389,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
     } :: Types.WidgetClass)
 
-    local function createBlock(parent: Frame, index: number): Frame
-        local Block: Frame = Instance.new("Frame")
+    local function createBlock(parent: Frame, index: number)
+        local Block = Instance.new("Frame")
         Block.Name = tostring(index)
         Block.BackgroundColor3 = Iris._config.PlotHistogramColor
         Block.BackgroundTransparency = Iris._config.PlotHistogramTransparency
@@ -421,11 +415,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         local Background = PlotHistogram.Background :: Frame
         local Plot = Background.Plot :: Frame
 
-        local mousePosition: Vector2 = widgets.getMouseLocation()
+        local mousePosition = widgets.getMouseLocation()
 
-        local position: Vector2 = Plot.AbsolutePosition - widgets.GuiOffset
-        local scale: number = (mousePosition.X - position.X) / Plot.AbsoluteSize.X
-        local index: number = math.ceil(scale * #thisWidget.Blocks)
+        local position = Plot.AbsolutePosition - widgets.GuiOffset
+        local scale = (mousePosition.X - position.X) / Plot.AbsoluteSize.X
+        local index = math.ceil(scale * #thisWidget.Blocks)
         local block: Frame? = thisWidget.Blocks[index]
 
         if block then
@@ -465,37 +459,34 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end),
         },
         Generate = function(thisWidget: Types.PlotHistogram)
-            local PlotHistogram: Frame = Instance.new("Frame")
+            local PlotHistogram = Instance.new("Frame")
             PlotHistogram.Name = "Iris_PlotHistogram"
             PlotHistogram.Size = UDim2.new(Iris._config.ItemWidth, UDim.new())
             PlotHistogram.BackgroundTransparency = 1
             PlotHistogram.BorderSizePixel = 0
-            PlotHistogram.ZIndex = thisWidget.ZIndex
-            PlotHistogram.LayoutOrder = thisWidget.ZIndex
 
-            local UIListLayout: UIListLayout = widgets.UIListLayout(PlotHistogram, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
-            UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+            widgets.UIListLayout(PlotHistogram, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
-            local Background: Frame = Instance.new("Frame")
+            local Background = Instance.new("Frame")
             Background.Name = "Background"
             Background.Size = UDim2.new(Iris._config.ContentWidth, UDim.new(1, 0))
             Background.BackgroundColor3 = Iris._config.FrameBgColor
             Background.BackgroundTransparency = Iris._config.FrameBgTransparency
             widgets.applyFrameStyle(Background)
             
-            local UIPadding: UIPadding = (Background :: any).UIPadding
+            local UIPadding = (Background :: any).UIPadding
             UIPadding.PaddingRight = UDim.new(0, Iris._config.FramePadding.X - 1)
 
             Background.Parent = PlotHistogram
 
-            local Plot: Frame = Instance.new("Frame")
+            local Plot = Instance.new("Frame")
             Plot.Name = "Plot"
             Plot.Size = UDim2.fromScale(1, 1)
             Plot.BackgroundTransparency = 1
             Plot.BorderSizePixel = 0
             Plot.ClipsDescendants = true
 
-            local OverlayText: TextLabel = Instance.new("TextLabel")
+            local OverlayText = Instance.new("TextLabel")
             OverlayText.Name = "OverlayText"
             OverlayText.AutomaticSize = Enum.AutomaticSize.XY
             OverlayText.AnchorPoint = Vector2.new(0.5, 0)
@@ -509,7 +500,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             OverlayText.Parent = Plot
 
-            local Tooltip: TextLabel = Instance.new("TextLabel")
+            local Tooltip = Instance.new("TextLabel")
             Tooltip.Name = "Iris_Tooltip"
             Tooltip.AutomaticSize = Enum.AutomaticSize.XY
             Tooltip.Size = UDim2.fromOffset(0, 0)
@@ -525,7 +516,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 widgets.UICorner(Tooltip, Iris._config.PopupRounding)
             end
 
-            local popup: Instance? = Iris._rootInstance and Iris._rootInstance:FindFirstChild("PopupScreenGui")
+            local popup = Iris._rootInstance and Iris._rootInstance:FindFirstChild("PopupScreenGui")
             Tooltip.Parent = popup and popup:FindFirstChild("TooltipContainer")
 
             thisWidget.Tooltip = Tooltip
@@ -543,14 +534,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             thisWidget.Blocks = {}
             thisWidget.HoveredBlock = false
 
-            local TextLabel: TextLabel = Instance.new("TextLabel")
+            local TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
             TextLabel.AutomaticSize = Enum.AutomaticSize.XY
             TextLabel.Size = UDim2.fromOffset(0, 0)
             TextLabel.BackgroundTransparency = 1
             TextLabel.BorderSizePixel = 0
-            TextLabel.ZIndex = thisWidget.ZIndex + 3
-            TextLabel.LayoutOrder = thisWidget.ZIndex + 3
+            TextLabel.ZIndex = 3
+            TextLabel.LayoutOrder = 3
 
             widgets.applyTextStyle(TextLabel)
 
@@ -591,16 +582,16 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 local Background = PlotHistogram.Background :: Frame
                 local Plot = Background.Plot :: Frame
 
-                local values: { number } = thisWidget.state.values.value
-                local count: number = #values
-                local numBlocks: number = #thisWidget.Blocks
+                local values = thisWidget.state.values.value
+                local count = #values
+                local numBlocks = #thisWidget.Blocks
 
-                local min: number = thisWidget.arguments.Min or math.huge
-                local max: number = thisWidget.arguments.Max or -math.huge
-                local baseline: number = thisWidget.arguments.BaseLine or 0
+                local min = thisWidget.arguments.Min or math.huge
+                local max = thisWidget.arguments.Max or -math.huge
+                local baseline = thisWidget.arguments.BaseLine or 0
 
                 if min == nil or max == nil then
-                    for _, value: number in values do
+                    for _, value in values do
                         min = math.min(min or value, value)
                         max = math.max(max or value, value)
                     end
@@ -613,17 +604,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     end
                 elseif numBlocks > count then
                     for _ = count + 1, numBlocks do
-                        local block: Frame? = table.remove(thisWidget.Blocks)
+                        local block= table.remove(thisWidget.Blocks)
                         if block then
                             block:Destroy()
                         end
                     end
                 end
                 
-                local range: number = max - min
-                local width: UDim = UDim.new(1 / count, -1)
+                local range = max - min
+                local width = UDim.new(1 / count, -1)
                 for index = 1, count do
-                    local num: number = values[index]
+                    local num = values[index]
                     if num >= 0 then
                         thisWidget.Blocks[index].Size = UDim2.new(width, UDim.new((num - baseline) / range))
                         thisWidget.Blocks[index].Position = UDim2.fromScale((index - 1) / count, (max - num) / range)

@@ -37,7 +37,7 @@ return function(Iris: Types.Iris)
             do
                 Iris.SeparatorText({ "Basic" })
 
-                local radioButtonState: Types.State<any> = Iris.State(1)
+                local radioButtonState = Iris.State(1)
                 Iris.Button({ "Button" })
                 Iris.SmallButton({ "SmallButton" })
                 Iris.Text({ "Text" })
@@ -78,7 +78,7 @@ return function(Iris: Types.Iris)
                 local RectState = Iris.State(Rect.new(0, 0, 0, 0))
                 local ScaleTypeState = Iris.State(Enum.ScaleType.Stretch)
                 local PixelatedCheckState = Iris.State(false)
-                local PixelatedState = Iris.ComputedState(PixelatedCheckState, function(check: boolean)
+                local PixelatedState = Iris.ComputedState(PixelatedCheckState, function(check)
                     return check and Enum.ResamplerMode.Pixelated or Enum.ResamplerMode.Default
                 end)
 
@@ -608,8 +608,8 @@ return function(Iris: Types.Iris)
                         if Animated.state.isChecked.value then
                             TimeState:set(TimeState.value + Iris.Internal._deltaTime)
                         end
-                        local offset: number = math.floor(TimeState.value * 30) - 1
-                        local func: string = FunctionState.value
+                        local offset = math.floor(TimeState.value * 30) - 1
+                        local func = FunctionState.value
                         table.clear(ValueState.value)
                         for i = 1, SampleState.value do
                             if func == "Sin" then
@@ -1054,7 +1054,7 @@ return function(Iris: Types.Iris)
                         local FontStyle = Iris.ComboEnum({ "Font Style" }, { index = Iris.WeakState(Iris._config.TextFont.Style) }, Enum.FontStyle)
 
                         Iris.SeparatorText({ "Fonts" })
-                        for name: string, font: Font in fonts do
+                        for name, font in fonts do
                             font = Font.new(font.Family, FontWeight.state.index.value, FontStyle.state.index.value)
                             Iris.SameLine()
                             do
@@ -1504,7 +1504,7 @@ return function(Iris: Types.Iris)
                     local min = if FixedWidthState.value == true then 2 else 0.05
                     local max = if FixedWidthState.value == true then 480 else 1
                     Iris.SliderNum({ `Column {i} Width`, increment, min, max }, {
-                        number = Iris.TableState(WidthState.value, i, function(value: number)
+                        number = Iris.TableState(WidthState.value, i, function(value)
                             -- we have to force the state to change, because comparing two tables is equal
                             WidthState.value[i] = value
                             WidthState:set(WidthState.value, true)
@@ -1778,15 +1778,15 @@ return function(Iris: Types.Iris)
 
     -- main demo window
     return function()
-        local NoTitleBar: Types.State<boolean> = Iris.State(false)
-        local NoBackground: Types.State<boolean> = Iris.State(false)
-        local NoCollapse: Types.State<boolean> = Iris.State(false)
-        local NoClose: Types.State<boolean> = Iris.State(true)
-        local NoMove: Types.State<boolean> = Iris.State(false)
-        local NoScrollbar: Types.State<boolean> = Iris.State(false)
-        local NoResize: Types.State<boolean> = Iris.State(false)
-        local NoNav: Types.State<boolean> = Iris.State(false)
-        local NoMenu: Types.State<boolean> = Iris.State(false)
+        local NoTitleBar = Iris.State(false)
+        local NoBackground = Iris.State(false)
+        local NoCollapse = Iris.State(false)
+        local NoClose = Iris.State(true)
+        local NoMove = Iris.State(false)
+        local NoScrollbar = Iris.State(false)
+        local NoResize = Iris.State(false)
+        local NoNav = Iris.State(false)
+        local NoMenu = Iris.State(false)
 
         if showMainWindow.value == false then
             Iris.Checkbox({ "Open main window" }, { isChecked = showMainWindow })
@@ -1794,7 +1794,7 @@ return function(Iris: Types.Iris)
         end
 
         debug.profilebegin("Iris/Demo/Window")
-        local window: Types.Window = Iris.Window({
+        local window = Iris.Window({
             [Iris.Args.Window.Title] = "Iris Demo Window",
             [Iris.Args.Window.NoTitleBar] = NoTitleBar.value,
             [Iris.Args.Window.NoBackground] = NoBackground.value,
