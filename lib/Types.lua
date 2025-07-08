@@ -499,10 +499,16 @@ export type Config = {
     TextWrapped: boolean,
     DisplayOrderOffset: number,
     ZIndexOffset: number,
+    ColorizedInputs: boolean,
 
     MouseDoubleClickTime: number,
     MouseDoubleClickMaxDist: number,
     MouseDragThreshold: number,
+
+    ColorizedInputHue1: number,
+    ColorizedInputHue2: number,
+    ColorizedInputHue3: number,
+    ColorizedInputHue4: number,
 }
 
 type WidgetCall<W, A, S, E...> = (arguments: A, states: S, E...) -> W

@@ -299,11 +299,26 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                             InputField.Size = UDim2.new(componentWidth, Iris._config.ContentHeight)
                         end
                         InputField.AutomaticSize = Enum.AutomaticSize.Y
-                        InputField.BackgroundColor3 = Iris._config.FrameBgColor
                         InputField.BackgroundTransparency = Iris._config.FrameBgTransparency
                         InputField.ClearTextOnFocus = false
                         InputField.TextTruncate = Enum.TextTruncate.AtEnd
                         InputField.ClipsDescendants = true
+
+                        local color_h, color_s, color_v = Color3.toHSV(Iris._config.FrameBgColor)
+                        local _hovered_h, hovered_s, hovered_v = Color3.toHSV(Iris._config.FrameBgHoveredColor)
+                        local _active_h, active_s, active_v = Color3.toHSV(Iris._config.FrameBgActiveColor)
+
+                        if (dataType == "Vector3" or dataType == "Vector2" or dataType == "Color3") and Iris._config.ColorizedInputs then
+                            if index == 1 then
+                                color_h = Iris._config.ColorizedInputHue1
+                            elseif index == 2 then
+                                color_h = Iris._config.ColorizedInputHue2
+                            elseif index == 3 then
+                                color_h = Iris._config.ColorizedInputHue3
+                            end
+                        end
+
+                        InputField.BackgroundColor3 = Color3.fromHSV(color_h, color_s, color_v)
 
                         widgets.applyFrameStyle(InputField)
                         widgets.applyTextStyle(InputField)
@@ -591,10 +606,28 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                             DragField.Size = UDim2.new(componentWidth, Iris._config.ContentHeight)
                         end
                         DragField.AutomaticSize = Enum.AutomaticSize.Y
-                        DragField.BackgroundColor3 = Iris._config.FrameBgColor
-                        DragField.BackgroundTransparency = Iris._config.FrameBgTransparency
                         DragField.AutoButtonColor = false
                         DragField.Text = ""
+
+                        local color_h, color_s, color_v = Color3.toHSV(Iris._config.FrameBgColor)
+                        local _hovered_h, hovered_s, hovered_v = Color3.toHSV(Iris._config.FrameBgHoveredColor)
+                        local _active_h, active_s, active_v = Color3.toHSV(Iris._config.FrameBgActiveColor)
+
+                        if (dataType == "Vector3" or dataType == "Vector2" or dataType == "Color3" or dataType == "Color4") and Iris._config.ColorizedInputs then
+                            if index == 1 then
+                                color_h = Iris._config.ColorizedInputHue1
+                            elseif index == 2 then
+                                color_h = Iris._config.ColorizedInputHue2
+                            elseif index == 3 then
+                                color_h = Iris._config.ColorizedInputHue3
+                            elseif index == 4 and dataType == "Color4" then
+                                color_h = Iris._config.ColorizedInputHue4
+                            end
+                        end
+
+                        DragField.BackgroundColor3 = Color3.fromHSV(color_h, color_s, color_v)
+                        DragField.BackgroundTransparency = Iris._config.FrameBgTransparency
+
                         DragField.ClipsDescendants = true
 
                         widgets.applyFrameStyle(DragField)
@@ -606,11 +639,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         DragField.Parent = Drag
 
                         widgets.applyInteractionHighlights("Background", DragField, DragField, {
-                            Color = Iris._config.FrameBgColor,
+                            Color = Color3.fromHSV(color_h, color_s, color_v),
                             Transparency = Iris._config.FrameBgTransparency,
-                            HoveredColor = Iris._config.FrameBgHoveredColor,
+                            HoveredColor = Color3.fromHSV(color_h, hovered_s, hovered_v),
                             HoveredTransparency = Iris._config.FrameBgHoveredTransparency,
-                            ActiveColor = Iris._config.FrameBgActiveColor,
+                            ActiveColor = Color3.fromHSV(color_h, active_s, active_v),
                             ActiveTransparency = Iris._config.FrameBgActiveTransparency,
                         })
 
@@ -971,11 +1004,26 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                             SliderField.Size = UDim2.new(componentWidth, Iris._config.ContentHeight)
                         end
                         SliderField.AutomaticSize = Enum.AutomaticSize.Y
-                        SliderField.BackgroundColor3 = Iris._config.FrameBgColor
                         SliderField.BackgroundTransparency = Iris._config.FrameBgTransparency
                         SliderField.AutoButtonColor = false
                         SliderField.Text = ""
                         SliderField.ClipsDescendants = true
+
+                        local color_h, color_s, color_v = Color3.toHSV(Iris._config.FrameBgColor)
+                        local _hovered_h, hovered_s, hovered_v = Color3.toHSV(Iris._config.FrameBgHoveredColor)
+                        local _active_h, active_s, active_v = Color3.toHSV(Iris._config.FrameBgActiveColor)
+
+                        if (dataType == "Vector3" or dataType == "Vector2") and Iris._config.ColorizedInputs then
+                            if index == 1 then
+                                color_h = Iris._config.ColorizedInputHue1
+                            elseif index == 2 then
+                                color_h = Iris._config.ColorizedInputHue2
+                            elseif index == 3 then
+                                color_h = Iris._config.ColorizedInputHue3
+                            end
+                        end
+
+                        SliderField.BackgroundColor3 = Color3.fromHSV(color_h, color_s, color_v)
 
                         widgets.applyFrameStyle(SliderField)
                         widgets.applyTextStyle(SliderField)
@@ -998,11 +1046,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         OverlayText.Parent = SliderField
 
                         widgets.applyInteractionHighlights("Background", SliderField, SliderField, {
-                            Color = Iris._config.FrameBgColor,
+                            Color = Color3.fromHSV(color_h, color_s, color_v),
                             Transparency = Iris._config.FrameBgTransparency,
-                            HoveredColor = Iris._config.FrameBgHoveredColor,
+                            HoveredColor = Color3.fromHSV(color_h, hovered_s, hovered_v),
                             HoveredTransparency = Iris._config.FrameBgHoveredTransparency,
-                            ActiveColor = Iris._config.FrameBgActiveColor,
+                            ActiveColor = Color3.fromHSV(color_h, active_s, active_v),
                             ActiveTransparency = Iris._config.FrameBgActiveTransparency,
                         })
 
@@ -1061,13 +1109,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                             SliderMouseDown(thisWidget :: any, dataType, index)
                         end)
 
+                        local _grab_h, grab_s, grab_v = Color3.toHSV(Iris._config.SliderGrabColor)
+
                         local GrabBar: Frame = Instance.new("Frame")
                         GrabBar.Name = "GrabBar"
                         GrabBar.ZIndex = 5
                         GrabBar.AnchorPoint = Vector2.new(0.5, 0.5)
                         GrabBar.Position = UDim2.new(0, 0, 0.5, 0)
                         GrabBar.BorderSizePixel = 0
-                        GrabBar.BackgroundColor3 = Iris._config.SliderGrabColor
+                        GrabBar.BackgroundColor3 = Color3.fromHSV(color_h, grab_s, grab_v)
                         GrabBar.Transparency = Iris._config.SliderGrabTransparency
                         if Iris._config.GrabRounding > 0 then
                             widgets.UICorner(GrabBar, Iris._config.GrabRounding)
