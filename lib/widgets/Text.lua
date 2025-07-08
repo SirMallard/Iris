@@ -16,14 +16,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return thisWidget.Instance
             end),
         },
-        Generate = function(thisWidget: Types.Text)
-            local Text: TextLabel = Instance.new("TextLabel")
+        Generate = function(_thisWidget: Types.Text)
+            local Text = Instance.new("TextLabel")
             Text.Name = "Iris_Text"
+            Text.AutomaticSize = Enum.AutomaticSize.XY
             Text.Size = UDim2.fromOffset(0, 0)
             Text.BackgroundTransparency = 1
             Text.BorderSizePixel = 0
-            Text.LayoutOrder = thisWidget.ZIndex
-            Text.AutomaticSize = Enum.AutomaticSize.XY
 
             widgets.applyTextStyle(Text)
             widgets.UIPadding(Text, Vector2.new(0, 2))
@@ -70,14 +69,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return thisWidget.Instance
             end),
         },
-        Generate = function(thisWidget: Types.SeparatorText)
+        Generate = function(_thisWidget: Types.SeparatorText)
             local SeparatorText = Instance.new("Frame")
             SeparatorText.Name = "Iris_SeparatorText"
+            SeparatorText.AutomaticSize = Enum.AutomaticSize.Y
             SeparatorText.Size = UDim2.new(Iris._config.ItemWidth, UDim.new())
             SeparatorText.BackgroundTransparency = 1
             SeparatorText.BorderSizePixel = 0
-            SeparatorText.AutomaticSize = Enum.AutomaticSize.Y
-            SeparatorText.LayoutOrder = thisWidget.ZIndex
             SeparatorText.ClipsDescendants = true
 
             widgets.UIPadding(SeparatorText, Vector2.new(0, Iris._config.SeparatorTextPadding.Y))
@@ -85,34 +83,34 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             SeparatorText.UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
-            local TextLabel: TextLabel = Instance.new("TextLabel")
+            local TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
+            TextLabel.AutomaticSize = Enum.AutomaticSize.XY
             TextLabel.BackgroundTransparency = 1
             TextLabel.BorderSizePixel = 0
-            TextLabel.AutomaticSize = Enum.AutomaticSize.XY
             TextLabel.LayoutOrder = 1
 
             widgets.applyTextStyle(TextLabel)
 
             TextLabel.Parent = SeparatorText
 
-            local Left: Frame = Instance.new("Frame")
+            local Left = Instance.new("Frame")
             Left.Name = "Left"
             Left.AnchorPoint = Vector2.new(1, 0.5)
+            Left.Size = UDim2.fromOffset(Iris._config.SeparatorTextPadding.X - Iris._config.ItemSpacing.X, Iris._config.SeparatorTextBorderSize)
             Left.BackgroundColor3 = Iris._config.SeparatorColor
             Left.BackgroundTransparency = Iris._config.SeparatorTransparency
             Left.BorderSizePixel = 0
-            Left.Size = UDim2.fromOffset(Iris._config.SeparatorTextPadding.X - Iris._config.ItemSpacing.X, Iris._config.SeparatorTextBorderSize)
 
             Left.Parent = SeparatorText
 
-            local Right: Frame = Instance.new("Frame")
+            local Right = Instance.new("Frame")
             Right.Name = "Right"
             Right.AnchorPoint = Vector2.new(1, 0.5)
+            Right.Size = UDim2.new(1, 0, 0, Iris._config.SeparatorTextBorderSize)
             Right.BackgroundColor3 = Iris._config.SeparatorColor
             Right.BackgroundTransparency = Iris._config.SeparatorTransparency
             Right.BorderSizePixel = 0
-            Right.Size = UDim2.new(1, 0, 0, Iris._config.SeparatorTextBorderSize)
             Right.LayoutOrder = 2
 
             Right.Parent = SeparatorText

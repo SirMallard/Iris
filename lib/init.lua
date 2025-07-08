@@ -92,7 +92,7 @@ function Iris.Init(parentInstance: Instance?, eventConnection: (RBXScriptSignal 
     Internal._generateRootInstance()
     Internal._generateSelectionImageObject()
 
-    for _, callback: () -> () in Internal._initFunctions do
+    for _, callback in Internal._initFunctions do
         callback()
     end
 
@@ -100,7 +100,7 @@ function Iris.Init(parentInstance: Instance?, eventConnection: (RBXScriptSignal 
     task.spawn(function()
         if typeof(eventConnection) == "function" then
             while Internal._started do
-                local deltaTime: number = eventConnection()
+                local deltaTime = eventConnection()
                 Internal._cycle(deltaTime)
             end
         elseif eventConnection ~= nil and eventConnection ~= false then
@@ -139,7 +139,7 @@ function Iris.Shutdown()
         Internal.SelectionImageObject:Destroy()
     end
 
-    for _, connection: RBXScriptConnection in Internal._connections do
+    for _, connection in Internal._connections do
         connection:Disconnect()
     end
 end
@@ -160,7 +160,7 @@ function Iris:Connect(callback: () -> ()): () -> () -- this uses method syntax f
     if Internal._started == false then
         warn("Iris:Connect() was called before calling Iris.Init(); always initialise Iris first.")
     end
-    local connectionIndex: number = #Internal._connectedFunctions + 1
+    local connectionIndex = #Internal._connectedFunctions + 1
     Internal._connectedFunctions[connectionIndex] = callback
     return function()
         Internal._connectedFunctions[connectionIndex] = nil
@@ -178,7 +178,7 @@ end
     property or by the current parent widget from the stack.
 ]=]
 function Iris.Append(userInstance: GuiObject)
-    local parentWidget: Types.ParentWidget = Internal._GetParentWidget()
+    local parentWidget = Internal._GetParentWidget()
     local widgetInstanceParent: GuiObject
     if Internal._config.Parent then
         widgetInstanceParent = Internal._config.Parent :: any
@@ -436,20 +436,21 @@ end
     In this example, the code will work properly, and increment every frame.
     :::
 ]=]
-function Iris.State<T>(initialValue: T): Types.State<T>
-    local ID: Types.ID = Internal._getID(2)
+function Iris.State<T>(initialValue: T)
+    local ID = Internal._getID(2)
     if Internal._states[ID] then
         return Internal._states[ID]
     end
-    Internal._states[ID] = {
+    local newState = {
         ID = ID,
         value = initialValue,
         lastChangeTick = Iris.Internal._cycleTick,
         ConnectedWidgets = {},
         ConnectedFunctions = {},
-    } :: any
-    setmetatable(Internal._states[ID], Internal.StateClass)
-    return Internal._states[ID]
+    } :: Types.State<T>
+    setmetatable(newState, Internal.StateClass)
+    Internal._states[ID] = newState
+    return newState
 end
 
 --[=[
@@ -461,8 +462,8 @@ end
 
     Constructs a new state object, subsequent ID calls will return the same object, except all widgets connected to the state are discarded, the state reverts to the passed initialValue
 ]=]
-function Iris.WeakState<T>(initialValue: T): Types.State<T>
-    local ID: Types.ID = Internal._getID(2)
+function Iris.WeakState<T>(initialValue: T)
+    local ID = Internal._getID(2)
     if Internal._states[ID] then
         if next(Internal._states[ID].ConnectedWidgets) == nil then
             Internal._states[ID] = nil
@@ -470,15 +471,16 @@ function Iris.WeakState<T>(initialValue: T): Types.State<T>
             return Internal._states[ID]
         end
     end
-    Internal._states[ID] = {
+    local newState = {
         ID = ID,
         value = initialValue,
         lastChangeTick = Iris.Internal._cycleTick,
         ConnectedWidgets = {},
         ConnectedFunctions = {},
-    } :: any
-    setmetatable(Internal._states[ID], Internal.StateClass)
-    return Internal._states[ID]
+    } :: Types.State<T>
+    setmetatable(newState, Internal.StateClass)
+    Internal._states[ID] = newState
+    return newState
 end
 
 --[=[
@@ -519,9 +521,9 @@ end
     You must use `state:set(...)` if you want the variable to update to the state's value.
     :::
 ]=]
-function Iris.VariableState<T>(variable: T, callback: (T) -> ()): Types.State<T>
-    local ID: Types.ID = Internal._getID(2)
-    local state: Types.State<T>? = Internal._states[ID]
+function Iris.VariableState<T>(variable: T, callback: (T) -> ())
+    local ID = Internal._getID(2)
+    local state = Internal._states[ID]
 
     if state then
         if variable ~= state.value then
@@ -599,10 +601,10 @@ end
     You must use `state:set(...)` if you want the table value to update to the state's value.
     :::
 ]=]
-function Iris.TableState<K, V>(tab: { [K]: V }, key: K, callback: ((newValue: V) -> false?)?): Types.State<V>
-    local value: V = tab[key]
-    local ID: Types.ID = Internal._getID(2)
-    local state: Types.State<V>? = Internal._states[ID]
+function Iris.TableState<K, V>(tab: { [K]: V }, key: K, callback: ((newValue: V) -> false?)?)
+    local value = tab[key]
+    local ID = Internal._getID(2)
+    local state = Internal._states[ID]
 
     -- If the table values changes, then we update the state to match.
     if state then
@@ -652,24 +654,26 @@ end
     ```
     :::
 ]=]
-function Iris.ComputedState<T, U>(firstState: Types.State<T>, onChangeCallback: (firstValue: T) -> U): Types.State<U>
-    local ID: Types.ID = Internal._getID(2)
+function Iris.ComputedState<T, U>(firstState: Types.State<T>, onChangeCallback: (firstValue: T) -> U)
+    local ID = Internal._getID(2)
 
     if Internal._states[ID] then
         return Internal._states[ID]
     else
-        Internal._states[ID] = {
+        local newState = {
             ID = ID,
             value = onChangeCallback(firstState.value),
             lastChangeTick = Iris.Internal._cycleTick,
             ConnectedWidgets = {},
             ConnectedFunctions = {},
-        } :: Types.State<U>
+        } :: Types.State<T>
+        setmetatable(newState, Internal.StateClass)
+        Internal._states[ID] = newState
+
         firstState:onChange(function(newValue: T)
-            Internal._states[ID]:set(onChangeCallback(newValue))
+            newState:set(onChangeCallback(newValue))
         end)
-        setmetatable(Internal._states[ID], Internal.StateClass)
-        return Internal._states[ID]
+        return newState
     end
 end
 

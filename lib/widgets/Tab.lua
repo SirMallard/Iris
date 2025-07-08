@@ -41,17 +41,16 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Args = {},
         Events = {},
         Generate = function(thisWidget: Types.TabBar)
-            local TabBar: Frame = Instance.new("Frame")
+            local TabBar = Instance.new("Frame")
             TabBar.Name = "Iris_TabBar"
             TabBar.AutomaticSize = Enum.AutomaticSize.Y
             TabBar.Size = UDim2.fromScale(1, 0)
             TabBar.BackgroundTransparency = 1
             TabBar.BorderSizePixel = 0
-            TabBar.LayoutOrder = thisWidget.ZIndex
 
             widgets.UIListLayout(TabBar, Enum.FillDirection.Vertical, UDim.new()).VerticalAlignment = Enum.VerticalAlignment.Bottom
             
-            local Bar: Frame = Instance.new("Frame")
+            local Bar = Instance.new("Frame")
             Bar.Name = "Bar"
             Bar.AutomaticSize = Enum.AutomaticSize.Y
             Bar.Size = UDim2.fromScale(1, 0)
@@ -62,7 +61,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             Bar.Parent = TabBar
 
-            local Underline: Frame = Instance.new("Frame")
+            local Underline = Instance.new("Frame")
             Underline.Name = "Underline"
             Underline.Size = UDim2.new(1, 0, 0, 1)
             Underline.BackgroundColor3 = Iris._config.TabActiveColor
@@ -72,7 +71,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             Underline.Parent = TabBar
 
-            local ChildContainer: Frame = Instance.new("Frame")
+            local ChildContainer = Instance.new("Frame")
             ChildContainer.Name = "TabContainer"
             ChildContainer.AutomaticSize = Enum.AutomaticSize.Y
             ChildContainer.Size = UDim2.fromScale(1, 0)
@@ -100,7 +99,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             return TabBar.Bar
         end,
         ChildDiscarded = function(thisWidget: Types.TabBar, thisChild: Types.Tab)
-            local Index: number = thisChild.Index
+            local Index = thisChild.Index
             table.remove(thisWidget.Tabs, Index)
 
             for i = Index, #thisWidget.Tabs do
@@ -205,16 +204,16 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             TextLabel.Parent = Tab
 
-            local ButtonSize: number = Iris._config.TextSize + ((Iris._config.FramePadding.Y - 1) * 2)
+            local ButtonSize = Iris._config.TextSize + ((Iris._config.FramePadding.Y - 1) * 2)
 
             local CloseButton = Instance.new("TextButton")
             CloseButton.Name = "CloseButton"
+            CloseButton.Size = UDim2.fromOffset(ButtonSize, ButtonSize)
             CloseButton.BackgroundTransparency = 1
             CloseButton.BorderSizePixel = 0
-            CloseButton.LayoutOrder = 1
-            CloseButton.Size = UDim2.fromOffset(ButtonSize, ButtonSize)
             CloseButton.Text = ""
             CloseButton.AutoButtonColor = false
+            CloseButton.LayoutOrder = 1
 
             widgets.UICorner(CloseButton)
             widgets.applyButtonClick(CloseButton, function()
@@ -236,12 +235,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local Icon = Instance.new("ImageLabel")
             Icon.Name = "Icon"
             Icon.AnchorPoint = Vector2.new(0.5, 0.5)
+            Icon.Position = UDim2.fromScale(0.5, 0.5)
+            Icon.Size = UDim2.fromOffset(math.floor(0.7 * ButtonSize), math.floor(0.7 * ButtonSize))
             Icon.BackgroundTransparency = 1
             Icon.BorderSizePixel = 0
             Icon.Image = widgets.ICONS.MULTIPLICATION_SIGN
             Icon.ImageTransparency = 1
-            Icon.Position = UDim2.fromScale(0.5, 0.5)
-            Icon.Size = UDim2.fromOffset(math.floor(0.7 * ButtonSize), math.floor(0.7 * ButtonSize))
 
             widgets.applyInteractionHighlights("Image", Tab, Icon, {
                 Color = Iris._config.TextColor,
@@ -253,7 +252,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             })
             Icon.Parent = CloseButton
 
-            local ChildContainer: Frame = Instance.new("Frame")
+            local ChildContainer = Instance.new("Frame")
             ChildContainer.Name = "TabContainer"
             ChildContainer.AutomaticSize = Enum.AutomaticSize.Y
             ChildContainer.Size = UDim2.fromScale(1, 0)

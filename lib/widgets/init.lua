@@ -22,7 +22,7 @@ return function(Iris: Types.Internal)
     }
 
     widgets.IS_STUDIO = widgets.RunService:IsStudio()
-    function widgets.getTime(): number
+    function widgets.getTime()
         -- time() always returns 0 in the context of plugins
         if widgets.IS_STUDIO then
             return os.clock()
@@ -48,16 +48,16 @@ return function(Iris: Types.Internal)
         connection:Disconnect()
     end)
 
-    function widgets.getMouseLocation(): Vector2
+    function widgets.getMouseLocation()
         return widgets.UserInputService:GetMouseLocation() - widgets.MouseOffset
     end
 
-    function widgets.isPosInsideRect(pos: Vector2, rectMin: Vector2, rectMax: Vector2): boolean
+    function widgets.isPosInsideRect(pos: Vector2, rectMin: Vector2, rectMax: Vector2)
         return pos.X >= rectMin.X and pos.X <= rectMax.X and pos.Y >= rectMin.Y and pos.Y <= rectMax.Y
     end
 
-    function widgets.findBestWindowPosForPopup(refPos: Vector2, size: Vector2, outerMin: Vector2, outerMax: Vector2): Vector2
-        local CURSOR_OFFSET_DIST: number = 20
+    function widgets.findBestWindowPosForPopup(refPos: Vector2, size: Vector2, outerMin: Vector2, outerMax: Vector2)
+        local CURSOR_OFFSET_DIST = 20
 
         if refPos.X + size.X + CURSOR_OFFSET_DIST > outerMax.X then
             if refPos.Y + size.Y + CURSOR_OFFSET_DIST > outerMax.Y then
@@ -72,11 +72,10 @@ return function(Iris: Types.Internal)
             refPos += Vector2.new(CURSOR_OFFSET_DIST)
         end
 
-        local clampedPos: Vector2 = Vector2.new(math.max(math.min(refPos.X + size.X, outerMax.X) - size.X, outerMin.X), math.max(math.min(refPos.Y + size.Y, outerMax.Y) - size.Y, outerMin.Y))
-        return clampedPos
+        return Vector2.new(math.max(math.min(refPos.X + size.X, outerMax.X) - size.X, outerMin.X), math.max(math.min(refPos.Y + size.Y, outerMax.Y) - size.Y, outerMin.Y))
     end
 
-    function widgets.getScreenSizeForWindow(thisWidget: Types.Widget): Vector2 -- possible parents are GuiBase2d, CoreGui, PlayerGui
+    function widgets.getScreenSizeForWindow(thisWidget: Types.Widget) -- possible parents are GuiBase2d, CoreGui, PlayerGui
         if thisWidget.Instance:IsA("GuiBase2d") then
             return thisWidget.Instance.AbsoluteSize
         else
@@ -94,15 +93,15 @@ return function(Iris: Types.Internal)
     end
 
     function widgets.extend(superClass: Types.WidgetClass, subClass: Types.WidgetClass): Types.WidgetClass
-        local newClass: Types.WidgetClass = table.clone(superClass)
-        for index: unknown, value: any in subClass do
+        local newClass = table.clone(superClass)
+        for index, value in subClass do
             newClass[index] = value
         end
         return newClass
     end
 
-    function widgets.UIPadding(Parent: GuiObject, PxPadding: Vector2): UIPadding
-        local UIPaddingInstance: UIPadding = Instance.new("UIPadding")
+    function widgets.UIPadding(Parent: GuiObject, PxPadding: Vector2)
+        local UIPaddingInstance = Instance.new("UIPadding")
         UIPaddingInstance.PaddingLeft = UDim.new(0, PxPadding.X)
         UIPaddingInstance.PaddingRight = UDim.new(0, PxPadding.X)
         UIPaddingInstance.PaddingTop = UDim.new(0, PxPadding.Y)
@@ -111,8 +110,8 @@ return function(Iris: Types.Internal)
         return UIPaddingInstance
     end
 
-    function widgets.UIListLayout(Parent: GuiObject, FillDirection: Enum.FillDirection, Padding: UDim): UIListLayout
-        local UIListLayoutInstance: UIListLayout = Instance.new("UIListLayout")
+    function widgets.UIListLayout(Parent: GuiObject, FillDirection: Enum.FillDirection, Padding: UDim)
+        local UIListLayoutInstance = Instance.new("UIListLayout")
         UIListLayoutInstance.SortOrder = Enum.SortOrder.LayoutOrder
         UIListLayoutInstance.Padding = Padding
         UIListLayoutInstance.FillDirection = FillDirection
@@ -120,8 +119,8 @@ return function(Iris: Types.Internal)
         return UIListLayoutInstance
     end
 
-    function widgets.UIStroke(Parent: GuiObject, Thickness: number, Color: Color3, Transparency: number): UIStroke
-        local UIStrokeInstance: UIStroke = Instance.new("UIStroke")
+    function widgets.UIStroke(Parent: GuiObject, Thickness: number, Color: Color3, Transparency: number)
+        local UIStrokeInstance = Instance.new("UIStroke")
         UIStrokeInstance.Thickness = Thickness
         UIStrokeInstance.Color = Color
         UIStrokeInstance.Transparency = Transparency
@@ -131,15 +130,15 @@ return function(Iris: Types.Internal)
         return UIStrokeInstance
     end
 
-    function widgets.UICorner(Parent: GuiObject, PxRounding: number?): UICorner
-        local UICornerInstance: UICorner = Instance.new("UICorner")
+    function widgets.UICorner(Parent: GuiObject, PxRounding: number?)
+        local UICornerInstance = Instance.new("UICorner")
         UICornerInstance.CornerRadius = UDim.new(PxRounding and 0 or 1, PxRounding or 0)
         UICornerInstance.Parent = Parent
         return UICornerInstance
     end
 
-    function widgets.UISizeConstraint(Parent: GuiObject, MinSize: Vector2?, MaxSize: Vector2?): UISizeConstraint
-        local UISizeConstraintInstance: UISizeConstraint = Instance.new("UISizeConstraint")
+    function widgets.UISizeConstraint(Parent: GuiObject, MinSize: Vector2?, MaxSize: Vector2?)
+        local UISizeConstraintInstance = Instance.new("UISizeConstraint")
         UISizeConstraintInstance.MinSize = MinSize or UISizeConstraintInstance.MinSize -- made these optional
         UISizeConstraintInstance.MaxSize = MaxSize or UISizeConstraintInstance.MaxSize
         UISizeConstraintInstance.Parent = Parent
@@ -162,7 +161,7 @@ return function(Iris: Types.Internal)
     end
 
     function widgets.applyInteractionHighlights(Property: string, Button: GuiButton, Highlightee: GuiObject, Colors: { [string]: any })
-        local exitedButton: boolean = false
+        local exitedButton = false
         widgets.applyMouseEnter(Button, function()
             Highlightee[Property .. "Color3"] = Colors.HoveredColor
             Highlightee[Property .. "Transparency"] = Colors.HoveredTransparency
@@ -203,7 +202,7 @@ return function(Iris: Types.Internal)
     end
 
     function widgets.applyInteractionHighlightsWithMultiHighlightee(Property: string, Button: GuiButton, Highlightees: { { GuiObject | { [string]: Color3 | number } } })
-        local exitedButton: boolean = false
+        local exitedButton = false
         widgets.applyMouseEnter(Button, function()
             for _, Highlightee in Highlightees do
                 Highlightee[1][Property .. "Color3"] = Highlightee[2].HoveredColor
@@ -254,8 +253,8 @@ return function(Iris: Types.Internal)
     function widgets.applyFrameStyle(thisInstance: GuiObject, noPadding: boolean?, noCorner: boolean?)
         -- padding, border, and rounding
         -- optimized to only use what instances are needed, based on style
-        local FrameBorderSize: number = Iris._config.FrameBorderSize
-        local FrameRounding: number = Iris._config.FrameRounding
+        local FrameBorderSize = Iris._config.FrameBorderSize
+        local FrameRounding = Iris._config.FrameRounding
         thisInstance.BorderSizePixel = 0
 
         if FrameBorderSize > 0 then
@@ -277,28 +276,28 @@ return function(Iris: Types.Internal)
 
     function widgets.applyButtonDown(thisInstance: GuiButton, callback: (x: number, y: number) -> ())
         thisInstance.MouseButton1Down:Connect(function(x: number, y: number)
-            local position: Vector2 = Vector2.new(x, y) - widgets.MouseOffset
+            local position = Vector2.new(x, y) - widgets.MouseOffset
             callback(position.X, position.Y)
         end)
     end
 
     function widgets.applyMouseEnter(thisInstance: GuiObject, callback: (x: number, y: number) -> ())
         thisInstance.MouseEnter:Connect(function(x: number, y: number)
-            local position: Vector2 = Vector2.new(x, y) - widgets.MouseOffset
+            local position = Vector2.new(x, y) - widgets.MouseOffset
             callback(position.X, position.Y)
         end)
     end
 
     function widgets.applyMouseMoved(thisInstance: GuiObject, callback: (x: number, y: number) -> ())
         thisInstance.MouseMoved:Connect(function(x: number, y: number)
-            local position: Vector2 = Vector2.new(x, y) - widgets.MouseOffset
+            local position = Vector2.new(x, y) - widgets.MouseOffset
             callback(position.X, position.Y)
         end)
     end
 
     function widgets.applyMouseLeave(thisInstance: GuiObject, callback: (x: number, y: number) -> ())
         thisInstance.MouseLeave:Connect(function(x: number, y: number)
-            local position: Vector2 = Vector2.new(x, y) - widgets.MouseOffset
+            local position = Vector2.new(x, y) - widgets.MouseOffset
             callback(position.X, position.Y)
         end)
     end
@@ -316,7 +315,7 @@ return function(Iris: Types.Internal)
     end
 
     function widgets.discardState(thisWidget: Types.StateWidget)
-        for _, state: Types.State<any> in thisWidget.state do
+        for _, state in thisWidget.state do
             state.ConnectedWidgets[thisWidget.ID] = nil
         end
     end
@@ -331,7 +330,7 @@ return function(Iris: Types.Internal)
         hover = function(pathToHovered: (thisWidget: Types.Widget) -> GuiObject)
             return {
                 ["Init"] = function(thisWidget: Types.Widget & Types.Hovered)
-                    local hoveredGuiObject: GuiObject = pathToHovered(thisWidget)
+                    local hoveredGuiObject = pathToHovered(thisWidget)
                     widgets.applyMouseEnter(hoveredGuiObject, function()
                         thisWidget.isHoveredEvent = true
                     end)
@@ -340,7 +339,7 @@ return function(Iris: Types.Internal)
                     end)
                     thisWidget.isHoveredEvent = false
                 end,
-                ["Get"] = function(thisWidget: Types.Widget & Types.Hovered): boolean
+                ["Get"] = function(thisWidget: Types.Widget & Types.Hovered)
                     return thisWidget.isHoveredEvent
                 end,
             }
@@ -349,14 +348,14 @@ return function(Iris: Types.Internal)
         click = function(pathToClicked: (thisWidget: Types.Widget) -> GuiButton)
             return {
                 ["Init"] = function(thisWidget: Types.Widget & Types.Clicked)
-                    local clickedGuiObject: GuiButton = pathToClicked(thisWidget)
+                    local clickedGuiObject = pathToClicked(thisWidget)
                     thisWidget.lastClickedTick = -1
 
                     widgets.applyButtonClick(clickedGuiObject, function()
                         thisWidget.lastClickedTick = Iris._cycleTick + 1
                     end)
                 end,
-                ["Get"] = function(thisWidget: Types.Widget & Types.Clicked): boolean
+                ["Get"] = function(thisWidget: Types.Widget & Types.Clicked)
                     return thisWidget.lastClickedTick == Iris._cycleTick
                 end,
             }
@@ -365,14 +364,14 @@ return function(Iris: Types.Internal)
         rightClick = function(pathToClicked: (thisWidget: Types.Widget) -> GuiButton)
             return {
                 ["Init"] = function(thisWidget: Types.Widget & Types.RightClicked)
-                    local clickedGuiObject: GuiButton = pathToClicked(thisWidget)
+                    local clickedGuiObject = pathToClicked(thisWidget)
                     thisWidget.lastRightClickedTick = -1
 
                     clickedGuiObject.MouseButton2Click:Connect(function()
                         thisWidget.lastRightClickedTick = Iris._cycleTick + 1
                     end)
                 end,
-                ["Get"] = function(thisWidget: Types.Widget & Types.RightClicked): boolean
+                ["Get"] = function(thisWidget: Types.Widget & Types.RightClicked)
                     return thisWidget.lastRightClickedTick == Iris._cycleTick
                 end,
             }
@@ -381,14 +380,14 @@ return function(Iris: Types.Internal)
         doubleClick = function(pathToClicked: (thisWidget: Types.Widget) -> GuiButton)
             return {
                 ["Init"] = function(thisWidget: Types.Widget & Types.DoubleClicked)
-                    local clickedGuiObject: GuiButton = pathToClicked(thisWidget)
+                    local clickedGuiObject = pathToClicked(thisWidget)
                     thisWidget.lastClickedTime = -1
                     thisWidget.lastClickedPosition = Vector2.zero
                     thisWidget.lastDoubleClickedTick = -1
 
                     widgets.applyButtonDown(clickedGuiObject, function(x: number, y: number)
-                        local currentTime: number = widgets.getTime()
-                        local isTimeValid: boolean = currentTime - thisWidget.lastClickedTime < Iris._config.MouseDoubleClickTime
+                        local currentTime = widgets.getTime()
+                        local isTimeValid = currentTime - thisWidget.lastClickedTime < Iris._config.MouseDoubleClickTime
                         if isTimeValid and (Vector2.new(x, y) - thisWidget.lastClickedPosition).Magnitude < Iris._config.MouseDoubleClickMaxDist then
                             thisWidget.lastDoubleClickedTick = Iris._cycleTick + 1
                         else
@@ -397,7 +396,7 @@ return function(Iris: Types.Internal)
                         end
                     end)
                 end,
-                ["Get"] = function(thisWidget: Types.Widget & Types.DoubleClicked): boolean
+                ["Get"] = function(thisWidget: Types.Widget & Types.DoubleClicked)
                     return thisWidget.lastDoubleClickedTick == Iris._cycleTick
                 end,
             }
@@ -406,7 +405,7 @@ return function(Iris: Types.Internal)
         ctrlClick = function(pathToClicked: (thisWidget: Types.Widget) -> GuiButton)
             return {
                 ["Init"] = function(thisWidget: Types.Widget & Types.CtrlClicked)
-                    local clickedGuiObject: GuiButton = pathToClicked(thisWidget)
+                    local clickedGuiObject = pathToClicked(thisWidget)
                     thisWidget.lastCtrlClickedTick = -1
 
                     widgets.applyButtonClick(clickedGuiObject, function()
@@ -415,7 +414,7 @@ return function(Iris: Types.Internal)
                         end
                     end)
                 end,
-                ["Get"] = function(thisWidget: Types.Widget & Types.CtrlClicked): boolean
+                ["Get"] = function(thisWidget: Types.Widget & Types.CtrlClicked)
                     return thisWidget.lastCtrlClickedTick == Iris._cycleTick
                 end,
             }

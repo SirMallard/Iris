@@ -10,7 +10,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Args = {},
         Events = {},
         Generate = function(_thisWidget: Types.Root)
-            local Root: Folder = Instance.new("Folder")
+            local Root = Instance.new("Folder")
             Root.Name = "Iris_Root"
 
             local PseudoWindowScreenGui
@@ -18,8 +18,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 PseudoWindowScreenGui = Instance.new("ScreenGui")
                 PseudoWindowScreenGui.ResetOnSpawn = false
                 PseudoWindowScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-                PseudoWindowScreenGui.DisplayOrder = Iris._config.DisplayOrderOffset
                 PseudoWindowScreenGui.IgnoreGuiInset = Iris._config.IgnoreGuiInset
+                PseudoWindowScreenGui.DisplayOrder = Iris._config.DisplayOrderOffset
             else
                 PseudoWindowScreenGui = Instance.new("Frame")
                 PseudoWindowScreenGui.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -49,7 +49,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             PopupScreenGui.Name = "PopupScreenGui"
             PopupScreenGui.Parent = Root
 
-            local TooltipContainer: Frame = Instance.new("Frame")
+            local TooltipContainer = Instance.new("Frame")
             TooltipContainer.Name = "TooltipContainer"
             TooltipContainer.AutomaticSize = Enum.AutomaticSize.XY
             TooltipContainer.Size = UDim2.fromOffset(0, 0)
@@ -60,7 +60,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             TooltipContainer.Parent = PopupScreenGui
 
-            local MenuBarContainer: Frame = Instance.new("Frame")
+            local MenuBarContainer = Instance.new("Frame")
             MenuBarContainer.Name = "MenuBarContainer"
             MenuBarContainer.AutomaticSize = Enum.AutomaticSize.Y
             MenuBarContainer.Size = UDim2.fromScale(1, 0)
@@ -69,11 +69,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             MenuBarContainer.Parent = PopupScreenGui
 
-            local PseudoWindow: Frame = Instance.new("Frame")
+            local PseudoWindow = Instance.new("Frame")
             PseudoWindow.Name = "PseudoWindow"
+            PseudoWindow.AutomaticSize = Enum.AutomaticSize.XY
             PseudoWindow.Size = UDim2.new(0, 0, 0, 0)
             PseudoWindow.Position = UDim2.fromOffset(0, 22)
-            PseudoWindow.AutomaticSize = Enum.AutomaticSize.XY
             PseudoWindow.BackgroundTransparency = Iris._config.WindowBgTransparency
             PseudoWindow.BackgroundColor3 = Iris._config.WindowBgColor
             PseudoWindow.BorderSizePixel = Iris._config.WindowBorderSize

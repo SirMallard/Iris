@@ -26,14 +26,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     return thisWidget.Instance
                 end),
             },
-            Generate = function(thisWidget: Types.Image)
-                local Image: ImageLabel = Instance.new("ImageLabel")
+            Generate = function(_thisWidget: Types.Image)
+                local Image = Instance.new("ImageLabel")
                 Image.Name = "Iris_Image"
                 Image.BackgroundTransparency = 1
                 Image.BorderSizePixel = 0
                 Image.ImageColor3 = Iris._config.ImageColor
                 Image.ImageTransparency = Iris._config.ImageTransparency
-                Image.LayoutOrder = thisWidget.ZIndex
 
                 widgets.applyFrameStyle(Image, true)
 
@@ -89,8 +88,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     return thisWidget.Instance
                 end),
             },
-            Generate = function(thisWidget: Types.ImageButton)
-                local Button: ImageButton = Instance.new("ImageButton")
+            Generate = function(_thisWidget: Types.ImageButton)
+                local Button = Instance.new("ImageButton")
                 Button.Name = "Iris_ImageButton"
                 Button.AutomaticSize = Enum.AutomaticSize.XY
                 Button.BackgroundColor3 = Iris._config.FrameBgColor
@@ -98,13 +97,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Button.BorderSizePixel = 0
                 Button.Image = ""
                 Button.ImageTransparency = 1
-                Button.LayoutOrder = thisWidget.ZIndex
                 Button.AutoButtonColor = false
                 
                 widgets.applyFrameStyle(Button, true)
                 widgets.UIPadding(Button, Vector2.new(Iris._config.ImageBorderSize, Iris._config.ImageBorderSize))
                 
-                local Image: ImageLabel = Instance.new("ImageLabel")
+                local Image = Instance.new("ImageLabel")
                 Image.Name = "ImageLabel"
                 Image.BackgroundTransparency = 1
                 Image.BorderSizePixel = 0

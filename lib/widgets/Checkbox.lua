@@ -11,13 +11,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Events = {
             ["checked"] = {
                 ["Init"] = function(_thisWidget: Types.Checkbox) end,
-                ["Get"] = function(thisWidget: Types.Checkbox): boolean
+                ["Get"] = function(thisWidget: Types.Checkbox)
                     return thisWidget.lastCheckedTick == Iris._cycleTick
                 end,
             },
             ["unchecked"] = {
                 ["Init"] = function(_thisWidget: Types.Checkbox) end,
-                ["Get"] = function(thisWidget: Types.Checkbox): boolean
+                ["Get"] = function(thisWidget: Types.Checkbox)
                     return thisWidget.lastUncheckedTick == Iris._cycleTick
                 end,
             },
@@ -26,7 +26,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end),
         },
         Generate = function(thisWidget: Types.Checkbox)
-            local Checkbox: TextButton = Instance.new("TextButton")
+            local Checkbox = Instance.new("TextButton")
             Checkbox.Name = "Iris_Checkbox"
             Checkbox.AutomaticSize = Enum.AutomaticSize.XY
             Checkbox.Size = UDim2.fromOffset(0, 0)
@@ -34,15 +34,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Checkbox.BorderSizePixel = 0
             Checkbox.Text = ""
             Checkbox.AutoButtonColor = false
-            Checkbox.ZIndex = thisWidget.ZIndex
-            Checkbox.LayoutOrder = thisWidget.ZIndex
             
-            local UIListLayout: UIListLayout = widgets.UIListLayout(Checkbox, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
-            UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+            widgets.UIListLayout(Checkbox, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
-            local checkboxSize: number = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
+            local checkboxSize = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
 
-            local Box: Frame = Instance.new("Frame")
+            local Box = Instance.new("Frame")
             Box.Name = "Box"
             Box.Size = UDim2.fromOffset(checkboxSize, checkboxSize)
             Box.BackgroundColor3 = Iris._config.FrameBgColor
@@ -62,22 +59,22 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             Box.Parent = Checkbox
 
-            local Checkmark: ImageLabel = Instance.new("ImageLabel")
+            local Checkmark = Instance.new("ImageLabel")
             Checkmark.Name = "Checkmark"
             Checkmark.Size = UDim2.fromScale(1, 1)
             Checkmark.BackgroundTransparency = 1
+            Checkmark.Image = widgets.ICONS.CHECK_MARK
             Checkmark.ImageColor3 = Iris._config.CheckMarkColor
-            Checkmark.ImageTransparency = Iris._config.CheckMarkTransparency
+            Checkmark.ImageTransparency = 1
             Checkmark.ScaleType = Enum.ScaleType.Fit
 
             Checkmark.Parent = Box
 
             widgets.applyButtonClick(Checkbox, function()
-                local wasChecked: boolean = thisWidget.state.isChecked.value
-                thisWidget.state.isChecked:set(not wasChecked)
+                thisWidget.state.isChecked:set(not thisWidget.state.isChecked.value)
             end)
 
-            local TextLabel: TextLabel = Instance.new("TextLabel")
+            local TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
             TextLabel.AutomaticSize = Enum.AutomaticSize.XY
             TextLabel.BackgroundTransparency = 1
@@ -89,30 +86,30 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return Checkbox
         end,
-        Update = function(thisWidget: Types.Checkbox)
-            local Checkbox = thisWidget.Instance :: TextButton
-            Checkbox.TextLabel.Text = thisWidget.arguments.Text or "Checkbox"
-        end,
-        Discard = function(thisWidget: Types.Checkbox)
-            thisWidget.Instance:Destroy()
-            widgets.discardState(thisWidget)
-        end,
         GenerateState = function(thisWidget: Types.Checkbox)
             if thisWidget.state.isChecked == nil then
                 thisWidget.state.isChecked = Iris._widgetState(thisWidget, "checked", false)
             end
+        end,
+        Update = function(thisWidget: Types.Checkbox)
+            local Checkbox = thisWidget.Instance :: TextButton
+            Checkbox.TextLabel.Text = thisWidget.arguments.Text or "Checkbox"
         end,
         UpdateState = function(thisWidget: Types.Checkbox)
             local Checkbox = thisWidget.Instance :: TextButton
             local Box = Checkbox.Box :: Frame
             local Checkmark: ImageLabel = Box.Checkmark
             if thisWidget.state.isChecked.value then
-                Checkmark.Image = widgets.ICONS.CHECK_MARK
+                Checkmark.ImageTransparency = Iris._config.CheckMarkTransparency
                 thisWidget.lastCheckedTick = Iris._cycleTick + 1
             else
-                Checkmark.Image = ""
+                Checkmark.ImageTransparency = 1
                 thisWidget.lastUncheckedTick = Iris._cycleTick + 1
             end
+        end,
+        Discard = function(thisWidget: Types.Checkbox)
+            thisWidget.Instance:Destroy()
+            widgets.discardState(thisWidget)
         end,
     } :: Types.WidgetClass)
 end

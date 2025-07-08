@@ -25,13 +25,13 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return thisWidget.Instance
             end),
         },
-        Generate = function(thisWidget: Types.Button)
-            local Button: TextButton = Instance.new("TextButton")
+        Generate = function(_thisWidget: Types.Button)
+            local Button = Instance.new("TextButton")
+            Button.AutomaticSize = Enum.AutomaticSize.XY
             Button.Size = UDim2.fromOffset(0, 0)
             Button.BackgroundColor3 = Iris._config.ButtonColor
             Button.BackgroundTransparency = Iris._config.ButtonTransparency
             Button.AutoButtonColor = false
-            Button.AutomaticSize = Enum.AutomaticSize.XY
 
             widgets.applyTextStyle(Button)
             Button.TextXAlignment = Enum.TextXAlignment.Center
@@ -46,9 +46,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ActiveColor = Iris._config.ButtonActiveColor,
                 ActiveTransparency = Iris._config.ButtonActiveTransparency,
             })
-
-            Button.ZIndex = thisWidget.ZIndex
-            Button.LayoutOrder = thisWidget.ZIndex
 
             return Button
         end,
@@ -66,7 +63,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     --stylua: ignore
     Iris.WidgetConstructor("Button", widgets.extend(abstractButton, {
             Generate = function(thisWidget: Types.Button)
-                local Button: TextButton = abstractButton.Generate(thisWidget)
+                local Button = abstractButton.Generate(thisWidget)
                 Button.Name = "Iris_Button"
 
                 return Button
@@ -77,7 +74,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     --stylua: ignore
     Iris.WidgetConstructor("SmallButton", widgets.extend(abstractButton, {
             Generate = function(thisWidget: Types.Button)
-                local SmallButton = abstractButton.Generate(thisWidget) :: TextButton
+                local SmallButton = abstractButton.Generate(thisWidget)
                 SmallButton.Name = "Iris_SmallButton"
 
                 local uiPadding: UIPadding = SmallButton.UIPadding
