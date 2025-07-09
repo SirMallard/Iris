@@ -49,7 +49,7 @@ local TemplateConfig = {
 
         SliderGrabColor = Color3.fromRGB(66, 150, 250),
         SliderGrabTransparency = 0,
-        SliderGrabActiveColor = Color3.fromRGB(117, 138, 204),
+        SliderGrabActiveColor = Color3.fromRGB(66, 150, 250),
         SliderGrabActiveTransparency = 0,
 
         HeaderColor = Color3.fromRGB(66, 150, 250),
@@ -176,7 +176,7 @@ local TemplateConfig = {
 
         SliderGrabColor = Color3.fromRGB(61, 133, 224),
         SliderGrabTransparency = 0,
-        SliderGrabActiveColor = Color3.fromRGB(66, 150, 250),
+        SliderGrabActiveColor = Color3.fromRGB(117, 138, 204),
         SliderGrabActiveTransparency = 0,
 
         SelectionImageObjectColor = Color3.fromRGB(0, 0, 0),

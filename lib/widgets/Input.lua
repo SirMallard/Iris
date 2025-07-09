@@ -955,6 +955,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             GrabBar.BorderSizePixel = 0
             GrabBar.ZIndex = 5
 
+            widgets.applyInteractionHighlights("Background", SliderField, GrabBar, {
+                Color = Iris._config.SliderGrabColor,
+                Transparency = Iris._config.SliderGrabTransparency,
+                HoveredColor = Iris._config.SliderGrabColor,
+                HoveredTransparency = Iris._config.SliderGrabTransparency,
+                ActiveColor = Iris._config.SliderGrabActiveColor,
+                ActiveTransparency = Iris._config.SliderGrabActiveTransparency,
+            })
+
             if Iris._config.GrabRounding > 0 then
                 widgets.UICorner(GrabBar, Iris._config.GrabRounding)
             end
@@ -1194,6 +1203,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return InputText
         end,
+        GenerateState = function(thisWidget: Types.InputText)
+            if thisWidget.state.text == nil then
+                thisWidget.state.text = Iris._widgetState(thisWidget, "text", "")
+            end
+        end,
         Update = function(thisWidget: Types.InputText)
             local InputText = thisWidget.Instance :: Frame
             local TextLabel: TextLabel = InputText.TextLabel
@@ -1204,20 +1218,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             InputField.TextEditable = not thisWidget.arguments.ReadOnly
             InputField.MultiLine = thisWidget.arguments.MultiLine or false
         end,
-        Discard = function(thisWidget: Types.InputText)
-            thisWidget.Instance:Destroy()
-            widgets.discardState(thisWidget)
-        end,
-        GenerateState = function(thisWidget: Types.InputText)
-            if thisWidget.state.text == nil then
-                thisWidget.state.text = Iris._widgetState(thisWidget, "text", "")
-            end
-        end,
         UpdateState = function(thisWidget: Types.InputText)
             local InputText = thisWidget.Instance :: Frame
             local InputField: TextBox = InputText.InputField
-
+    
             InputField.Text = thisWidget.state.text.value
+        end,
+        Discard = function(thisWidget: Types.InputText)
+            thisWidget.Instance:Destroy()
+            widgets.discardState(thisWidget)
         end,
     } :: Types.WidgetClass)
 end
