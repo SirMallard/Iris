@@ -494,6 +494,7 @@ export type Config = {
 
     UseScreenGUIs: boolean,
     IgnoreGuiInset: boolean,
+    ScreenInsets: Enum.ScreenInsets,
     Parent: BasePlayerGui,
     RichText: boolean,
     TextWrapped: boolean,

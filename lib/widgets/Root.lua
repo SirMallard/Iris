@@ -18,6 +18,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 PseudoWindowScreenGui = Instance.new("ScreenGui")
                 PseudoWindowScreenGui.ResetOnSpawn = false
                 PseudoWindowScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+                PseudoWindowScreenGui.ScreenInsets = Iris._config.ScreenInsets
                 PseudoWindowScreenGui.IgnoreGuiInset = Iris._config.IgnoreGuiInset
                 PseudoWindowScreenGui.DisplayOrder = Iris._config.DisplayOrderOffset
             else
@@ -37,6 +38,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 PopupScreenGui.ResetOnSpawn = false
                 PopupScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
                 PopupScreenGui.DisplayOrder = Iris._config.DisplayOrderOffset + 1024 -- room for 1024 regular windows before overlap
+                PopupScreenGui.ScreenInsets = Iris._config.ScreenInsets
                 PopupScreenGui.IgnoreGuiInset = Iris._config.IgnoreGuiInset
             else
                 PopupScreenGui = Instance.new("Frame")

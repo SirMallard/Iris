@@ -30,6 +30,7 @@ Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorLight) -- change to the templat
 Iris.UpdateGlobalConfig({
     RichText = true,
     IgnoreGuiInset = true,
+    ScreenInsets = Enum.ScreenInsets.None,
     TextColor = Color3.fromRGB(85, 49, 218),
     TextSize = 16,
     FramePadding = Vector2.new(2, 1),
@@ -181,16 +182,18 @@ The RichText option will allow any text instance to support rich text. Equivalen
 TextWrapped and these both rely on Roblox to handle support for this.
 
 UseScreenGUIs will determine whether the root UI instances are ScreenGUIs or Frames. This is useful
-for when Iris is put inside existing UI, such as plugins or stories.
+for when Iris is put inside existing UI, such as plugins or stories. ScreenInsets is applied first,
+so make sure that IgnoreGuiInset agrees with the value (false when CoreUISafeInsets, true otherwise).
 
-| Key                     | Value   | Notes                                                                 |
-| ----------------------- | ------- | --------------------------------------------------------------------- |
-| UseScreenGUIs           | `true`  | Whether to use ScreenGUIs as the top level widget, or Frames instead. |
-| IgnoreGuiInset          | `false` | If using ScreenGUIs                                                   |
-| Parent                  | `nil`   | Overrides the parent of the next widget, when creating                |
-| RichText                | `false` | Text instances support RichText                                       |
-| TextWrapped             | `false` | Text instances will wrap text                                         |
-| DisplayOrderOffset      | `127`   | Root widget offset, to draw over other UI                             |
-| ZIndexOffset            | `0`     | Unused                                                                |
-| MouseDoubleClickTime    | `0.30`  | Time for a double-click, in seconds                                   |
-| MouseDoubleClickMaxDist | `6.0`   | Distance threshold to stay in to validate a double-click, in pixels   |
+| Key                     | Value                                | Notes                                                                 |
+| ----------------------- | ------------------------------------ | --------------------------------------------------------------------- |
+| UseScreenGUIs           | `true`                               | Whether to use ScreenGUIs as the top level widget, or Frames instead. |
+| ScreenInsets            | `Enum.ScreenInsets.CoreUISafeInsets` | Type of screenInset for ScreenGUIs, useful for mobile.                |
+| IgnoreGuiInset          | `false`                              | If using ScreenGUIs                                                   |
+| Parent                  | `nil`                                | Overrides the parent of the next widget, when creating                |
+| RichText                | `false`                              | Text instances support RichText                                       |
+| TextWrapped             | `false`                              | Text instances will wrap text                                         |
+| DisplayOrderOffset      | `127`                                | Root widget offset, to draw over other UI                             |
+| ZIndexOffset            | `0`                                  | Unused                                                                |
+| MouseDoubleClickTime    | `0.30`                               | Time for a double-click, in seconds                                   |
+| MouseDoubleClickMaxDist | `6.0`                                | Distance threshold to stay in to validate a double-click, in pixels   |

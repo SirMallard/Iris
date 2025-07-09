@@ -287,6 +287,7 @@ local TemplateConfig = {
     utilityDefault = {
         UseScreenGUIs = true,
         IgnoreGuiInset = false,
+        ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets,
         Parent = nil,
         RichText = false,
         TextWrapped = false,
