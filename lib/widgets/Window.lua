@@ -389,6 +389,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Window.ResetOnSpawn = false
                 Window.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
                 Window.DisplayOrder = Iris._config.DisplayOrderOffset
+                Window.ScreenInsets = Iris._config.ScreenInsets
                 Window.IgnoreGuiInset = Iris._config.IgnoreGuiInset
             else
                 Window = Instance.new("Frame")
