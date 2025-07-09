@@ -401,13 +401,26 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             InputField.Name = "InputField" .. tostring(index)
             InputField.AutomaticSize = Enum.AutomaticSize.Y
             InputField.Size = UDim2.new(componentWidth, Iris._config.ContentHeight)
-            InputField.BackgroundColor3 = Iris._config.FrameBgColor
             InputField.BackgroundTransparency = Iris._config.FrameBgTransparency
             InputField.TextTruncate = Enum.TextTruncate.AtEnd
             InputField.ClearTextOnFocus = false
             InputField.ZIndex = index
             InputField.LayoutOrder = index
             InputField.ClipsDescendants = true
+
+            local background = Iris._config.FrameBgColor
+            if Iris._config.ColorizedInputs and (dataType == "Vector3" or dataType == "Vector2" or dataType == "Color3") then
+                local h, s, v = Color3.toHSV(background)
+                if index == 1 then
+                    h = Iris._config.ColorizedInputHue1
+                elseif index == 2 then
+                    h = Iris._config.ColorizedInputHue2
+                elseif index == 3 then
+                    h = Iris._config.ColorizedInputHue3
+                end
+                background = Color3.fromHSV(h, s, v)
+            end
+            InputField.BackgroundColor3 = background
 
             widgets.applyFrameStyle(InputField)
             widgets.applyTextStyle(InputField)
@@ -584,25 +597,43 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             DragField.Name = "DragField" .. tostring(index)
             DragField.AutomaticSize = Enum.AutomaticSize.Y
             DragField.Size = componentSize
-            DragField.BackgroundColor3 = Iris._config.FrameBgColor
             DragField.BackgroundTransparency = Iris._config.FrameBgTransparency
             DragField.Text = ""
             DragField.AutoButtonColor = false
             DragField.LayoutOrder = index
             DragField.ClipsDescendants = true
 
+            local background = Iris._config.FrameBgColor
+            local hovered = Iris._config.FrameBgHoveredColor
+            local active = Iris._config.FrameBgActiveColor
+            if Iris._config.ColorizedInputs and (dataType == "Vector3" or dataType == "Vector2" or dataType == "Color3") then
+                local h, s, v = Color3.toHSV(background)
+                local _, hoveredS, hoveredV = Color3.toHSV(hovered)
+                local _, activeS, activeV = Color3.toHSV(active)
+                if index == 1 then
+                    h = Iris._config.ColorizedInputHue1
+                elseif index == 2 then
+                    h = Iris._config.ColorizedInputHue2
+                elseif index == 3 then
+                    h = Iris._config.ColorizedInputHue3
+                end
+                background = Color3.fromHSV(h, s, v)
+                hovered = Color3.fromHSV(h, hoveredS, hoveredV)
+                active = Color3.fromHSV(h, activeS, activeV)
+            end
+            DragField.BackgroundColor3 = background
+
             widgets.applyFrameStyle(DragField)
             widgets.applyTextStyle(DragField)
             widgets.UISizeConstraint(DragField, Vector2.xAxis)
-
             DragField.TextXAlignment = Enum.TextXAlignment.Center
 
             widgets.applyInteractionHighlights("Background", DragField, DragField, {
-                Color = Iris._config.FrameBgColor,
+                Color = background,
                 Transparency = Iris._config.FrameBgTransparency,
-                HoveredColor = Iris._config.FrameBgHoveredColor,
+                HoveredColor = hovered,
                 HoveredTransparency = Iris._config.FrameBgHoveredTransparency,
-                ActiveColor = Iris._config.FrameBgActiveColor,
+                ActiveColor = active,
                 ActiveTransparency = Iris._config.FrameBgActiveTransparency,
             })
 
@@ -882,12 +913,34 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             SliderField.Name = "SliderField" .. tostring(index)
             SliderField.AutomaticSize = Enum.AutomaticSize.Y
             SliderField.Size = componentSize
-            SliderField.BackgroundColor3 = Iris._config.FrameBgColor
             SliderField.BackgroundTransparency = Iris._config.FrameBgTransparency
             SliderField.Text = ""
             SliderField.AutoButtonColor = false
             SliderField.LayoutOrder = index
             SliderField.ClipsDescendants = true
+
+            local background = Iris._config.FrameBgColor
+            local hovered = Iris._config.FrameBgHoveredColor
+            local active = Iris._config.FrameBgActiveColor
+            local grab = Iris._config.SliderGrabColor
+            if Iris._config.ColorizedInputs and (dataType == "Vector3" or dataType == "Vector2" or dataType == "Color3") then
+                local h, s, v = Color3.toHSV(background)
+                local _, hoveredS, hoveredV = Color3.toHSV(hovered)
+                local _, activeS, activeV = Color3.toHSV(active)
+                local _, grabS, grabV = Color3.toHSV(grab)
+                if index == 1 then
+                    h = Iris._config.ColorizedInputHue1
+                elseif index == 2 then
+                    h = Iris._config.ColorizedInputHue2
+                elseif index == 3 then
+                    h = Iris._config.ColorizedInputHue3
+                end
+                background = Color3.fromHSV(h, s, v)
+                hovered = Color3.fromHSV(h, hoveredS, hoveredV)
+                active = Color3.fromHSV(h, activeS, activeV)
+                grab = Color3.fromHSV(h, grabS, grabV)
+            end
+            SliderField.BackgroundColor3 = background
 
             widgets.applyFrameStyle(SliderField)
             widgets.applyTextStyle(SliderField)
@@ -908,11 +961,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             OverlayText.Parent = SliderField
 
             widgets.applyInteractionHighlights("Background", SliderField, SliderField, {
-                Color = Iris._config.FrameBgColor,
+                Color = background,
                 Transparency = Iris._config.FrameBgTransparency,
-                HoveredColor = Iris._config.FrameBgHoveredColor,
+                HoveredColor = hovered,
                 HoveredTransparency = Iris._config.FrameBgHoveredTransparency,
-                ActiveColor = Iris._config.FrameBgActiveColor,
+                ActiveColor = active,
                 ActiveTransparency = Iris._config.FrameBgActiveTransparency,
             })
 
@@ -950,7 +1003,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             GrabBar.Name = "GrabBar"
             GrabBar.AnchorPoint = Vector2.new(0.5, 0.5)
             GrabBar.Position = UDim2.new(0, 0, 0.5, 0)
-            GrabBar.BackgroundColor3 = Iris._config.SliderGrabColor
+            GrabBar.BackgroundColor3 = grab
             GrabBar.Transparency = Iris._config.SliderGrabTransparency
             GrabBar.BorderSizePixel = 0
             GrabBar.ZIndex = 5
@@ -1194,6 +1247,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return InputText
         end,
+        GenerateState = function(thisWidget: Types.InputText)
+            if thisWidget.state.text == nil then
+                thisWidget.state.text = Iris._widgetState(thisWidget, "text", "")
+            end
+        end,
         Update = function(thisWidget: Types.InputText)
             local InputText = thisWidget.Instance :: Frame
             local TextLabel: TextLabel = InputText.TextLabel
@@ -1204,20 +1262,15 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             InputField.TextEditable = not thisWidget.arguments.ReadOnly
             InputField.MultiLine = thisWidget.arguments.MultiLine or false
         end,
-        Discard = function(thisWidget: Types.InputText)
-            thisWidget.Instance:Destroy()
-            widgets.discardState(thisWidget)
-        end,
-        GenerateState = function(thisWidget: Types.InputText)
-            if thisWidget.state.text == nil then
-                thisWidget.state.text = Iris._widgetState(thisWidget, "text", "")
-            end
-        end,
         UpdateState = function(thisWidget: Types.InputText)
             local InputText = thisWidget.Instance :: Frame
             local InputField: TextBox = InputText.InputField
 
             InputField.Text = thisWidget.state.text.value
+        end,
+        Discard = function(thisWidget: Types.InputText)
+            thisWidget.Instance:Destroy()
+            widgets.discardState(thisWidget)
         end,
     } :: Types.WidgetClass)
 end

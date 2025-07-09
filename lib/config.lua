@@ -108,6 +108,12 @@ local TemplateConfig = {
         ResizeGripHoveredTransparency = 0.33,
         ResizeGripActiveColor = Color3.fromRGB(66, 150, 250),
         ResizeGripActiveTransparency = 0.05,
+
+        -- Colorized Inputs (hue from 0 to 1)
+        ColorizedInputHue1 = 0,
+        ColorizedInputHue2 = 0.33,
+        ColorizedInputHue3 = 0.66,
+        ColorizedInputHue4 = 0.825,
     },
     colorLight = { -- Dear, ImGui default light
         TextColor = Color3.fromRGB(0, 0, 0),
@@ -221,6 +227,12 @@ local TemplateConfig = {
         ResizeGripHoveredTransparency = 0.33,
         ResizeGripActiveColor = Color3.fromRGB(66, 150, 250),
         ResizeGripActiveTransparency = 0.05,
+
+        -- Colorized Inputs (hue from 0 to 1)
+        ColorizedInputHue1 = 0,
+        ColorizedInputHue2 = 0.33,
+        ColorizedInputHue3 = 0.66,
+        ColorizedInputHue4 = 0.825,
     },
 
     sizeDefault = { -- Dear, ImGui default
@@ -293,6 +305,7 @@ local TemplateConfig = {
         TextWrapped = false,
         DisplayOrderOffset = 127,
         ZIndexOffset = 0,
+        ColorizedInputs = false,
 
         MouseDoubleClickTime = 0.30, -- Time for a double-click, in seconds.
         MouseDoubleClickMaxDist = 6.0, -- Distance threshold to stay in to validate a double-click, in pixels.
