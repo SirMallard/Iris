@@ -1,7 +1,7 @@
 local Iris = require(script.Parent)
 local Types = require(script.Parent.Types)
 
-local band = bit32.band
+local btest = bit32.btest
 
 local Wrapper = {
     State = Iris.State,
@@ -77,15 +77,15 @@ Wrapper.Window = function(title: string, flags: number?, size: Types.State<Vecto
     local windowFlags = flags or 0
     return Iris.Window({
         title,
-        band(windowFlags, Wrapper.WindowFlags.NoTitleBar),
-        band(windowFlags, Wrapper.WindowFlags.NoBackground),
-        band(windowFlags, Wrapper.WindowFlags.NoCollapse),
-        band(windowFlags, Wrapper.WindowFlags.NoClose),
-        band(windowFlags, Wrapper.WindowFlags.NoMove),
-        band(windowFlags, Wrapper.WindowFlags.NoScrollbar),
-        band(windowFlags, Wrapper.WindowFlags.NoResize),
-        band(windowFlags, Wrapper.WindowFlags.NoNav),
-        band(windowFlags, Wrapper.WindowFlags.NoMenu),
+        btest(windowFlags, Wrapper.WindowFlags.NoTitleBar),
+        btest(windowFlags, Wrapper.WindowFlags.NoBackground),
+        btest(windowFlags, Wrapper.WindowFlags.NoCollapse),
+        btest(windowFlags, Wrapper.WindowFlags.NoClose),
+        btest(windowFlags, Wrapper.WindowFlags.NoMove),
+        btest(windowFlags, Wrapper.WindowFlags.NoScrollbar),
+        btest(windowFlags, Wrapper.WindowFlags.NoResize),
+        btest(windowFlags, Wrapper.WindowFlags.NoNav),
+        btest(windowFlags, Wrapper.WindowFlags.NoMenu),
     }, {
         size = size,
         position = position,
@@ -127,7 +127,7 @@ end
 
 Wrapper.Group = Iris.Group
 
--- -- Text Widget API
+-- Text Widget API
 Wrapper.TextFlags = {
     Wrapped = 1,
     RichText = 2,
@@ -140,7 +140,7 @@ Wrapper.InputTextFlags = {
 
 Wrapper.Text = function(text: string, flags: number?, color: Color3?)
     local textFlags = flags or 0
-    return Iris.Text({ text, band(textFlags, Wrapper.TextFlags.Wrapped), color, band(textFlags, Wrapper.TextFlags.RichText) })
+    return Iris.Text({ text, btest(textFlags, Wrapper.TextFlags.Wrapped), color, btest(textFlags, Wrapper.TextFlags.RichText) })
 end
 
 Wrapper.TextWrapped = function(text: string)
@@ -157,10 +157,10 @@ end
 
 Wrapper.InputText = function(text: string?, textHint: string?, flags: number?, textBuffer: Types.State<string>?)
     local inputTextFlags = flags or 0
-    return Iris.InputText({ text, textHint, band(inputTextFlags, Wrapper.InputTextFlags.ReadOnly), band(inputTextFlags, Wrapper.InputTextFlags.MultiLine) }, { text = textBuffer })
+    return Iris.InputText({ text, textHint, btest(inputTextFlags, Wrapper.InputTextFlags.ReadOnly), btest(inputTextFlags, Wrapper.InputTextFlags.MultiLine) }, { text = textBuffer })
 end
 
--- -- Basic Widget API
+-- Basic Widget API
 Wrapper.Button = function(text: string, size: UDim2?)
     return Iris.Button({ text, size })
 end
@@ -177,151 +177,203 @@ Wrapper.RadioButton = function(text: string, index: any, state: Types.State<any>
     return Iris.RadioButton({ text, index }, { index = state })
 end
 
--- -- Tree Widget API
-Wrapper.Tree = function(WidgetArguments, WidgetStates)
-    return Iris.Tree()
+-- Tree Widget API
+Wrapper.TreeFlags = {
+    SpanAvailWidth = 1,
+    NoIndent = 2,
+    DefaultOpen = 4,
+}
+
+Wrapper.Tree = function(text: string, flags: number?, open: Types.State<boolean>?)
+    local treeFlags = flags or 0
+    return Iris.Tree({ text, btest(treeFlags, Wrapper.TreeFlags.SpanAvailWidth), btest(treeFlags, Wrapper.TreeFlags.NoIndent), btest(treeFlags, Wrapper.TreeFlags.DefaultOpen) }, { isUncollapsed = open })
 end
 
-Wrapper.CollapsingHeader = function(WidgetArguments, WidgetStates)
-    return Iris.CollapsingHeader()
+Wrapper.CollapsingHeader = function(text: string, flags: number?, open: Types.State<boolean>?)
+    local treeFlags = flags or 0
+    return Iris.CollapsingHeader({ text, btest(treeFlags, Wrapper.TreeFlags.DefaultOpen) }, { isUncollapsed = open })
 end
 
--- -- Tab Widget API
-Wrapper.TabBar = function(WidgetArguments, WidgetStates)
-    return Iris.TabBar()
+-- Tab Widget API
+Wrapper.TabFlags = {
+    Hideable = 1,
+}
+
+Wrapper.TabBar = function(state: Types.State<number>?)
+    return Iris.TabBar({}, { index = state })
 end
 
-Wrapper.Tab = function(WidgetArguments, WidgetStates)
-    return Iris.Tab()
+Wrapper.Tab = function(text: string, flags: number?, open: Types.State<boolean>?)
+    local tabFlags = flags or 0
+    return Iris.Tab({ text, btest(tabFlags, Wrapper.TabFlags.Hideable) }, { isOpened = open })
 end
 
--- -- Input Widget API
-Wrapper.InputNum = function(WidgetArguments, WidgetStates)
-    return Iris.InputNum()
+-- Input Widget API
+Wrapper.InputFlags = {
+    UseFloats = 1,
+    UseHSV = 2,
+}
+
+Wrapper.InputNum = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<number>?, editing: Types.State<boolean>?)
+    return Iris.InputNum({ text, increment, min, max, format }, { number = value, editingText = editing })
 end
 
-Wrapper.InputVector2 = function(WidgetArguments, WidgetStates)
-    return Iris.InputVector2()
+Wrapper.InputVector2 = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<Vector2>?, editing: Types.State<boolean>?)
+    return Iris.InputVector2({ text, increment, min, max, format }, { number = value, editingText = editing })
 end
 
-Wrapper.InputVector3 = function(WidgetArguments, WidgetStates)
-    return Iris.InputVector3()
+Wrapper.InputVector3 = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<Vector3>?, editing: Types.State<boolean>?)
+    return Iris.InputVector3({ text, increment, min, max, format }, { number = value, editingText = editing })
 end
 
-Wrapper.InputUDim = function(WidgetArguments, WidgetStates)
-    return Iris.InputUDim()
+Wrapper.InputUDim = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<UDim>?, editing: Types.State<boolean>?)
+    return Iris.InputUDim({ text, increment, min, max, format }, { number = value, editingText = editing })
 end
 
-Wrapper.InputUDim2 = function(WidgetArguments, WidgetStates)
-    return Iris.InputUDim2()
+Wrapper.InputUDim2 = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<UDim2>?, editing: Types.State<boolean>?)
+    return Iris.InputUDim2({ text, increment, min, max, format }, { number = value, editingText = editing })
 end
 
-Wrapper.InputRect = function(WidgetArguments, WidgetStates)
-    return Iris.InputRect()
+Wrapper.InputRect = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<Rect>?, editing: Types.State<boolean>?)
+    return Iris.InputRect({ text, increment, min, max, format }, { number = value, editingText = editing })
 end
 
-Wrapper.InputColor3 = function(WidgetArguments, WidgetStates)
-    return Iris.InputColor3()
+Wrapper.InputColor3 = function(text: string, flags: number?, format: string? | { string }?, color: Types.State<Color3>?, editing: Types.State<boolean>?)
+    local inputFlags = flags or 0
+    return Iris.InputColor3({ text, btest(inputFlags, Wrapper.InputFlags.UseFloats), btest(inputFlags, Wrapper.InputFlags.UseHSV), format }, { color = color, editingText = editing })
 end
 
-Wrapper.InputColor4 = function(WidgetArguments, WidgetStates)
-    return Iris.InputColor4()
+Wrapper.InputColor4 = function(text: string, flags: number?, format: string? | { string }?, color: Types.State<Color3>?, transparency: Types.State<number>?, editing: Types.State<boolean>?)
+    local inputFlags = flags or 0
+    return Iris.InputColor4({ text, btest(inputFlags, Wrapper.InputFlags.UseFloats), btest(inputFlags, Wrapper.InputFlags.UseHSV), format }, { color = color, transparency = transparency, editingText = editing })
 end
 
--- -- Drag Widget API
-Wrapper.DragNum = function(WidgetArguments, WidgetStates)
-    return Iris.DragNum()
+-- Drag Widget API
+Wrapper.DragNum = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<number>?, editing: Types.State<boolean>?)
+    return Iris.DragNum({ text, increment, min, max, format }, { number = value, editingText = editing })
 end
 
-Wrapper.DragVector2 = function(WidgetArguments, WidgetStates)
-    return Iris.DragVector2()
+Wrapper.DragVector2 = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<Vector2>?, editing: Types.State<boolean>?)
+    return Iris.DragVector2({ text, increment, min, max, format }, { number = value, editingText = editing })
 end
 
-Wrapper.DragVector3 = function(WidgetArguments, WidgetStates)
-    return Iris.DragVector3()
+Wrapper.DragVector3 = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<Vector3>?, editing: Types.State<boolean>?)
+    return Iris.DragVector3({ text, increment, min, max, format }, { number = value, editingText = editing })
 end
 
-Wrapper.DragUDim = function(WidgetArguments, WidgetStates)
-    return Iris.DragUDim()
+Wrapper.DragUDim = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<UDim>?, editing: Types.State<boolean>?)
+    return Iris.DragUDim({ text, increment, min, max, format }, { number = value, editingText = editing })
 end
 
-Wrapper.DragUDim2 = function(WidgetArguments, WidgetStates)
-    return Iris.DragUDim2()
+Wrapper.DragUDim2 = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<UDim2>?, editing: Types.State<boolean>?)
+    return Iris.DragUDim2({ text, increment, min, max, format }, { number = value, editingText = editing })
 end
 
-Wrapper.DragRect = function(WidgetArguments, WidgetStates)
-    return Iris.DragRect()
+Wrapper.DragRect = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<Rect>?, editing: Types.State<boolean>?)
+    return Iris.DragRect({ text, increment, min, max, format }, { number = value, editingText = editing })
 end
 
--- -- Slider Widget API
-Wrapper.SliderNum = function(WidgetArguments, WidgetStates)
-    return Iris.SliderNum()
+-- Slider Widget API
+Wrapper.SliderNum = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<number>?, editing: Types.State<boolean>?)
+    return Iris.SliderNum({ text, increment, min, max, format }, { number = value, editingText = editing })
 end
 
-Wrapper.SliderVector2 = function(WidgetArguments, WidgetStates)
-    return Iris.SliderVector2()
+Wrapper.SliderVector2 = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<Vector2>?, editing: Types.State<boolean>?)
+    return Iris.SliderVector2({ text, increment, min, max, format }, { number = value, editingText = editing })
 end
 
-Wrapper.SliderVector3 = function(WidgetArguments, WidgetStates)
-    return Iris.SliderVector3()
+Wrapper.SliderVector3 = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<Vector3>?, editing: Types.State<boolean>?)
+    return Iris.SliderVector3({ text, increment, min, max, format }, { number = value, editingText = editing })
 end
 
-Wrapper.SliderUDim = function(WidgetArguments, WidgetStates)
-    return Iris.SliderUDim()
+Wrapper.SliderUDim = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<UDim>?, editing: Types.State<boolean>?)
+    return Iris.SliderUDim({ text, increment, min, max, format }, { number = value, editingText = editing })
 end
 
-Wrapper.SliderUDim2 = function(WidgetArguments, WidgetStates)
-    return Iris.SliderUDim2()
+Wrapper.SliderUDim2 = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<UDim2>?, editing: Types.State<boolean>?)
+    return Iris.SliderUDim2({ text, increment, min, max, format }, { number = value, editingText = editing })
 end
 
-Wrapper.SliderRect = function(WidgetArguments, WidgetStates)
-    return Iris.SliderRect()
+Wrapper.SliderRect = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<Rect>?, editing: Types.State<boolean>?)
+    return Iris.SliderRect({ text, increment, min, max, format }, { number = value, editingText = editing })
 end
 
--- -- Combo Widget Widget API
-Wrapper.Selectable = function(WidgetArguments, WidgetStates)
-    return Iris.Selectable()
+-- Combo Widget Widget API
+Wrapper.ComboFlags = {
+    NoClick = 1,
+    NoButton = 2,
+    NoPreview = 4,
+}
+
+Wrapper.Selectable = function(text: string, index: any, flags: number?, state: Types.State<any>?)
+    local comboFlags = flags or 0
+    return Iris.Selectable({ text, index, btest(comboFlags, Wrapper.ComboFlags.NoClick) }, { index = state })
 end
 
-Wrapper.Combo = function(WidgetArguments, WidgetStates)
-    return Iris.Combo()
+Wrapper.Combo = function(text: string, flags: number?, state: Types.State<any>?, open: Types.State<boolean>?)
+    local comboFlags = flags or 0
+    return Iris.Combo({ text, btest(comboFlags, Wrapper.ComboFlags.NoButton), btest(comboFlags, Wrapper.ComboFlags.NoPreview) }, { index = state, isOpened = open })
 end
 
-Wrapper.ComboArray = function(WidgetArguments, WidgetStates)
-    return Iris.ComboArray()
+Wrapper.ComboArray = function(text: string, array: { any }, flags: number?, state: Types.State<any>?, open: Types.State<boolean>?)
+    local comboFlags = flags or 0
+    return Iris.ComboArray({ text, btest(comboFlags, Wrapper.ComboFlags.NoButton), btest(comboFlags, Wrapper.ComboFlags.NoPreview) }, { index = state, isOpened = open }, array)
 end
 
-Wrapper.ComboEnum = function(WidgetArguments, WidgetStates, Enum)
-    return Iris.ComboEnum()
+Wrapper.ComboEnum = function(text: string, enum: Enum, flags: number?, state: Types.State<any>?, open: Types.State<boolean>?)
+    local comboFlags = flags or 0
+    return Iris.ComboEnum({ text, btest(comboFlags, Wrapper.ComboFlags.NoButton), btest(comboFlags, Wrapper.ComboFlags.NoPreview) }, { index = state, isOpened = open }, enum)
 end
 
-Wrapper.InputEnum = function(WidgetArguments, WidgetStates, Enum)
-    return Iris.InputEnum()
+Wrapper.InputEnum = Wrapper.ComboEnum
+
+-- Plot Widget API
+Wrapper.ProgressBar = function(text: string?, format: string?, progress: Types.State<number>?)
+    return Iris.ProgressBar({ text, format }, { progress = progress })
 end
 
-Wrapper.ProgressBar = function(WidgetArguments, WidgetStates)
-    return Iris.ProgressBar()
+Wrapper.PlotLines = function(text: string?, height: number?, min: number?, max: number?, textOverlay: string?, values: Types.State<number>?, hovered: Types.State<number>?)
+    return Iris.PlotLines({ text, height, min, max, textOverlay }, { values = values, hovered = hovered })
 end
 
-Wrapper.PlotLines = function(WidgetArguments, WidgetStates)
-    return Iris.PlotLines()
+Wrapper.PlotHistogram = function(text: string?, height: number?, min: number?, max: number?, textOverlay: string?, baseline: number?, values: Types.State<number>?, hovered: Types.State<number>?)
+    return Iris.PlotHistogram({ text, height, min, max, textOverlay, baseline }, { values = values, hovered = hovered })
 end
 
-Wrapper.PlotHistogram = function(WidgetArguments, WidgetStates)
-    return Iris.PlotHistogram()
+-- Image Widget API
+Wrapper.Image = function(image: string, size: UDim2, rect: Rect?, scaleType: Enum.ScaleType?, resampleMode: Enum.ResamplerMode?, tileSize: UDim2?, sliceCenter: Rect?, sliceScale: number?)
+    return Iris.Image({ image, size, rect, scaleType, resampleMode, tileSize, sliceCenter, sliceScale })
 end
 
-Wrapper.Image = function(WidgetArguments)
-    return Iris.Image()
+Wrapper.ImageButton = function(image: string, size: UDim2, rect: Rect?, scaleType: Enum.ScaleType?, resampleMode: Enum.ResamplerMode?, tileSize: UDim2?, sliceCenter: Rect?, sliceScale: number?)
+    return Iris.ImageButton({ image, size, rect, scaleType, resampleMode, tileSize, sliceCenter, sliceScale })
 end
 
-Wrapper.ImageButton = function(WidgetArguments)
-    return Iris.ImageButton()
-end
+-- Table Widget API
+Wrapper.TableFlags = {
+    Header = 1,
+    RowBackground = 2,
+    OuterBorders = 4,
+    InnerBorders = 8,
+    Resizable = 16,
+    FixedWidth = 32,
+    ProportionalWidth = 64,
+    LimitTableWidth = 128,
+}
 
--- -- Table Widget API
-Wrapper.Table = function(WidgetArguments, WidgetStates)
-    return Iris.Table()
+Wrapper.Table = function(numColumns: number, flags: number?, widths: Types.State<{ number }>?)
+    local tableFlags = flags or 0
+    return Iris.Table({
+        numColumns,
+        btest(tableFlags, Wrapper.TableFlags.Header),
+        btest(tableFlags, Wrapper.TableFlags.RowBackground),
+        btest(tableFlags, Wrapper.TableFlags.OuterBorders),
+        btest(tableFlags, Wrapper.TableFlags.InnerBorders),
+        btest(tableFlags, Wrapper.TableFlags.Resizable),
+        btest(tableFlags, Wrapper.TableFlags.FixedWidth),
+        btest(tableFlags, Wrapper.TableFlags.ProportionalWidth),
+        btest(tableFlags, Wrapper.TableFlags.LimitTableWidth),
+    }, { widths = widths })
 end
 
 Wrapper.NextColumn = Iris.NextColumn
@@ -331,3 +383,5 @@ Wrapper.SetRowIndex = Iris.SetRowIndex
 Wrapper.NextHeaderColumn = Iris.NextHeaderColumn
 Wrapper.SetHeaderColumnIndex = Iris.SetHeaderColumnIndex
 Wrapper.SetColumnWidth = Iris.SetColumnWidth
+
+return Wrapper
