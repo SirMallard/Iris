@@ -419,6 +419,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             WindowButton.SelectionBehaviorRight = Enum.SelectionBehavior.Stop
 
             widgets.UIStroke(WindowButton, Iris._config.WindowBorderSize, Iris._config.BorderColor, Iris._config.BorderTransparency)
+            widgets.UICorner(WindowButton, Iris._config.WindowRounding)
 
             WindowButton.Parent = Window
 
@@ -469,7 +470,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             ChildContainer.ClipsDescendants = true
 
             widgets.UIPadding(ChildContainer, Iris._config.WindowPadding)
-            widgets.UICorner(ChildContainer, Iris._config.WindowRounding)
+            widgets.UICorner(ChildContainer, math.max(0, Iris._config.WindowRounding + 1))
 
             ChildContainer.Parent = Content
 
@@ -510,7 +511,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             TitleBar.BorderSizePixel = 0
             TitleBar.ClipsDescendants = true
 
-            widgets.UICorner(TitleBar, Iris._config.WindowRounding)
+            widgets.UICorner(TitleBar, math.max(0, Iris._config.WindowRounding + 1))
 
             TitleBar.Parent = Content
 
@@ -649,7 +650,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             LeftResizeGrip.ZIndex = 3
             LeftResizeGrip.Parent = WindowButton
 
-            widgets.UICorner(LeftResizeGrip, Iris._config.WindowRounding)
+            widgets.UICorner(LeftResizeGrip, math.max(0, Iris._config.WindowRounding + 1))
 
             widgets.applyInteractionHighlights("Image", LeftResizeGrip, LeftResizeGrip, {
                 Color = Iris._config.ResizeGripColor,
@@ -687,7 +688,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             RightResizeGrip.ZIndex = 3
             RightResizeGrip.Parent = WindowButton
 
-            widgets.UICorner(RightResizeGrip, Iris._config.WindowRounding)
+            widgets.UICorner(RightResizeGrip, math.max(0, Iris._config.WindowRounding + 1))
 
             widgets.applyInteractionHighlights("Image", RightResizeGrip, RightResizeGrip, {
                 Color = Iris._config.ResizeGripColor,
