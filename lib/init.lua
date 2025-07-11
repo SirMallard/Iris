@@ -70,7 +70,7 @@ Iris.Events = {}
 
     If the `eventConnection` is `false` then Iris will not create a cycle loop and the user will need to call [Internal._cycle] every frame.
 ]=]
-function Iris.Init(parentInstance: Instance?, eventConnection: (RBXScriptSignal | (() -> number) | false)?, allowMultipleInits: boolean): Types.Iris
+function Iris.Init(parentInstance: GuiBase2d?, eventConnection: (RBXScriptSignal | (() -> number) | false)?, allowMultipleInits: boolean): Types.Iris
     assert(Internal._shutdown == false, "Iris.Init() cannot be called once shutdown.")
     assert(Internal._started == false or allowMultipleInits == true, "Iris.Init() can only be called once.")
 
@@ -86,7 +86,7 @@ function Iris.Init(parentInstance: Instance?, eventConnection: (RBXScriptSignal 
         -- coalesce to Heartbeat
         eventConnection = game:GetService("RunService").Heartbeat
     end
-    Internal.parentInstance = parentInstance :: Instance
+    Internal.parentInstance = parentInstance :: GuiBase2d
     Internal._started = true
 
     Internal._generateRootInstance()

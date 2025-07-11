@@ -49,7 +49,7 @@ local Wrapper = {
     ShowDemoWindow = Iris.ShowDemoWindow,
 }
 
-function Wrapper.Init(playerInstance: BasePlayerGui?, eventConnection: (RBXScriptConnection | () -> () | false)?, allowMultipleInits: boolean?)
+function Wrapper.Init(playerInstance: GuiBase2d?, eventConnection: (RBXScriptConnection | () -> () | false)?, allowMultipleInits: boolean?)
     Iris.Init(playerInstance, eventConnection, allowMultipleInits)
     return Wrapper
 end
