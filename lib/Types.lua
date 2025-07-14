@@ -622,7 +622,7 @@ export type Iris = {
         -------------
     ]]
 
-    Init: (playerInstance: BasePlayerGui | GuiBase2d?, eventConnection: (RBXScriptConnection | () -> () | false)?, allowMultipleInits: boolean?) -> Iris,
+    Init: (parentInstance: BasePlayerGui | GuiBase2d?, eventConnection: (RBXScriptSignal | (() -> number) | false)?, allowMultipleInits: boolean) -> Iris,
     Shutdown: () -> (),
     Connect: (self: Iris, callback: () -> ()) -> () -> (),
     Append: (userInstance: GuiObject) -> (),

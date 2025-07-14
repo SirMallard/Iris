@@ -601,7 +601,7 @@ end
     You must use `state:set(...)` if you want the table value to update to the state's value.
     :::
 ]=]
-function Iris.TableState<K, V>(tab: { [K]: V }, key: K, callback: ((newValue: V) -> false?)?)
+function Iris.TableState<K, V>(tab: { [K]: V }, key: K, callback: ((newValue: V) -> true?)?)
     local value = tab[key]
     local ID = Internal._getID(2)
     local state = Internal._states[ID]
