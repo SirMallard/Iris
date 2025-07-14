@@ -6,6 +6,7 @@ export type State<T> = Types.State<T>
 export type Widget = Types.Widget
 export type Root = Types.Root
 export type Window = Types.Window
+export type Popup = Types.Popup
 export type Tooltip = Types.Tooltip
 export type MenuBar = Types.MenuBar
 export type Menu = Types.Menu

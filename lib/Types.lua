@@ -27,6 +27,7 @@ export type StateWidget = WidgetTypes.StateWidget
 
 export type Root = WidgetTypes.Root
 export type Window = WidgetTypes.Window
+export type Popup = WidgetTypes.Popup
 export type Tooltip = WidgetTypes.Tooltip
 export type MenuBar = WidgetTypes.MenuBar
 export type Menu = WidgetTypes.Menu
@@ -118,6 +119,7 @@ export type Arguments = {
     NoScrollbar: boolean,
     NoResize: boolean,
     NoMenu: boolean,
+    Modal: boolean,
 
     KeyCode: Enum.KeyCode,
     ModifierKey: Enum.ModifierKey,
@@ -370,6 +372,8 @@ export type Config = {
     ScrollbarGrabTransparency: number,
     PopupBgColor: Color3,
     PopupBgTransparency: number,
+    ModalDimBgColor: Color3,
+    ModalDimBgTransparency: number,
 
     TitleBgColor: Color3,
     TitleBgTransparency: number,

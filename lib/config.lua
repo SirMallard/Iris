@@ -17,6 +17,9 @@ local TemplateConfig = {
         PopupBgColor = Color3.fromRGB(20, 20, 20),
         PopupBgTransparency = 0.06,
 
+        ModalDimBgColor = Color3.fromRGB(204, 204, 204),
+        ModalDimBgTransparency = 0.65,
+
         ScrollbarGrabColor = Color3.fromRGB(79, 79, 79),
         ScrollbarGrabTransparency = 0,
 
@@ -129,6 +132,9 @@ local TemplateConfig = {
         WindowBgTransparency = 0,
         PopupBgColor = Color3.fromRGB(255, 255, 255),
         PopupBgTransparency = 0.02,
+
+        ModalDimBgColor = Color3.fromRGB(51, 51, 51),
+        ModalDimBgTransparency = 0.65,
 
         TitleBgColor = Color3.fromRGB(245, 245, 245),
         TitleBgTransparency = 0,
