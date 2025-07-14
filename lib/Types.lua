@@ -217,7 +217,7 @@ export type Internal = {
     _rootWidget: ParentWidget,
     _lastWidget: Widget,
     SelectionImageObject: Frame,
-    parentInstance: Instance,
+    parentInstance: BasePlayerGui | GuiBase2d,
     _utility: WidgetUtility,
 
     -- Config
@@ -622,7 +622,7 @@ export type Iris = {
         -------------
     ]]
 
-    Init: (playerInstance: BasePlayerGui?, eventConnection: (RBXScriptConnection | () -> () | false)?, allowMultipleInits: boolean?) -> Iris,
+    Init: (playerInstance: BasePlayerGui | GuiBase2d?, eventConnection: (RBXScriptConnection | () -> () | false)?, allowMultipleInits: boolean?) -> Iris,
     Shutdown: () -> (),
     Connect: (self: Iris, callback: () -> ()) -> () -> (),
     Append: (userInstance: GuiObject) -> (),
