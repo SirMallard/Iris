@@ -105,10 +105,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 PseudoWindow.Visible = true
             end
         end,
-        Discard = function(thisWidget: Types.Root)
-            NumNonWindowChildren = 0
-            thisWidget.Instance:Destroy()
-        end,
         ChildAdded = function(thisWidget: Types.Root, thisChild: Types.Widget)
             local Root = thisWidget.Instance :: any
 
@@ -116,6 +112,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return thisWidget.Instance
             elseif thisChild.type == "Tooltip" then
                 return Root.PopupScreenGui.TooltipContainer
+            elseif thisChild.type == "Popup" then
+                return Root.PopupScreenGui
             elseif thisChild.type == "MenuBar" then
                 return Root.PopupScreenGui.MenuBarContainer
             else
@@ -138,6 +136,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     PseudoWindow.Visible = false
                 end
             end
+        end,
+        Discard = function(thisWidget: Types.Root)
+            NumNonWindowChildren = 0
+            thisWidget.Instance:Destroy()
         end,
     } :: Types.WidgetClass)
 end

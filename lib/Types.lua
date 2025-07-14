@@ -280,6 +280,8 @@ export type Internal = {
     _EventCall: (thisWidget: Widget, eventName: string) -> boolean,
     _GetParentWidget: () -> ParentWidget,
     SetFocusedWindow: (thisWidget: WidgetTypes.Window?) -> (),
+    OpenPopup: (id: ID) -> (),
+    ClosePopup: (id: ID) -> (),
 
     -- Generate
     _generateEmptyVDOM: () -> { [ID]: Widget },
@@ -524,6 +526,7 @@ export type Iris = {
     -- Window API
     Window: WidgetCall<Window, WidgetArguments, WidgetStates?>,
     Tooltip: WidgetCall<Tooltip, WidgetArguments, nil>,
+    Popup: WidgetCall<Popup, WidgetArguments?, WidgetStates?>,
 
     -- Menu Widget API
     MenuBar: () -> Widget,
@@ -634,6 +637,8 @@ export type Iris = {
 
     -- Widget
     SetFocusedWindow: (thisWidget: Window?) -> (),
+    OpenPopup: (id: ID) -> (),
+    ClosePopup: (id: ID) -> (),
 
     -- ID API
     PushId: (ID: ID) -> (),

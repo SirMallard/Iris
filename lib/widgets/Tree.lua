@@ -21,16 +21,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return thisWidget.Instance
             end),
         },
-        Discard = function(thisWidget: Types.CollapsingHeader)
-            thisWidget.Instance:Destroy()
-            widgets.discardState(thisWidget)
-        end,
-        ChildAdded = function(thisWidget: Types.CollapsingHeader, _thisChild: Types.Widget)
-            local ChildContainer = thisWidget.ChildContainer :: Frame
-
-            ChildContainer.Visible = thisWidget.state.isUncollapsed.value
-
-            return ChildContainer
+        GenerateState = function(thisWidget: Types.CollapsingHeader)
+            if thisWidget.state.isUncollapsed == nil then
+                thisWidget.state.isUncollapsed = Iris._widgetState(thisWidget, "isUncollapsed", thisWidget.arguments.DefaultOpen or false)
+            end
         end,
         UpdateState = function(thisWidget: Types.CollapsingHeader)
             local isUncollapsed = thisWidget.state.isUncollapsed.value
@@ -49,10 +43,16 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             ChildContainer.Visible = isUncollapsed
         end,
-        GenerateState = function(thisWidget: Types.CollapsingHeader)
-            if thisWidget.state.isUncollapsed == nil then
-                thisWidget.state.isUncollapsed = Iris._widgetState(thisWidget, "isUncollapsed", thisWidget.arguments.DefaultOpen or false)
-            end
+        ChildAdded = function(thisWidget: Types.CollapsingHeader, _thisChild: Types.Widget)
+            local ChildContainer = thisWidget.ChildContainer :: Frame
+
+            ChildContainer.Visible = thisWidget.state.isUncollapsed.value
+
+            return ChildContainer
+        end,
+        Discard = function(thisWidget: Types.CollapsingHeader)
+            thisWidget.Instance:Destroy()
+            widgets.discardState(thisWidget)
         end,
     } :: Types.WidgetClass
 

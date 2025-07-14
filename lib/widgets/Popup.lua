@@ -1,6 +1,111 @@
+--!strict
 local Types = require(script.Parent.Parent.Types)
 
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
+    local dragPopup: Types.Popup? = nil
+    local isDragging = false
+    local mouseDragOffset = Vector2.zero
+
+    local function clampPositionToBounds(thisWidget: Types.Popup, intendedPosition: Vector2)
+        local thisWidgetInstance = thisWidget.Instance
+        local usableSize = (thisWidgetInstance.Parent :: GuiBase2d).AbsoluteSize
+        local safeAreaPadding = Vector2.new(Iris._config.PopupBorderSize + Iris._config.DisplaySafeAreaPadding.X, Iris._config.PopupBorderSize + Iris._config.DisplaySafeAreaPadding.Y)
+
+        return Vector2.new(
+            math.clamp(intendedPosition.X, safeAreaPadding.X, math.max(safeAreaPadding.X, usableSize.X - thisWidgetInstance.AbsoluteSize.X - safeAreaPadding.X)),
+            math.clamp(intendedPosition.Y, safeAreaPadding.Y, math.max(safeAreaPadding.Y, usableSize.Y - thisWidgetInstance.AbsoluteSize.Y - safeAreaPadding.Y))
+        )
+    end
+
+    local anyPopupOpen = false
+    local activePopup: Types.Popup? = nil
+    local popupStack: { Types.Popup } = {}
+
+    local function emptyPopupStack(stackIndex: number?)
+        for index = #popupStack, stackIndex and stackIndex + 1 or 1, -1 do
+            local widget = popupStack[index]
+            widget.state.isOpen:set(false)
+            table.remove(popupStack, index)
+        end
+
+        if #popupStack == 0 then
+            anyPopupOpen = false
+            activePopup = nil
+        else
+            activePopup = popupStack[#popupStack]
+        end
+    end
+
+    widgets.registerEvent("InputBegan", function(inputObject: InputObject)
+        if not Iris._started then
+            return
+        end
+        if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 and inputObject.UserInputType ~= Enum.UserInputType.MouseButton2 then
+            return
+        end
+        if anyPopupOpen == false then
+            return
+        end
+        if activePopup == nil then
+            return
+        end
+
+        -- this only checks if we clicked outside all the menus. If we clicked in any menu, then the hover function handles this.
+        local isInPopup = false
+        local mouseLocation = widgets.getMouseLocation()
+        for index = #popupStack, 1, -1 do
+            local popup = popupStack[index]
+            for _, container in { popup.ChildContainer, popup.Instance } do
+                local rectMin = container.AbsolutePosition - widgets.GuiOffset
+                local rectMax = rectMin + container.AbsoluteSize
+                if widgets.isPosInsideRect(mouseLocation, rectMin, rectMax) then
+                    isInPopup = true
+                    break
+                end
+            end
+            if popup.Modal.Visible == true then
+                isInPopup = true
+            end
+            if isInPopup then
+                emptyPopupStack(index)
+                break
+            end
+        end
+
+        if not isInPopup then
+            emptyPopupStack()
+        end
+    end)
+
+    widgets.registerEvent("InputChanged", function(input: InputObject)
+        if not Iris._started then
+            return
+        end
+        if isDragging and dragPopup then
+            local mouseLocation
+            if input.UserInputType == Enum.UserInputType.Touch then
+                local location = input.Position
+                mouseLocation = Vector2.new(location.X, location.Y)
+            else
+                mouseLocation = widgets.getMouseLocation()
+            end
+
+            local Popup = dragPopup.Instance
+            local intendedPosition = mouseLocation - mouseDragOffset
+            local position = clampPositionToBounds(dragPopup, intendedPosition)
+            Popup.Position = UDim2.fromOffset(position.X, position.Y)
+        end
+    end)
+
+    widgets.registerEvent("InputEnded", function(input: InputObject)
+        if not Iris._started then
+            return
+        end
+        if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and isDragging and dragPopup then
+            isDragging = false
+        end
+    end)
+
     --stylua: ignore
     Iris.WidgetConstructor("Popup", {
         hasState = true,
@@ -13,63 +118,126 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Generate = function(thisWidget: Types.Popup)
             thisWidget.parentWidget = Iris._rootWidget -- only allow root as parent
 
-            local Popup = Instance.new("Frame")
+            local Popup = Instance.new("TextButton")
             Popup.Name = "Iris_Popup"
-            Popup.Size = UDim2.fromScale(0, 0)
             Popup.AutomaticSize = Enum.AutomaticSize.XY
-            Popup.BackgroundTransparency = Iris._config.PopupBgColor
+            Popup.Size = UDim2.fromScale(0, 0)
+            Popup.BackgroundColor3 = Iris._config.PopupBgColor
             Popup.BackgroundTransparency = Iris._config.PopupBgTransparency
             Popup.BorderSizePixel = 0
-            Popup.ZIndex = 1
+            Popup.Text = ""
+            Popup.AutoButtonColor = false
 
-            local ModalBackground = Instance.new("Frame")
-            ModalBackground.Name = "Iris_ModalBackground"
+            widgets.applyInputBegan(Popup, function(input)
+                if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Keyboard then
+                    return
+                end
+                if not thisWidget.arguments.NoMove and input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    isDragging = true
+                    dragPopup = thisWidget
+                    mouseDragOffset = widgets.getMouseLocation() - Popup.AbsolutePosition + widgets.GuiOffset
+                end
+            end)
+
+            local ModalBackground = Instance.new("ImageButton")
+            ModalBackground.Name = "IrisModalBackground"
             ModalBackground.Size = UDim2.fromScale(1, 1)
             ModalBackground.BackgroundColor3 = Iris._config.ModalDimBgColor
             ModalBackground.BackgroundTransparency = Iris._config.ModalDimBgTransparency
             ModalBackground.BorderSizePixel = 0
-            ModalBackground.ZIndex = 1
+            ModalBackground.Image = ""
+            ModalBackground.Active = true
+            ModalBackground.AutoButtonColor = false
 
             ModalBackground.Visible = false
 
-            widgets.UIPadding(Popup, Iris._config.WindowPadding)
+            ModalBackground.Parent = Iris._rootWidget.Instance:FindFirstChild("PopupScreenGui")
+
             widgets.UIStroke(Popup, Iris._config.PopupBorderSize, Iris._config.BorderActiveColor, Iris._config.BorderActiveTransparency)
 
             if Iris._config.PopupRounding > 0 then
                 widgets.UICorner(Popup, Iris._config.PopupRounding)
             end
 
-            thisWidget._modal = ModalBackground
+            local ChildContainer = Instance.new("Frame")
+            ChildContainer.Name = "ChildContainer"
+            ChildContainer.AutomaticSize = Enum.AutomaticSize.XY
+            ChildContainer.BackgroundTransparency = 1
+            ChildContainer.Parent = Popup
+
+            widgets.UIPadding(ChildContainer, Iris._config.WindowPadding)
+            widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y)).VerticalAlignment = Enum.VerticalAlignment.Top
+
+            thisWidget.ChildContainer = ChildContainer
+            thisWidget.Modal = ModalBackground
             return Popup
         end,
         GenerateState = function(thisWidget: Types.Popup)
-            if thisWidget.state.anchor == nil then
-                thisWidget.state.anchor = Iris._widgetState(thisWidget, "anchor", Vector2.zero)
-            end
             if thisWidget.state.isOpen == nil then
                 thisWidget.state.isOpen = Iris._widgetState(thisWidget, "isOpen", false)
             end
         end,
         Update = function(thisWidget: Types.Popup)
             local Popup = thisWidget.Instance :: Frame
-
+            if thisWidget.arguments.Modal then
+                Popup.AnchorPoint = Vector2.new(0.5, 0.5)
+            else
+                Popup.AnchorPoint = Vector2.zero
+            end
         end,
         UpdateState = function(thisWidget: Types.Popup)
-            thisWidget.Instance.AnchorPoint = thisWidget.state.anchor.value
-
             if thisWidget.state.isOpen.value then
                 thisWidget.Instance.Visible = true
                 if thisWidget.arguments.Modal then
-                    thisWidget._modal.Visible = true
+                    thisWidget.Modal.Visible = true
                 end
             else
                 thisWidget.Instance.Visible = false
-                thisWidget._modal.Visible = false
+                thisWidget.Modal.Visible = false
             end
         end,
+        ChildAdded = function(thisWidget: Types.Popup, _thisChild: Types.Widget)
+            return thisWidget.ChildContainer
+        end,
         Discard = function(thisWidget: Types.Popup)
-            thisWidget._modal:Destroy()
+            thisWidget.Modal:Destroy()
             thisWidget.Instance:Destroy()
         end,
     } :: Types.WidgetClass)
+
+    function Iris.OpenPopup(id: Types.ID)
+        local thisWidget: Types.Popup? = Iris._VDOM[id] :: any
+        if thisWidget == nil then
+            return
+        end
+        if thisWidget.state.isOpen.value == true then
+            return
+        end
+
+        if thisWidget.arguments.Modal then
+            thisWidget.Instance.Position = UDim2.fromScale(0.5, 0.5)
+        else
+            local position = widgets.getMouseLocation()
+            thisWidget.Instance.Position = UDim2.fromOffset(position.X, position.Y)
+        end
+        thisWidget.Instance.ZIndex = 2 * #popupStack + 2
+        thisWidget.Modal.ZIndex = 2 * #popupStack + 1
+        thisWidget.state.isOpen:set(true)
+        anyPopupOpen = true
+        activePopup = thisWidget
+        table.insert(popupStack, thisWidget)
+    end
+
+    function Iris.ClosePopup(id: Types.ID)
+        local thisWidget: Types.Popup? = Iris._VDOM[id] :: any
+        if thisWidget == nil then
+            return
+        end
+        if thisWidget.state.isOpen.value == false then
+            return
+        end
+
+        local index = table.find(popupStack, thisWidget)
+        emptyPopupStack(index and index - 1 or 1)
+    end
 end

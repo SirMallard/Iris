@@ -482,7 +482,7 @@ return function(Iris: Types.Iris): Types.Internal
 
         local parentWidget = thisWidget.parentWidget
 
-        if thisWidget.type ~= "Window" and thisWidget.type ~= "Tooltip" then
+        if thisWidget.type ~= "Window" and thisWidget.type ~= "Tooltip" and thisWidget.type ~= "Popup" then
             if thisWidget.ZIndex ~= parentWidget.ZOffset then
                 parentWidget.ZUpdate = true
             end

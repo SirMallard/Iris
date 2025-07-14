@@ -171,7 +171,7 @@ export type Window = ParentWidget & {
 } & Opened & Closed & Collapsed & Uncollapsed & Hovered
 
 export type Popup = ParentWidget & {
-    _modal: Frame,
+    Modal: GuiButton,
 
     arguments: {
         Modal: boolean?,
@@ -179,9 +179,7 @@ export type Popup = ParentWidget & {
     },
 
     state: {
-        anchor: State<Vector2>,
-        position: State<Vector2>,
-        isOpen: State<Vector2>,
+        isOpen: State<boolean>,
     },
 }
 

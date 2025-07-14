@@ -113,6 +113,22 @@ return function(Iris: Types.Iris)
     ]=]
     Iris.Tooltip = wrapper("Tooltip")
 
+    --[=[
+    
+    ]=]
+    Iris.Popup = wrapper("Popup")
+    Iris.OpenPopup = Iris.Internal.OpenPopup
+    Iris.ClosePopup = Iris.Internal.ClosePopup
+
+    --[[
+        Iris.Popup()
+    
+        Iris.OpenPopup()
+
+        Iris.ClosePopup()
+
+    ]]
+
     --[[
         ---------------------------------
             [SECTION] Menu Widget API

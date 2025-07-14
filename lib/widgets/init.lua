@@ -425,6 +425,7 @@ return function(Iris: Types.Internal)
 
     require(script.Root)(Iris, widgets)
     require(script.Window)(Iris, widgets)
+    require(script.Popup)(Iris, widgets)
 
     require(script.Menu)(Iris, widgets)
 
