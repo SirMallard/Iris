@@ -23,8 +23,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
     local function emptyPopupStack(stackIndex: number?)
         for index = #popupStack, stackIndex and stackIndex + 1 or 1, -1 do
-            local widget = popupStack[index]
-            widget.state.isOpen:set(false)
+            local thisWidget = popupStack[index]
+            thisWidget.state.isOpen:set(false)
             table.remove(popupStack, index)
         end
 
@@ -33,6 +33,17 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             activePopup = nil
         else
             activePopup = popupStack[#popupStack]
+        end
+    end
+
+    local function updateModalBackgrounds()
+        local found = false
+        for index = #popupStack, 1, -1 do
+            local thisWidget = popupStack[index]
+            if thisWidget.arguments.Modal then
+                thisWidget.Modal.Visible = not found
+                found = true
+            end
         end
     end
 
@@ -75,6 +86,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         if not isInPopup then
             emptyPopupStack()
         end
+        updateModalBackgrounds()
     end)
 
     widgets.registerEvent("InputChanged", function(input: InputObject)
@@ -178,12 +190,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             end
         end,
         Update = function(thisWidget: Types.Popup)
-            local Popup = thisWidget.Instance :: Frame
-            if thisWidget.arguments.Modal then
-                Popup.AnchorPoint = Vector2.new(0.5, 0.5)
-            else
-                Popup.AnchorPoint = Vector2.zero
-            end
+            local _Popup = thisWidget.Instance :: Frame
         end,
         UpdateState = function(thisWidget: Types.Popup)
             if thisWidget.state.isOpen.value then
@@ -215,9 +222,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end
 
         if thisWidget.arguments.Modal then
-            thisWidget.Instance.Position = UDim2.fromScale(0.5, 0.5)
+            local size = thisWidget.Instance.AbsoluteSize
+            local usableSize = (thisWidget.Instance.Parent :: GuiBase2d).AbsoluteSize
+            local centre = (usableSize - size) / 2
+            thisWidget.Instance.Position = UDim2.fromOffset(centre.X, centre.Y)
         else
-            local position = widgets.getMouseLocation()
+            local position = clampPositionToBounds(thisWidget, widgets.getMouseLocation())
             thisWidget.Instance.Position = UDim2.fromOffset(position.X, position.Y)
         end
         thisWidget.Instance.ZIndex = 2 * #popupStack + 2
@@ -226,6 +236,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         anyPopupOpen = true
         activePopup = thisWidget
         table.insert(popupStack, thisWidget)
+        updateModalBackgrounds()
     end
 
     function Iris.ClosePopup(id: Types.ID)
@@ -239,5 +250,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
         local index = table.find(popupStack, thisWidget)
         emptyPopupStack(index and index - 1 or 1)
+        updateModalBackgrounds()
     end
 end

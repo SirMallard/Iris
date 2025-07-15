@@ -197,6 +197,7 @@ export type MenuBar = ParentWidget
 
 export type Menu = ParentWidget & {
     ButtonColors: { [string]: Color3 | number },
+    Popup: Popup,
 
     arguments: {
         Text: string?,

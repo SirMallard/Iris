@@ -181,6 +181,7 @@ export type WidgetClass = {
     Events: Events,
     hasChildren: boolean,
     hasState: boolean,
+    hasEmbedded: boolean?,
     ArgNames: { [number]: string },
 
     GenerateState: (thisWidget: Widget) -> (),
@@ -188,6 +189,8 @@ export type WidgetClass = {
 
     ChildAdded: (thisWidget: Widget, thisChild: Widget) -> GuiObject,
     ChildDiscarded: (thisWidget: Widget, thisChild: Widget) -> (),
+
+    InsertEmbedded: (thisWidget: Widget) -> (),
 }
 
 -- Iris

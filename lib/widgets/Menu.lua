@@ -5,22 +5,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local ActiveMenu: Types.Menu? = nil
     local MenuStack: { Types.Menu } = {}
 
-    local function EmptyMenuStack(menuIndex: number?)
-        for index = #MenuStack, menuIndex and menuIndex + 1 or 1, -1 do
-            local widget = MenuStack[index]
-            widget.state.isOpened:set(false)
-
+    -- empty
+    --[[
             widget.Instance.BackgroundColor3 = Iris._config.HeaderColor
             widget.Instance.BackgroundTransparency = 1
-
-            table.remove(MenuStack, index)
-        end
-
-        if #MenuStack == 0 then
-            AnyMenuOpen = false
-            ActiveMenu = nil
-        end
-    end
+    ]]
 
     local function UpdateChildContainerTransform(thisWidget: Types.Menu)
         local submenu = thisWidget.parentWidget.type == "Menu"
@@ -61,43 +50,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         ChildContainer.Position = UDim2.fromOffset(x, y)
         ChildContainer.AnchorPoint = anchor
     end
-
-    widgets.registerEvent("InputBegan", function(inputObject: InputObject)
-        if not Iris._started then
-            return
-        end
-        if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 and inputObject.UserInputType ~= Enum.UserInputType.MouseButton2 then
-            return
-        end
-        if AnyMenuOpen == false then
-            return
-        end
-        if ActiveMenu == nil then
-            return
-        end
-
-        -- this only checks if we clicked outside all the menus. If we clicked in any menu, then the hover function handles this.
-        local isInMenu = false
-        local MouseLocation = widgets.getMouseLocation()
-        for _, menu in MenuStack do
-            for _, container in { menu.ChildContainer, menu.Instance } do
-                local rectMin = container.AbsolutePosition - widgets.GuiOffset
-                local rectMax = rectMin + container.AbsoluteSize
-                if widgets.isPosInsideRect(MouseLocation, rectMin, rectMax) then
-                    isInMenu = true
-                    break
-                end
-            end
-            if isInMenu then
-                break
-            end
-        end
-
-        if not isInMenu then
-            EmptyMenuStack()
-        end
-    end)
-
     --stylua: ignore
     Iris.WidgetConstructor("MenuBar", {
         hasState = false,
@@ -135,6 +87,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     Iris.WidgetConstructor("Menu", {
         hasState = true,
         hasChildren = true,
+        hasEmbedded = true,
         Args = {
             ["Text"] = 1,
         },
@@ -254,44 +207,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                     table.insert(MenuStack, thisWidget)
                 end
             end)
-
-            local ChildContainer = Instance.new("ScrollingFrame")
-            ChildContainer.Name = "MenuContainer"
-            ChildContainer.AutomaticSize = Enum.AutomaticSize.XY
-            ChildContainer.Size = UDim2.fromOffset(0, 0)
-            ChildContainer.BackgroundColor3 = Iris._config.PopupBgColor
-            ChildContainer.BackgroundTransparency = Iris._config.PopupBgTransparency
-            ChildContainer.BorderSizePixel = 0
-
-            ChildContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
-            ChildContainer.ScrollBarImageTransparency = Iris._config.ScrollbarGrabTransparency
-            ChildContainer.ScrollBarImageColor3 = Iris._config.ScrollbarGrabColor
-            ChildContainer.ScrollBarThickness = Iris._config.ScrollbarSize
-            ChildContainer.CanvasSize = UDim2.fromScale(0, 0)
-            ChildContainer.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
-            ChildContainer.TopImage = widgets.ICONS.BLANK_SQUARE
-            ChildContainer.MidImage = widgets.ICONS.BLANK_SQUARE
-            ChildContainer.BottomImage = widgets.ICONS.BLANK_SQUARE
-
-            ChildContainer.ZIndex = 6
-            ChildContainer.LayoutOrder = 6
-            ChildContainer.ClipsDescendants = true
-
-            -- Unfortunatley, ScrollingFrame does not work with UICorner
-            -- if Iris._config.PopupRounding > 0 then
-            --     widgets.UICorner(ChildContainer, Iris._config.PopupRounding)
-            -- end
-
-            widgets.UIStroke(ChildContainer, Iris._config.WindowBorderSize, Iris._config.BorderColor, Iris._config.BorderTransparency)
-            widgets.UIPadding(ChildContainer, Vector2.new(2, Iris._config.WindowPadding.Y - Iris._config.ItemSpacing.Y))
-            
-            widgets.UIListLayout(ChildContainer, Enum.FillDirection.Vertical, UDim.new(0, 1)).VerticalAlignment = Enum.VerticalAlignment.Top
-
-            local RootPopupScreenGui = Iris._rootInstance and Iris._rootInstance:FindFirstChild("PopupScreenGui") :: GuiObject
-            ChildContainer.Parent = RootPopupScreenGui
-            
-            
-            thisWidget.ChildContainer = ChildContainer
+           
+            thisWidget.ChildContainer = thisWidget.Popup.ChildContainer
             return Menu
         end,
         Update = function(thisWidget: Types.Menu)
@@ -330,6 +247,11 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 thisWidget.ButtonColors.Transparency = 1
                 ChildContainer.Visible = false
             end
+        end,
+        InsertEmbedded = function(thisWidget: Types.Menu)
+            thisWidget.Popup = Iris._Insert("Popup") :: Types.Popup
+            Iris._IDStack[Iris._stackIndex] = nil
+            Iris._stackIndex -= 1
         end,
         Discard = function(thisWidget: Types.Menu)
             -- properly handle removing a menu if open and deleted
