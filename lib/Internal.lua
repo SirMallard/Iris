@@ -496,11 +496,6 @@ return function(Iris: Types.Iris): Types.Internal
             end
         end
 
-        if thisWidgetClass.hasEmbedded then
-            Iris.SetNextWidgetID(thisWidget.ID .. "\\Embedded")
-            thisWidgetClass.InsertEmbedded(thisWidget)
-        end
-
         -- since rows are not instances, but will be removed if not updated, we have to add specific table code.
         if parentWidget.type == "Table" then
             local Table = parentWidget :: Types.Table
@@ -565,11 +560,6 @@ return function(Iris: Types.Iris): Types.Internal
 
         -- widgets have lots of space to ensure they are always visible.
         thisWidget.ZIndex = parentWidget.ZOffset
-
-        if thisWidgetClass.hasEmbedded then
-            Iris.SetNextWidgetID(thisWidget.ID .. "\\Embedded")
-            thisWidgetClass.InsertEmbedded(thisWidget)
-        end
 
         thisWidget.Instance = thisWidgetClass.Generate(thisWidget)
         -- tooltips set their parent in the generation method, so we need to udpate it here

@@ -1,10 +1,6 @@
 local Types = require(script.Parent.Parent.Types)
 
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
-    local AnyMenuOpen = false
-    local ActiveMenu: Types.Menu? = nil
-    local MenuStack: { Types.Menu } = {}
-
     -- empty
     --[[
             widget.Instance.BackgroundColor3 = Iris._config.HeaderColor
@@ -15,7 +11,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         local submenu = thisWidget.parentWidget.type == "Menu"
 
         local Menu = thisWidget.Instance :: Frame
-        local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
+        local ChildContainer = thisWidget.Popup.Instance
         ChildContainer.Size = UDim2.fromOffset(Menu.AbsoluteSize.X, 0)
         if ChildContainer.Parent == nil then
             return
@@ -87,7 +83,6 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     Iris.WidgetConstructor("Menu", {
         hasState = true,
         hasChildren = true,
-        hasEmbedded = true,
         Args = {
             ["Text"] = 1,
         },
@@ -180,36 +175,48 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             widgets.applyInteractionHighlights("Background", Menu, Menu, thisWidget.ButtonColors)
 
             widgets.applyButtonClick(Menu, function()
-                local openMenu = if #MenuStack <= 1 then not thisWidget.state.isOpened.value else true
-                thisWidget.state.isOpened:set(openMenu)
-
-                AnyMenuOpen = openMenu
-                ActiveMenu = openMenu and thisWidget or nil
-                -- the hovering should handle all of the menus after the first one.
-                if #MenuStack <= 1 then
-                    if openMenu then
-                        table.insert(MenuStack, thisWidget)
-                    else
-                        table.remove(MenuStack)
-                    end
+                if thisWidget.state.isOpened.value then
+                    Iris.ClosePopup(thisWidget.ID .. "\\Popup")
+                else
+                    Iris.OpenPopup(thisWidget.ID .. "\\Popup")
                 end
             end)
 
             widgets.applyMouseEnter(Menu, function()
-                if AnyMenuOpen and ActiveMenu and ActiveMenu ~= thisWidget then
-                    local parentMenu = thisWidget.parentWidget :: Types.Menu
-                    local parentIndex = table.find(MenuStack, parentMenu)
-
-                    EmptyMenuStack(parentIndex)
-                    thisWidget.state.isOpened:set(true)
-                    ActiveMenu = thisWidget
-                    AnyMenuOpen = true
-                    table.insert(MenuStack, thisWidget)
-                end
+                Iris.ClosePopup(thisWidget.ID .. "\\Popup")
+                Iris.OpenPopup(thisWidget.ID .. "\\Popup")
             end)
            
-            thisWidget.ChildContainer = thisWidget.Popup.ChildContainer
+            local Popup = {
+                ID = thisWidget.ID .. "\\Popup",
+                type = "Popup",
+                parentWidget = thisWidget,
+                trackedEvents = {},
+                ZIndex = 0,
+                providedArguments = {},
+                arguments = { NoMove = true },
+                lastCycleTick = thisWidget.lastCycleTick,
+                ZOffset = 0,
+                ZUpdate = false
+            } :: Types.Popup
+
+            Popup.Instance = Iris._widgets.Popup.Generate(Popup)
+            Popup.Instance.Parent = Iris._widgets[Popup.parentWidget.type].ChildAdded(Popup.parentWidget, Popup)
+            Popup.state = { isOpen = nil }
+
+            thisWidget.ChildContainer = Popup.ChildContainer
+            thisWidget.Popup = Popup
             return Menu
+        end,
+        GenerateState = function(thisWidget: Types.Menu)
+            if thisWidget.state.isOpened == nil then
+                thisWidget.state.isOpened = Iris._widgetState(thisWidget, "isOpened", false)
+            end
+            thisWidget.Popup.state.isOpen = thisWidget.state.isOpened
+            thisWidget.state.isOpened.ConnectedWidgets[thisWidget.Popup.ID] = thisWidget.Popup
+            Iris._widgets.Popup.GenerateState(thisWidget.Popup)
+            -- call it here, because putting it on UpdateState would call it twice
+            Iris._widgets.Popup.UpdateState(thisWidget.Popup)
         end,
         Update = function(thisWidget: Types.Menu)
             local Menu = thisWidget.Instance :: TextButton
@@ -220,18 +227,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 TextLabel = Menu
             end
             TextLabel.Text = thisWidget.arguments.Text or "Menu"
-        end,
-        ChildAdded = function(thisWidget: Types.Menu, _thisChild: Types.Widget)
-            UpdateChildContainerTransform(thisWidget)
-            return thisWidget.ChildContainer
-        end,
-        ChildDiscarded = function(thisWidget: Types.Menu, _thisChild: Types.Widget)
-            UpdateChildContainerTransform(thisWidget)
-        end,
-        GenerateState = function(thisWidget: Types.Menu)
-            if thisWidget.state.isOpened == nil then
-                thisWidget.state.isOpened = Iris._widgetState(thisWidget, "isOpened", false)
-            end
+            Iris._widgets.Popup.Generate(thisWidget.Popup)
         end,
         UpdateState = function(thisWidget: Types.Menu)
             local ChildContainer = thisWidget.ChildContainer :: ScrollingFrame
@@ -248,28 +244,21 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 ChildContainer.Visible = false
             end
         end,
-        InsertEmbedded = function(thisWidget: Types.Menu)
-            thisWidget.Popup = Iris._Insert("Popup") :: Types.Popup
-            Iris._IDStack[Iris._stackIndex] = nil
-            Iris._stackIndex -= 1
+        ChildAdded = function(thisWidget: Types.Menu, _thisChild: Types.Widget)
+            UpdateChildContainerTransform(thisWidget)
+            return thisWidget.ChildContainer
+        end,
+        ChildDiscarded = function(thisWidget: Types.Menu, _thisChild: Types.Widget)
+            UpdateChildContainerTransform(thisWidget)
         end,
         Discard = function(thisWidget: Types.Menu)
             -- properly handle removing a menu if open and deleted
-            if AnyMenuOpen then
-                local parentMenu = thisWidget.parentWidget :: Types.Menu
-                local parentIndex = table.find(MenuStack, parentMenu)
-                if parentIndex then
-                    EmptyMenuStack(parentIndex)
-                    if #MenuStack ~= 0 then
-                        ActiveMenu = parentMenu
-                        AnyMenuOpen = true
-                    end
-                end
-            end
+            Iris.ClosePopup(thisWidget.ID .. "\\Popup")
 
             thisWidget.Instance:Destroy()
             thisWidget.ChildContainer:Destroy()
             widgets.discardState(thisWidget)
+            Iris._widgets.Popup.Discard(thisWidget.Popup)
         end,
     } :: Types.WidgetClass)
 
@@ -314,18 +303,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             })
 
             widgets.applyButtonClick(MenuItem, function()
-                EmptyMenuStack()
+                Iris.ClosePopup(thisWidget.ID .. "\\Popup")
             end)
 
             widgets.applyMouseEnter(MenuItem, function()
-                local parentMenu = thisWidget.parentWidget :: Types.Menu
-                if AnyMenuOpen and ActiveMenu and ActiveMenu ~= parentMenu then
-                    local parentIndex = table.find(MenuStack, parentMenu)
-
-                    EmptyMenuStack(parentIndex)
-                    ActiveMenu = parentMenu
-                    AnyMenuOpen = true
-                end
+                Iris.ClosePopup(thisWidget.ID .. "\\Popup")
+                Iris.OpenPopup(thisWidget.ID .. "\\Popup")
             end)
 
             local TextLabel = Instance.new("TextLabel")
@@ -425,18 +408,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             widgets.applyButtonClick(MenuToggle, function()
                 thisWidget.state.isChecked:set(not thisWidget.state.isChecked.value)
-                EmptyMenuStack()
+                Iris.ClosePopup(thisWidget.ID .. "\\Popup")
             end)
 
             widgets.applyMouseEnter(MenuToggle, function()
-                local parentMenu = thisWidget.parentWidget :: Types.Menu
-                if AnyMenuOpen and ActiveMenu and ActiveMenu ~= parentMenu then
-                    local parentIndex = table.find(MenuStack, parentMenu)
-
-                    EmptyMenuStack(parentIndex)
-                    ActiveMenu = parentMenu
-                    AnyMenuOpen = true
-                end
+                Iris.ClosePopup(thisWidget.ID .. "\\Popup")
+                Iris.OpenPopup(thisWidget.ID .. "\\Popup")
             end)
 
             local TextLabel = Instance.new("TextLabel")

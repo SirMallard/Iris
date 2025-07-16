@@ -17,6 +17,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         )
     end
 
+    local popupWidgets: { [Types.ID]: Types.Popup } = {}
     local anyPopupOpen = false
     local activePopup: Types.Popup? = nil
     local popupStack: { Types.Popup } = {}
@@ -129,6 +130,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         Events = {},
         Generate = function(thisWidget: Types.Popup)
             thisWidget.parentWidget = Iris._rootWidget -- only allow root as parent
+            popupWidgets[thisWidget.ID] = thisWidget
 
             local Popup = Instance.new("TextButton")
             Popup.Name = "Iris_Popup"
@@ -207,13 +209,14 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             return thisWidget.ChildContainer
         end,
         Discard = function(thisWidget: Types.Popup)
+            popupWidgets[thisWidget.ID] = nil
             thisWidget.Modal:Destroy()
             thisWidget.Instance:Destroy()
         end,
     } :: Types.WidgetClass)
 
     function Iris.OpenPopup(id: Types.ID)
-        local thisWidget: Types.Popup? = Iris._VDOM[id] :: any
+        local thisWidget: Types.Popup? = popupWidgets[id]
         if thisWidget == nil then
             return
         end
@@ -240,7 +243,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     end
 
     function Iris.ClosePopup(id: Types.ID)
-        local thisWidget: Types.Popup? = Iris._VDOM[id] :: any
+        local thisWidget: Types.Popup? = popupWidgets[id]
         if thisWidget == nil then
             return
         end
