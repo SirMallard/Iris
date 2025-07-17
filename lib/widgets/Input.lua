@@ -673,6 +673,27 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                         widgets.applyFrameStyle(ColorBox, true)
 
+                        local Popup = {
+                            ID = thisWidget.ID .. "\\Popup",
+                            type = "Popup",
+                            parentWidget = thisWidget,
+                            trackedEvents = {},
+                            ZIndex = 0,
+                            providedArguments = {},
+                            arguments = { NoMove = true, Menu = true },
+                            lastCycleTick = thisWidget.lastCycleTick,
+                            ZOffset = 0,
+                            ZUpdate = false,
+                        } :: Types.Popup
+
+                        Popup.Instance = Iris._widgets.Popup.Generate(Popup)
+                        Popup.Instance.Parent = Iris._widgets[Popup.parentWidget.type].ChildAdded(Popup.parentWidget, Popup)
+                        Popup.state = { isOpen = nil }
+                        Popup.ChildContainer.UIPadding:Destroy()
+                        widgets.UIPadding(Popup.ChildContainer, Vector2.new(2, Iris._config.WindowPadding.Y - Iris._config.ItemSpacing.Y))
+
+                        thisWidget.Popup = Popup
+
                         ColorBox.Parent = Drag
                     end
 

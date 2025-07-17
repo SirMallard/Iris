@@ -175,6 +175,7 @@ export type Popup = ParentWidget & {
 
     arguments: {
         Modal: boolean?,
+        Menu: boolean?,
         NoMove: boolean?,
     },
 
@@ -386,6 +387,8 @@ export type Input<T> = Widget & {
 } & NumberChanged & Hovered
 
 export type InputColor3 = Input<{ number }> & {
+    Popup: Popup,
+
     arguments: {
         UseFloats: boolean?,
         UseHSV: boolean?,
@@ -398,6 +401,8 @@ export type InputColor3 = Input<{ number }> & {
 } & NumberChanged & Hovered
 
 export type InputColor4 = InputColor3 & {
+    Popup: Popup,
+
     state: {
         transparency: State<number>,
     },

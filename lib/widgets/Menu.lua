@@ -1,11 +1,28 @@
 local Types = require(script.Parent.Parent.Types)
 
 return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
-    -- empty
-    --[[
+    local anyMenuOpen = false
+    local activeMenu: Types.Menu? = nil
+    local menuStack: { Types.Menu } = {}
+
+    local function emptyMenuStack(menuIndex: number?)
+        for index = #menuStack, menuIndex and menuIndex + 1 or 1, -1 do
+            local widget = menuStack[index]
+            widget.state.isOpened:set(false)
+
             widget.Instance.BackgroundColor3 = Iris._config.HeaderColor
             widget.Instance.BackgroundTransparency = 1
-    ]]
+
+            table.remove(menuStack, index)
+        end
+
+        if #menuStack == 0 then
+            anyMenuOpen = false
+            activeMenu = nil
+        else
+            activeMenu = menuStack[#menuStack]
+        end
+    end
 
     local function UpdateChildContainerTransform(thisWidget: Types.Menu)
         local submenu = thisWidget.parentWidget.type == "Menu"
@@ -175,16 +192,40 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             widgets.applyInteractionHighlights("Background", Menu, Menu, thisWidget.ButtonColors)
 
             widgets.applyButtonClick(Menu, function()
-                if thisWidget.state.isOpened.value then
-                    Iris.ClosePopup(thisWidget.ID .. "\\Popup")
-                else
+                local openMenu = if #menuStack <= 1 then not thisWidget.state.isOpened.value else true
+                
+                if openMenu then
                     Iris.OpenPopup(thisWidget.ID .. "\\Popup")
+                else
+                    Iris.ClosePopup(thisWidget.ID .. "\\Popup")
                 end
+
+                anyMenuOpen = openMenu
+                activeMenu = openMenu and thisWidget or nil
+                -- the hovering should handle all of the menus after the first one.
+                if #menuStack <= 1 then
+                    if openMenu then
+                        table.insert(menuStack, thisWidget)
+                    else
+                        table.remove(menuStack)
+                    end
+                end
+
             end)
 
             widgets.applyMouseEnter(Menu, function()
-                Iris.ClosePopup(thisWidget.ID .. "\\Popup")
-                Iris.OpenPopup(thisWidget.ID .. "\\Popup")
+                if anyMenuOpen and activeMenu ~= thisWidget then
+                    local parentMenu = thisWidget.parentWidget :: Types.Menu
+                    local parentIndex = table.find(menuStack, parentMenu)
+                    Iris.ClosePopup(parentMenu.ID .. "\\Popup")
+
+                    emptyMenuStack(parentIndex)
+                    Iris.OpenPopup(thisWidget.ID .. "\\Popup")
+                    
+                    activeMenu = thisWidget
+                    anyMenuOpen = true
+                    table.insert(menuStack, thisWidget)
+                end
             end)
            
             local Popup = {
@@ -194,7 +235,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 trackedEvents = {},
                 ZIndex = 0,
                 providedArguments = {},
-                arguments = { NoMove = true },
+                arguments = { NoMove = true, Menu = true },
                 lastCycleTick = thisWidget.lastCycleTick,
                 ZOffset = 0,
                 ZUpdate = false
@@ -203,6 +244,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Popup.Instance = Iris._widgets.Popup.Generate(Popup)
             Popup.Instance.Parent = Iris._widgets[Popup.parentWidget.type].ChildAdded(Popup.parentWidget, Popup)
             Popup.state = { isOpen = nil }
+            Popup.ChildContainer.UIPadding:Destroy()
+            widgets.UIPadding(Popup.ChildContainer, Vector2.new(2, Iris._config.WindowPadding.Y - Iris._config.ItemSpacing.Y))
 
             thisWidget.ChildContainer = Popup.ChildContainer
             thisWidget.Popup = Popup
@@ -303,11 +346,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             })
 
             widgets.applyButtonClick(MenuItem, function()
-                Iris.ClosePopup(thisWidget.ID .. "\\Popup")
+                Iris.ClosePopup(thisWidget.parentWidget.ID .. "\\Popup")
             end)
 
             widgets.applyMouseEnter(MenuItem, function()
-                Iris.ClosePopup(thisWidget.ID .. "\\Popup")
+                Iris.ClosePopup(thisWidget.parentWidget.ID .. "\\Popup")
+                Iris.OpenPopup(thisWidget.parentWidget.ID .. "\\Popup")
                 Iris.OpenPopup(thisWidget.ID .. "\\Popup")
             end)
 
@@ -408,11 +452,12 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             widgets.applyButtonClick(MenuToggle, function()
                 thisWidget.state.isChecked:set(not thisWidget.state.isChecked.value)
-                Iris.ClosePopup(thisWidget.ID .. "\\Popup")
+                Iris.ClosePopup(thisWidget.parentWidget.ID .. "\\Popup")
             end)
 
             widgets.applyMouseEnter(MenuToggle, function()
-                Iris.ClosePopup(thisWidget.ID .. "\\Popup")
+                Iris.ClosePopup(thisWidget.parentWidget.ID .. "\\Popup")
+                Iris.OpenPopup(thisWidget.parentWidget.ID .. "\\Popup")
                 Iris.OpenPopup(thisWidget.ID .. "\\Popup")
             end)
 

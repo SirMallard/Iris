@@ -125,7 +125,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         hasChildren = true,
         Args = {
             ["Modal"] = 1,
-            ["NoMove"] = 2,
+            ["Menu"] = 2,
+            ["NoMove"] = 3,
         },
         Events = {},
         Generate = function(thisWidget: Types.Popup)
