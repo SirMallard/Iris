@@ -82,7 +82,7 @@ return function(Iris: Types.Iris): Types.Internal
                     coroutine.yield(false, _error)
                 end
             end
-            -- after all callbacks, we yeild so it only runs once a frame.
+            -- after all callbacks, we yield so it only runs once a frame.
             coroutine.yield(true)
         end
     end)
