@@ -20,7 +20,7 @@ to place it at the start of one of your first running script. For example you ma
 ----------------------------------
  1| -- code in ReplicatedFirst will execute before other code, so it is best practice 
  2| -- to initialise Iris here even if you are not going to use it.
- 3| reqire(game.ReplicatedStorage.Iris).Init()
+ 3| require(game.ReplicatedStorage.Iris).Init()
  4| 
  5| ...
 
