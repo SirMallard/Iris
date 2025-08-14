@@ -220,7 +220,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 local Button = Instance.new("TextButton")
                 Button.Name = "Button"
                 Button.AutomaticSize = Enum.AutomaticSize.Y
-                Button.Size = UDim2.new(1, 0, 0, 0)
+                Button.Size = UDim2.fromScale(1, 0)
                 Button.BackgroundColor3 = Iris._config.HeaderColor
                 Button.BackgroundTransparency = Iris._config.HeaderTransparency
                 Button.BorderSizePixel = 0

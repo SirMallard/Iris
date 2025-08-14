@@ -116,7 +116,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 Value.Position = UDim2.fromScale(1, 0)
             else
                 Value.AnchorPoint = Vector2.zero
-                Value.Position = UDim2.new(progress, 0, 0, 0)
+                Value.Position = UDim2.fromScale(progress, 0)
             end
 
             Progress.Size = UDim2.new(UDim.new(progress, 0), Progress.Size.Height)
