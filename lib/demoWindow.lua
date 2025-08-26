@@ -9,6 +9,47 @@ return function(Iris: Types.Iris)
     local showMainMenuBarWindow = Iris.State(false)
     local showDebugWindow = Iris.State(false)
 
+    local showBackground = Iris.State(false)
+    local backgroundColour = Iris.State(Color3.fromRGB(115, 140, 152))
+    local backgroundTransparency = Iris.State(0)
+    table.insert(Iris.Internal._initFunctions, function()
+        local background = Instance.new("Frame")
+        background.Name = "Background"
+        background.Size = UDim2.fromScale(1, 1)
+        background.BackgroundColor3 = backgroundColour.value
+        background.BackgroundTransparency = backgroundTransparency.value
+
+        local widget
+        if Iris._config.UseScreenGUIs then
+            widget = Instance.new("ScreenGui")
+            widget.Name = "Iris_Background"
+            widget.IgnoreGuiInset = true
+            widget.DisplayOrder = Iris._config.DisplayOrderOffset - 1
+            widget.ScreenInsets = Enum.ScreenInsets.None
+            widget.Enabled = true
+
+            background.Parent = widget
+        else
+            background.ZIndex = Iris._config.DisplayOrderOffset - 1
+            widget = background
+        end
+
+        backgroundColour:onChange(function(value: Color3)
+            background.BackgroundColor3 = value
+        end)
+        backgroundTransparency:onChange(function(value: number)
+            background.BackgroundTransparency = value
+        end)
+
+        showBackground:onChange(function(show: boolean)
+            if show then
+                widget.Parent = Iris.Internal.parentInstance
+            else
+                widget.Parent = nil
+            end
+        end)
+    end)
+
     local function helpMarker(helpText: string)
         Iris.PushConfig({ TextColor = Iris._config.TextDisabledColor })
         local text = Iris.Text({ "(?)" })
@@ -1882,6 +1923,13 @@ return function(Iris: Types.Iris)
             debug.profilebegin("Iris/Demo/Layout")
             layoutDemo()
             debug.profileend()
+
+            Iris.CollapsingHeader({ "Background" })
+            do
+                Iris.Checkbox({ "Show background colour" }, { isChecked = showBackground })
+                Iris.InputColor4({ "Background colour" }, { color = backgroundColour, transparency = backgroundTransparency })
+            end
+            Iris.End()
         end
         Iris.End()
         debug.profileend()

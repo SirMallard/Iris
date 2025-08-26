@@ -79,7 +79,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local Table = thisWidget.Instance :: Frame
             local BorderContainer: Frame = Table.BorderContainer
             BorderContainer.Size = UDim2.new(1, 0, 0, thisWidget._rowContainer.AbsoluteSize.Y)
-            thisWidget._columnBorders[0].Size = UDim2.new(0, 5, 0, thisWidget._rowContainer.AbsoluteSize.Y)
+            thisWidget._columnBorders[0].Size = UDim2.fromOffset(5, thisWidget._rowContainer.AbsoluteSize.Y)
         end
 
         for thisWidget, columns in TableMinWidths do
@@ -311,7 +311,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
     local function GenerateRowBorder(_thisWidget: Types.Table, index: number, style: "Light" | "Strong")
         local Border = Instance.new("Frame")
         Border.Name = `Border_{index}`
-        Border.Size = UDim2.new(1, 0, 0, 0)
+        Border.Size = UDim2.fromScale(1, 0)
         Border.BackgroundTransparency = 1
         Border.ZIndex = 2 * index
         Border.LayoutOrder = 2 * index
@@ -582,7 +582,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             BorderContainer.UISizeConstraint.MaxSize = Vector2.new(Width, math.huge)
             RowContainer.UISizeConstraint.MaxSize = Vector2.new(Width, math.huge)
-            thisWidget._columnBorders[0].Position = UDim2.new(0, Width - 3, 0, 0)
+            thisWidget._columnBorders[0].Position = UDim2.fromOffset(Width - 3, 0)
         end,
         ChildAdded = function(thisWidget: Types.Table, _: Types.Widget)
             local rowIndex = thisWidget._rowIndex

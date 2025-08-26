@@ -275,7 +275,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                         local grabScaleSize = 1 / math.floor((1 + max - min) / increment)
 
-                        GrabBar.Size = UDim2.new(grabScaleSize, 0, 1, 0)
+                        GrabBar.Size = UDim2.fromScale(grabScaleSize, 1)
                     end
 
                     local callbackIndex = #Iris._postCycleCallbacks + 1
@@ -608,7 +608,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local InputField = Instance.new("TextBox")
             InputField.Name = "InputField"
-            InputField.Size = UDim2.new(1, 0, 1, 0)
+            InputField.Size = UDim2.fromScale(1, 1)
             InputField.BackgroundTransparency = 1
             InputField.ClearTextOnFocus = false
             InputField.TextTruncate = Enum.TextTruncate.AtEnd
@@ -918,7 +918,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             local InputField = Instance.new("TextBox")
             InputField.Name = "InputField"
-            InputField.Size = UDim2.new(1, 0, 1, 0)
+            InputField.Size = UDim2.fromScale(1, 1)
             InputField.BackgroundTransparency = 1
             InputField.ClearTextOnFocus = false
             InputField.TextTruncate = Enum.TextTruncate.AtEnd
@@ -949,7 +949,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             local GrabBar = Instance.new("Frame")
             GrabBar.Name = "GrabBar"
             GrabBar.AnchorPoint = Vector2.new(0.5, 0.5)
-            GrabBar.Position = UDim2.new(0, 0, 0.5, 0)
+            GrabBar.Position = UDim2.fromScale(0, 0.5)
             GrabBar.BackgroundColor3 = Iris._config.SliderGrabColor
             GrabBar.Transparency = Iris._config.SliderGrabTransparency
             GrabBar.BorderSizePixel = 0
@@ -1042,7 +1042,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         local ClampedRatio = math.clamp(math.floor((Ratio * Positions)) / Positions, 0, 1)
                         local PaddedRatio = ((PaddedWidth / SliderWidth) * ClampedRatio) + ((1 - (PaddedWidth / SliderWidth)) / 2)
 
-                        GrabBar.Position = UDim2.new(PaddedRatio, 0, 0.5, 0)
+                        GrabBar.Position = UDim2.fromScale(PaddedRatio, 0.5)
 
                         if thisWidget.state.editingText.value == index then
                             InputField.Visible = true
@@ -1085,7 +1085,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                     local grabScaleSize = 1 / math.floor(#enum:GetEnumItems())
 
-                    GrabBar.Size = UDim2.new(grabScaleSize, 0, 1, 0)
+                    GrabBar.Size = UDim2.fromScale(grabScaleSize, 1)
                 end,
                 GenerateState = function(thisWidget: Types.InputEnum)
                     if thisWidget.state.number == nil then

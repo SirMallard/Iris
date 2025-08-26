@@ -82,7 +82,7 @@ return function(Iris: Types.Iris): Types.Internal
                     coroutine.yield(false, _error)
                 end
             end
-            -- after all callbacks, we yeild so it only runs once a frame.
+            -- after all callbacks, we yield so it only runs once a frame.
             coroutine.yield(true)
         end
     end)
@@ -261,7 +261,7 @@ return function(Iris: Types.Iris): Types.Internal
         -- if Internal.parentInstance:IsA("GuiBase2d") and math.min(Internal.parentInstance.AbsoluteSize.X, Internal.parentInstance.AbsoluteSize.Y) < 100 then
         --     error("Iris Parent Instance is too small")
         -- end
-        local compatibleParent = (Internal.parentInstance:IsA("GuiBase2d") or Internal.parentInstance:IsA("CoreGui") or Internal.parentInstance:IsA("PluginGui") or Internal.parentInstance:IsA("PlayerGui"))
+        local compatibleParent = (Internal.parentInstance:IsA("GuiBase2d") or Internal.parentInstance:IsA("BasePlayerGui"))
         if compatibleParent == false then
             error("The Iris parent instance will not display any GUIs.")
         end

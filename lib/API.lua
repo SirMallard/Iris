@@ -71,11 +71,11 @@ return function(Iris: Types.Iris)
             hovered: () -> boolean -- fires when the mouse hovers over any of the window.
         }
         States = {
-            size = State<Vector2>? = Vector2.new(400, 300),
-            position = State<Vector2>?,
-            isUncollapsed = State<boolean>? = true,
-            isOpened = State<boolean>? = true,
-            scrollDistance = State<number>? -- vertical scroll distance, if too short.
+            size: State<Vector2>? = Vector2.new(400, 300),
+            position: State<Vector2>?,
+            isUncollapsed: State<boolean>? = true,
+            isOpened: State<boolean>? = true,
+            scrollDistance: State<number>? -- vertical scroll distance, if too short.
         }
         ```
     ]=]
@@ -748,7 +748,8 @@ return function(Iris: Types.Iris)
         Arguments = {
             Text: string,
             SpanAvailWidth: boolean? = false, -- the tree title will fill all horizontal space to the end its parent container.
-            NoIndent: boolean? = false -- the child widgets will not be indented underneath.
+            NoIndent: boolean? = false, -- the child widgets will not be indented underneath.
+            DefaultOpen: boolean? = false -- initially opens the tree if no state is provided
         }
         Events = {
             collapsed: () -> boolean,
@@ -775,7 +776,8 @@ return function(Iris: Types.Iris)
         hasChildren: true
         hasState: true
         Arguments = {
-            Text: string
+            Text: string,
+            DefaultOpen: boolean? = false -- initially opens the tree if no state is provided
         }
         Events = {
             collapsed: () -> boolean,

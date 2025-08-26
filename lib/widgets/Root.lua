@@ -24,8 +24,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             else
                 PseudoWindowScreenGui = Instance.new("Frame")
                 PseudoWindowScreenGui.AnchorPoint = Vector2.new(0.5, 0.5)
-                PseudoWindowScreenGui.Position = UDim2.new(0.5, 0, 0.5, 0)
-                PseudoWindowScreenGui.Size = UDim2.new(1, 0, 1, 0)
+                PseudoWindowScreenGui.Position = UDim2.fromScale(0.5, 0.5)
+                PseudoWindowScreenGui.Size = UDim2.fromScale(1, 1)
                 PseudoWindowScreenGui.BackgroundTransparency = 1
                 PseudoWindowScreenGui.ZIndex = Iris._config.DisplayOrderOffset
             end
@@ -43,8 +43,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             else
                 PopupScreenGui = Instance.new("Frame")
                 PopupScreenGui.AnchorPoint = Vector2.new(0.5, 0.5)
-                PopupScreenGui.Position = UDim2.new(0.5, 0, 0.5, 0)
-                PopupScreenGui.Size = UDim2.new(1, 0, 1, 0)
+                PopupScreenGui.Position = UDim2.fromScale(0.5, 0.5)
+                PopupScreenGui.Size = UDim2.fromScale(1, 1)
                 PopupScreenGui.BackgroundTransparency = 1
                 PopupScreenGui.ZIndex = Iris._config.DisplayOrderOffset + 1024
             end

@@ -394,8 +394,8 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             else
                 Window = Instance.new("Frame")
                 Window.AnchorPoint = Vector2.new(0.5, 0.5)
-                Window.Position = UDim2.new(0.5, 0, 0.5, 0)
-                Window.Size = UDim2.new(1, 0, 1, 0)
+                Window.Position = UDim2.fromScale(0.5, 0.5)
+                Window.Size = UDim2.fromScale(1, 1)
                 Window.BackgroundTransparency = 1
                 Window.ZIndex = Iris._config.DisplayOrderOffset
             end
@@ -531,7 +531,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             CollapseButton.AutomaticSize = Enum.AutomaticSize.None
             CollapseButton.AnchorPoint = Vector2.new(0, 0.5)
             CollapseButton.Size = UDim2.fromOffset(TitleButtonSize, TitleButtonSize)
-            CollapseButton.Position = UDim2.new(0, 0, 0.5, 0)
+            CollapseButton.Position = UDim2.fromScale(0, 0.5)
             CollapseButton.BackgroundTransparency = 1
             CollapseButton.BorderSizePixel = 0
             CollapseButton.AutoButtonColor = false
@@ -571,7 +571,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             CloseButton.AutomaticSize = Enum.AutomaticSize.None
             CloseButton.AnchorPoint = Vector2.new(1, 0.5)
             CloseButton.Size = UDim2.fromOffset(TitleButtonSize, TitleButtonSize)
-            CloseButton.Position = UDim2.new(1, 0, 0.5, 0)
+            CloseButton.Position = UDim2.fromScale(1, 0.5)
             CloseButton.BackgroundTransparency = 1
             CloseButton.BorderSizePixel = 0
             CloseButton.Text = ""

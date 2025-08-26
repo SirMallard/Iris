@@ -20,7 +20,7 @@ to place it at the start of one of your first running script. For example you ma
 ----------------------------------
  1| -- code in ReplicatedFirst will execute before other code, so it is best practice 
  2| -- to initialise Iris here even if you are not going to use it.
- 3| reqire(game.ReplicatedStorage.Iris).Init()
+ 3| require(game.ReplicatedStorage.Iris).Init()
  4| 
  5| ...
 
@@ -70,7 +70,7 @@ outside of an Iris widget, or spawn a new thread. The example below demonstrates
 --- bad_example.lua
 -----------------------
  4| Iris.Window({"Async Window"})
- 5|     -- this code yeilds which will prevent Iris from finishing before the next frame
+ 5|     -- this code yields which will prevent Iris from finishing before the next frame
  6|     local response = httpService:GetAsync(...)
  7|     Iris.Text(response)
  8| Iris.End()
@@ -121,7 +121,7 @@ This issue may also arise if some of your code either yields or errors and there
  6| Iris.End()
 
  7| Iris.Window({ "Asynchronous Code" })
- 8|     task.wait(1) -- yeilds within Iris
+ 8|     task.wait(1) -- yields within Iris
  9| Iris.End()
 ```
 
