@@ -489,6 +489,8 @@ export type PlotHistogram = Widget & {
     },
 } & Hovered
 
+-- Table
+
 export type Table = ParentWidget & {
     _columnIndex: number,
     _rowIndex: number,
