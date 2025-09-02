@@ -107,13 +107,13 @@ export type Closed = {
     closed: () -> boolean,
 }
 
-export type Collapsed = {
-    lastCollapsedTick: number,
+export type Shown = {
+    lastShownTick: number,
     collapsed: () -> boolean,
 }
 
-export type Uncollapsed = {
-    lastUncollapsedTick: number,
+export type Hidden = {
+    lastHiddenTick: number,
     uncollapsed: () -> boolean,
 }
 
@@ -168,171 +168,5 @@ export type WidgetClass = {
     ChildAdded: (thisWidget: Widget, thisChild: Widget) -> GuiObject,
     ChildDiscarded: (thisWidget: Widget, thisChild: Widget) -> (),
 }
-
--- Iris
-
--- export type Iris = {
---     --[[
---         -----------
---           WIDGETS
---         -----------
---     ]]
-
---     End: () -> (),
-
---     -- Window API
---     Window: () -> Window,
---     Tooltip: () -> Tooltip,
-
---     -- Menu Widget API
---     MenuBar: () -> Widget,
---     Menu: () -> Menu,
---     MenuItem: () -> MenuItem,
---     MenuToggle: () -> MenuToggle,
-
---     -- Format Widget API
---     Separator: () -> Separator,
---     Indent: (arguments: WidgetArguments?) -> Indent,
---     SameLine: (arguments: WidgetArguments?) -> SameLine,
---     Group: () -> Group,
-
---     -- Text Widget API
---     Text: () -> Text,
---     TextWrapped: () -> Text,
---     TextColored: () -> Text,
---     SeparatorText: () -> SeparatorText,
---     InputText: () -> InputText,
-
---     -- Basic Widget API
---     Button: () -> Button,
---     SmallButton: () -> Button,
---     Checkbox: () -> Checkbox,
---     RadioButton: () -> RadioButton,
-
---     -- Tree Widget API
---     Tree: () -> Tree,
---     CollapsingHeader: () -> CollapsingHeader,
-
---     -- Tab Widget API
---     TabBar: () -> TabBar,
---     Tab: () -> Tab,
-
---     -- Input Widget API
---     InputNum: () -> Input,
---     InputVector2: () -> Input,
---     InputVector3: () -> Input,
---     InputUDim: () -> Input,
---     InputUDim2: () -> Input,
---     InputRect: () -> Input,
---     InputColor3: () -> InputColor3,
---     InputColor4: () -> InputColor4,
-
---     -- Drag Widget API
---     DragNum: () -> Input,
---     DragVector2: () -> Input,
---     DragVector3: () -> Input,
---     DragUDim: () -> Input,
---     DragUDim2: () -> Input,
---     DragRect: () -> Input,
-
---     -- Slider Widget API
---     SliderNum: () -> Input,
---     SliderVector2: () -> Input,
---     SliderVector3: () -> Input,
---     SliderUDim: () -> Input,
---     SliderUDim2: () -> Input,
---     SliderRect: () -> Input,
-
---     -- Combo Widget Widget API
---     Selectable: () -> Selectable,
---     Combo: () -> Combo,
---     ComboArray: () -> Combo,
---     ComboEnum: () -> Combo,
---     InputEnum: () -> Combo,
-
---     ProgressBar: () -> ProgressBar,
---     PlotLines: () -> PlotLines,
---     PlotHistogram: () -> PlotHistogram,
-
---     Image: () -> Image,
---     ImageButton: () -> ImageButton,
-
---     -- Table Widget Api
---     Table: () -> Table,
---     NextColumn: () -> number,
---     NextRow: () -> number,
---     SetColumnIndex: (index: number) -> (),
---     SetRowIndex: (index: number) -> (),
---     NextHeaderColumn: () -> number,
---     SetHeaderColumnIndex: (index: number) -> (),
---     SetColumnWidth: (index: number, width: number) -> (),
-
---     --[[
---         ---------
---           STATE
---         ---------
---     ]]
-
---     State: <T>(initialValue: T) -> State<T>,
---     WeakState: <T>(initialValue: T) -> T,
---     VariableState: <T>(variable: T, callback: (T) -> ()) -> State<T>,
---     TableState: <K, V>(tab: { [K]: V }, key: K, callback: ((newValue: V) -> true?)?) -> State<V>,
---     ComputedState: <T, U>(firstState: State<T>, onChangeCallback: (firstValue: T) -> U) -> State<U>,
-
---     --[[
---         -------------
---           FUNCTIONS
---         -------------
---     ]]
-
---     Init: (parentInstance: BasePlayerGui | GuiBase2d?, eventConnection: (RBXScriptSignal | (() -> number) | false)?, allowMultipleInits: boolean) -> Iris,
---     Shutdown: () -> (),
---     Connect: (self: Iris, callback: () -> ()) -> () -> (),
---     Append: (userInstance: GuiObject) -> (),
---     ForceRefresh: () -> (),
-
---     -- ID API
---     PushId: (ID: ID) -> (),
---     PopId: () -> (),
---     SetNextWidgetID: (ID: ID) -> (),
-
---     -- Config API
---     UpdateGlobalConfig: (deltaStyle: { [string]: any }) -> (),
---     PushConfig: (deltaStyle: { [string]: any }) -> (),
---     PopConfig: () -> (),
-
---     --[[
---         --------------
---           PROPERTIES
---         --------------
---     ]]
-
---     _internal: Internal,
---     Disabled: boolean,
---     Arguments: { [string]: { [string]: number } },
---     Events: { [string]: () -> boolean },
-
---     TemplateConfig: { [string]: Config },
---     _config: Config,
---     ShowDemoWindow: () -> Window,
--- }
-
---[[
-
-    --[[
-        ---------
-          STATE
-        ---------
-    ]-]
-
-    StateClass: {
-        __index: any,
-
-        get: <T>(self: State<T>) -> any,
-        set: <T>(self: State<T>, newValue: any) -> any,
-        onChange: <T>(self: State<T>, callback: (newValue: any) -> ()) -> (),
-    },
-
-]]
 
 return {}

@@ -166,42 +166,6 @@ function Iris.Append(userInstance: GuiObject)
     userInstance.Parent = widgetInstanceParent
 end
 
---[=[
-    @within Iris
-    @function End
-
-    Marks the end of any widgets which contain children. For example:
-    ```lua
-    -- Widgets placed here **will not** be inside the tree
-    Iris.Text({"Above and outside the tree"})
-
-    -- A Tree widget can contain children.
-    -- We must therefore remember to call `Iris.End()`
-    Iris.Tree({"My First Tree"})
-        -- Widgets placed here **will** be inside the tree
-        Iris.Text({"Tree item 1"})
-        Iris.Text({"Tree item 2"})
-    Iris.End()
-
-    -- Widgets placed here **will not** be inside the tree
-    Iris.Text({"Below and outside the tree"})
-    ```
-    :::caution Caution: Error
-    Seeing the error `Callback has too few calls to Iris.End()` or `Callback has too many calls to Iris.End()`?
-    Using the wrong amount of `Iris.End()` calls in your code will lead to an error.
-
-    Each widget called which might have children should be paired with a call to `Iris.End()`, **even if the Widget doesnt currently have any children**.
-    :::
-]=]
-function Iris.End()
-    if Internal._stackIndex == 1 then
-        error("Too many calls to Iris.End().", 2)
-    end
-
-    Internal._IDStack[Internal._stackIndex] = nil
-    Internal._stackIndex -= 1
-end
-
 --[[
     ------------------------
         [SECTION] Config
@@ -679,39 +643,6 @@ end
     Iris:Connect(Iris.ShowDemoWindow)
     ```
 ]=]
-
-local Window = require(script.widgets.Window)
-local _Root = require(script.widgets.Root)
-local _Menu = require(script.widgets.Menu)
-
-local _Format = require(script.widgets.Format)
-
-local Text = require(script.widgets.Text)
-local _Button = require(script.widgets.Button)
-local _Checkbox = require(script.widgets.Checkbox)
-local _RadioButton = require(script.widgets.RadioButton)
-local _Image = require(script.widgets.Image)
-
-local Tree = require(script.widgets.Tree)
-local Tab = require(script.widgets.Tab)
-
-local Input = require(script.widgets.Input)
-local Combo = require(script.widgets.Combo)
-local _Plot = require(script.widgets.Plot)
-
-local Table = require(script.widgets.Table)
-
-Iris.WindowFlags = Window.WindowFlags
-Iris.TextFlags = Text.TextFlags
-Iris.InputFlags = Input.InputFlags
-Iris.InputTextFlags = Input.InputTextFlags
-
-Iris.TreeFlags = Tree.TreeFlags
-Iris.TabFlags = Tab.TabFlags
-Iris.ComboFlags = Combo.ComboFlags
-Iris.TableFlags = Table.TableFlags
-
-Iris.SetFocusedWindow = Window.setFocusedWindow
 
 export type Iris = typeof(Iris)
 

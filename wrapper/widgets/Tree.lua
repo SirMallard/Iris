@@ -19,9 +19,9 @@ export type CollapsingHeader = Types.ParentWidget & {
     },
 
     state: {
-        collapsed: Types.State<boolean>,
+        open: Types.State<boolean>,
     },
-} & Types.Collapsed & Types.Uncollapsed & Types.Hovered
+} & Types.Opened & Types.Closed & Types.Hovered
 
 local TreeFlags = {
     SpanAvailWidth = 1,
@@ -33,18 +33,18 @@ local abstractTree = {
     hasState = true,
     hasChildren = true,
     numArguments = 2,
-    Arguments = { "Text", "Flags", "collapsed" },
+    Arguments = { "Text", "Flags", "open" },
     Events = {
-        ["collapsed"] = {
+        ["opened"] = {
             ["Init"] = function(_thisWidget: CollapsingHeader) end,
             ["Get"] = function(thisWidget: CollapsingHeader)
-                return thisWidget.lastCollapsedTick == Internal._cycleTick
+                return thisWidget.lastClosedTick == Internal._cycleTick
             end,
         },
-        ["uncollapsed"] = {
+        ["closed"] = {
             ["Init"] = function(_thisWidget: CollapsingHeader) end,
             ["Get"] = function(thisWidget: CollapsingHeader)
-                return thisWidget.lastUncollapsedTick == Internal._cycleTick
+                return thisWidget.lastOpenedTick == Internal._cycleTick
             end,
         },
         ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
@@ -52,31 +52,31 @@ local abstractTree = {
         end),
     },
     GenerateState = function(thisWidget: CollapsingHeader)
-        if thisWidget.state.collapsed == nil then
-            thisWidget.state.collapsed = Internal._widgetState(thisWidget, "collapsed", not btest(TreeFlags.DefaultOpen, thisWidget.arguments.Flags))
+        if thisWidget.state.open == nil then
+            thisWidget.state.open = Internal._widgetState(thisWidget, "open", btest(TreeFlags.DefaultOpen, thisWidget.arguments.Flags))
         end
     end,
     UpdateState = function(thisWidget: CollapsingHeader)
-        local collapsed = thisWidget.state.collapsed._value
+        local open = thisWidget.state.open._value
         local Tree = thisWidget.instance :: Frame
         local ChildContainer = thisWidget.childContainer :: Frame
         local Header = Tree.Header :: Frame
         local Button = Header.Button :: TextButton
         local Arrow: ImageLabel = Button.Arrow
 
-        Arrow.Image = (if not collapsed then Utility.ICONS.DOWN_POINTING_TRIANGLE else Utility.ICONS.RIGHT_POINTING_TRIANGLE)
-        if collapsed then
-            thisWidget.lastCollapsedTick = Internal._cycleTick + 1
+        Arrow.Image = (if open then Utility.ICONS.DOWN_POINTING_TRIANGLE else Utility.ICONS.RIGHT_POINTING_TRIANGLE)
+        if open then
+            thisWidget.lastOpenedTick = Internal._cycleTick + 1
         else
-            thisWidget.lastUncollapsedTick = Internal._cycleTick + 1
+            thisWidget.lastClosedTick = Internal._cycleTick + 1
         end
 
-        ChildContainer.Visible = collapsed
+        ChildContainer.Visible = open
     end,
     ChildAdded = function(thisWidget: CollapsingHeader, _thisChild: Types.Widget)
         local ChildContainer = thisWidget.childContainer :: Frame
 
-        ChildContainer.Visible = not thisWidget.state.collapsed._value
+        ChildContainer.Visible = thisWidget.state.open._value
 
         return ChildContainer
     end,
@@ -173,7 +173,7 @@ Internal._widgetConstructor(
                 TextLabel.Parent = Button
 
                 Utility.applyButtonClick(Button, function()
-                    thisWidget.state.collapsed:set(not thisWidget.state.collapsed._value)
+                    thisWidget.state.open:set(not thisWidget.state.open._value)
                 end)
 
                 thisWidget.childContainer = ChildContainer
@@ -299,7 +299,7 @@ Internal._widgetConstructor(
                 TextLabel.Parent = Button
 
                 Utility.applyButtonClick(Button, function()
-                    thisWidget.state.collapsed:set(not thisWidget.state.collapsed._value)
+                    thisWidget.state.open:set(not thisWidget.state.open._value)
                 end)
 
                 thisWidget.childContainer = ChildContainer

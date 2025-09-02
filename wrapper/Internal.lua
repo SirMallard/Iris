@@ -467,7 +467,7 @@ function Internal._insert(widgetType: string, ...: any)
 
     -- since rows are not instances, but will be removed if not updated, we have to add specific table code.
     if parentWidget.type == "Table" then
-        local Table = parentWidget :: any -- Types.Table
+        local Table = parentWidget :: any --Types.Table
         Table._rowCycles[Table._rowIndex] = Internal._cycleTick
     end
 

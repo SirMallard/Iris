@@ -23,7 +23,7 @@ Internal._widgetConstructor(
         hasState = true,
         hasChildren = false,
         numArguments = 1,
-        Arguments = { "Text" },
+        Arguments = { "Text", "checked" },
         Events = {
             ["checked"] = {
                 ["Init"] = function(_thisWidget: Checkbox) end,

@@ -16,11 +16,11 @@ export type Window = Types.ParentWidget & {
     state: {
         size: Types.State<Vector2>,
         position: Types.State<Vector2>,
-        collapsed: Types.State<boolean>,
         open: Types.State<boolean>,
+        shown: Types.State<boolean>,
         scrollDistance: Types.State<number>,
     },
-} & Types.Opened & Types.Closed & Types.Collapsed & Types.Uncollapsed & Types.Hovered
+} & Types.Opened & Types.Closed & Types.Shown & Types.Hidden & Types.Hovered
 
 export type Tooltip = Types.Widget & {
     arguments: {
@@ -111,7 +111,7 @@ local function setFocusedWindow(thisWidget: Window?)
             local Content = WindowButton.Content :: Frame
             local TitleBar: Frame = Content.TitleBar
             -- update appearance to unfocus
-            if not focusedWindow.state.collapsed._value then
+            if focusedWindow.state.open._value then
                 TitleBar.BackgroundColor3 = Internal._config.TitleBgColor
                 TitleBar.BackgroundTransparency = Internal._config.TitleBgTransparency
             else
@@ -145,8 +145,8 @@ local function setFocusedWindow(thisWidget: Window?)
             Window.ZIndex = windowDisplayOrder + Internal._config.DisplayOrderOffset
         end
 
-        if thisWidget.state.collapsed._value == true then
-            thisWidget.state.collapsed:set(false)
+        if thisWidget.state.open._value == false then
+            thisWidget.state.open:set(true)
         end
 
         local firstSelectedObject: GuiObject? = Utility.GuiService.SelectedObject
@@ -185,8 +185,8 @@ local function quickSwapWindows()
         return
     end
 
-    if lowestWidget.state.collapsed._value == true then
-        lowestWidget.state.collapsed:set(false)
+    if lowestWidget.state.open._value == false then
+        lowestWidget.state.open:set(true)
     end
     setFocusedWindow(lowestWidget)
 end
@@ -389,30 +389,30 @@ Internal._widgetConstructor(
         hasState = true,
         hasChildren = true,
         numArguments = 2,
-        Arguments = { "Title", "Flags", "size", "position", "collapsed", "open", "scrollDistance" },
+        Arguments = { "Title", "Flags", "size", "position", "open", "shown", "scrollDistance" },
         Events = {
-            ["closed"] = {
+            ["opened"] = {
                 ["Init"] = function(_thisWidget: Window) end,
                 ["Get"] = function(thisWidget: Window)
                     return thisWidget.lastClosedTick == Internal._cycleTick
                 end,
             },
-            ["opened"] = {
+            ["closed"] = {
                 ["Init"] = function(_thisWidget: Window) end,
                 ["Get"] = function(thisWidget: Window)
                     return thisWidget.lastOpenedTick == Internal._cycleTick
                 end,
             },
-            ["collapsed"] = {
+            ["shown"] = {
                 ["Init"] = function(_thisWidget: Window) end,
                 ["Get"] = function(thisWidget: Window)
-                    return thisWidget.lastCollapsedTick == Internal._cycleTick
+                    return thisWidget.lastHiddenTick == Internal._cycleTick
                 end,
             },
-            ["uncollapsed"] = {
+            ["hidden"] = {
                 ["Init"] = function(_thisWidget: Window) end,
                 ["Get"] = function(thisWidget: Window)
-                    return thisWidget.lastUncollapsedTick == Internal._cycleTick
+                    return thisWidget.lastShownTick == Internal._cycleTick
                 end,
             },
             ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
@@ -469,7 +469,7 @@ Internal._widgetConstructor(
                 if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Keyboard then
                     return
                 end
-                if not thisWidget.state.collapsed._value then
+                if thisWidget.state.open._value then
                     setFocusedWindow(thisWidget)
                 end
                 if not btest(WindowFlags.NoMove, thisWidget.arguments.Flags) and input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -529,7 +529,7 @@ Internal._widgetConstructor(
                 if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Keyboard then
                     return
                 end
-                if not thisWidget.state.collapsed._value then
+                if thisWidget.state.open._value then
                     setFocusedWindow(thisWidget)
                 end
             end)
@@ -585,7 +585,7 @@ Internal._widgetConstructor(
             CollapseButton.Parent = TitleBar
 
             Utility.applyButtonClick(CollapseButton, function()
-                thisWidget.state.collapsed:set(not thisWidget.state.collapsed._value)
+                thisWidget.state.open:set(not thisWidget.state.open._value)
             end)
 
             Utility.applyInteractionHighlights("Background", CollapseButton, CollapseButton, {
@@ -624,7 +624,7 @@ Internal._widgetConstructor(
             Utility.UICorner(CloseButton)
 
             Utility.applyButtonClick(CloseButton, function()
-                thisWidget.state.open:set(false)
+                thisWidget.state.shown:set(false)
             end)
 
             Utility.applyInteractionHighlights("Background", CloseButton, CloseButton, {
@@ -709,7 +709,7 @@ Internal._widgetConstructor(
                 resizeWindow = thisWidget
             end)
 
-            -- each border uses an image, allowing it to have a visible borde which is larger than the UI
+            -- each border uses an image, allowing it to have a shown borde which is larger than the UI
             local RightResizeGrip = Instance.new("ImageButton")
             RightResizeGrip.Name = "RightResizeGrip"
             RightResizeGrip.AnchorPoint = Vector2.one
@@ -878,7 +878,7 @@ Internal._widgetConstructor(
                 if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Keyboard then
                     return
                 end
-                if not thisWidget.state.collapsed._value then
+                if thisWidget.state.open._value then
                     setFocusedWindow(thisWidget)
                 end
             end)
@@ -907,11 +907,11 @@ Internal._widgetConstructor(
             thisWidget.state.position._value = fitPositionToWindowBounds(thisWidget, thisWidget.state.position._value)
             thisWidget.state.size._value = fitSizeToWindowBounds(thisWidget, thisWidget.state.size._value)
 
-            if thisWidget.state.collapsed == nil then
-                thisWidget.state.collapsed = Internal._widgetState(thisWidget, "collapsed", false)
-            end
             if thisWidget.state.open == nil then
-                thisWidget.state.open = Internal._widgetState(thisWidget, "open", true)
+                thisWidget.state.open = Internal._widgetState(thisWidget, "open", false)
+            end
+            if thisWidget.state.shown == nil then
+                thisWidget.state.shown = Internal._widgetState(thisWidget, "shown", true)
             end
             if thisWidget.state.scrollDistance == nil then
                 thisWidget.state.scrollDistance = Internal._widgetState(thisWidget, "scrollDistance", 0)
@@ -987,8 +987,8 @@ Internal._widgetConstructor(
         UpdateState = function(thisWidget: Window)
             local stateSize = thisWidget.state.size._value
             local statePosition = thisWidget.state.position._value
-            local stateCollapsed = thisWidget.state.collapsed._value
             local stateOpen = thisWidget.state.open._value
+            local stateShown = thisWidget.state.shown._value
             local stateScrollDistance = thisWidget.state.scrollDistance._value
 
             local Window = thisWidget.instance :: Frame
@@ -1007,7 +1007,7 @@ Internal._widgetConstructor(
             WindowButton.Size = UDim2.fromOffset(stateSize.X, stateSize.Y)
             WindowButton.Position = UDim2.fromOffset(statePosition.X, statePosition.Y)
 
-            if stateOpen then
+            if stateShown then
                 if thisWidget.usesScreenGuis then
                     Window.Enabled = true
                     WindowButton.Visible = true
@@ -1027,23 +1027,7 @@ Internal._widgetConstructor(
                 thisWidget.lastClosedTick = Internal._cycleTick + 1
             end
 
-            if stateCollapsed then
-                local collapsedHeight: number = TitleBar.AbsoluteSize.Y -- Internal._config.TextSize + Internal._config.FramePadding.Y * 2
-                TitleBar.CollapseButton.Arrow.Image = Utility.ICONS.RIGHT_POINTING_TRIANGLE
-
-                if MenuBar then
-                    MenuBar.Visible = false
-                end
-                ChildContainer.Visible = false
-                LeftResizeGrip.Visible = false
-                RightResizeGrip.Visible = false
-                LeftResizeBorder.Visible = false
-                RightResizeBorder.Visible = false
-                TopResizeBorder.Visible = false
-                BottomResizeBorder.Visible = false
-                WindowButton.Size = UDim2.fromOffset(stateSize.X, collapsedHeight)
-                thisWidget.lastCollapsedTick = Internal._cycleTick + 1
-            else
+            if stateOpen then
                 TitleBar.CollapseButton.Arrow.Image = Utility.ICONS.DOWN_POINTING_TRIANGLE
                 if MenuBar then
                     MenuBar.Visible = not btest(WindowFlags.NoMenu, thisWidget.arguments.Flags)
@@ -1058,10 +1042,26 @@ Internal._widgetConstructor(
                     BottomResizeBorder.Visible = true
                 end
                 WindowButton.AutomaticSize = Enum.AutomaticSize.None
-                thisWidget.lastUncollapsedTick = Internal._cycleTick + 1
+                thisWidget.lastOpenedTick = Internal._cycleTick + 1
+            else
+                local collapsedHeight: number = TitleBar.AbsoluteSize.Y -- Internal._config.TextSize + Internal._config.FramePadding.Y * 2
+                TitleBar.CollapseButton.Arrow.Image = Utility.ICONS.RIGHT_POINTING_TRIANGLE
+
+                if MenuBar then
+                    MenuBar.Visible = false
+                end
+                ChildContainer.Visible = false
+                LeftResizeGrip.Visible = false
+                RightResizeGrip.Visible = false
+                LeftResizeBorder.Visible = false
+                RightResizeBorder.Visible = false
+                TopResizeBorder.Visible = false
+                BottomResizeBorder.Visible = false
+                WindowButton.Size = UDim2.fromOffset(stateSize.X, collapsedHeight)
+                thisWidget.lastClosedTick = Internal._cycleTick + 1
             end
 
-            if stateOpen and not stateCollapsed then
+            if stateShown and stateOpen then
                 setFocusedWindow(thisWidget)
             else
                 TitleBar.BackgroundColor3 = Internal._config.TitleBgCollapsedColor
