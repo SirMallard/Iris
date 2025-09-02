@@ -3,13 +3,15 @@ local Utility = require(script.Parent)
 
 local Types = require(script.Parent.Parent.Types)
 
+local btest = bit32.btest
+
 export type Selectable = Types.Widget & {
     ButtonColors: { [string]: Color3 | number },
 
     arguments: {
         Text: string?,
         Index: any?,
-        NoClick: boolean?,
+        Flags: number,
     },
 
     state: {
@@ -20,17 +22,108 @@ export type Selectable = Types.Widget & {
 export type Combo = Types.ParentWidget & {
     arguments: {
         Text: string?,
-        NoButton: boolean?,
-        NoPreview: boolean?,
+        Flags: number,
     },
 
     state: {
         index: Types.State<any>,
-        isOpened: Types.State<boolean>,
+        open: Types.State<boolean>,
     },
 
     UIListLayout: UIListLayout,
 } & Types.Opened & Types.Closed & Types.Changed & Types.Clicked & Types.Hovered
+
+local ComboFlags = {
+    NoClick = 1,
+    NoButton = 2,
+    NoPreview = 4,
+}
+
+local AnyOpenedCombo = false
+local ComboOpenedTick = -1
+local OpenedCombo: Combo? = nil
+local CachedContentSize = 0
+
+local function UpdateChildContainerTransform(thisWidget: Combo)
+    local Combo = thisWidget.instance :: Frame
+    local PreviewContainer = Combo.PreviewContainer :: TextButton
+    local ChildContainer = thisWidget.childContainer :: ScrollingFrame
+
+    local previewPosition = PreviewContainer.AbsolutePosition - Utility.guiOffset
+    local previewSize = PreviewContainer.AbsoluteSize
+    local borderSize = Internal._config.PopupBorderSize
+    local screenSize: Vector2 = ChildContainer.Parent.AbsoluteSize
+
+    local absoluteContentSize = thisWidget.UIListLayout.AbsoluteContentSize.Y
+    CachedContentSize = absoluteContentSize
+
+    local contentsSize = absoluteContentSize + 2 * Internal._config.WindowPadding.Y
+
+    local x = previewPosition.X
+    local y = previewPosition.Y + previewSize.Y + borderSize
+    local anchor = Vector2.zero
+    local distanceToScreen = screenSize.Y - y
+
+    -- Only extend upwards if we cannot fully extend downwards, and we are on the bottom half of the screen.
+    --  i.e. there is more space upwards than there is downwards.
+    if contentsSize > distanceToScreen and y > (screenSize.Y / 2) then
+        y = previewPosition.Y - borderSize
+        anchor = Vector2.yAxis
+        distanceToScreen = y -- from 0 to the current position
+    end
+
+    ChildContainer.AnchorPoint = anchor
+    ChildContainer.Position = UDim2.fromOffset(x, y)
+
+    local height = math.min(contentsSize, distanceToScreen)
+    ChildContainer.Size = UDim2.fromOffset(PreviewContainer.AbsoluteSize.X, height)
+end
+
+local function UpdateComboState(input: InputObject)
+    if not Internal._started then
+        return
+    end
+    if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.MouseButton2 and input.UserInputType ~= Enum.UserInputType.Touch and input.UserInputType ~= Enum.UserInputType.MouseWheel then
+        return
+    end
+    if AnyOpenedCombo == false or not OpenedCombo then
+        return
+    end
+    if ComboOpenedTick == Internal._cycleTick then
+        return
+    end
+
+    local MouseLocation = Utility.getMouseLocation()
+    local Combo = OpenedCombo.instance :: Frame
+    local PreviewContainer: TextButton = Combo.PreviewContainer
+    local ChildContainer = OpenedCombo.childContainer
+    local rectMin = PreviewContainer.AbsolutePosition - Utility.guiOffset
+    local rectMax = PreviewContainer.AbsolutePosition - Utility.guiOffset + PreviewContainer.AbsoluteSize
+    if Utility.isPosInsideRect(MouseLocation, rectMin, rectMax) then
+        return
+    end
+
+    rectMin = ChildContainer.AbsolutePosition - Utility.guiOffset
+    rectMax = ChildContainer.AbsolutePosition - Utility.guiOffset + ChildContainer.AbsoluteSize
+    if Utility.isPosInsideRect(MouseLocation, rectMin, rectMax) then
+        return
+    end
+
+    OpenedCombo.state.open:set(false)
+end
+
+table.insert(Internal._postCycleCallbacks, function()
+    if AnyOpenedCombo and OpenedCombo then
+        local contentSize = OpenedCombo.UIListLayout.AbsoluteContentSize.Y
+        if contentSize ~= CachedContentSize then
+            UpdateChildContainerTransform(OpenedCombo)
+        end
+    end
+end)
+
+Utility.registerEvent("InputBegan", UpdateComboState)
+
+Utility.registerEvent("InputChanged", UpdateComboState)
 
 ----------------
 -- Selectable
@@ -41,11 +134,8 @@ Internal._widgetConstructor(
     {
         hasState = true,
         hasChildren = false,
-        Arguments = {
-            ["Text"] = 1,
-            ["Index"] = 2,
-            ["NoClick"] = 3,
-        },
+        numArguments = 3,
+        Arguments = { "Text", "Index", "Flags", "index" },
         Events = {
             ["selected"] = {
                 ["Init"] = function(_thisWidget: Selectable) end,
@@ -116,7 +206,7 @@ Internal._widgetConstructor(
             Utility.applyInteractionHighlights("Background", SelectableButton, SelectableButton, thisWidget.ButtonColors)
 
             Utility.applyButtonClick(SelectableButton, function()
-                if thisWidget.arguments.NoClick ~= true then
+                if not btest(ComboFlags.NoClick, thisWidget.arguments.Flags) then
                     if type(thisWidget.state.index._value) == "boolean" then
                         thisWidget.state.index:set(not thisWidget.state.index._value)
                     else
@@ -163,92 +253,6 @@ Internal._widgetConstructor(
     } :: Types.WidgetClass
 )
 
-local AnyOpenedCombo = false
-local ComboOpenedTick = -1
-local OpenedCombo: Combo? = nil
-local CachedContentSize = 0
-
-local function UpdateChildContainerTransform(thisWidget: Combo)
-    local Combo = thisWidget.instance :: Frame
-    local PreviewContainer = Combo.PreviewContainer :: TextButton
-    local ChildContainer = thisWidget.childContainer :: ScrollingFrame
-
-    local previewPosition = PreviewContainer.AbsolutePosition - Utility.guiOffset
-    local previewSize = PreviewContainer.AbsoluteSize
-    local borderSize = Internal._config.PopupBorderSize
-    local screenSize: Vector2 = ChildContainer.Parent.AbsoluteSize
-
-    local absoluteContentSize = thisWidget.UIListLayout.AbsoluteContentSize.Y
-    CachedContentSize = absoluteContentSize
-
-    local contentsSize = absoluteContentSize + 2 * Internal._config.WindowPadding.Y
-
-    local x = previewPosition.X
-    local y = previewPosition.Y + previewSize.Y + borderSize
-    local anchor = Vector2.zero
-    local distanceToScreen = screenSize.Y - y
-
-    -- Only extend upwards if we cannot fully extend downwards, and we are on the bottom half of the screen.
-    --  i.e. there is more space upwards than there is downwards.
-    if contentsSize > distanceToScreen and y > (screenSize.Y / 2) then
-        y = previewPosition.Y - borderSize
-        anchor = Vector2.yAxis
-        distanceToScreen = y -- from 0 to the current position
-    end
-
-    ChildContainer.AnchorPoint = anchor
-    ChildContainer.Position = UDim2.fromOffset(x, y)
-
-    local height = math.min(contentsSize, distanceToScreen)
-    ChildContainer.Size = UDim2.fromOffset(PreviewContainer.AbsoluteSize.X, height)
-end
-
-table.insert(Internal._postCycleCallbacks, function()
-    if AnyOpenedCombo and OpenedCombo then
-        local contentSize = OpenedCombo.UIListLayout.AbsoluteContentSize.Y
-        if contentSize ~= CachedContentSize then
-            UpdateChildContainerTransform(OpenedCombo)
-        end
-    end
-end)
-
-local function UpdateComboState(input: InputObject)
-    if not Internal._started then
-        return
-    end
-    if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.MouseButton2 and input.UserInputType ~= Enum.UserInputType.Touch and input.UserInputType ~= Enum.UserInputType.MouseWheel then
-        return
-    end
-    if AnyOpenedCombo == false or not OpenedCombo then
-        return
-    end
-    if ComboOpenedTick == Internal._cycleTick then
-        return
-    end
-
-    local MouseLocation = Utility.getMouseLocation()
-    local Combo = OpenedCombo.instance :: Frame
-    local PreviewContainer: TextButton = Combo.PreviewContainer
-    local ChildContainer = OpenedCombo.childContainer
-    local rectMin = PreviewContainer.AbsolutePosition - Utility.guiOffset
-    local rectMax = PreviewContainer.AbsolutePosition - Utility.guiOffset + PreviewContainer.AbsoluteSize
-    if Utility.isPosInsideRect(MouseLocation, rectMin, rectMax) then
-        return
-    end
-
-    rectMin = ChildContainer.AbsolutePosition - Utility.guiOffset
-    rectMax = ChildContainer.AbsolutePosition - Utility.guiOffset + ChildContainer.AbsoluteSize
-    if Utility.isPosInsideRect(MouseLocation, rectMin, rectMax) then
-        return
-    end
-
-    OpenedCombo.state.isOpened:set(false)
-end
-
-Utility.registerEvent("InputBegan", UpdateComboState)
-
-Utility.registerEvent("InputChanged", UpdateComboState)
-
 -----------
 -- Combo
 -----------
@@ -258,11 +262,8 @@ Internal._widgetConstructor(
     {
         hasState = true,
         hasChildren = true,
-        Arguments = {
-            ["Text"] = 1,
-            ["NoButton"] = 2,
-            ["NoPreview"] = 3,
-        },
+        numArguments = 2,
+        Arguments = { "Text", "Flags", "index", "open" },
         Events = {
             ["opened"] = {
                 ["Init"] = function(_thisWidget: Combo) end,
@@ -388,7 +389,7 @@ Internal._widgetConstructor(
                 if AnyOpenedCombo and OpenedCombo ~= thisWidget then
                     return
                 end
-                thisWidget.state.isOpened:set(not thisWidget.state.isOpened._value)
+                thisWidget.state.open:set(not thisWidget.state.open._value)
             end)
 
             local TextLabel = Instance.new("TextLabel")
@@ -444,14 +445,14 @@ Internal._widgetConstructor(
             if thisWidget.state.index == nil then
                 thisWidget.state.index = Internal._widgetState(thisWidget, "index", "No Selection")
             end
-            if thisWidget.state.isOpened == nil then
-                thisWidget.state.isOpened = Internal._widgetState(thisWidget, "isOpened", false)
+            if thisWidget.state.open == nil then
+                thisWidget.state.open = Internal._widgetState(thisWidget, "open", false)
             end
 
             thisWidget.state.index:onChange(function()
                 thisWidget.lastChangedTick = Internal._cycleTick + 1
-                if thisWidget.state.isOpened._value then
-                    thisWidget.state.isOpened:set(false)
+                if thisWidget.state.open._value then
+                    thisWidget.state.open:set(false)
                 end
             end)
         end,
@@ -464,7 +465,7 @@ Internal._widgetConstructor(
 
             TextLabel.Text = thisWidget.arguments.Text or "Combo"
 
-            if thisWidget.arguments.NoButton then
+            if btest(ComboFlags.NoButton, thisWidget.arguments.Flags) then
                 DropdownButton.Visible = false
                 PreviewLabel.Size = UDim2.new(UDim.new(1, 0), PreviewLabel.Size.Height)
             else
@@ -473,7 +474,7 @@ Internal._widgetConstructor(
                 PreviewLabel.Size = UDim2.new(UDim.new(1, -DropdownButtonSize), PreviewLabel.Size.Height)
             end
 
-            if thisWidget.arguments.NoPreview then
+            if btest(ComboFlags.NoPreview, thisWidget.arguments.Flags) then
                 PreviewLabel.Visible = false
                 PreviewContainer.Size = UDim2.new(0, 0, 0, 0)
                 PreviewContainer.AutomaticSize = Enum.AutomaticSize.XY
@@ -491,7 +492,7 @@ Internal._widgetConstructor(
             local DropdownButton = PreviewContainer.DropdownButton :: TextLabel
             local Dropdown: ImageLabel = DropdownButton.Dropdown
 
-            if thisWidget.state.isOpened._value then
+            if thisWidget.state.open._value then
                 AnyOpenedCombo = true
                 OpenedCombo = thisWidget
                 ComboOpenedTick = Internal._cycleTick
@@ -532,3 +533,7 @@ Internal._widgetConstructor(
         end,
     } :: Types.WidgetClass
 )
+
+return {
+    ComboFlags = ComboFlags,
+}

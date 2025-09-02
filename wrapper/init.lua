@@ -5,6 +5,10 @@ local Types = require(script.Types)
 local Iris = {}
 
 local Internal = require(script.Internal)
+local Utility = require(script.widgets)
+
+Iris._internal = Internal
+Iris._utility = Utility
 
 --[=[
     @class Iris
@@ -49,7 +53,7 @@ local Internal = require(script.Internal)
 
     If the `eventConnection` is `false` then Iris will not create a cycle loop and the user will need to call [Internal._cycle] every frame.
 ]=]
-function Iris.Init(parentInstance: (BasePlayerGui | GuiBase2d)?, eventConnection: (RBXScriptSignal | (() -> number) | false)?, allowMultipleInits: boolean)
+function Iris.Init(parentInstance: (BasePlayerGui | GuiBase2d)?, eventConnection: (RBXScriptSignal | (() -> number) | false)?, allowMultipleInits: boolean?)
     assert(Internal._shutdown == false, "Iris.Init() cannot be called once shutdown.")
     assert(Internal._started == false or allowMultipleInits == true, "Iris.Init() can only be called once.")
 
@@ -675,5 +679,40 @@ end
     Iris:Connect(Iris.ShowDemoWindow)
     ```
 ]=]
+
+local Window = require(script.widgets.Window)
+local _Root = require(script.widgets.Root)
+local _Menu = require(script.widgets.Menu)
+
+local _Format = require(script.widgets.Format)
+
+local Text = require(script.widgets.Text)
+local _Button = require(script.widgets.Button)
+local _Checkbox = require(script.widgets.Checkbox)
+local _RadioButton = require(script.widgets.RadioButton)
+local _Image = require(script.widgets.Image)
+
+local Tree = require(script.widgets.Tree)
+local Tab = require(script.widgets.Tab)
+
+local Input = require(script.widgets.Input)
+local Combo = require(script.widgets.Combo)
+local _Plot = require(script.widgets.Plot)
+
+local Table = require(script.widgets.Table)
+
+Iris.WindowFlags = Window.WindowFlags
+Iris.TextFlags = Text.TextFlags
+Iris.InputFlags = Input.InputFlags
+Iris.InputTextFlags = Input.InputTextFlags
+
+Iris.TreeFlags = Tree.TreeFlags
+Iris.TabFlags = Tab.TabFlags
+Iris.ComboFlags = Combo.ComboFlags
+Iris.TableFlags = Table.TableFlags
+
+Iris.SetFocusedWindow = Window.setFocusedWindow
+
+export type Iris = typeof(Iris)
 
 return Iris

@@ -3,12 +3,13 @@ local Utility = require(script.Parent)
 
 local Types = require(script.Parent.Parent.Types)
 
+local btest = bit32.btest
+
 export type Text = Types.Widget & {
     arguments: {
         Text: string,
-        Wrapped: boolean?,
+        Flags: number,
         Color: Color3?,
-        RichText: boolean?,
     },
 } & Types.Hovered
 
@@ -17,6 +18,11 @@ export type SeparatorText = Types.Widget & {
         Text: string,
     },
 } & Types.Hovered
+
+local TextFlags = {
+    Wrapped = 1,
+    RichText = 2,
+}
 
 ----------
 -- Text
@@ -27,12 +33,8 @@ Internal._widgetConstructor(
     {
         hasState = false,
         hasChildren = false,
-        Arguments = {
-            ["Text"] = 1,
-            ["Wrapped"] = 2,
-            ["Color"] = 3,
-            ["RichText"] = 4,
-        },
+        numArguments = 3,
+        Arguments = { "Text", "Flags", "Color" },
         Events = {
             ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
                 return thisWidget.instance
@@ -56,23 +58,11 @@ Internal._widgetConstructor(
             if thisWidget.arguments.Text == nil then
                 error("Text argument is required for Iris.Text().", 5)
             end
-            if thisWidget.arguments.Wrapped ~= nil then
-                Text.TextWrapped = thisWidget.arguments.Wrapped
-            else
-                Text.TextWrapped = Internal._config.TextWrapped
-            end
-            if thisWidget.arguments.Color then
-                Text.TextColor3 = thisWidget.arguments.Color
-            else
-                Text.TextColor3 = Internal._config.TextColor
-            end
-            if thisWidget.arguments.RichText ~= nil then
-                Text.RichText = thisWidget.arguments.RichText
-            else
-                Text.RichText = Internal._config.RichText
-            end
 
             Text.Text = thisWidget.arguments.Text
+            Text.TextWrapped = btest(TextFlags.Wrapped, thisWidget.arguments.Flags) or Internal._config.TextWrapped
+            Text.RichText = btest(TextFlags.RichText, thisWidget.arguments.Flags) or Internal._config.RichText
+            Text.TextColor3 = thisWidget.arguments.Color or Internal._config.TextColor
         end,
         Discard = function(thisWidget: Text)
             thisWidget.instance:Destroy()
@@ -89,9 +79,8 @@ Internal._widgetConstructor(
     {
         hasState = false,
         hasChildren = false,
-        Arguments = {
-            ["Text"] = 1,
-        },
+        numArguments = 1,
+        Arguments = { "Text" },
         Events = {
             ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
                 return thisWidget.instance
@@ -158,3 +147,7 @@ Internal._widgetConstructor(
         end,
     } :: Types.WidgetClass
 )
+
+return {
+    TextFlags = TextFlags,
+}

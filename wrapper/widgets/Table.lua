@@ -3,6 +3,8 @@ local Utility = require(script.Parent)
 
 local Types = require(script.Parent.Parent.Types)
 
+local btest = bit32.btest
+
 export type Table = Types.ParentWidget & {
     _columnIndex: number,
     _rowIndex: number,
@@ -32,6 +34,21 @@ export type Table = Types.ParentWidget & {
     },
 } & Types.Hovered
 
+local TableFlags = {
+    Header = 1,
+    RowBackground = 2,
+    OuterBorders = 4,
+    InnerBorders = 8,
+    Resizable = 16,
+    FixedWidth = 32,
+    ProportionalWidth = 64,
+    LimitTableWidth = 128,
+}
+
+---------------
+-- Functions
+---------------
+
 local Tables: { [Types.ID]: Table } = {}
 local TableMinWidths: { [Table]: { boolean } } = {}
 local AnyActiveTable = false
@@ -55,48 +72,6 @@ local function CalculateMinColumnWidth(thisWidget: Table, index: number)
     thisWidget._minWidths[index] = width + 2 * Internal._config.CellPadding.X
 end
 
-table.insert(Internal._postCycleCallbacks, function()
-    for _, thisWidget in Tables do
-        for rowIndex, cycleTick in thisWidget._rowCycles do
-            if cycleTick < Internal._cycleTick - 1 then
-                local Row = thisWidget._rowInstances[rowIndex]
-                local RowBorder = thisWidget._rowBorders[rowIndex - 1]
-                if Row ~= nil then
-                    Row:Destroy()
-                end
-                if RowBorder ~= nil then
-                    RowBorder:Destroy()
-                end
-                thisWidget._rowInstances[rowIndex] = nil
-                thisWidget._rowBorders[rowIndex - 1] = nil
-                thisWidget._cellInstances[rowIndex] = nil
-                thisWidget._rowCycles[rowIndex] = nil
-            end
-        end
-
-        thisWidget._rowIndex = 1
-        thisWidget._columnIndex = 1
-
-        -- update the border container size to be the same, albeit *every* frame!
-        local Table = thisWidget.instance :: Frame
-        local BorderContainer: Frame = Table.BorderContainer
-        BorderContainer.Size = UDim2.new(1, 0, 0, thisWidget._rowContainer.AbsoluteSize.Y)
-        thisWidget._columnBorders[0].Size = UDim2.fromOffset(5, thisWidget._rowContainer.AbsoluteSize.Y)
-    end
-
-    for thisWidget, columns in TableMinWidths do
-        local refresh = false
-        for column, _ in columns do
-            CalculateMinColumnWidth(thisWidget, column)
-            refresh = true
-        end
-        if refresh then
-            table.clear(columns)
-            Internal._widgets["Table"].UpdateState(thisWidget)
-        end
-    end
-end)
-
 local function UpdateActiveColumn()
     if AnyActiveTable == false or ActiveTable == nil then
         return
@@ -106,7 +81,7 @@ local function UpdateActiveColumn()
     local NumColumns = ActiveTable.arguments.NumColumns
     local Table = ActiveTable.instance :: Frame
     local BorderContainer = Table.BorderContainer :: Frame
-    local Fixed = ActiveTable.arguments.FixedWidth
+    local Fixed = btest(TableFlags.FixedWidth, ActiveTable.arguments.Flags)
     local Padding = 2 * Internal._config.CellPadding.X
 
     if ActiveLeftWidth == -1 then
@@ -161,6 +136,48 @@ local function ColumnMouseDown(thisWidget: Table, index: number)
     ActiveRightWidth = -1
     MousePositionX = Utility.getMouseLocation().X
 end
+
+table.insert(Internal._postCycleCallbacks, function()
+    for _, thisWidget in Tables do
+        for rowIndex, cycleTick in thisWidget._rowCycles do
+            if cycleTick < Internal._cycleTick - 1 then
+                local Row = thisWidget._rowInstances[rowIndex]
+                local RowBorder = thisWidget._rowBorders[rowIndex - 1]
+                if Row ~= nil then
+                    Row:Destroy()
+                end
+                if RowBorder ~= nil then
+                    RowBorder:Destroy()
+                end
+                thisWidget._rowInstances[rowIndex] = nil
+                thisWidget._rowBorders[rowIndex - 1] = nil
+                thisWidget._cellInstances[rowIndex] = nil
+                thisWidget._rowCycles[rowIndex] = nil
+            end
+        end
+
+        thisWidget._rowIndex = 1
+        thisWidget._columnIndex = 1
+
+        -- update the border container size to be the same, albeit *every* frame!
+        local Table = thisWidget.instance :: Frame
+        local BorderContainer: Frame = Table.BorderContainer
+        BorderContainer.Size = UDim2.new(1, 0, 0, thisWidget._rowContainer.AbsoluteSize.Y)
+        thisWidget._columnBorders[0].Size = UDim2.fromOffset(5, thisWidget._rowContainer.AbsoluteSize.Y)
+    end
+
+    for thisWidget, columns in TableMinWidths do
+        local refresh = false
+        for column, _ in columns do
+            CalculateMinColumnWidth(thisWidget, column)
+            refresh = true
+        end
+        if refresh then
+            table.clear(columns)
+            Internal._widgets["Table"].UpdateState(thisWidget)
+        end
+    end
+end)
 
 Utility.registerEvent("InputChanged", function()
     if not Internal._started then
@@ -249,7 +266,7 @@ local function GenerateColumnBorder(thisWidget: Table, index: number, style: "Li
     Hover.BackgroundTransparency = Internal._config[`TableBorder{style}Transparency`]
     Hover.BorderSizePixel = 0
 
-    Hover.Visible = thisWidget.arguments.Resizable
+    Hover.Visible = btest(TableFlags.Resizable, thisWidget.arguments.Flags)
 
     Hover.Parent = Border
 
@@ -263,7 +280,7 @@ local function GenerateColumnBorder(thisWidget: Table, index: number, style: "Li
     })
 
     Utility.applyButtonDown(Border, function()
-        if thisWidget.arguments.Resizable then
+        if btest(TableFlags.Resizable, thisWidget.arguments.Flags) then
             ColumnMouseDown(thisWidget, index)
         end
     end)
@@ -280,7 +297,7 @@ local function GenerateRow(thisWidget: Table, index: number)
     if index == 0 then
         Row.BackgroundColor3 = Internal._config.TableHeaderColor
         Row.BackgroundTransparency = Internal._config.TableHeaderTransparency
-    elseif thisWidget.arguments.RowBackground == true then
+    elseif btest(TableFlags.RowBackground, thisWidget.arguments.Flags) == true then
         if (index % 2) == 0 then
             Row.BackgroundColor3 = Internal._config.TableRowBgAltColor
             Row.BackgroundTransparency = Internal._config.TableRowBgAltTransparency
@@ -340,17 +357,8 @@ Internal._widgetConstructor(
     {
         hasState = true,
         hasChildren = true,
-        Arguments = {
-            NumColumns = 1,
-            Header = 2,
-            RowBackground = 3,
-            OuterBorders = 4,
-            InnerBorders = 5,
-            Resizable = 6,
-            FixedWidth = 7,
-            ProportionalWidth = 8,
-            LimitTableWidth = 9,
-        },
+        numArguments = 2,
+        Arguments = { "NumColumns", "Flags", "widths" },
         Events = {},
         Generate = function(thisWidget: Table)
             Tables[thisWidget.ID] = thisWidget
@@ -425,7 +433,7 @@ Internal._widgetConstructor(
             thisWidget._cellInstances[-1] = table.create(NumColumns)
             for index = 1, NumColumns do
                 local Border = GenerateColumnBorder(thisWidget, index, "Light")
-                Border.Visible = thisWidget.arguments.InnerBorders
+                Border.Visible = btest(TableFlags.InnerBorders, thisWidget.arguments.Flags)
                 thisWidget._columnBorders[index] = Border
                 Border.Parent = BorderContainer
 
@@ -455,7 +463,7 @@ Internal._widgetConstructor(
                 if rowIndex == 0 then
                     row.BackgroundColor3 = Internal._config.TableHeaderColor
                     row.BackgroundTransparency = Internal._config.TableHeaderTransparency
-                elseif thisWidget.arguments.RowBackground == true then
+                elseif btest(TableFlags.RowBackground, thisWidget.arguments.Flags) == true then
                     if (rowIndex % 2) == 0 then
                         row.BackgroundColor3 = Internal._config.TableRowBgAltColor
                         row.BackgroundTransparency = Internal._config.TableRowBgAltTransparency
@@ -469,23 +477,24 @@ Internal._widgetConstructor(
             end
 
             for _, Border: Frame in thisWidget._rowBorders do
-                Border.Visible = thisWidget.arguments.InnerBorders
+                Border.Visible = btest(TableFlags.InnerBorders, thisWidget.arguments.Flags)
             end
 
             for _, Border: GuiButton in thisWidget._columnBorders do
-                Border.Visible = thisWidget.arguments.InnerBorders or thisWidget.arguments.Resizable
+                Border.Visible = btest(TableFlags.InnerBorders, thisWidget.arguments.Flags) or btest(TableFlags.Resizable, thisWidget.arguments.Flags)
             end
 
             for _, border in thisWidget._columnBorders do
                 local hover = border:FindFirstChild("Hover") :: Frame?
                 if hover then
-                    hover.Visible = thisWidget.arguments.Resizable
+                    hover.Visible = btest(TableFlags.Resizable, thisWidget.arguments.Flags)
                 end
             end
 
             if thisWidget._columnBorders[NumColumns] ~= nil then
-                thisWidget._columnBorders[NumColumns].Visible = not thisWidget.arguments.LimitTableWidth and (thisWidget.arguments.Resizable or thisWidget.arguments.InnerBorders)
-                thisWidget._columnBorders[0].Visible = thisWidget.arguments.LimitTableWidth and (thisWidget.arguments.Resizable or thisWidget.arguments.OuterBorders)
+                thisWidget._columnBorders[NumColumns].Visible = not btest(TableFlags.LimitTableWidth, thisWidget.arguments.Flags)
+                    and (btest(TableFlags.Resizable, thisWidget.arguments.Flags) or btest(TableFlags.InnerBorders, thisWidget.arguments.Flags))
+                thisWidget._columnBorders[0].Visible = btest(TableFlags.LimitTableWidth, thisWidget.arguments.Flags) and (btest(TableFlags.Resizable, thisWidget.arguments.Flags) or btest(TableFlags.OuterBorders, thisWidget.arguments.Flags))
             end
 
             -- the header border visibility must be updated after settings all borders
@@ -493,15 +502,15 @@ Internal._widgetConstructor(
             local HeaderRow: Frame? = thisWidget._rowInstances[0]
             local HeaderBorder: Frame? = thisWidget._rowBorders[0]
             if HeaderRow ~= nil then
-                HeaderRow.Visible = thisWidget.arguments.Header
+                HeaderRow.Visible = btest(TableFlags.Header, thisWidget.arguments.Flags)
             end
             if HeaderBorder ~= nil then
-                HeaderBorder.Visible = thisWidget.arguments.Header and thisWidget.arguments.InnerBorders
+                HeaderBorder.Visible = btest(TableFlags.Header, thisWidget.arguments.Flags) and btest(TableFlags.InnerBorders, thisWidget.arguments.Flags)
             end
 
             local Table = thisWidget.instance :: Frame
             local BorderContainer = Table.BorderContainer :: Frame
-            BorderContainer.UIStroke.Enabled = thisWidget.arguments.OuterBorders
+            BorderContainer.UIStroke.Enabled = btest(TableFlags.OuterBorders, thisWidget.arguments.Flags)
 
             for index = 1, thisWidget.arguments.NumColumns do
                 TableMinWidths[thisWidget][index] = true
@@ -519,10 +528,10 @@ Internal._widgetConstructor(
             local ColumnWidths = thisWidget.state.widths._value
             local MinWidths = thisWidget._minWidths
 
-            local Fixed = thisWidget.arguments.FixedWidth
-            local Proportional = thisWidget.arguments.ProportionalWidth
+            local Fixed = btest(TableFlags.FixedWidth, thisWidget.arguments.Flags)
+            local Proportional = btest(TableFlags.ProportionalWidth, thisWidget.arguments.Flags)
 
-            if not thisWidget.arguments.Resizable then
+            if not btest(TableFlags.Resizable, thisWidget.arguments.Flags) then
                 if Fixed then
                     if Proportional then
                         for index = 1, NumColumns do
@@ -573,7 +582,7 @@ Internal._widgetConstructor(
 
             -- if the table has a fixed width and we want to cap it, we calculate the table width necessary
             local Width = Position.Offset
-            if not thisWidget.arguments.FixedWidth or not thisWidget.arguments.LimitTableWidth then
+            if not btest(TableFlags.FixedWidth, thisWidget.arguments.Flags) or not btest(TableFlags.LimitTableWidth, thisWidget.arguments.Flags) then
                 Width = math.huge
             end
 
@@ -595,13 +604,14 @@ Internal._widgetConstructor(
 
             Row = GenerateRow(thisWidget, rowIndex)
             if rowIndex == 0 then
-                Row.Visible = thisWidget.arguments.Header
+                Row.Visible = btest(TableFlags.Header, thisWidget.arguments.Flags)
             end
             Row.Parent = thisWidget._rowContainer
 
             if rowIndex > 0 then
                 local Border = GenerateRowBorder(thisWidget, rowIndex - 1, if rowIndex == 1 then "Strong" else "Light")
-                Border.Visible = thisWidget.arguments.InnerBorders and (if rowIndex == 1 then (thisWidget.arguments.Header and thisWidget.arguments.InnerBorders) and (thisWidget._rowInstances[0] ~= nil) else true)
+                Border.Visible = btest(TableFlags.InnerBorders, thisWidget.arguments.Flags)
+                    and (if rowIndex == 1 then (btest(TableFlags.Header, thisWidget.arguments.Flags) and btest(TableFlags.InnerBorders, thisWidget.arguments.Flags)) and (thisWidget._rowInstances[0] ~= nil) else true)
                 thisWidget._rowBorders[rowIndex - 1] = Border
                 Border.Parent = thisWidget._rowContainer
             end
@@ -627,3 +637,7 @@ Internal._widgetConstructor(
         end,
     } :: Types.WidgetClass
 )
+
+return {
+    TableFlags = TableFlags,
+}

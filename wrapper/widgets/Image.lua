@@ -23,16 +23,8 @@ export type ImageButton_ = Image & Types.Clicked & Types.RightClicked & Types.Do
 local abstractImage = {
     hasState = false,
     hasChildren = false,
-    Arguments = {
-        ["Image"] = 1,
-        ["Size"] = 2,
-        ["Rect"] = 3,
-        ["ScaleType"] = 4,
-        ["ResampleMode"] = 5,
-        ["TileSize"] = 6,
-        ["SliceCenter"] = 7,
-        ["SliceScale"] = 8,
-    },
+    numArguments = 8,
+    Arguments = { "Image", "Size", "Rect", "ScaleType", "ResampleMode", "TileSize", "SliceCenter", "SliceScale" },
     Discard = function(thisWidget: Image)
         thisWidget.instance:Destroy()
     end,
@@ -187,3 +179,5 @@ Internal._widgetConstructor(
         } :: Types.WidgetClass
     )
 )
+
+return {}

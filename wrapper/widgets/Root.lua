@@ -16,7 +16,6 @@ Internal._widgetConstructor(
         hasState = false,
         hasChildren = true,
         numArguments = 0,
-        numStates = 0,
         Arguments = {},
         Events = {},
         Generate = function(_thisWidget: Root)
@@ -151,3 +150,5 @@ Internal._widgetConstructor(
         end,
     } :: Types.WidgetClass
 )
+
+return {}

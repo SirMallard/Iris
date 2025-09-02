@@ -30,6 +30,7 @@ Internal._widgetConstructor(
     {
         hasState = false,
         hasChildren = false,
+        numArguments = 0,
         Arguments = {},
         Events = {},
         Generate = function(thisWidget: Separator)
@@ -56,13 +57,17 @@ Internal._widgetConstructor(
     } :: Types.WidgetClass
 )
 
-    --stylua: ignore
-    Internal._widgetConstructor("Indent", {
+------------
+-- Indent
+------------
+
+Internal._widgetConstructor(
+    "Indent",
+    {
         hasState = false,
         hasChildren = true,
-        Arguments = {
-            ["Width"] = 1,
-        },
+        numArguments = 1,
+        Arguments = { "Width" },
         Events = {},
         Generate = function(_thisWidget: Indent)
             local Indent = Instance.new("Frame")
@@ -88,17 +93,20 @@ Internal._widgetConstructor(
         Discard = function(thisWidget: Indent)
             thisWidget.instance:Destroy()
         end,
-    } :: Types.WidgetClass)
+    } :: Types.WidgetClass
+)
 
-    --stylua: ignore
-    Internal._widgetConstructor("SameLine", {
+--------------
+-- SameLine
+--------------
+
+Internal._widgetConstructor(
+    "SameLine",
+    {
         hasState = false,
         hasChildren = true,
-        Arguments = {
-            ["Width"] = 1,
-            ["VerticalAlignment"] = 2,
-            ["HorizontalAlignment"] = 3,
-        },
+        numArguments = 3,
+        Arguments = { "Width", "VerticalAlignment", "HorizontalAlignment" },
         Events = {},
         Generate = function(_thisWidget: SameLine)
             local SameLine = Instance.new("Frame")
@@ -134,12 +142,19 @@ Internal._widgetConstructor(
         Discard = function(thisWidget: SameLine)
             thisWidget.instance:Destroy()
         end,
-    } :: Types.WidgetClass)
+    } :: Types.WidgetClass
+)
 
-    --stylua: ignore
-    Internal._widgetConstructor("Group", {
+-----------
+-- Group
+-----------
+
+Internal._widgetConstructor(
+    "Group",
+    {
         hasState = false,
         hasChildren = true,
+        numArguments = 0,
         Arguments = {},
         Events = {},
         Generate = function(_thisWidget: Group)
@@ -162,4 +177,7 @@ Internal._widgetConstructor(
         Discard = function(thisWidget: Group)
             thisWidget.instance:Destroy()
         end,
-    } :: Types.WidgetClass)
+    } :: Types.WidgetClass
+)
+
+return {}

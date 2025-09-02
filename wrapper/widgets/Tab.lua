@@ -3,6 +3,8 @@ local Utility = require(script.Parent)
 
 local Types = require(script.Parent.Parent.Types)
 
+local btest = bit32.btest
+
 export type TabBar = Types.ParentWidget & {
     Tabs: { Tab },
 
@@ -18,14 +20,22 @@ export type Tab = Types.ParentWidget & {
 
     arguments: {
         Text: string,
-        Hideable: boolean,
+        Flags: number,
     },
 
     state: {
         index: Types.State<number>,
-        isOpened: Types.State<boolean>,
+        open: Types.State<boolean>,
     },
 } & Types.Clicked & Types.Opened & Types.Selected & Types.Unselected & Types.Active & Types.Closed & Types.Hovered
+
+local TabFlags = {
+    Hideable = 1,
+}
+
+---------------
+-- Functions
+---------------
 
 local function openTab(TabBar: TabBar, Index: number)
     if TabBar.state.index._value > 0 then
@@ -42,7 +52,7 @@ local function closeTab(TabBar: TabBar, Index: number)
 
     -- search left for open tabs
     for i = Index - 1, 1, -1 do
-        if TabBar.Tabs[i].state.isOpened._value == true then
+        if TabBar.Tabs[i].state.open._value == true then
             TabBar.state.index:set(i)
             return
         end
@@ -50,7 +60,7 @@ local function closeTab(TabBar: TabBar, Index: number)
 
     -- search right for open tabs
     for i = Index, #TabBar.Tabs do
-        if TabBar.Tabs[i].state.isOpened._value == true then
+        if TabBar.Tabs[i].state.open._value == true then
             TabBar.state.index:set(i)
             return
         end
@@ -69,7 +79,8 @@ Internal._widgetConstructor(
     {
         hasState = true,
         hasChildren = true,
-        Arguments = {},
+        numArguments = 0,
+        Arguments = { "index" },
         Events = {},
         Generate = function(thisWidget: TabBar)
             local TabBar = Instance.new("Frame")
@@ -160,10 +171,8 @@ Internal._widgetConstructor(
     {
         hasState = true,
         hasChildren = true,
-        Arguments = {
-            ["Text"] = 1,
-            ["Hideable"] = 2,
-        },
+        numArguments = 2,
+        Arguments = { "Text", "Flags", "open" },
         Events = {
             ["clicked"] = Utility.EVENTS.click(function(thisWidget: Types.Widget)
                 return thisWidget.instance
@@ -253,7 +262,7 @@ Internal._widgetConstructor(
 
             Utility.UICorner(CloseButton)
             Utility.applyButtonClick(CloseButton, function()
-                thisWidget.state.isOpened:set(false)
+                thisWidget.state.open:set(false)
                 closeTab(thisWidget.parentWidget, thisWidget.Index)
             end)
 
@@ -309,7 +318,7 @@ Internal._widgetConstructor(
             local CloseButton: TextButton = Tab.CloseButton
 
             TextLabel.Text = thisWidget.arguments.Text
-            CloseButton.Visible = if thisWidget.arguments.Hideable == true then true else false
+            CloseButton.Visible = btest(TabFlags.Hideable, thisWidget.arguments.Flags)
         end,
         ChildAdded = function(thisWidget: Tab, _thisChild: Types.Widget)
             return thisWidget.childContainer
@@ -318,16 +327,16 @@ Internal._widgetConstructor(
             thisWidget.state.index = thisWidget.parentWidget.state.index
             thisWidget.state.index._connectedWidgets[thisWidget.ID] = thisWidget
 
-            if thisWidget.state.isOpened == nil then
-                thisWidget.state.isOpened = Internal._widgetState(thisWidget, "isOpened", true)
+            if thisWidget.state.open == nil then
+                thisWidget.state.open = Internal._widgetState(thisWidget, "open", true)
             end
         end,
         UpdateState = function(thisWidget: Tab)
             local Tab = thisWidget.instance :: TextButton
             local Container = thisWidget.childContainer :: Frame
 
-            if thisWidget.state.isOpened._lastChangeTick == Internal._cycleTick then
-                if thisWidget.state.isOpened._value == true then
+            if thisWidget.state.open._lastChangeTick == Internal._cycleTick then
+                if thisWidget.state.open._value == true then
                     thisWidget.lastOpenedTick = Internal._cycleTick + 1
                     openTab(thisWidget.parentWidget, thisWidget.Index)
                     Tab.Visible = true
@@ -357,7 +366,7 @@ Internal._widgetConstructor(
             end
         end,
         Discard = function(thisWidget: Tab)
-            if thisWidget.state.isOpened._value == true then
+            if thisWidget.state.open._value == true then
                 closeTab(thisWidget.parentWidget, thisWidget.Index)
             end
 
@@ -367,3 +376,7 @@ Internal._widgetConstructor(
         end,
     } :: Types.WidgetClass
 )
+
+return {
+    TabFlags = TabFlags,
+}

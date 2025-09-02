@@ -11,20 +11,32 @@ Utility.UserInputService = game:GetService("UserInputService")
 Utility.ContextActionService = game:GetService("ContextActionService")
 Utility.TextService = game:GetService("TextService")
 
-Utility.ICONS = {
-    BLANK_SQUARE = "rbxasset://textures/SurfacesDefault.png",
-    RIGHT_POINTING_TRIANGLE = "rbxasset://textures/DeveloperFramework/button_arrow_right.png",
-    DOWN_POINTING_TRIANGLE = "rbxasset://textures/DeveloperFramework/button_arrow_down.png",
-    MULTIPLICATION_SIGN = "rbxasset://textures/AnimationEditor/icon_close.png", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
-    BOTTOM_RIGHT_CORNER = "rbxasset://textures/ui/InspectMenu/gr-item-selector-triangle.png", -- used in window resize icon in bottom right
-    CHECK_MARK = "rbxasset://textures/AnimationEditor/icon_checkmark.png",
-    BORDER = "rbxasset://textures/ui/InspectMenu/gr-item-selector.png",
-    ALPHA_BACKGROUND_TEXTURE = "rbxasset://textures/meshPartFallback.png", -- used for color4 alpha
-    UNKNOWN_TEXTURE = "rbxasset://textures/ui/GuiImagePlaceholder.png",
-}
-
 Utility.IS_STUDIO = Utility.RunService:IsStudio()
-function Utility.getTime()
+
+Utility.abstractButton = {} :: Types.WidgetClass
+Utility.guiOffset = if Internal._config.IgnoreGuiInset then -Utility.GuiService:GetGuiInset() else Vector2.zero -- acts as an offset where the absolute position of the base frame is not zero, such as IgnoreGuiInset or for stories
+Utility.mouseOffset = if Internal._config.IgnoreGuiInset then Vector2.zero else Utility.GuiService:GetGuiInset() -- the registered mouse position always ignores the topbar, so needs a separate variable offset
+
+---------------
+-- Functions
+---------------
+
+function Utility.setupOffsets()
+    -- the topbar inset changes updates a frame later.
+    local connection: RBXScriptConnection
+    connection = Utility.GuiService:GetPropertyChangedSignal("TopbarInset"):Once(function()
+        Utility.mouseOffset = if Internal._config.IgnoreGuiInset then Vector2.zero else Utility.GuiService:GetGuiInset()
+        Utility.guiOffset = if Internal._config.IgnoreGuiInset then -Utility.GuiService:GetGuiInset() else Vector2.zero
+        connection:Disconnect()
+    end)
+
+    -- in case the topbar doesn't change, we cancel the event.
+    task.delay(5, function()
+        connection:Disconnect()
+    end)
+end
+
+function Utility.getTime(): number
     -- time() always returns 0 in the context of plugins
     if Utility.IS_STUDIO then
         return os.clock()
@@ -32,23 +44,6 @@ function Utility.getTime()
         return time()
     end
 end
-
--- acts as an offset where the absolute position of the base frame is not zero, such as IgnoreGuiInset or for stories
-Utility.guiOffset = if Internal._config.IgnoreGuiInset then -Utility.GuiService:GetGuiInset() else Vector2.zero
--- the registered mouse position always ignores the topbar, so needs a separate variable offset
-Utility.mouseOffset = if Internal._config.IgnoreGuiInset then Vector2.zero else Utility.GuiService:GetGuiInset()
-
--- the topbar inset changes updates a frame later.
-local connection: RBXScriptConnection
-connection = Utility.GuiService:GetPropertyChangedSignal("TopbarInset"):Once(function()
-    Utility.mouseOffset = if Internal._config.IgnoreGuiInset then Vector2.zero else Utility.GuiService:GetGuiInset()
-    Utility.guiOffset = if Internal._config.IgnoreGuiInset then -Utility.GuiService:GetGuiInset() else Vector2.zero
-    connection:Disconnect()
-end)
--- in case the topbar doesn't change, we cancel the event.
-task.delay(5, function()
-    connection:Disconnect()
-end)
 
 function Utility.getMouseLocation()
     return Utility.UserInputService:GetMouseLocation() - Utility.mouseOffset
@@ -331,6 +326,18 @@ function Utility.registerEvent(event: string, callback: (...any) -> ())
     end)
 end
 
+Utility.ICONS = {
+    BLANK_SQUARE = "rbxasset://textures/SurfacesDefault.png",
+    RIGHT_POINTING_TRIANGLE = "rbxasset://textures/DeveloperFramework/button_arrow_right.png",
+    DOWN_POINTING_TRIANGLE = "rbxasset://textures/DeveloperFramework/button_arrow_down.png",
+    MULTIPLICATION_SIGN = "rbxasset://textures/AnimationEditor/icon_close.png", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
+    BOTTOM_RIGHT_CORNER = "rbxasset://textures/ui/InspectMenu/gr-item-selector-triangle.png", -- used in window resize icon in bottom right
+    CHECK_MARK = "rbxasset://textures/AnimationEditor/icon_checkmark.png",
+    BORDER = "rbxasset://textures/ui/InspectMenu/gr-item-selector.png",
+    ALPHA_BACKGROUND_TEXTURE = "rbxasset://textures/meshPartFallback.png", -- used for color4 alpha
+    UNKNOWN_TEXTURE = "rbxasset://textures/ui/GuiImagePlaceholder.png",
+}
+
 Utility.EVENTS = {
     hover = function(pathToHovered: (thisWidget: Types.Widget) -> GuiObject)
         return {
@@ -425,6 +432,8 @@ Utility.EVENTS = {
         }
     end,
 }
+
+Utility.setupOffsets()
 
 -- require(script.Root)(Internal, widgets)
 -- require(script.Window)(Internal, widgets)

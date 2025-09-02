@@ -62,10 +62,8 @@ Internal._widgetConstructor(
     {
         hasState = true,
         hasChildren = false,
-        Arguments = {
-            ["Text"] = 1,
-            ["Format"] = 2,
-        },
+        numArguments = 2,
+        Arguments = { "Text", "Format", "progress" },
         Events = {
             ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
                 return thisWidget.instance
@@ -144,7 +142,7 @@ Internal._widgetConstructor(
         end,
         GenerateState = function(thisWidget: ProgressBar)
             if thisWidget.state.progress == nil then
-                thisWidget.state.progress = Internal._widgetState(thisWidget, "Progress", 0)
+                thisWidget.state.progress = Internal._widgetState(thisWidget, "progress", 0)
             end
         end,
         Update = function(thisWidget: ProgressBar)
@@ -258,13 +256,8 @@ Internal._widgetConstructor(
     {
         hasState = true,
         hasChildren = false,
-        Arguments = {
-            ["Text"] = 1,
-            ["Height"] = 2,
-            ["Min"] = 3,
-            ["Max"] = 4,
-            ["TextOverlay"] = 5,
-        },
+        numArguments = 5,
+        Arguments = { "Text", "Height", "Min", "Max", "TextOverlay", "values", "hovered" },
         Events = {
             ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
                 return thisWidget.instance
@@ -516,14 +509,8 @@ Internal._widgetConstructor(
     {
         hasState = true,
         hasChildren = false,
-        Arguments = {
-            ["Text"] = 1,
-            ["Height"] = 2,
-            ["Min"] = 3,
-            ["Max"] = 4,
-            ["TextOverlay"] = 5,
-            ["BaseLine"] = 6,
-        },
+        numArguments = 6,
+        Arguments = { "Text", "Height", "Min", "Max", "TextOverlay", "BaseLine", "values", "hovered" },
         Events = {
             ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
                 return thisWidget.instance
@@ -708,3 +695,5 @@ Internal._widgetConstructor(
         end,
     } :: Types.WidgetClass
 )
+
+return {}

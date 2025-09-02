@@ -25,10 +25,8 @@ Internal._widgetConstructor(
     {
         hasState = true,
         hasChildren = false,
-        Arguments = {
-            ["Text"] = 1,
-            ["Index"] = 2,
-        },
+        numArguments = 2,
+        Arguments = { "Text", "Index", "index" },
         Events = {
             ["selected"] = {
                 ["Init"] = function(_thisWidget: RadioButton) end,
@@ -144,3 +142,5 @@ Internal._widgetConstructor(
         end,
     } :: Types.WidgetClass
 )
+
+return {}

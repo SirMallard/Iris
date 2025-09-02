@@ -10,24 +10,23 @@ export type Button = Types.Widget & {
     },
 } & Types.Clicked & Types.RightClicked & Types.DoubleClicked & Types.CtrlClicked & Types.Hovered
 
-local abstractButton = {
+Utility.abstractButton = {
     hasState = false,
     hasChildren = false,
     numArguments = 2,
-    numStates = 0,
     Arguments = { "Text", "Size" },
     Events = {
         ["clicked"] = Utility.EVENTS.click(function(thisWidget: Types.Widget)
-            return thisWidget.instance
+            return thisWidget.instance :: GuiButton
         end),
         ["rightClicked"] = Utility.EVENTS.rightClick(function(thisWidget: Types.Widget)
-            return thisWidget.instance
+            return thisWidget.instance :: GuiButton
         end),
         ["doubleClicked"] = Utility.EVENTS.doubleClick(function(thisWidget: Types.Widget)
-            return thisWidget.instance
+            return thisWidget.instance :: GuiButton
         end),
         ["ctrlClicked"] = Utility.EVENTS.ctrlClick(function(thisWidget: Types.Widget)
-            return thisWidget.instance
+            return thisWidget.instance :: GuiButton
         end),
         ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
             return thisWidget.instance
@@ -74,10 +73,10 @@ local abstractButton = {
 Internal._widgetConstructor(
     "Button",
     Utility.extend(
-        abstractButton,
+        Utility.abstractButton,
         {
             Generate = function(thisWidget: Button)
-                local Button = abstractButton.Generate(thisWidget)
+                local Button = Utility.abstractButton.Generate(thisWidget)
                 Button.Name = "Iris_Button"
 
                 return Button
@@ -93,10 +92,10 @@ Internal._widgetConstructor(
 Internal._widgetConstructor(
     "SmallButton",
     Utility.extend(
-        abstractButton,
+        Utility.abstractButton,
         {
             Generate = function(thisWidget: Button)
-                local SmallButton = abstractButton.Generate(thisWidget)
+                local SmallButton = Utility.abstractButton.Generate(thisWidget)
                 SmallButton.Name = "Iris_SmallButton"
 
                 local uiPadding: UIPadding = SmallButton.UIPadding
@@ -110,3 +109,5 @@ Internal._widgetConstructor(
         } :: Types.WidgetClass
     )
 )
+
+return {}

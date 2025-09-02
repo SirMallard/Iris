@@ -3,7 +3,10 @@ local Utility = require(script.Parent)
 
 local Types = require(script.Parent.Parent.Types)
 
+local btest = bit32.btest
+
 type InputDataTypes = "Num" | "Vector2" | "Vector3" | "UDim" | "UDim2" | "Color3" | "Color4" | "Rect" | "Enum" | "" | string
+type InputDataType = number | Vector2 | Vector3 | UDim | UDim2 | Color3 | Rect | Enum
 type InputType = "Input" | "Drag" | "Slider"
 
 export type Input<T> = Types.Widget & {
@@ -17,24 +20,19 @@ export type Input<T> = Types.Widget & {
         Max: T,
         Format: { string },
         Prefix: { string },
-        NoButtons: boolean?,
+        Flags: number,
     },
 
     state: {
         number: Types.State<T>,
-        editingText: Types.State<number>,
+        editing: Types.State<number>,
     },
 } & Types.NumberChanged & Types.Hovered
 
 export type InputColor3 = Input<{ number }> & {
-    arguments: {
-        UseFloats: boolean?,
-        UseHSV: boolean?,
-    },
-
     state: {
         color: Types.State<Color3>,
-        editingText: Types.State<boolean>,
+        editing: Types.State<boolean>,
     },
 } & Types.NumberChanged & Types.Hovered
 
@@ -46,7 +44,7 @@ export type InputColor4 = InputColor3 & {
 
 export type InputEnum = Input<number> & {
     state: {
-        enumItem: Types.State<EnumItem>,
+        enum: Types.State<EnumItem>,
     },
 }
 
@@ -54,8 +52,7 @@ export type InputText = Types.Widget & {
     arguments: {
         Text: string?,
         TextHint: string?,
-        ReadOnly: boolean?,
-        MultiLine: boolean?,
+        Flags: number,
     },
 
     state: {
@@ -63,12 +60,83 @@ export type InputText = Types.Widget & {
     },
 } & Types.TextChanged & Types.Hovered
 
+local InputTextFlags = {
+    ReadOnly = 1,
+    MultiLine = 2,
+}
+
+local InputFlags = {
+    UseFloats = 1,
+    UseHSV = 2,
+}
+
+---------------
+-- Constants
+---------------
+
 local numberChanged = {
     ["Init"] = function(_thisWidget: Types.Widget) end,
     ["Get"] = function(thisWidget: Input<any>)
         return thisWidget.lastNumberChangedTick == Internal._cycleTick
     end,
 }
+
+local defaultIncrements: { [InputDataTypes]: { number } } = {
+    Num = { 1 },
+    Vector2 = { 1, 1 },
+    Vector3 = { 1, 1, 1 },
+    UDim = { 0.01, 1 },
+    UDim2 = { 0.01, 1, 0.01, 1 },
+    Color3 = { 1, 1, 1 },
+    Color4 = { 1, 1, 1, 1 },
+    Rect = { 1, 1, 1, 1 },
+}
+
+local defaultMin: { [InputDataTypes]: { number } } = {
+    Num = { 0 },
+    Vector2 = { 0, 0 },
+    Vector3 = { 0, 0, 0 },
+    UDim = { 0, 0 },
+    UDim2 = { 0, 0, 0, 0 },
+    Rect = { 0, 0, 0, 0 },
+}
+
+local defaultMax: { [InputDataTypes]: { number } } = {
+    Num = { 100 },
+    Vector2 = { 100, 100 },
+    Vector3 = { 100, 100, 100 },
+    UDim = { 1, 960 },
+    UDim2 = { 1, 960, 1, 960 },
+    Rect = { 960, 960, 960, 960 },
+}
+
+local defaultPrefx: { [InputDataTypes]: { string } } = {
+    Num = { "" },
+    Vector2 = { "X: ", "Y: " },
+    Vector3 = { "X: ", "Y: ", "Z: " },
+    UDim = { "", "" },
+    UDim2 = { "", "", "", "" },
+    Color3_RGB = { "R: ", "G: ", "B: " },
+    Color3_HSV = { "H: ", "S: ", "V: " },
+    Color4_RGB = { "R: ", "G: ", "B: ", "T: " },
+    Color4_HSV = { "H: ", "S: ", "V: ", "T: " },
+    Rect = { "X: ", "Y: ", "X: ", "Y: " },
+}
+
+local defaultSigFigs: { [InputDataTypes]: { number } } = {
+    Num = { 0 },
+    Vector2 = { 0, 0 },
+    Vector3 = { 0, 0, 0 },
+    UDim = { 3, 0 },
+    UDim2 = { 3, 0, 3, 0 },
+    Color3 = { 0, 0, 0 },
+    Color4 = { 0, 0, 0, 0 },
+    Rect = { 0, 0, 0, 0 },
+}
+
+---------------
+-- Functions
+---------------
 
 local function getValueByIndex<T>(value: T, index: number, arguments: any)
     local val = value :: unknown
@@ -105,7 +173,7 @@ local function getValueByIndex<T>(value: T, index: number, arguments: any)
             return val.Y.Offset
         end
     elseif typeof(val) == "Color3" then
-        local color = if arguments.UseHSV then { val:ToHSV() } else { val.R, val.G, val.B }
+        local color = if btest(InputFlags.UseHSV, arguments) then { val:ToHSV() } else { val.R, val.G, val.B }
         if index == 1 then
             return color[1]
         elseif index == 2 then
@@ -175,7 +243,7 @@ local function updateValueByIndex<T>(value: T, index: number, newValue: number, 
             return Rect.new(val.Min, Vector2.new(val.Max.X, newValue)) :: any
         end
     elseif typeof(val) == "Color3" then
-        if arguments.UseHSV then
+        if btest(InputFlags.UseHSV, arguments) then
             local h: number, s: number, v: number = val:ToHSV()
             if index == 1 then
                 return Color3.fromHSV(newValue, s, v) :: any
@@ -197,70 +265,12 @@ local function updateValueByIndex<T>(value: T, index: number, newValue: number, 
     error(`Incorrect datatype or value {value} {typeof(value)} {index}.`)
 end
 
-local defaultIncrements: { [InputDataTypes]: { number } } = {
-    Num = { 1 },
-    Vector2 = { 1, 1 },
-    Vector3 = { 1, 1, 1 },
-    UDim = { 0.01, 1 },
-    UDim2 = { 0.01, 1, 0.01, 1 },
-    Color3 = { 1, 1, 1 },
-    Color4 = { 1, 1, 1, 1 },
-    Rect = { 1, 1, 1, 1 },
-}
-
-local defaultMin: { [InputDataTypes]: { number } } = {
-    Num = { 0 },
-    Vector2 = { 0, 0 },
-    Vector3 = { 0, 0, 0 },
-    UDim = { 0, 0 },
-    UDim2 = { 0, 0, 0, 0 },
-    Rect = { 0, 0, 0, 0 },
-}
-
-local defaultMax: { [InputDataTypes]: { number } } = {
-    Num = { 100 },
-    Vector2 = { 100, 100 },
-    Vector3 = { 100, 100, 100 },
-    UDim = { 1, 960 },
-    UDim2 = { 1, 960, 1, 960 },
-    Rect = { 960, 960, 960, 960 },
-}
-
-local defaultPrefx: { [InputDataTypes]: { string } } = {
-    Num = { "" },
-    Vector2 = { "X: ", "Y: " },
-    Vector3 = { "X: ", "Y: ", "Z: " },
-    UDim = { "", "" },
-    UDim2 = { "", "", "", "" },
-    Color3_RGB = { "R: ", "G: ", "B: " },
-    Color3_HSV = { "H: ", "S: ", "V: " },
-    Color4_RGB = { "R: ", "G: ", "B: ", "T: " },
-    Color4_HSV = { "H: ", "S: ", "V: ", "T: " },
-    Rect = { "X: ", "Y: ", "X: ", "Y: " },
-}
-
-local defaultSigFigs: { [InputDataTypes]: { number } } = {
-    Num = { 0 },
-    Vector2 = { 0, 0 },
-    Vector3 = { 0, 0, 0 },
-    UDim = { 3, 0 },
-    UDim2 = { 3, 0, 3, 0 },
-    Color3 = { 0, 0, 0 },
-    Color4 = { 0, 0, 0, 0 },
-    Rect = { 0, 0, 0, 0 },
-}
-
 local function generateAbstract<T>(inputType: InputType, dataType: InputDataTypes, components: number, defaultValue: T): Types.WidgetClass
     return {
         hasState = true,
         hasChildren = false,
-        Arguments = {
-            ["Text"] = 1,
-            ["Increment"] = 2,
-            ["Min"] = 3,
-            ["Max"] = 4,
-            ["Format"] = 5,
-        },
+        numArguments = 5,
+        Arguments = { "Text", "Increment", "Min", "Max", "Format", "number", "editing" },
         Events = {
             ["numberChanged"] = numberChanged,
             ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
@@ -271,8 +281,8 @@ local function generateAbstract<T>(inputType: InputType, dataType: InputDataType
             if thisWidget.state.number == nil then
                 thisWidget.state.number = Internal._widgetState(thisWidget, "number", defaultValue)
             end
-            if thisWidget.state.editingText == nil then
-                thisWidget.state.editingText = Internal._widgetState(thisWidget, "editingText", 0)
+            if thisWidget.state.editing == nil then
+                thisWidget.state.editing = Internal._widgetState(thisWidget, "editing", 0)
             end
         end,
         Update = function(thisWidget: Input<T>)
@@ -289,17 +299,17 @@ local function generateAbstract<T>(inputType: InputType, dataType: InputDataType
                     local sigfigs = defaultSigFigs[dataType][index]
 
                     if thisWidget.arguments.Increment then
-                        local value = getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments :: any)
+                        local value = getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)
                         sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                     end
 
                     if thisWidget.arguments.Max then
-                        local value = getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments :: any)
+                        local value = getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments)
                         sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                     end
 
                     if thisWidget.arguments.Min then
-                        local value = getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments :: any)
+                        local value = getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments)
                         sigfigs = math.max(sigfigs, math.ceil(-math.log10(value == 0 and 1 or value)), sigfigs)
                     end
 
@@ -328,9 +338,9 @@ local function generateAbstract<T>(inputType: InputType, dataType: InputDataType
                     local SliderField = Input:FindFirstChild("SliderField" .. tostring(index)) :: TextButton
                     local GrabBar: Frame = SliderField.GrabBar
 
-                    local increment = thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments :: any) or defaultIncrements[dataType][index]
-                    local min = thisWidget.arguments.Min and getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments :: any) or defaultMin[dataType][index]
-                    local max = thisWidget.arguments.Max and getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments :: any) or defaultMax[dataType][index]
+                    local increment = thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments) or defaultIncrements[dataType][index]
+                    local min = thisWidget.arguments.Min and getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments) or defaultMin[dataType][index]
+                    local max = thisWidget.arguments.Max and getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments) or defaultMax[dataType][index]
 
                     local grabScaleSize = 1 / math.floor((1 + max - min) / increment)
 
@@ -367,36 +377,38 @@ local function focusLost<T>(thisWidget: Input<T>, InputField: TextBox, index: nu
         state = widget.state.color
     end
     if newValue ~= nil then
-        if dataType == "Color3" or dataType == "Color4" and not widget.arguments.UseFloats then
+        if dataType == "Color3" or dataType == "Color4" and not btest(InputFlags.UseFloats, widget.arguments.Flags) then
             newValue = newValue / 255
         end
         if thisWidget.arguments.Min ~= nil then
-            newValue = math.max(newValue, getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments :: any))
+            newValue = math.max(newValue, getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments))
         end
         if thisWidget.arguments.Max ~= nil then
-            newValue = math.min(newValue, getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments :: any))
+            newValue = math.min(newValue, getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments))
         end
 
         if thisWidget.arguments.Increment then
-            newValue = math.round(newValue / getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments :: any)) * getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments :: any)
+            newValue = math.round(newValue / getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)) * getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments)
         end
 
-        state:set(updateValueByIndex(state._value, index, newValue, thisWidget.arguments :: any))
+        state:set(updateValueByIndex(state._value, index, newValue, thisWidget.arguments))
         thisWidget.lastNumberChangedTick = Internal._cycleTick + 1
     end
 
-    local value = getValueByIndex(state._value, index, thisWidget.arguments :: any)
-    if dataType == "Color3" or dataType == "Color4" and not widget.arguments.UseFloats then
+    local value = getValueByIndex(state._value, index, thisWidget.arguments)
+    if dataType == "Color3" or dataType == "Color4" and not btest(InputFlags.UseFloats, widget.arguments.Flags) then
         value = math.round(value * 255)
     end
 
-    local format = thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1]
-    if thisWidget.arguments.Prefix then
-        format = thisWidget.arguments.Prefix[index] .. format
+    local Format = thisWidget.arguments.Format
+    local Prefix = thisWidget.arguments.Prefix
+    local format = Format[index] or Format[1]
+    if Prefix then
+        format = Prefix[index] .. format
     end
     InputField.Text = string.format(format, value)
 
-    thisWidget.state.editingText:set(0)
+    thisWidget.state.editing:set(0)
     InputField:ReleaseFocus(true)
 end
 
@@ -421,13 +433,13 @@ do
 
         Utility.applyButtonClick(SubButton, function()
             local isCtrlHeld = Utility.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or Utility.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
-            local changeValue = (thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, 1, thisWidget.arguments :: Types.Argument) or 1) * (isCtrlHeld and 100 or 1)
+            local changeValue = (thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, 1, thisWidget.arguments) or 1) * (isCtrlHeld and 100 or 1)
             local newValue = thisWidget.state.number._value - changeValue
             if thisWidget.arguments.Min ~= nil then
-                newValue = math.max(newValue, getValueByIndex(thisWidget.arguments.Min, 1, thisWidget.arguments :: Types.Argument))
+                newValue = math.max(newValue, getValueByIndex(thisWidget.arguments.Min, 1, thisWidget.arguments))
             end
             if thisWidget.arguments.Max ~= nil then
-                newValue = math.min(newValue, getValueByIndex(thisWidget.arguments.Max, 1, thisWidget.arguments :: Types.Argument))
+                newValue = math.min(newValue, getValueByIndex(thisWidget.arguments.Max, 1, thisWidget.arguments))
             end
             thisWidget.state.number:set(newValue)
             thisWidget.lastNumberChangedTick = Internal._cycleTick + 1
@@ -444,13 +456,13 @@ do
 
         Utility.applyButtonClick(AddButton, function()
             local isCtrlHeld = Utility.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or Utility.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
-            local changeValue = (thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, 1, thisWidget.arguments :: Types.Argument) or 1) * (isCtrlHeld and 100 or 1)
+            local changeValue = (thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, 1, thisWidget.arguments) or 1) * (isCtrlHeld and 100 or 1)
             local newValue = thisWidget.state.number._value + changeValue
             if thisWidget.arguments.Min ~= nil then
-                newValue = math.max(newValue, getValueByIndex(thisWidget.arguments.Min, 1, thisWidget.arguments :: Types.Argument))
+                newValue = math.max(newValue, getValueByIndex(thisWidget.arguments.Min, 1, thisWidget.arguments))
             end
             if thisWidget.arguments.Max ~= nil then
-                newValue = math.min(newValue, getValueByIndex(thisWidget.arguments.Max, 1, thisWidget.arguments :: Types.Argument))
+                newValue = math.min(newValue, getValueByIndex(thisWidget.arguments.Max, 1, thisWidget.arguments))
             end
             thisWidget.state.number:set(newValue)
             thisWidget.lastNumberChangedTick = Internal._cycleTick + 1
@@ -485,7 +497,7 @@ do
             InputField.CursorPosition = #InputField.Text + 1
             InputField.SelectionStart = 1
 
-            thisWidget.state.editingText:set(index)
+            thisWidget.state.editing:set(index)
         end)
 
         return InputField
@@ -545,11 +557,13 @@ do
 
                     for index = 1, components do
                         local InputField: TextBox = Input:FindFirstChild("InputField" .. tostring(index))
-                        local format = thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1]
-                        if thisWidget.arguments.Prefix then
-                            format = thisWidget.arguments.Prefix[index] .. format
+                        local Format = thisWidget.arguments.Format
+                        local Prefix = thisWidget.arguments.Prefix
+                        local format = Format[index] or Format[1]
+                        if Prefix then
+                            format = Prefix[index] .. format
                         end
-                        InputField.Text = string.format(format, getValueByIndex(thisWidget.state.number._value, index, thisWidget.arguments :: any))
+                        InputField.Text = string.format(format, getValueByIndex(thisWidget.state.number._value, index, thisWidget.arguments))
                     end
                 end,
             } :: Types.WidgetClass
@@ -593,23 +607,23 @@ do
             end
         end
 
-        local increment = ActiveDrag.arguments.Increment and getValueByIndex(ActiveDrag.arguments.Increment, ActiveIndex, ActiveDrag.arguments :: any) or defaultIncrements[ActiveDataType][ActiveIndex]
+        local increment = ActiveDrag.arguments.Increment and getValueByIndex(ActiveDrag.arguments.Increment, ActiveIndex, ActiveDrag.arguments) or defaultIncrements[ActiveDataType][ActiveIndex]
         increment *= (Utility.UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) or Utility.UserInputService:IsKeyDown(Enum.KeyCode.RightShift)) and 10 or 1
         increment *= (Utility.UserInputService:IsKeyDown(Enum.KeyCode.LeftAlt) or Utility.UserInputService:IsKeyDown(Enum.KeyCode.RightAlt)) and 0.1 or 1
         -- we increase the speed for Color3 and Color4 since it's too slow because the increment argument needs to be low.
         increment *= (ActiveDataType == "Color3" or ActiveDataType == "Color4") and 5 or 1
 
-        local value = getValueByIndex(state._value, ActiveIndex, ActiveDrag.arguments :: any)
+        local value = getValueByIndex(state._value, ActiveIndex, ActiveDrag.arguments)
         local newValue = value + (mouseXDelta * increment)
 
         if ActiveDrag.arguments.Min ~= nil then
-            newValue = math.max(newValue, getValueByIndex(ActiveDrag.arguments.Min, ActiveIndex, ActiveDrag.arguments :: any))
+            newValue = math.max(newValue, getValueByIndex(ActiveDrag.arguments.Min, ActiveIndex, ActiveDrag.arguments))
         end
         if ActiveDrag.arguments.Max ~= nil then
-            newValue = math.min(newValue, getValueByIndex(ActiveDrag.arguments.Max, ActiveIndex, ActiveDrag.arguments :: any))
+            newValue = math.min(newValue, getValueByIndex(ActiveDrag.arguments.Max, ActiveIndex, ActiveDrag.arguments))
         end
 
-        state:set(updateValueByIndex(state._value, ActiveIndex, newValue, ActiveDrag.arguments :: any))
+        state:set(updateValueByIndex(state._value, ActiveIndex, newValue, ActiveDrag.arguments))
         ActiveDrag.lastNumberChangedTick = Internal._cycleTick + 1
     end
 
@@ -618,7 +632,7 @@ do
         local isTimeValid = currentTime - thisWidget.lastClickedTime < Internal._config.MouseDoubleClickTime
         local isCtrlHeld = Utility.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or Utility.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
         if (isTimeValid and (Vector2.new(x, y) - thisWidget.lastClickedPosition).Magnitude < Internal._config.MouseDoubleClickMaxDist) or isCtrlHeld then
-            thisWidget.state.editingText:set(index)
+            thisWidget.state.editing:set(index)
         else
             thisWidget.lastClickedTime = currentTime
             thisWidget.lastClickedPosition = Vector2.new(x, y)
@@ -699,7 +713,7 @@ do
             InputField.CursorPosition = #InputField.Text + 1
             InputField.SelectionStart = 1
 
-            thisWidget.state.editingText:set(index)
+            thisWidget.state.editing:set(index)
         end)
 
         Utility.applyButtonDown(DragField, function(x: number, y: number)
@@ -786,19 +800,22 @@ do
                         end
                         local DragField = Drag:FindFirstChild("DragField" .. tostring(index)) :: TextButton
                         local InputField: TextBox = DragField.InputField
-                        local value = getValueByIndex(state._value, index, thisWidget.arguments :: any)
-                        if (dataType == "Color3" or dataType == "Color4") and not widget.arguments.UseFloats then
+                        local value = getValueByIndex(state._value, index, thisWidget.arguments)
+                        if (dataType == "Color3" or dataType == "Color4") and not btest(InputFlags.UseFloats, widget.arguments.Flags) then
                             value = math.round(value * 255)
                         end
 
-                        local format = thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1]
-                        if thisWidget.arguments.Prefix then
-                            format = thisWidget.arguments.Prefix[index] .. format
+                        local Format = thisWidget.arguments.Format
+                        local Prefix = thisWidget.arguments.Prefix
+
+                        local format = Format[index] or Format[1]
+                        if Prefix then
+                            format = Prefix[index] .. format
                         end
                         DragField.Text = string.format(format, value)
                         InputField.Text = tostring(value)
 
-                        if thisWidget.state.editingText._value == index then
+                        if thisWidget.state.editing._value == index then
                             InputField.Visible = true
                             InputField:CaptureFocus()
                             DragField.TextTransparency = 1
@@ -826,15 +843,11 @@ do
         local defaultValues = { ... }
         local input = generateDragScalar(dataType, dataType == "Color4" and 4 or 3, defaultValues[1])
 
-        return Utility.extend(
+        local class = Utility.extend(
             input,
             {
-                Arguments = {
-                    ["Text"] = 1,
-                    ["UseFloats"] = 2,
-                    ["UseHSV"] = 3,
-                    ["Format"] = 4,
-                },
+                numArguments = 3,
+                Arguments = { "Text", "Flags", "Format", "colour", "editing" },
                 Update = function(thisWidget: InputColor4)
                     local Input = thisWidget.instance :: GuiObject
                     local TextLabel: TextLabel = Input.TextLabel
@@ -843,13 +856,13 @@ do
                     if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then
                         thisWidget.arguments.Format = { thisWidget.arguments.Format }
                     elseif not thisWidget.arguments.Format then
-                        if thisWidget.arguments.UseFloats then
+                        if btest(InputFlags.UseFloats, thisWidget.arguments.Flags) then
                             thisWidget.arguments.Format = { "%.3f" }
                         else
                             thisWidget.arguments.Format = { "%d" }
                         end
 
-                        thisWidget.arguments.Prefix = defaultPrefx[dataType .. if thisWidget.arguments.UseHSV then "_HSV" else "_RGB"]
+                        thisWidget.arguments.Prefix = defaultPrefx[dataType .. if btest(InputFlags.UseHSV, thisWidget.arguments.Flags) then "_HSV" else "_RGB"]
                     end
 
                     thisWidget.arguments.Min = { 0, 0, 0, 0 }
@@ -875,12 +888,18 @@ do
                             thisWidget.state.transparency = Internal._widgetState(thisWidget, "transparency", defaultValues[2])
                         end
                     end
-                    if thisWidget.state.editingText == nil then
-                        thisWidget.state.editingText = Internal._widgetState(thisWidget, "editingText", false)
+                    if thisWidget.state.editing == nil then
+                        thisWidget.state.editing = Internal._widgetState(thisWidget, "editing", false)
                     end
                 end,
             } :: Types.WidgetClass
         )
+
+        if dataType == "Color4" then
+            table.insert(class.Arguments, 5, "transparency")
+        end
+
+        return class
     end
 end
 
@@ -911,9 +930,9 @@ do
         local SliderField = Slider:FindFirstChild("SliderField" .. tostring(ActiveIndex)) :: TextButton
         local GrabBar: Frame = SliderField.GrabBar
 
-        local increment = ActiveSlider.arguments.Increment and getValueByIndex(ActiveSlider.arguments.Increment, ActiveIndex, ActiveSlider.arguments :: any) or defaultIncrements[ActiveDataType][ActiveIndex]
-        local min = ActiveSlider.arguments.Min and getValueByIndex(ActiveSlider.arguments.Min, ActiveIndex, ActiveSlider.arguments :: any) or defaultMin[ActiveDataType][ActiveIndex]
-        local max = ActiveSlider.arguments.Max and getValueByIndex(ActiveSlider.arguments.Max, ActiveIndex, ActiveSlider.arguments :: any) or defaultMax[ActiveDataType][ActiveIndex]
+        local increment = ActiveSlider.arguments.Increment and getValueByIndex(ActiveSlider.arguments.Increment, ActiveIndex, ActiveSlider.arguments) or defaultIncrements[ActiveDataType][ActiveIndex]
+        local min = ActiveSlider.arguments.Min and getValueByIndex(ActiveSlider.arguments.Min, ActiveIndex, ActiveSlider.arguments) or defaultMin[ActiveDataType][ActiveIndex]
+        local max = ActiveSlider.arguments.Max and getValueByIndex(ActiveSlider.arguments.Max, ActiveIndex, ActiveSlider.arguments) or defaultMax[ActiveDataType][ActiveIndex]
 
         local GrabWidth = GrabBar.AbsoluteSize.X
         local Offset = Utility.getMouseLocation().X - (SliderField.AbsolutePosition.X - Utility.guiOffset.X + GrabWidth / 2)
@@ -921,14 +940,14 @@ do
         local Positions = math.floor((max - min) / increment)
         local newValue = math.clamp(math.round(Ratio * Positions) * increment + min, min, max)
 
-        ActiveSlider.state.number:set(updateValueByIndex(ActiveSlider.state.number._value, ActiveIndex, newValue, ActiveSlider.arguments :: any))
+        ActiveSlider.state.number:set(updateValueByIndex(ActiveSlider.state.number._value, ActiveIndex, newValue, ActiveSlider.arguments))
         ActiveSlider.lastNumberChangedTick = Internal._cycleTick + 1
     end
 
     local function SliderMouseDown(thisWidget: Input<InputDataType>, dataType: InputDataTypes, index: number)
         local isCtrlHeld = Utility.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or Utility.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
         if isCtrlHeld then
-            thisWidget.state.editingText:set(index)
+            thisWidget.state.editing:set(index)
         else
             AnyActiveSlider = true
             ActiveSlider = thisWidget
@@ -1019,7 +1038,7 @@ do
             InputField.CursorPosition = #InputField.Text + 1
             InputField.SelectionStart = 1
 
-            thisWidget.state.editingText:set(index)
+            thisWidget.state.editing:set(index)
         end)
 
         Utility.applyButtonDown(SliderField, function()
@@ -1104,18 +1123,20 @@ do
                         local OverlayText: TextLabel = SliderField.OverlayText
                         local GrabBar: Frame = SliderField.GrabBar
 
-                        local value = getValueByIndex(thisWidget.state.number._value, index, thisWidget.arguments :: any)
-                        local format = thisWidget.arguments.Format[index] or thisWidget.arguments.Format[1]
-                        if thisWidget.arguments.Prefix then
-                            format = thisWidget.arguments.Prefix[index] .. format
+                        local value = getValueByIndex(thisWidget.state.number._value, index, thisWidget.arguments)
+                        local Format = thisWidget.arguments.Format
+                        local Prefix = thisWidget.arguments.Prefix
+                        local format = Format[index] or Format[1]
+                        if Prefix then
+                            format = Prefix[index] .. format
                         end
 
                         OverlayText.Text = string.format(format, value)
                         InputField.Text = tostring(value)
 
-                        local increment = thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments :: any) or defaultIncrements[dataType][index]
-                        local min = thisWidget.arguments.Min and getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments :: any) or defaultMin[dataType][index]
-                        local max = thisWidget.arguments.Max and getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments :: any) or defaultMax[dataType][index]
+                        local increment = thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments) or defaultIncrements[dataType][index]
+                        local min = thisWidget.arguments.Min and getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments) or defaultMin[dataType][index]
+                        local max = thisWidget.arguments.Max and getValueByIndex(thisWidget.arguments.Max, index, thisWidget.arguments) or defaultMax[dataType][index]
 
                         local SliderWidth = SliderField.AbsoluteSize.X
                         local PaddedWidth = SliderWidth - GrabBar.AbsoluteSize.X
@@ -1126,7 +1147,7 @@ do
 
                         GrabBar.Position = UDim2.fromScale(PaddedRatio, 0.5)
 
-                        if thisWidget.state.editingText._value == index then
+                        if thisWidget.state.editing._value == index then
                             InputField.Visible = true
                             OverlayText.Visible = false
                             GrabBar.Visible = false
@@ -1176,17 +1197,23 @@ do
                     if thisWidget.state.number == nil then
                         thisWidget.state.number = Internal._widgetState(thisWidget, "number", item.Value)
                     end
-                    if thisWidget.state.enumItem == nil then
-                        thisWidget.state.enumItem = Internal._widgetState(thisWidget, "enumItem", item)
+                    if thisWidget.state.enum == nil then
+                        thisWidget.state.enum = Internal._widgetState(thisWidget, "enum", item)
                     end
-                    if thisWidget.state.editingText == nil then
-                        thisWidget.state.editingText = Internal._widgetState(thisWidget, "editingText", false)
+                    if thisWidget.state.editing == nil then
+                        thisWidget.state.editing = Internal._widgetState(thisWidget, "editing", false)
                     end
                 end,
             } :: Types.WidgetClass
         )
     end
 end
+
+---------------
+-- Input<T>
+-- Drag<T>
+-- Slider<T>
+---------------
 
 do
     local inputNum: Types.WidgetClass = generateInputScalar("Num", 1, 0)
@@ -1215,18 +1242,19 @@ Internal._widgetConstructor("SliderVector3", generateSliderScalar("Vector3", 3, 
 Internal._widgetConstructor("SliderUDim", generateSliderScalar("UDim", 2, UDim.new()))
 Internal._widgetConstructor("SliderUDim2", generateSliderScalar("UDim2", 4, UDim2.new()))
 Internal._widgetConstructor("SliderRect", generateSliderScalar("Rect", 4, Rect.new(0, 0, 0, 0)))
-    -- Internal._widgetConstructor("SliderEnum", generateSliderScalar("Enum", 4, 0))
+-- Internal._widgetConstructor("SliderEnum", generateSliderScalar("Enum", 4, 0))
 
-    -- stylua: ignore
-    Internal._widgetConstructor("InputText", {
+--------------
+-- InpuText
+--------------
+
+Internal._widgetConstructor(
+    "InputText",
+    {
         hasState = true,
         hasChildren = false,
-        Arguments = {
-            ["Text"] = 1,
-            ["TextHint"] = 2,
-            ["ReadOnly"] = 3,
-            ["MultiLine"] = 4,
-        },
+        numArguments = 3,
+        Arguments = { "Text", "TextHint", "Flags", "text" },
         Events = {
             ["textChanged"] = {
                 ["Init"] = function(thisWidget: InputText)
@@ -1301,17 +1329,23 @@ Internal._widgetConstructor("SliderRect", generateSliderScalar("Rect", 4, Rect.n
 
             TextLabel.Text = thisWidget.arguments.Text or "Input Text"
             InputField.PlaceholderText = thisWidget.arguments.TextHint or ""
-            InputField.TextEditable = not thisWidget.arguments.ReadOnly
-            InputField.MultiLine = thisWidget.arguments.MultiLine or false
+            InputField.TextEditable = not btest(InputTextFlags.ReadOnly, thisWidget.arguments.Flags)
+            InputField.MultiLine = btest(InputTextFlags.MultiLine, thisWidget.arguments.Flags)
         end,
         UpdateState = function(thisWidget: InputText)
             local InputText = thisWidget.instance :: Frame
             local InputField: TextBox = InputText.InputField
-    
+
             InputField.Text = thisWidget.state.text._value
         end,
         Discard = function(thisWidget: InputText)
             thisWidget.instance:Destroy()
             Utility.discardState(thisWidget)
         end,
-    } :: Types.WidgetClass)
+    } :: Types.WidgetClass
+)
+
+return {
+    InputFlags = InputFlags,
+    InputTextFlags = InputTextFlags,
+}

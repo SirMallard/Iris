@@ -22,9 +22,8 @@ Internal._widgetConstructor(
     {
         hasState = true,
         hasChildren = false,
-        Arguments = {
-            ["Text"] = 1,
-        },
+        numArguments = 1,
+        Arguments = { "Text" },
         Events = {
             ["checked"] = {
                 ["Init"] = function(_thisWidget: Checkbox) end,
@@ -130,3 +129,5 @@ Internal._widgetConstructor(
         end,
     } :: Types.WidgetClass
 )
+
+return {}

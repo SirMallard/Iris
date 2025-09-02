@@ -344,10 +344,11 @@ function Internal._widgetConstructor(type: string, widgetClass: Types.WidgetClas
                 "Update",
 
                 -- not methods !
-                "Args",
-                "Events",
                 "hasChildren",
                 "hasState",
+                "numArguments",
+                "Arguments",
+                "Events",
             },
             Optional = {},
         },
@@ -557,7 +558,7 @@ function Internal._genNewWidget(widgetType: string, ID: Types.ID, ...: any)
     if thisWidgetClass.hasState then
         local stateWidget = thisWidget :: Types.StateWidget
         stateWidget.state = {}
-        for index, state: Types.State<any> in select(thisWidgetClass.numArguments + 1, ...) do
+        for index, state: Types.State<any> in select(thisWidgetClass.numArguments + 1, ...) or {} do
             state._lastChangeTick = Internal._cycleTick
             state._connectedWidgets[ID] = stateWidget
             stateWidget.state[thisWidgetClass.Arguments[index]] = state

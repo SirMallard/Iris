@@ -3,29 +3,37 @@ local Utility = require(script.Parent)
 
 local Types = require(script.Parent.Parent.Types)
 
+local btest = bit32.btest
+
 export type Tree = CollapsingHeader & {
     arguments: {
         Text: string,
-        SpanAvailWidth: boolean?,
-        NoIndent: boolean?,
-        DefaultOpen: true?,
+        Flags: number,
     },
 }
 
 export type CollapsingHeader = Types.ParentWidget & {
     arguments: {
         Text: string?,
-        DefaultOpen: true?,
+        Flags: number,
     },
 
     state: {
-        isUncollapsed: Types.State<boolean>,
+        collapsed: Types.State<boolean>,
     },
 } & Types.Collapsed & Types.Uncollapsed & Types.Hovered
+
+local TreeFlags = {
+    SpanAvailWidth = 1,
+    NoIndent = 2,
+    DefaultOpen = 4,
+}
 
 local abstractTree = {
     hasState = true,
     hasChildren = true,
+    numArguments = 2,
+    Arguments = { "Text", "Flags", "collapsed" },
     Events = {
         ["collapsed"] = {
             ["Init"] = function(_thisWidget: CollapsingHeader) end,
@@ -44,31 +52,31 @@ local abstractTree = {
         end),
     },
     GenerateState = function(thisWidget: CollapsingHeader)
-        if thisWidget.state.isUncollapsed == nil then
-            thisWidget.state.isUncollapsed = Internal._widgetState(thisWidget, "isUncollapsed", thisWidget.arguments.DefaultOpen or false)
+        if thisWidget.state.collapsed == nil then
+            thisWidget.state.collapsed = Internal._widgetState(thisWidget, "collapsed", not btest(TreeFlags.DefaultOpen, thisWidget.arguments.Flags))
         end
     end,
     UpdateState = function(thisWidget: CollapsingHeader)
-        local isUncollapsed = thisWidget.state.isUncollapsed._value
+        local collapsed = thisWidget.state.collapsed._value
         local Tree = thisWidget.instance :: Frame
         local ChildContainer = thisWidget.childContainer :: Frame
         local Header = Tree.Header :: Frame
         local Button = Header.Button :: TextButton
         local Arrow: ImageLabel = Button.Arrow
 
-        Arrow.Image = (isUncollapsed and Utility.ICONS.DOWN_POINTING_TRIANGLE or Utility.ICONS.RIGHT_POINTING_TRIANGLE)
-        if isUncollapsed then
-            thisWidget.lastUncollapsedTick = Internal._cycleTick + 1
-        else
+        Arrow.Image = (if not collapsed then Utility.ICONS.DOWN_POINTING_TRIANGLE else Utility.ICONS.RIGHT_POINTING_TRIANGLE)
+        if collapsed then
             thisWidget.lastCollapsedTick = Internal._cycleTick + 1
+        else
+            thisWidget.lastUncollapsedTick = Internal._cycleTick + 1
         end
 
-        ChildContainer.Visible = isUncollapsed
+        ChildContainer.Visible = collapsed
     end,
     ChildAdded = function(thisWidget: CollapsingHeader, _thisChild: Types.Widget)
         local ChildContainer = thisWidget.childContainer :: Frame
 
-        ChildContainer.Visible = thisWidget.state.isUncollapsed._value
+        ChildContainer.Visible = not thisWidget.state.collapsed._value
 
         return ChildContainer
     end,
@@ -87,14 +95,6 @@ Internal._widgetConstructor(
     Utility.extend(
         abstractTree,
         {
-            numArguments = 4,
-            numStates = 0,
-            Arguments = {
-                ["Text"] = 1,
-                ["SpanAvailWidth"] = 2,
-                ["NoIndent"] = 3,
-                ["DefaultOpen"] = 4,
-            },
             Generate = function(thisWidget: Tree)
                 local Tree = Instance.new("Frame")
                 Tree.Name = "Iris_Tree"
@@ -173,7 +173,7 @@ Internal._widgetConstructor(
                 TextLabel.Parent = Button
 
                 Utility.applyButtonClick(Button, function()
-                    thisWidget.state.isUncollapsed:set(not thisWidget.state.isUncollapsed._value)
+                    thisWidget.state.collapsed:set(not thisWidget.state.collapsed._value)
                 end)
 
                 thisWidget.childContainer = ChildContainer
@@ -188,7 +188,7 @@ Internal._widgetConstructor(
                 local Padding: UIPadding = ChildContainer.UIPadding
 
                 TextLabel.Text = thisWidget.arguments.Text or "Tree"
-                if thisWidget.arguments.SpanAvailWidth then
+                if btest(TreeFlags.SpanAvailWidth, thisWidget.arguments.Flags) then
                     Button.AutomaticSize = Enum.AutomaticSize.Y
                     Button.Size = UDim2.fromScale(1, 0)
                 else
@@ -196,7 +196,7 @@ Internal._widgetConstructor(
                     Button.Size = UDim2.fromScale(0, 0)
                 end
 
-                if thisWidget.arguments.NoIndent then
+                if btest(TreeFlags.NoIndent, thisWidget.arguments.Flags) then
                     Padding.PaddingLeft = UDim.new(0, 0)
                 else
                     Padding.PaddingLeft = UDim.new(0, Internal._config.IndentSpacing)
@@ -215,10 +215,6 @@ Internal._widgetConstructor(
     Utility.extend(
         abstractTree,
         {
-            Arguments = {
-                ["Text"] = 1,
-                ["DefaultOpen"] = 2,
-            },
             Generate = function(thisWidget: CollapsingHeader)
                 local CollapsingHeader = Instance.new("Frame")
                 CollapsingHeader.Name = "Iris_CollapsingHeader"
@@ -303,7 +299,7 @@ Internal._widgetConstructor(
                 TextLabel.Parent = Button
 
                 Utility.applyButtonClick(Button, function()
-                    thisWidget.state.isUncollapsed:set(not thisWidget.state.isUncollapsed._value)
+                    thisWidget.state.collapsed:set(not thisWidget.state.collapsed._value)
                 end)
 
                 thisWidget.childContainer = ChildContainer
@@ -320,3 +316,7 @@ Internal._widgetConstructor(
         } :: Types.WidgetClass
     )
 )
+
+return {
+    TreeFlags = TreeFlags,
+}

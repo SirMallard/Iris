@@ -13,7 +13,7 @@ export type Menu = Types.ParentWidget & {
     },
 
     state: {
-        isOpened: Types.State<boolean>,
+        open: Types.State<boolean>,
     },
 } & Types.Clicked & Types.Opened & Types.Closed & Types.Hovered
 
@@ -33,7 +33,7 @@ export type MenuToggle = Types.Widget & {
     },
 
     state: {
-        isChecked: Types.State<boolean>,
+        checked: Types.State<boolean>,
     },
 } & Types.Checked & Types.Unchecked & Types.Hovered
 
@@ -143,6 +143,7 @@ Internal._widgetConstructor(
     {
         hasState = false,
         hasChildren = true,
+        numArguments = 0,
         Arguments = {},
         Events = {},
         Generate = function(_thisWidget: MenuBar)
@@ -180,9 +181,8 @@ Internal._widgetConstructor(
     {
         hasState = true,
         hasChildren = true,
-        Arguments = {
-            ["Text"] = 1,
-        },
+        numArguments = 1,
+        Arguments = { "Text", "open" },
         Events = {
             ["clicked"] = Utility.EVENTS.click(function(thisWidget: Types.Widget)
                 return thisWidget.instance :: any
@@ -272,8 +272,8 @@ Internal._widgetConstructor(
             Utility.applyInteractionHighlights("Background", Menu, Menu, thisWidget.ButtonColors)
 
             Utility.applyButtonClick(Menu, function()
-                local openMenu = if #MenuStack <= 1 then not thisWidget.state.isOpened._value else true
-                thisWidget.state.isOpened:set(openMenu)
+                local openMenu = if #MenuStack <= 1 then not thisWidget.state.open._value else true
+                thisWidget.state.open:set(openMenu)
 
                 AnyMenuOpen = openMenu
                 ActiveMenu = openMenu and thisWidget or nil
@@ -293,7 +293,7 @@ Internal._widgetConstructor(
                     local parentIndex = table.find(MenuStack, parentMenu)
 
                     EmptyMenuStack(parentIndex)
-                    thisWidget.state.isOpened:set(true)
+                    thisWidget.state.open:set(true)
                     ActiveMenu = thisWidget
                     AnyMenuOpen = true
                     table.insert(MenuStack, thisWidget)
@@ -356,14 +356,14 @@ Internal._widgetConstructor(
             UpdateChildContainerTransform(thisWidget)
         end,
         GenerateState = function(thisWidget: Menu)
-            if thisWidget.state.isOpened == nil then
-                thisWidget.state.isOpened = Internal._widgetState(thisWidget, "isOpened", false)
+            if thisWidget.state.open == nil then
+                thisWidget.state.open = Internal._widgetState(thisWidget, "open", false)
             end
         end,
         UpdateState = function(thisWidget: Menu)
             local ChildContainer = thisWidget.childContainer :: ScrollingFrame
 
-            if thisWidget.state.isOpened._value then
+            if thisWidget.state.open._value then
                 thisWidget.lastOpenedTick = Internal._cycleTick + 1
                 thisWidget.ButtonColors.Transparency = Internal._config.HeaderTransparency
                 ChildContainer.Visible = true
@@ -405,11 +405,8 @@ Internal._widgetConstructor(
     {
         hasState = false,
         hasChildren = false,
-        Arguments = {
-            Text = 1,
-            KeyCode = 2,
-            ModifierKey = 3,
-        },
+        numArguments = 3,
+        Arguments = { "Text", "KeyCode", "ModifierKey" },
         Events = {
             ["clicked"] = Utility.EVENTS.click(function(thisWidget: Types.Widget)
                 return thisWidget.instance
@@ -512,11 +509,8 @@ Internal._widgetConstructor(
     {
         hasState = true,
         hasChildren = false,
-        Arguments = {
-            Text = 1,
-            KeyCode = 2,
-            ModifierKey = 3,
-        },
+        numArguments = 3,
+        Arguments = { "Text", "KeyCode", "ModifierKey", "checked" },
         Events = {
             ["checked"] = {
                 ["Init"] = function(_thisWidget: MenuToggle) end,
@@ -558,7 +552,7 @@ Internal._widgetConstructor(
             })
 
             Utility.applyButtonClick(MenuToggle, function()
-                thisWidget.state.isChecked:set(not thisWidget.state.isChecked._value)
+                thisWidget.state.checked:set(not thisWidget.state.checked._value)
                 EmptyMenuStack()
             end)
 
@@ -617,8 +611,8 @@ Internal._widgetConstructor(
             return MenuToggle
         end,
         GenerateState = function(thisWidget: MenuToggle)
-            if thisWidget.state.isChecked == nil then
-                thisWidget.state.isChecked = Internal._widgetState(thisWidget, "isChecked", false)
+            if thisWidget.state.checked == nil then
+                thisWidget.state.checked = Internal._widgetState(thisWidget, "checked", false)
             end
         end,
         Update = function(thisWidget: MenuToggle)
@@ -639,7 +633,7 @@ Internal._widgetConstructor(
             local MenuItem = thisWidget.instance :: TextButton
             local Icon: ImageLabel = MenuItem.Icon
 
-            if thisWidget.state.isChecked._value then
+            if thisWidget.state.checked._value then
                 Icon.ImageTransparency = Internal._config.TextTransparency
                 thisWidget.lastCheckedTick = Internal._cycleTick + 1
             else
@@ -653,3 +647,5 @@ Internal._widgetConstructor(
         end,
     } :: Types.WidgetClass
 )
+
+return {}
