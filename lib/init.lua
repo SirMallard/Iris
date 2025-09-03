@@ -1,5 +1,14 @@
+--!strict
 --!optimize 2
+
 local Types = require(script.Types)
+local Iris = {}
+
+local Internal = require(script.Internal)
+local Utility = require(script.widgets)
+
+Iris._internal = Internal
+Iris._utility = Utility
 
 --[=[
     @class Iris
@@ -20,9 +29,6 @@ local Types = require(script.Types)
     end)
     ```
 ]=]
-local Iris = {} :: Types.Iris
-
-local Internal: Types.Internal = require(script.Internal)(Iris)
 
 --[=[
     @within Iris
@@ -31,29 +37,6 @@ local Internal: Types.Internal = require(script.Internal)(Iris)
     While Iris.Disabled is true, execution of Iris and connected functions will be paused.
     The widgets are not destroyed, they are just frozen so no changes will happen to them.
 ]=]
-Iris.Disabled = false
-
---[=[
-    @within Iris
-    @prop Args { [string]: { [string]: any } }
-
-    Provides a list of every possible Argument for each type of widget to it's index.
-    For instance, `Iris.Args.Window.NoResize`.
-    The Args table is useful for using widget Arguments without remembering their order.
-    ```lua
-    Iris.Window({"My Window", [Iris.Args.Window.NoResize] = true})
-    ```
-]=]
-Iris.Args = {}
-
---[=[
-    @ignore
-    @within Iris
-    @prop Events table
-
-    -todo: work out what this is used for.
-]=]
-Iris.Events = {}
 
 --[=[
     @within Iris
@@ -70,7 +53,7 @@ Iris.Events = {}
 
     If the `eventConnection` is `false` then Iris will not create a cycle loop and the user will need to call [Internal._cycle] every frame.
 ]=]
-function Iris.Init(parentInstance: BasePlayerGui | GuiBase2d?, eventConnection: (RBXScriptSignal | (() -> number) | false)?, allowMultipleInits: boolean): Types.Iris
+function Iris.Init(parentInstance: (BasePlayerGui | GuiBase2d)?, eventConnection: (RBXScriptSignal | (() -> number) | false)?, allowMultipleInits: boolean?)
     assert(Internal._shutdown == false, "Iris.Init() cannot be called once shutdown.")
     assert(Internal._started == false or allowMultipleInits == true, "Iris.Init() can only be called once.")
 
@@ -86,7 +69,7 @@ function Iris.Init(parentInstance: BasePlayerGui | GuiBase2d?, eventConnection: 
         -- coalesce to Heartbeat
         eventConnection = game:GetService("RunService").Heartbeat
     end
-    Internal.parentInstance = parentInstance :: BasePlayerGui | GuiBase2d
+    Internal._parentInstance = parentInstance :: BasePlayerGui | GuiBase2d
     Internal._started = true
 
     Internal._generateRootInstance()
@@ -129,14 +112,14 @@ function Iris.Shutdown()
     Internal._eventConnection = nil
 
     if Internal._rootWidget then
-        if Internal._rootWidget.Instance then
+        if Internal._rootWidget.instance then
             Internal._widgets["Root"].Discard(Internal._rootWidget)
         end
         Internal._rootInstance = nil
     end
 
-    if Internal.SelectionImageObject then
-        Internal.SelectionImageObject:Destroy()
+    if Internal._selectionImageObject then
+        Internal._selectionImageObject:Destroy()
     end
 
     for _, connection in Internal._connections do
@@ -178,50 +161,9 @@ end
     property or by the current parent widget from the stack.
 ]=]
 function Iris.Append(userInstance: GuiObject)
-    local parentWidget = Internal._GetParentWidget()
-    local widgetInstanceParent: GuiObject
-    if Internal._config.Parent then
-        widgetInstanceParent = Internal._config.Parent :: any
-    else
-        widgetInstanceParent = Internal._widgets[parentWidget.type].ChildAdded(parentWidget, { type = "userInstance" } :: Types.Widget)
-    end
+    local parentWidget = Internal._getParentWidget()
+    local widgetInstanceParent = Internal._config.Parent or Internal._widgets[parentWidget.type].ChildAdded(parentWidget, { type = "userInstance" } :: Types.Widget)
     userInstance.Parent = widgetInstanceParent
-end
-
---[=[
-    @within Iris
-    @function End
-
-    Marks the end of any widgets which contain children. For example:
-    ```lua
-    -- Widgets placed here **will not** be inside the tree
-    Iris.Text({"Above and outside the tree"})
-
-    -- A Tree widget can contain children.
-    -- We must therefore remember to call `Iris.End()`
-    Iris.Tree({"My First Tree"})
-        -- Widgets placed here **will** be inside the tree
-        Iris.Text({"Tree item 1"})
-        Iris.Text({"Tree item 2"})
-    Iris.End()
-
-    -- Widgets placed here **will not** be inside the tree
-    Iris.Text({"Below and outside the tree"})
-    ```
-    :::caution Caution: Error
-    Seeing the error `Callback has too few calls to Iris.End()` or `Callback has too many calls to Iris.End()`?
-    Using the wrong amount of `Iris.End()` calls in your code will lead to an error.
-
-    Each widget called which might have children should be paired with a call to `Iris.End()`, **even if the Widget doesnt currently have any children**.
-    :::
-]=]
-function Iris.End()
-    if Internal._stackIndex == 1 then
-        error("Too many calls to Iris.End().", 2)
-    end
-
-    Internal._IDStack[Internal._stackIndex] = nil
-    Internal._stackIndex -= 1
 end
 
 --[[
@@ -288,16 +230,26 @@ end
     ```
 ]=]
 function Iris.PushConfig(deltaStyle: { [string]: any })
-    local ID = Iris.State(-1)
-    if ID.value == -1 then
-        ID:set(deltaStyle)
+    local state = Iris.State({ tick = 0 } :: { [string]: any })
+    if state._value.tick == 0 then
+        state:set(deltaStyle)
     else
-        -- compare tables
-        if Internal._deepCompare(ID:get(), deltaStyle) == false then
-            -- refresh local
-            ID:set(deltaStyle)
-            Internal._refreshStack[Internal._refreshLevel] = true
-            Internal._refreshCounter += 1
+        for index, value in state._value do
+            if value ~= deltaStyle[index] then
+                state:set(deltaStyle)
+                Internal._refreshStack[Internal._refreshLevel] = true
+                Internal._refreshCounter += 1
+                break
+            end
+        end
+
+        for index, value in deltaStyle do
+            if value ~= state._value[index] then
+                state:set(deltaStyle)
+                Internal._refreshStack[Internal._refreshLevel] = true
+                Internal._refreshCounter += 1
+                break
+            end
         end
     end
     Internal._refreshLevel += 1
@@ -332,7 +284,7 @@ end
 
     TemplateConfig provides a table of default styles and configurations which you may apply to your UI.
 ]=]
-Iris.TemplateConfig = require(script.config)
+Iris.TemplateConfig = require(script.Config)
 Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark) -- use colorDark and sizeDefault themes by default
 Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
 Iris.UpdateGlobalConfig(Iris.TemplateConfig.utilityDefault)
@@ -370,6 +322,9 @@ function Iris.PopId()
     end
 
     table.remove(Internal._pushedIds)
+    if #Internal._pushedIds == 0 then
+        Internal._newID = false
+    end
 end
 
 --[=[
@@ -436,21 +391,21 @@ end
     In this example, the code will work properly, and increment every frame.
     :::
 ]=]
-function Iris.State<T>(initialValue: T)
+function Iris.State<T>(initialValue: T): Types.State<T>
     local ID = Internal._getID(2)
     if Internal._states[ID] then
         return Internal._states[ID]
     end
     local newState = {
         ID = ID,
-        value = initialValue,
-        lastChangeTick = Iris.Internal._cycleTick,
-        ConnectedWidgets = {},
-        ConnectedFunctions = {},
+        _value = initialValue,
+        _lastChangeTick = Internal._cycleTick,
+        _connectedWidgets = {},
+        _connectedFunctions = {},
     } :: Types.State<T>
-    setmetatable(newState, Internal.StateClass)
     Internal._states[ID] = newState
-    return newState
+    setmetatable(newState, Internal._stateClass)
+    return newState :: any
 end
 
 --[=[
@@ -462,10 +417,10 @@ end
 
     Constructs a new state object, subsequent ID calls will return the same object, except all widgets connected to the state are discarded, the state reverts to the passed initialValue
 ]=]
-function Iris.WeakState<T>(initialValue: T)
+function Iris.WeakState<T>(initialValue: T): Types.State<T>
     local ID = Internal._getID(2)
     if Internal._states[ID] then
-        if next(Internal._states[ID].ConnectedWidgets) == nil then
+        if next(Internal._states[ID]._connectedWidgets) == nil then
             Internal._states[ID] = nil
         else
             return Internal._states[ID]
@@ -473,14 +428,14 @@ function Iris.WeakState<T>(initialValue: T)
     end
     local newState = {
         ID = ID,
-        value = initialValue,
-        lastChangeTick = Iris.Internal._cycleTick,
-        ConnectedWidgets = {},
-        ConnectedFunctions = {},
+        _value = initialValue,
+        _lastChangeTick = Internal._cycleTick,
+        _connectedWidgets = {},
+        _connectedFunctions = {},
     } :: Types.State<T>
-    setmetatable(newState, Internal.StateClass)
     Internal._states[ID] = newState
-    return newState
+    setmetatable(newState, Internal._stateClass)
+    return newState :: any
 end
 
 --[=[
@@ -521,12 +476,12 @@ end
     You must use `state:set(...)` if you want the variable to update to the state's value.
     :::
 ]=]
-function Iris.VariableState<T>(variable: T, callback: (T) -> ())
+function Iris.VariableState<T>(variable: T, callback: (T) -> ()): Types.State<T>
     local ID = Internal._getID(2)
     local state = Internal._states[ID]
 
     if state then
-        if variable ~= state.value then
+        if variable ~= state._value then
             state:set(variable)
         end
         return state
@@ -534,17 +489,16 @@ function Iris.VariableState<T>(variable: T, callback: (T) -> ())
 
     local newState = {
         ID = ID,
-        value = variable,
-        lastChangeTick = Iris.Internal._cycleTick,
-        ConnectedWidgets = {},
-        ConnectedFunctions = {},
+        _value = variable,
+        _lastChangeTick = Internal._cycleTick,
+        _connectedWidgets = {},
+        _connectedFunctions = {},
     } :: Types.State<T>
-    setmetatable(newState, Internal.StateClass)
     Internal._states[ID] = newState
 
     newState:onChange(callback)
-
-    return newState
+    setmetatable(newState, Internal._stateClass)
+    return newState :: any
 end
 
 --[=[
@@ -601,14 +555,14 @@ end
     You must use `state:set(...)` if you want the table value to update to the state's value.
     :::
 ]=]
-function Iris.TableState<K, V>(tab: { [K]: V }, key: K, callback: ((newValue: V) -> true?)?)
+function Iris.TableState<K, V>(tab: { [K]: V }, key: K, callback: ((newValue: V) -> true?)?): Types.State<V>
     local value = tab[key]
     local ID = Internal._getID(2)
     local state = Internal._states[ID]
 
     -- If the table values changes, then we update the state to match.
     if state then
-        if value ~= state.value then
+        if value ~= state._value then
             state:set(value)
         end
         return state
@@ -616,25 +570,25 @@ function Iris.TableState<K, V>(tab: { [K]: V }, key: K, callback: ((newValue: V)
 
     local newState = {
         ID = ID,
-        value = value,
-        lastChangeTick = Iris.Internal._cycleTick,
-        ConnectedWidgets = {},
-        ConnectedFunctions = {},
+        _value = value,
+        _lastChangeTick = Internal._cycleTick,
+        _connectedWidgets = {},
+        _connectedFunctions = {},
     } :: Types.State<V>
-    setmetatable(newState, Internal.StateClass)
     Internal._states[ID] = newState
 
     -- When a change happens to the state, we update the table value.
     newState:onChange(function()
         if callback ~= nil then
-            if callback(newState.value) then
-                tab[key] = newState.value
+            if callback(newState._value) then
+                tab[key] = newState._value
             end
         else
-            tab[key] = newState.value
+            tab[key] = newState._value
         end
     end)
-    return newState
+    setmetatable(newState, Internal._stateClass)
+    return newState :: any
 end
 
 --[=[
@@ -654,7 +608,7 @@ end
     ```
     :::
 ]=]
-function Iris.ComputedState<T, U>(firstState: Types.State<T>, onChangeCallback: (firstValue: T) -> U)
+function Iris.ComputedState<T, U>(firstState: Types.State<T>, onChangeCallback: (firstValue: T) -> U): Types.State<U>
     local ID = Internal._getID(2)
 
     if Internal._states[ID] then
@@ -662,18 +616,19 @@ function Iris.ComputedState<T, U>(firstState: Types.State<T>, onChangeCallback: 
     else
         local newState = {
             ID = ID,
-            value = onChangeCallback(firstState.value),
-            lastChangeTick = Iris.Internal._cycleTick,
-            ConnectedWidgets = {},
-            ConnectedFunctions = {},
-        } :: Types.State<T>
-        setmetatable(newState, Internal.StateClass)
+            _value = onChangeCallback(firstState._value),
+            _lastChangeTick = Internal._cycleTick,
+            _connectedWidgets = {},
+            _connectedFunctions = {},
+        } :: Types.State<U>
         Internal._states[ID] = newState
 
         firstState:onChange(function(newValue: T)
             newState:set(onChangeCallback(newValue))
         end)
-        return newState
+
+        setmetatable(newState, Internal._stateClass)
+        return newState :: any
     end
 end
 
@@ -688,9 +643,78 @@ end
     Iris:Connect(Iris.ShowDemoWindow)
     ```
 ]=]
-Iris.ShowDemoWindow = require(script.demoWindow)(Iris)
 
-require(script.widgets)(Internal)
-require(script.API)(Iris)
+--[=[
+    @within Iris
+    @function End
+
+    Marks the end of any widgets which contain children. For example:
+    ```lua
+    -- Widgets placed here **will not** be inside the tree
+    Iris.Text({"Above and outside the tree"})
+
+    -- A Tree widget can contain children.
+    -- We must therefore remember to call `Iris.End()`
+    Iris.Tree({"My First Tree"})
+        -- Widgets placed here **will** be inside the tree
+        Iris.Text({"Tree item 1"})
+        Iris.Text({"Tree item 2"})
+    Iris.End()
+
+    -- Widgets placed here **will not** be inside the tree
+    Iris.Text({"Below and outside the tree"})
+    ```
+    :::caution Caution: Error
+    Seeing the error `Callback has too few calls to Iris.End()` or `Callback has too many calls to Iris.End()`?
+    Using the wrong amount of `Iris.End()` calls in your code will lead to an error.
+
+    Each widget called which might have children should be paired with a call to `Iris.End()`, **even if the Widget doesnt currently have any children**.
+    :::
+]=]
+function Iris.End()
+    if Internal._stackIndex == 1 then
+        error("Too many calls to Iris.End().", 2)
+    end
+
+    Internal._IDStack[Internal._stackIndex] = nil
+    Internal._stackIndex -= 1
+end
+
+-- local Root = require(script.Parent.widgets.Root)
+local Window = require(script.widgets.Window)
+local Menu = require(script.widgets.Menu)
+
+local Format = require(script.widgets.Format)
+
+local Text = require(script.widgets.Text)
+local Button = require(script.widgets.Button)
+local Checkbox = require(script.widgets.Checkbox)
+local RadioButton = require(script.widgets.RadioButton)
+local Image = require(script.widgets.Image)
+
+local Tree = require(script.widgets.Tree)
+local Tab = require(script.widgets.Tab)
+
+local Input = require(script.widgets.Input)
+local Combo = require(script.widgets.Combo)
+local Plot = require(script.widgets.Plot)
+
+local Table = require(script.widgets.Table)
+
+Iris.WindowFlags = Window.WindowFlags
+Iris.TextFlags = Text.TextFlags
+Iris.InputFlags = Input.InputFlags
+Iris.InputTextFlags = Input.InputTextFlags
+
+Iris.TreeFlags = Tree.TreeFlags
+Iris.TabFlags = Tab.TabFlags
+Iris.ComboFlags = Combo.ComboFlags
+Iris.TableFlags = Table.TableFlags
+
+Iris.Window = Window.API_Window
+Iris.SetFocusedWindow = Window.API_SetFocusedWindow
+Iris.Tooltip = Window.API_Tooltip
+
+export type Iris = typeof(Iris)
 
 return Iris

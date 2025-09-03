@@ -1,12 +1,6 @@
 {
     "name": "Iris",
     "tree": {
-        "$className": "Folder",
-        "Iris": {
-            "$path": "lib"
-        },
-        "Wrapper": {
-            "$path": "wrapper"
-        }
+        "$path": "lib"
     }
 }

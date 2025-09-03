@@ -1,3 +1,5 @@
+--!strict
+
 local TemplateConfig = {
     colorDark = { -- Dear, ImGui default dark
         TextColor = Color3.fromRGB(255, 255, 255),
@@ -301,5 +303,7 @@ local TemplateConfig = {
         HoverTransparency = 0.1,
     },
 }
+
+export type Config = typeof(TemplateConfig.colorDark) & typeof(TemplateConfig.sizeDefault) & typeof(TemplateConfig.utilityDefault)
 
 return TemplateConfig

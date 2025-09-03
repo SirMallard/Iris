@@ -1,52 +1,61 @@
+local Internal = require(script.Parent.Parent.Internal)
+local Utility = require(script.Parent)
+
 local Types = require(script.Parent.Parent.Types)
+local NumNonWindowChildren: number = 0
 
-return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
-    local NumNonWindowChildren: number = 0
+export type Root = Types.ParentWidget
 
-    --stylua: ignore
-    Iris.WidgetConstructor("Root", {
+----------
+-- Root
+----------
+
+Internal._widgetConstructor(
+    "Root",
+    {
         hasState = false,
         hasChildren = true,
-        Args = {},
+        numArguments = 0,
+        Arguments = {},
         Events = {},
-        Generate = function(_thisWidget: Types.Root)
+        Generate = function(_thisWidget: Root)
             local Root = Instance.new("Folder")
             Root.Name = "Iris_Root"
 
             local PseudoWindowScreenGui
-            if Iris._config.UseScreenGUIs then
+            if Internal._config.UseScreenGUIs then
                 PseudoWindowScreenGui = Instance.new("ScreenGui")
                 PseudoWindowScreenGui.ResetOnSpawn = false
                 PseudoWindowScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-                PseudoWindowScreenGui.ScreenInsets = Iris._config.ScreenInsets
-                PseudoWindowScreenGui.IgnoreGuiInset = Iris._config.IgnoreGuiInset
-                PseudoWindowScreenGui.DisplayOrder = Iris._config.DisplayOrderOffset
+                PseudoWindowScreenGui.ScreenInsets = Internal._config.ScreenInsets
+                PseudoWindowScreenGui.IgnoreGuiInset = Internal._config.IgnoreGuiInset
+                PseudoWindowScreenGui.DisplayOrder = Internal._config.DisplayOrderOffset
             else
                 PseudoWindowScreenGui = Instance.new("Frame")
                 PseudoWindowScreenGui.AnchorPoint = Vector2.new(0.5, 0.5)
                 PseudoWindowScreenGui.Position = UDim2.fromScale(0.5, 0.5)
                 PseudoWindowScreenGui.Size = UDim2.fromScale(1, 1)
                 PseudoWindowScreenGui.BackgroundTransparency = 1
-                PseudoWindowScreenGui.ZIndex = Iris._config.DisplayOrderOffset
+                PseudoWindowScreenGui.ZIndex = Internal._config.DisplayOrderOffset
             end
             PseudoWindowScreenGui.Name = "PseudoWindowScreenGui"
             PseudoWindowScreenGui.Parent = Root
 
             local PopupScreenGui
-            if Iris._config.UseScreenGUIs then
+            if Internal._config.UseScreenGUIs then
                 PopupScreenGui = Instance.new("ScreenGui")
                 PopupScreenGui.ResetOnSpawn = false
                 PopupScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-                PopupScreenGui.DisplayOrder = Iris._config.DisplayOrderOffset + 1024 -- room for 1024 regular windows before overlap
-                PopupScreenGui.ScreenInsets = Iris._config.ScreenInsets
-                PopupScreenGui.IgnoreGuiInset = Iris._config.IgnoreGuiInset
+                PopupScreenGui.DisplayOrder = Internal._config.DisplayOrderOffset + 1024 -- room for 1024 regular windows before overlap
+                PopupScreenGui.ScreenInsets = Internal._config.ScreenInsets
+                PopupScreenGui.IgnoreGuiInset = Internal._config.IgnoreGuiInset
             else
                 PopupScreenGui = Instance.new("Frame")
                 PopupScreenGui.AnchorPoint = Vector2.new(0.5, 0.5)
                 PopupScreenGui.Position = UDim2.fromScale(0.5, 0.5)
                 PopupScreenGui.Size = UDim2.fromScale(1, 1)
                 PopupScreenGui.BackgroundTransparency = 1
-                PopupScreenGui.ZIndex = Iris._config.DisplayOrderOffset + 1024
+                PopupScreenGui.ZIndex = Internal._config.DisplayOrderOffset + 1024
             end
             PopupScreenGui.Name = "PopupScreenGui"
             PopupScreenGui.Parent = Root
@@ -58,7 +67,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             TooltipContainer.BackgroundTransparency = 1
             TooltipContainer.BorderSizePixel = 0
 
-            widgets.UIListLayout(TooltipContainer, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.PopupBorderSize))
+            Utility.UIListLayout(TooltipContainer, Enum.FillDirection.Vertical, UDim.new(0, Internal._config.PopupBorderSize))
 
             TooltipContainer.Parent = PopupScreenGui
 
@@ -76,10 +85,10 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             PseudoWindow.AutomaticSize = Enum.AutomaticSize.XY
             PseudoWindow.Size = UDim2.new(0, 0, 0, 0)
             PseudoWindow.Position = UDim2.fromOffset(0, 22)
-            PseudoWindow.BackgroundTransparency = Iris._config.WindowBgTransparency
-            PseudoWindow.BackgroundColor3 = Iris._config.WindowBgColor
-            PseudoWindow.BorderSizePixel = Iris._config.WindowBorderSize
-            PseudoWindow.BorderColor3 = Iris._config.BorderColor
+            PseudoWindow.BackgroundTransparency = Internal._config.WindowBgTransparency
+            PseudoWindow.BackgroundColor3 = Internal._config.WindowBgColor
+            PseudoWindow.BorderSizePixel = Internal._config.WindowBorderSize
+            PseudoWindow.BorderColor3 = Internal._config.BorderColor
 
             PseudoWindow.Selectable = false
             PseudoWindow.SelectionGroup = true
@@ -90,30 +99,30 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             PseudoWindow.Visible = false
 
-            widgets.UIPadding(PseudoWindow, Iris._config.WindowPadding)
-            widgets.UIListLayout(PseudoWindow, Enum.FillDirection.Vertical, UDim.new(0, Iris._config.ItemSpacing.Y))
+            Utility.UIPadding(PseudoWindow, Internal._config.WindowPadding)
+            Utility.UIListLayout(PseudoWindow, Enum.FillDirection.Vertical, UDim.new(0, Internal._config.ItemSpacing.Y))
 
             PseudoWindow.Parent = PseudoWindowScreenGui
 
             return Root
         end,
-        Update = function(thisWidget: Types.Root)
+        Update = function(thisWidget: Root)
             if NumNonWindowChildren > 0 then
-                local Root = thisWidget.Instance :: any
+                local Root = thisWidget.instance :: any
                 local PseudoWindowScreenGui = Root.PseudoWindowScreenGui :: any
                 local PseudoWindow: Frame = PseudoWindowScreenGui.PseudoWindow
                 PseudoWindow.Visible = true
             end
         end,
-        Discard = function(thisWidget: Types.Root)
+        Discard = function(thisWidget: Root)
             NumNonWindowChildren = 0
-            thisWidget.Instance:Destroy()
+            thisWidget.instance:Destroy()
         end,
-        ChildAdded = function(thisWidget: Types.Root, thisChild: Types.Widget)
-            local Root = thisWidget.Instance :: any
+        ChildAdded = function(thisWidget: Root, thisChild: Types.Widget)
+            local Root = thisWidget.instance :: any
 
             if thisChild.type == "Window" then
-                return thisWidget.Instance
+                return thisWidget.instance
             elseif thisChild.type == "Tooltip" then
                 return Root.PopupScreenGui.TooltipContainer
             elseif thisChild.type == "MenuBar" then
@@ -128,16 +137,18 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return PseudoWindow
             end
         end,
-        ChildDiscarded = function(thisWidget: Types.Root, thisChild: Types.Widget)
+        ChildDiscarded = function(thisWidget: Root, thisChild: Types.Widget)
             if thisChild.type ~= "Window" and thisChild.type ~= "Tooltip" and thisChild.type ~= "MenuBar" then
                 NumNonWindowChildren -= 1
                 if NumNonWindowChildren == 0 then
-                    local Root = thisWidget.Instance :: any
+                    local Root = thisWidget.instance :: any
                     local PseudoWindowScreenGui = Root.PseudoWindowScreenGui :: any
                     local PseudoWindow: Frame = PseudoWindowScreenGui.PseudoWindow
                     PseudoWindow.Visible = false
                 end
             end
         end,
-    } :: Types.WidgetClass)
-end
+    } :: Types.WidgetClass
+)
+
+return {}

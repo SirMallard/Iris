@@ -1,47 +1,65 @@
+local Internal = require(script.Parent.Parent.Internal)
+local Utility = require(script.Parent)
+
 local Types = require(script.Parent.Parent.Types)
 
-return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
-    local abstractImage = {
-        hasState = false,
-        hasChildren = false,
-        Args = {
-            ["Image"] = 1,
-            ["Size"] = 2,
-            ["Rect"] = 3,
-            ["ScaleType"] = 4,
-            ["ResampleMode"] = 5,
-            ["TileSize"] = 6,
-            ["SliceCenter"] = 7,
-            ["SliceScale"] = 8,
-        },
-        Discard = function(thisWidget: Types.Image)
-            thisWidget.Instance:Destroy()
-        end,
-    } :: Types.WidgetClass
+export type Image = Types.Widget & {
+    arguments: {
+        Image: string,
+        Size: UDim2,
+        Rect: Rect?,
+        ScaleType: Enum.ScaleType?,
+        TileSize: UDim2?,
+        SliceCenter: Rect?,
+        SliceScale: number?,
+        ResampleMode: Enum.ResamplerMode?,
+    },
+} & Types.Hovered
 
-    --stylua: ignore
-    Iris.WidgetConstructor("Image", widgets.extend(abstractImage, {
+-- ooops, may have overriden a Roblox type, and then got a weird type message
+-- let's just hope I don't have to use a Roblox ImageButton type anywhere by name in this file
+export type ImageButton_ = Image & Types.Clicked & Types.RightClicked & Types.DoubleClicked & Types.CtrlClicked
+
+local abstractImage = {
+    hasState = false,
+    hasChildren = false,
+    numArguments = 8,
+    Arguments = { "Image", "Size", "Rect", "ScaleType", "ResampleMode", "TileSize", "SliceCenter", "SliceScale" },
+    Discard = function(thisWidget: Image)
+        thisWidget.instance:Destroy()
+    end,
+} :: Types.WidgetClass
+
+-----------
+-- Image
+-----------
+
+Internal._widgetConstructor(
+    "Image",
+    Utility.extend(
+        abstractImage,
+        {
             Events = {
-                ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
-                    return thisWidget.Instance
+                ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
+                    return thisWidget.instance
                 end),
             },
-            Generate = function(_thisWidget: Types.Image)
+            Generate = function(_thisWidget: Image)
                 local Image = Instance.new("ImageLabel")
                 Image.Name = "Iris_Image"
                 Image.BackgroundTransparency = 1
                 Image.BorderSizePixel = 0
-                Image.ImageColor3 = Iris._config.ImageColor
-                Image.ImageTransparency = Iris._config.ImageTransparency
+                Image.ImageColor3 = Internal._config.ImageColor
+                Image.ImageTransparency = Internal._config.ImageTransparency
 
-                widgets.applyFrameStyle(Image, true)
+                Utility.applyFrameStyle(Image, true)
 
                 return Image
             end,
-            Update = function(thisWidget: Types.Image)
-                local Image = thisWidget.Instance :: ImageLabel
-    
-                Image.Image = thisWidget.arguments.Image or widgets.ICONS.UNKNOWN_TEXTURE
+            Update = function(thisWidget: Image)
+                local Image = thisWidget.instance :: ImageLabel
+
+                Image.Image = thisWidget.arguments.Image or Utility.ICONS.UNKNOWN_TEXTURE
                 Image.Size = thisWidget.arguments.Size
                 if thisWidget.arguments.ScaleType then
                     Image.ScaleType = thisWidget.arguments.ScaleType
@@ -56,76 +74,84 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         end
                     end
                 end
-    
+
                 if thisWidget.arguments.Rect then
                     Image.ImageRectOffset = thisWidget.arguments.Rect.Min
                     Image.ImageRectSize = Vector2.new(thisWidget.arguments.Rect.Width, thisWidget.arguments.Rect.Height)
                 end
-    
+
                 if thisWidget.arguments.ResampleMode then
                     Image.ResampleMode = thisWidget.arguments.ResampleMode
                 end
             end,
-        } :: Types.WidgetClass)
+        } :: Types.WidgetClass
     )
+)
 
-    --stylua: ignore
-    Iris.WidgetConstructor("ImageButton", widgets.extend(abstractImage, {
+-----------------
+-- ImageButton
+-----------------
+
+Internal._widgetConstructor(
+    "ImageButton",
+    Utility.extend(
+        abstractImage,
+        {
             Events = {
-                ["clicked"] = widgets.EVENTS.click(function(thisWidget: Types.Widget)
-                    return thisWidget.Instance
+                ["clicked"] = Utility.EVENTS.click(function(thisWidget: Types.Widget)
+                    return thisWidget.instance
                 end),
-                ["rightClicked"] = widgets.EVENTS.rightClick(function(thisWidget: Types.Widget)
-                    return thisWidget.Instance
+                ["rightClicked"] = Utility.EVENTS.rightClick(function(thisWidget: Types.Widget)
+                    return thisWidget.instance
                 end),
-                ["doubleClicked"] = widgets.EVENTS.doubleClick(function(thisWidget: Types.Widget)
-                    return thisWidget.Instance
+                ["doubleClicked"] = Utility.EVENTS.doubleClick(function(thisWidget: Types.Widget)
+                    return thisWidget.instance
                 end),
-                ["ctrlClicked"] = widgets.EVENTS.ctrlClick(function(thisWidget: Types.Widget)
-                    return thisWidget.Instance
+                ["ctrlClicked"] = Utility.EVENTS.ctrlClick(function(thisWidget: Types.Widget)
+                    return thisWidget.instance
                 end),
-                ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
-                    return thisWidget.Instance
+                ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
+                    return thisWidget.instance
                 end),
             },
-            Generate = function(_thisWidget: Types.ImageButton)
+            Generate = function(_thisWidget: ImageButton_)
                 local Button = Instance.new("ImageButton")
                 Button.Name = "Iris_ImageButton"
                 Button.AutomaticSize = Enum.AutomaticSize.XY
-                Button.BackgroundColor3 = Iris._config.FrameBgColor
-                Button.BackgroundTransparency = Iris._config.FrameBgTransparency
+                Button.BackgroundColor3 = Internal._config.FrameBgColor
+                Button.BackgroundTransparency = Internal._config.FrameBgTransparency
                 Button.BorderSizePixel = 0
                 Button.Image = ""
                 Button.ImageTransparency = 1
                 Button.AutoButtonColor = false
-                
-                widgets.applyFrameStyle(Button, true)
-                widgets.UIPadding(Button, Vector2.new(Iris._config.ImageBorderSize, Iris._config.ImageBorderSize))
-                
+
+                Utility.applyFrameStyle(Button, true)
+                Utility.UIPadding(Button, Vector2.new(Internal._config.ImageBorderSize, Internal._config.ImageBorderSize))
+
                 local Image = Instance.new("ImageLabel")
                 Image.Name = "ImageLabel"
                 Image.BackgroundTransparency = 1
                 Image.BorderSizePixel = 0
-                Image.ImageColor3 = Iris._config.ImageColor
-                Image.ImageTransparency = Iris._config.ImageTransparency
+                Image.ImageColor3 = Internal._config.ImageColor
+                Image.ImageTransparency = Internal._config.ImageTransparency
                 Image.Parent = Button
 
-                widgets.applyInteractionHighlights("Background", Button, Button, {
-                    Color = Iris._config.FrameBgColor,
-                    Transparency = Iris._config.FrameBgTransparency,
-                    HoveredColor = Iris._config.FrameBgHoveredColor,
-                    HoveredTransparency = Iris._config.FrameBgHoveredTransparency,
-                    ActiveColor = Iris._config.FrameBgActiveColor,
-                    ActiveTransparency = Iris._config.FrameBgActiveTransparency,
+                Utility.applyInteractionHighlights("Background", Button, Button, {
+                    Color = Internal._config.FrameBgColor,
+                    Transparency = Internal._config.FrameBgTransparency,
+                    HoveredColor = Internal._config.FrameBgHoveredColor,
+                    HoveredTransparency = Internal._config.FrameBgHoveredTransparency,
+                    ActiveColor = Internal._config.FrameBgActiveColor,
+                    ActiveTransparency = Internal._config.FrameBgActiveTransparency,
                 })
 
                 return Button
             end,
-            Update = function(thisWidget: Types.ImageButton)
-                local Button = thisWidget.Instance :: TextButton
+            Update = function(thisWidget: ImageButton_)
+                local Button = thisWidget.instance :: TextButton
                 local Image: ImageLabel = Button.ImageLabel
-    
-                Image.Image = thisWidget.arguments.Image or widgets.ICONS.UNKNOWN_TEXTURE
+
+                Image.Image = thisWidget.arguments.Image or Utility.ICONS.UNKNOWN_TEXTURE
                 Image.Size = thisWidget.arguments.Size
                 if thisWidget.arguments.ScaleType then
                     Image.ScaleType = thisWidget.arguments.ScaleType
@@ -140,16 +166,18 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         end
                     end
                 end
-    
+
                 if thisWidget.arguments.Rect then
                     Image.ImageRectOffset = thisWidget.arguments.Rect.Min
                     Image.ImageRectSize = Vector2.new(thisWidget.arguments.Rect.Width, thisWidget.arguments.Rect.Height)
                 end
-    
+
                 if thisWidget.arguments.ResampleMode then
                     Image.ResampleMode = thisWidget.arguments.ResampleMode
                 end
             end,
-        } :: Types.WidgetClass)
+        } :: Types.WidgetClass
     )
-end
+)
+
+return {}
