@@ -183,13 +183,13 @@ Internal._widgetConstructor(
             ["selected"] = {
                 ["Init"] = function(_thisWidget: Tab) end,
                 ["Get"] = function(thisWidget: Tab)
-                    return thisWidget.lastSelectedTick == Internal._cycleTick
+                    return thisWidget._lastSelectedTick == Internal._cycleTick
                 end,
             },
             ["unselected"] = {
                 ["Init"] = function(_thisWidget: Tab) end,
                 ["Get"] = function(thisWidget: Tab)
-                    return thisWidget.lastUnselectedTick == Internal._cycleTick
+                    return thisWidget._lastUnselectedTick == Internal._cycleTick
                 end,
             },
             ["active"] = {
@@ -201,13 +201,13 @@ Internal._widgetConstructor(
             ["opened"] = {
                 ["Init"] = function(_thisWidget: Tab) end,
                 ["Get"] = function(thisWidget: Tab)
-                    return thisWidget.lastOpenedTick == Internal._cycleTick
+                    return thisWidget._lastOpenedTick == Internal._cycleTick
                 end,
             },
             ["closed"] = {
                 ["Init"] = function(_thisWidget: Tab) end,
                 ["Get"] = function(thisWidget: Tab)
-                    return thisWidget.lastClosedTick == Internal._cycleTick
+                    return thisWidget._lastClosedTick == Internal._cycleTick
                 end,
             },
         },
@@ -337,11 +337,11 @@ Internal._widgetConstructor(
 
             if thisWidget.state.open._lastChangeTick == Internal._cycleTick then
                 if thisWidget.state.open._value == true then
-                    thisWidget.lastOpenedTick = Internal._cycleTick + 1
+                    thisWidget._lastOpenedTick = Internal._cycleTick + 1
                     openTab(thisWidget.parentWidget, thisWidget.Index)
                     Tab.Visible = true
                 else
-                    thisWidget.lastClosedTick = Internal._cycleTick + 1
+                    thisWidget._lastClosedTick = Internal._cycleTick + 1
                     closeTab(thisWidget.parentWidget, thisWidget.Index)
                     Tab.Visible = false
                 end
@@ -354,14 +354,14 @@ Internal._widgetConstructor(
                     Tab.BackgroundColor3 = Internal._config.TabActiveColor
                     Tab.BackgroundTransparency = Internal._config.TabActiveTransparency
                     Container.Visible = true
-                    thisWidget.lastSelectedTick = Internal._cycleTick + 1
+                    thisWidget._lastSelectedTick = Internal._cycleTick + 1
                 else
                     thisWidget.ButtonColors.Color = Internal._config.TabColor
                     thisWidget.ButtonColors.Transparency = Internal._config.TabTransparency
                     Tab.BackgroundColor3 = Internal._config.TabColor
                     Tab.BackgroundTransparency = Internal._config.TabTransparency
                     Container.Visible = false
-                    thisWidget.lastUnselectedTick = Internal._cycleTick + 1
+                    thisWidget._lastUnselectedTick = Internal._cycleTick + 1
                 end
             end
         end,

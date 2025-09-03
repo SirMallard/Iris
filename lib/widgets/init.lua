@@ -344,15 +344,15 @@ Utility.EVENTS = {
             ["Init"] = function(thisWidget: Types.Widget & Types.Hovered)
                 local hoveredGuiObject = pathToHovered(thisWidget)
                 Utility.applyMouseEnter(hoveredGuiObject, function()
-                    thisWidget.isHoveredEvent = true
+                    thisWidget._isHoveredEvent = true
                 end)
                 Utility.applyMouseLeave(hoveredGuiObject, function()
-                    thisWidget.isHoveredEvent = false
+                    thisWidget._isHoveredEvent = false
                 end)
-                thisWidget.isHoveredEvent = false
+                thisWidget._isHoveredEvent = false
             end,
             ["Get"] = function(thisWidget: Types.Widget & Types.Hovered)
-                return thisWidget.isHoveredEvent
+                return thisWidget._isHoveredEvent
             end,
         }
     end,
@@ -361,14 +361,14 @@ Utility.EVENTS = {
         return {
             ["Init"] = function(thisWidget: Types.Widget & Types.Clicked)
                 local clickedGuiObject = pathToClicked(thisWidget)
-                thisWidget.lastClickedTick = -1
+                thisWidget._lastClickedTick = -1
 
                 Utility.applyButtonClick(clickedGuiObject, function()
-                    thisWidget.lastClickedTick = Internal._cycleTick + 1
+                    thisWidget._lastClickedTick = Internal._cycleTick + 1
                 end)
             end,
             ["Get"] = function(thisWidget: Types.Widget & Types.Clicked)
-                return thisWidget.lastClickedTick == Internal._cycleTick
+                return thisWidget._lastClickedTick == Internal._cycleTick
             end,
         }
     end,
@@ -377,14 +377,14 @@ Utility.EVENTS = {
         return {
             ["Init"] = function(thisWidget: Types.Widget & Types.RightClicked)
                 local clickedGuiObject = pathToClicked(thisWidget)
-                thisWidget.lastRightClickedTick = -1
+                thisWidget._lastRightClickedTick = -1
 
                 clickedGuiObject.MouseButton2Click:Connect(function()
-                    thisWidget.lastRightClickedTick = Internal._cycleTick + 1
+                    thisWidget._lastRightClickedTick = Internal._cycleTick + 1
                 end)
             end,
             ["Get"] = function(thisWidget: Types.Widget & Types.RightClicked)
-                return thisWidget.lastRightClickedTick == Internal._cycleTick
+                return thisWidget._lastRightClickedTick == Internal._cycleTick
             end,
         }
     end,
@@ -393,23 +393,23 @@ Utility.EVENTS = {
         return {
             ["Init"] = function(thisWidget: Types.Widget & Types.DoubleClicked)
                 local clickedGuiObject = pathToClicked(thisWidget)
-                thisWidget.lastClickedTime = -1
-                thisWidget.lastClickedPosition = Vector2.zero
-                thisWidget.lastDoubleClickedTick = -1
+                thisWidget._lastClickedTime = -1
+                thisWidget._lastClickedPosition = Vector2.zero
+                thisWidget._lastDoubleClickedTick = -1
 
                 Utility.applyButtonDown(clickedGuiObject, function(x: number, y: number)
                     local currentTime = Utility.getTime()
-                    local isTimeValid = currentTime - thisWidget.lastClickedTime < Internal._config.MouseDoubleClickTime
-                    if isTimeValid and (Vector2.new(x, y) - thisWidget.lastClickedPosition).Magnitude < Internal._config.MouseDoubleClickMaxDist then
-                        thisWidget.lastDoubleClickedTick = Internal._cycleTick + 1
+                    local isTimeValid = currentTime - thisWidget._lastClickedTime < Internal._config.MouseDoubleClickTime
+                    if isTimeValid and (Vector2.new(x, y) - thisWidget._lastClickedPosition).Magnitude < Internal._config.MouseDoubleClickMaxDist then
+                        thisWidget._lastDoubleClickedTick = Internal._cycleTick + 1
                     else
-                        thisWidget.lastClickedTime = currentTime
-                        thisWidget.lastClickedPosition = Vector2.new(x, y)
+                        thisWidget._lastClickedTime = currentTime
+                        thisWidget._lastClickedPosition = Vector2.new(x, y)
                     end
                 end)
             end,
             ["Get"] = function(thisWidget: Types.Widget & Types.DoubleClicked)
-                return thisWidget.lastDoubleClickedTick == Internal._cycleTick
+                return thisWidget._lastDoubleClickedTick == Internal._cycleTick
             end,
         }
     end,
@@ -418,16 +418,16 @@ Utility.EVENTS = {
         return {
             ["Init"] = function(thisWidget: Types.Widget & Types.CtrlClicked)
                 local clickedGuiObject = pathToClicked(thisWidget)
-                thisWidget.lastCtrlClickedTick = -1
+                thisWidget._lastCtrlClickedTick = -1
 
                 Utility.applyButtonClick(clickedGuiObject, function()
                     if Utility.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or Utility.UserInputService:IsKeyDown(Enum.KeyCode.RightControl) then
-                        thisWidget.lastCtrlClickedTick = Internal._cycleTick + 1
+                        thisWidget._lastCtrlClickedTick = Internal._cycleTick + 1
                     end
                 end)
             end,
             ["Get"] = function(thisWidget: Types.Widget & Types.CtrlClicked)
-                return thisWidget.lastCtrlClickedTick == Internal._cycleTick
+                return thisWidget._lastCtrlClickedTick == Internal._cycleTick
             end,
         }
     end,

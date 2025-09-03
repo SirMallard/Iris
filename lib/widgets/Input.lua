@@ -10,8 +10,8 @@ type InputDataType = number | Vector2 | Vector3 | UDim | UDim2 | Color3 | Rect |
 type InputType = "Input" | "Drag" | "Slider"
 
 export type Input<T> = Types.Widget & {
-    lastClickedTime: number,
-    lastClickedPosition: Vector2,
+    _lastClickedTime: number,
+    _lastClickedPosition: Vector2,
 
     arguments: {
         Text: string?,
@@ -27,14 +27,14 @@ export type Input<T> = Types.Widget & {
         number: Types.State<T>,
         editing: Types.State<number>,
     },
-} & Types.NumberChanged & Types.Hovered
+} & Types.Changed & Types.Hovered
 
 export type InputColor3 = Input<{ number }> & {
     state: {
         color: Types.State<Color3>,
         editing: Types.State<boolean>,
     },
-} & Types.NumberChanged & Types.Hovered
+} & Types.Changed & Types.Hovered
 
 export type InputColor4 = InputColor3 & {
     state: {
@@ -58,7 +58,7 @@ export type InputText = Types.Widget & {
     state: {
         text: Types.State<string>,
     },
-} & Types.TextChanged & Types.Hovered
+} & Types.Changed & Types.Hovered
 
 local InputTextFlags = {
     ReadOnly = 1,
@@ -77,7 +77,7 @@ local InputFlags = {
 local numberChanged = {
     ["Init"] = function(_thisWidget: Types.Widget) end,
     ["Get"] = function(thisWidget: Input<any>)
-        return thisWidget.lastNumberChangedTick == Internal._cycleTick
+        return thisWidget._lastChangedTick == Internal._cycleTick
     end,
 }
 
@@ -392,7 +392,7 @@ local function focusLost<T>(thisWidget: Input<T>, InputField: TextBox, index: nu
         end
 
         state:set(updateValueByIndex(state._value, index, newValue, thisWidget.arguments))
-        thisWidget.lastNumberChangedTick = Internal._cycleTick + 1
+        thisWidget._lastChangedTick = Internal._cycleTick + 1
     end
 
     local value = getValueByIndex(state._value, index, thisWidget.arguments)
@@ -442,7 +442,7 @@ do
                 newValue = math.min(newValue, getValueByIndex(thisWidget.arguments.Max, 1, thisWidget.arguments))
             end
             thisWidget.state.number:set(newValue)
-            thisWidget.lastNumberChangedTick = Internal._cycleTick + 1
+            thisWidget._lastChangedTick = Internal._cycleTick + 1
         end)
 
         local AddButton = Utility.abstractButton.Generate(thisWidget) :: TextButton
@@ -465,7 +465,7 @@ do
                 newValue = math.min(newValue, getValueByIndex(thisWidget.arguments.Max, 1, thisWidget.arguments))
             end
             thisWidget.state.number:set(newValue)
-            thisWidget.lastNumberChangedTick = Internal._cycleTick + 1
+            thisWidget._lastChangedTick = Internal._cycleTick + 1
         end)
 
         return 2 * Internal._config.ItemInnerSpacing.X + 2 * textHeight
@@ -624,18 +624,18 @@ do
         end
 
         state:set(updateValueByIndex(state._value, ActiveIndex, newValue, ActiveDrag.arguments))
-        ActiveDrag.lastNumberChangedTick = Internal._cycleTick + 1
+        ActiveDrag._lastChangedTick = Internal._cycleTick + 1
     end
 
     local function DragMouseDown(thisWidget: Input<InputDataType>, dataTypes: InputDataTypes, index: number, x: number, y: number)
         local currentTime = Utility.getTime()
-        local isTimeValid = currentTime - thisWidget.lastClickedTime < Internal._config.MouseDoubleClickTime
+        local isTimeValid = currentTime - thisWidget._lastClickedTime < Internal._config.MouseDoubleClickTime
         local isCtrlHeld = Utility.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or Utility.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)
-        if (isTimeValid and (Vector2.new(x, y) - thisWidget.lastClickedPosition).Magnitude < Internal._config.MouseDoubleClickMaxDist) or isCtrlHeld then
+        if (isTimeValid and (Vector2.new(x, y) - thisWidget._lastClickedPosition).Magnitude < Internal._config.MouseDoubleClickMaxDist) or isCtrlHeld then
             thisWidget.state.editing:set(index)
         else
-            thisWidget.lastClickedTime = currentTime
-            thisWidget.lastClickedPosition = Vector2.new(x, y)
+            thisWidget._lastClickedTime = currentTime
+            thisWidget._lastClickedPosition = Vector2.new(x, y)
 
             AnyActiveDrag = true
             ActiveDrag = thisWidget
@@ -730,8 +730,8 @@ do
             input,
             {
                 Generate = function(thisWidget: Input<T>)
-                    thisWidget.lastClickedTime = -1
-                    thisWidget.lastClickedPosition = Vector2.zero
+                    thisWidget._lastClickedTime = -1
+                    thisWidget._lastClickedPosition = Vector2.zero
 
                     local Drag = Instance.new("Frame")
                     Drag.Name = "Iris_Drag" .. dataType
@@ -941,7 +941,7 @@ do
         local newValue = math.clamp(math.round(Ratio * Positions) * increment + min, min, max)
 
         ActiveSlider.state.number:set(updateValueByIndex(ActiveSlider.state.number._value, ActiveIndex, newValue, ActiveSlider.arguments))
-        ActiveSlider.lastNumberChangedTick = Internal._cycleTick + 1
+        ActiveSlider._lastChangedTick = Internal._cycleTick + 1
     end
 
     local function SliderMouseDown(thisWidget: Input<InputDataType>, dataType: InputDataTypes, index: number)
@@ -1258,10 +1258,10 @@ Internal._widgetConstructor(
         Events = {
             ["textChanged"] = {
                 ["Init"] = function(thisWidget: InputText)
-                    thisWidget.lastTextChangedTick = 0
+                    thisWidget._lastChangedTick = 0
                 end,
                 ["Get"] = function(thisWidget: InputText)
-                    return thisWidget.lastTextChangedTick == Internal._cycleTick
+                    return thisWidget._lastChangedTick == Internal._cycleTick
                 end,
             },
             ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
@@ -1298,7 +1298,7 @@ Internal._widgetConstructor(
 
             InputField.FocusLost:Connect(function()
                 thisWidget.state.text:set(InputField.Text)
-                thisWidget.lastTextChangedTick = Internal._cycleTick + 1
+                thisWidget._lastChangedTick = Internal._cycleTick + 1
             end)
 
             local frameHeight: number = Internal._config.TextSize + 2 * Internal._config.FramePadding.Y

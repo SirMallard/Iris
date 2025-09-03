@@ -31,13 +31,13 @@ Internal._widgetConstructor(
             ["selected"] = {
                 ["Init"] = function(_thisWidget: RadioButton) end,
                 ["Get"] = function(thisWidget: RadioButton)
-                    return thisWidget.lastSelectedTick == Internal._cycleTick
+                    return thisWidget._lastSelectedTick == Internal._cycleTick
                 end,
             },
             ["unselected"] = {
                 ["Init"] = function(_thisWidget: RadioButton) end,
                 ["Get"] = function(thisWidget: RadioButton)
-                    return thisWidget.lastUnselectedTick == Internal._cycleTick
+                    return thisWidget._lastUnselectedTick == Internal._cycleTick
                 end,
             },
             ["active"] = {
@@ -134,10 +134,10 @@ Internal._widgetConstructor(
             if thisWidget.state.index._value == thisWidget.arguments.Index then
                 -- only need to hide the circle
                 Circle.BackgroundTransparency = Internal._config.CheckMarkTransparency
-                thisWidget.lastSelectedTick = Internal._cycleTick + 1
+                thisWidget._lastSelectedTick = Internal._cycleTick + 1
             else
                 Circle.BackgroundTransparency = 1
-                thisWidget.lastUnselectedTick = Internal._cycleTick + 1
+                thisWidget._lastUnselectedTick = Internal._cycleTick + 1
             end
         end,
     } :: Types.WidgetClass

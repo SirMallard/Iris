@@ -72,12 +72,12 @@ Internal._eventConnection = nil :: RBXScriptConnection?
 Internal._fullErrorTracebacks = game:GetService("RunService"):IsStudio()
 
 --[=[
-        @within Internal
-        @prop _cycleCoroutine thread
+    @within Internal
+    @prop _cycleCoroutine thread
 
-        The thread which handles all connected functions. Each connection is within a pcall statement which prevents
-        Iris from crashing and instead stopping at the error.
-    ]=]
+    The thread which handles all connected functions. Each connection is within a pcall statement which prevents
+    Iris from crashing and instead stopping at the error.
+]=]
 Internal._cycleCoroutine = coroutine.create(function()
     while Internal._started do
         for _, callback in Internal._connectedFunctions do
@@ -102,53 +102,68 @@ end)
     ]]
 
 --[=[
-        @class State
-        This class wraps a value in getters and setters, its main purpose is to allow primatives to be passed as objects.
-        Constructors for this class are available in [Iris]
+    @class State
+    This class wraps a value in getters and setters, its main purpose is to allow primatives to be passed as objects.
+    Constructors for this class are available in [Iris]
 
-        ```lua
-        local state = Iris.State(0) -- we initialise the state with a value of 0
+    ```lua
+    local state = Iris.State(0) -- we initialise the state with a value of 0
 
-        -- these are equivalent. Ideally you should use `:get()` and ignore `.value`.
-        print(state:get())
-        print(state.value)
+    -- these are equivalent. Ideally you should use `:get()` and ignore `.value`.
+    print(state:get())
+    print(state.value)
 
-        state:set(state:get() + 1) -- increments the state by getting the current value and adding 1.
+    state:set(state:get() + 1) -- increments the state by getting the current value and adding 1.
 
-        state:onChange(function(newValue)
-            print(`The value of the state is now: {newValue}`)
-        end)
-        ```
+    state:onChange(function(newValue)
+        print(`The value of the state is now: {newValue}`)
+    end)
+    ```
 
-        :::caution Caution: Callbacks
-        Never call `:set()` on a state when inside the `:onChange()` callback of the same state. This will cause a continous callback.
+    :::caution Caution: Callbacks
+    Never call `:set()` on a state when inside the `:onChange()` callback of the same state. This will cause a continous callback.
 
-        Never chain states together so that each state changes the value of another state in a cyclic nature. This will cause a continous callback.
-        :::
-    ]=]
+    Never chain states together so that each state changes the value of another state in a cyclic nature. This will cause a continous callback.
+    :::
+]=]
+
+--[=[
+    @within State
+    @prop ID ID
+
+    Unique state ID depending on line number
+]=]
+
+--[=[
+    @within State
+    @prop _value T
+    
+    Current value of the state
+]=]
+
 local StateClass = {}
 StateClass.__index = StateClass
 
 --[=[
-        @within State
-        @method get<T>
-        @return T
+    @within State
+    @method get<T>
+    @return T
 
-        Returns the states current value.
-    ]=]
-function StateClass.get<T>(self: Types.State<T>) -- you can also simply use .value
+    Returns the states current value.
+]=]
+function StateClass.get<T>(self: Types.State<T>) -- you can also simply use ._value
     return self._value
 end
 
 --[=[
-        @within State
-        @method set<T>
-        @param newValue T
-        @param force boolean? -- force an update to all connections
-        @return T
+    @within State
+    @method set<T>
+    @param newValue T
+    @param force boolean? -- force an update to all connections
+    @return T
 
-        Allows the caller to assign the state object a new value, and returns the new value.
-    ]=]
+    Allows the caller to assign the state object a new value, and returns the new value.
+]=]
 function StateClass.set<T>(self: Types.State<T>, newValue: T, force: true?)
     if newValue == self._value and force ~= true then
         -- no need to update on no change.
@@ -169,18 +184,18 @@ function StateClass.set<T>(self: Types.State<T>, newValue: T, force: true?)
 end
 
 --[=[
-        @within State
-        @method onChange<T>
-        @param callback (newValue: T) -> ()
-        @return () -> ()
+    @within State
+    @method onChange<T>
+    @param callback (newValue: T) -> ()
+    @return () -> ()
 
-        Allows the caller to connect a callback which is called when the states value is changed.
+    Allows the caller to connect a callback which is called when the states value is changed.
 
-        :::caution Caution: Single
-        Calling `:onChange()` every frame will add a new function every frame.
-        You must ensure you are only calling `:onChange()` once for each callback for the state's entire lifetime.
-        :::
-    ]=]
+    :::caution Caution: Single
+    Calling `:onChange()` every frame will add a new function every frame.
+    You must ensure you are only calling `:onChange()` once for each callback for the state's entire lifetime.
+    :::
+]=]
 function StateClass.onChange<T>(self: Types.State<T>, callback: (newValue: T) -> ())
     local connectionIndex: number = #self._connectedFunctions + 1
     self._connectedFunctions[connectionIndex] = callback
@@ -190,12 +205,12 @@ function StateClass.onChange<T>(self: Types.State<T>, callback: (newValue: T) ->
 end
 
 --[=[
-        @within State
-        @method changed<T>
-        @return boolean
+    @within State
+    @method changed<T>
+    @return boolean
 
-        Returns true if the state was changed on this frame.
-    ]=]
+    Returns true if the state was changed on this frame.
+]=]
 function StateClass.changed<T>(self: Types.State<T>)
     return self._lastChangeTick + 1 == Internal._cycleTick
 end

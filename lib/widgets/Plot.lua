@@ -71,7 +71,7 @@ Internal._widgetConstructor(
             ["changed"] = {
                 ["Init"] = function(_thisWidget: ProgressBar) end,
                 ["Get"] = function(thisWidget: ProgressBar)
-                    return thisWidget.lastChangedTick == Internal._cycleTick
+                    return thisWidget._lastChangedTick == Internal._cycleTick
                 end,
             },
         },
@@ -180,7 +180,7 @@ Internal._widgetConstructor(
             else
                 Value.Text = string.format("%d%%", progress * 100)
             end
-            thisWidget.lastChangedTick = Internal._cycleTick + 1
+            thisWidget._lastChangedTick = Internal._cycleTick + 1
         end,
         Discard = function(thisWidget: ProgressBar)
             thisWidget.instance:Destroy()
@@ -292,7 +292,7 @@ Internal._widgetConstructor(
                 thisWidget.state.values._lastChangeTick = Internal._cycleTick
 
                 -- todo
-                Internal._Utility.PlotLines.UpdateState(thisWidget)
+                Internal._widgets.PlotLines.UpdateState(thisWidget)
             end)
 
             local OverlayText = Instance.new("TextLabel")

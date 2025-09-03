@@ -3,8 +3,31 @@ local Utility = require(script.Parent)
 
 local Types = require(script.Parent.Parent.Types)
 
+--[=[
+    @class Menu
+    Menu API
+]=]
+
+--[=[
+    @within Menu
+    @interface MenuBar
+    .& Widget
+]=]
 export type MenuBar = Types.ParentWidget
 
+--[=[
+    @within Menu
+    @interface Menu
+    .& Widget
+    
+    .hovered () -> boolean -- fires when the mouse hovers over any of the window
+    .clicked () -> boolean -- fires when a button is clicked
+    .opened () -> boolean -- once when opened
+    .closed () -> boolean -- once when closed
+
+    .arguments { Text: string? }
+    .state { open: State<boolean> }
+]=]
 export type Menu = Types.ParentWidget & {
     ButtonColors: { [string]: Color3 | number },
 
@@ -17,6 +40,16 @@ export type Menu = Types.ParentWidget & {
     },
 } & Types.Clicked & Types.Opened & Types.Closed & Types.Hovered
 
+--[=[
+    @within Menu
+    @interface MenuItem
+    .& Widget
+    
+    .hovered () -> boolean -- fires when the mouse hovers over any of the window
+    .clicked () -> boolean -- fires when a button is clicked
+
+    .arguments { Text: string, KeyCode: Enum.KeyCode?, ModifierKey: Enum.ModifierKey? }
+]=]
 export type MenuItem = Types.Widget & {
     arguments: {
         Text: string,
@@ -25,6 +58,18 @@ export type MenuItem = Types.Widget & {
     },
 } & Types.Clicked & Types.Hovered
 
+--[=[
+    @within Menu
+    @interface MenuToggle
+    .& Widget
+    
+    .hovered () -> boolean -- fires when the mouse hovers over any of the window
+    .checked () -> boolean -- once when checked
+    .unchecked () -> boolean -- once when unchecked
+    
+    .arguments { Text: string, KeyCode: Enum.KeyCode?, ModifierKey: Enum.ModifierKey? }
+    .state { checked: Types.State<boolean> }
+]=]
 export type MenuToggle = Types.Widget & {
     arguments: {
         Text: string,
@@ -193,13 +238,13 @@ Internal._widgetConstructor(
             ["opened"] = {
                 ["Init"] = function(_thisWidget: Menu) end,
                 ["Get"] = function(thisWidget: Menu)
-                    return thisWidget.lastOpenedTick == Internal._cycleTick
+                    return thisWidget._lastOpenedTick == Internal._cycleTick
                 end,
             },
             ["closed"] = {
                 ["Init"] = function(_thisWidget: Menu) end,
                 ["Get"] = function(thisWidget: Menu)
-                    return thisWidget.lastClosedTick == Internal._cycleTick
+                    return thisWidget._lastClosedTick == Internal._cycleTick
                 end,
             },
         },
@@ -364,13 +409,13 @@ Internal._widgetConstructor(
             local ChildContainer = thisWidget.childContainer :: ScrollingFrame
 
             if thisWidget.state.open._value then
-                thisWidget.lastOpenedTick = Internal._cycleTick + 1
+                thisWidget._lastOpenedTick = Internal._cycleTick + 1
                 thisWidget.ButtonColors.Transparency = Internal._config.HeaderTransparency
                 ChildContainer.Visible = true
 
                 UpdateChildContainerTransform(thisWidget)
             else
-                thisWidget.lastClosedTick = Internal._cycleTick + 1
+                thisWidget._lastClosedTick = Internal._cycleTick + 1
                 thisWidget.ButtonColors.Transparency = 1
                 ChildContainer.Visible = false
             end
@@ -515,13 +560,13 @@ Internal._widgetConstructor(
             ["checked"] = {
                 ["Init"] = function(_thisWidget: MenuToggle) end,
                 ["Get"] = function(thisWidget: MenuToggle): boolean
-                    return thisWidget.lastCheckedTick == Internal._cycleTick
+                    return thisWidget._lastCheckedTick == Internal._cycleTick
                 end,
             },
             ["unchecked"] = {
                 ["Init"] = function(_thisWidget: MenuToggle) end,
                 ["Get"] = function(thisWidget: MenuToggle): boolean
-                    return thisWidget.lastUncheckedTick == Internal._cycleTick
+                    return thisWidget._lastUncheckedTick == Internal._cycleTick
                 end,
             },
             ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
@@ -635,10 +680,10 @@ Internal._widgetConstructor(
 
             if thisWidget.state.checked._value then
                 Icon.ImageTransparency = Internal._config.TextTransparency
-                thisWidget.lastCheckedTick = Internal._cycleTick + 1
+                thisWidget._lastCheckedTick = Internal._cycleTick + 1
             else
                 Icon.ImageTransparency = 1
-                thisWidget.lastUncheckedTick = Internal._cycleTick + 1
+                thisWidget._lastUncheckedTick = Internal._cycleTick + 1
             end
         end,
         Discard = function(thisWidget: MenuToggle)
@@ -648,4 +693,126 @@ Internal._widgetConstructor(
     } :: Types.WidgetClass
 )
 
-return {}
+--[=[
+    @within Menu
+    @tag Widget
+    @tag HasChildren
+    
+    @function MenuBar
+    
+    @return MenuBar
+    
+    Creates a MenuBar for the current window. Must be called directly under a Window and not within a child widget.
+    :::info
+        This does not create any menus, just tells the window that we going to add menus within.
+    :::
+]=]
+local API_MenuBar = function()
+    return Internal._insert("MenuBar") :: MenuBar
+end
+
+--[=[
+    @within Menu
+    @tag Widget
+    @tag HasChildren
+    @tag HasState
+
+    @function Menu
+    @param text string -- title of the menu
+    @param open State<boolean? -- state for whether the menu is open
+
+    @return Menu
+    
+    Creates an collapsable menu. If the Menu is created directly under a MenuBar, then the widget will
+    be placed horizontally below the window title. If the menu Menu is created within another menu, then
+    it will be placed vertically alongside MenuItems and display an arrow alongside.
+
+    The opened menu will be a vertically listed box below or next to the button.
+
+    ```lua
+        Iris.Window({"Menu Demo"})
+            Iris.MenuBar()
+                Iris.Menu({"Test Menu"})
+                    Iris.Button({"Menu Option 1"})
+                    Iris.Button({"Menu Option 2"})
+                Iris.End()
+            Iris.End()
+        Iris.End()
+    ```
+
+    ![Example menu](/Iris/assets/api/menu/basicMenu.gif)
+
+    :::info
+    There are widgets which are designed for being parented to a menu whilst other happens to work. There is nothing
+    preventing you from adding any widget as a child, but the behaviour is unexplained and not intended.
+    :::
+]=]
+local API_Menu = function(text: string, open: Types.State<boolean>?)
+    return Internal._insert("Menu", text, open) :: Menu
+end
+
+--[=[
+    @within Menu
+    @tag Widget
+    
+    @function MenuItem
+    @param text string -- title of the item
+    @param keyCode Enum.KeyCode? -- optional keycode to show on the right
+    @param modifierKey Enum.ModifierKey? -- optional modifier keycode to show on the right
+
+    @return MenuItem
+    
+    Creates a button within a menu. The optional KeyCode and ModiferKey arguments will show the keys next
+    to the title, but **will not** bind any connection to them. You will need to do this yourself.
+
+    ```lua
+    Iris.Window({"MenuToggle Demo"})
+        Iris.MenuBar()
+            Iris.MenuToggle({"Menu Item"})
+        Iris.End()
+    Iris.End()
+    ```
+
+    ![Example Menu Item](/Iris/assets/api/menu/basicMenuItem.gif)
+]=]
+local API_MenuItem = function(text: string, keyCode: Enum.KeyCode?, modifierKey: Enum.ModifierKey?)
+    return Internal._insert("MenuItem", text, keyCode, modifierKey) :: MenuItem
+end
+
+--[=[
+    @within Menu
+    @tag Widget
+    @tag HasState
+    
+    @function MenuToggle
+
+    @param text string -- title of the item
+    @param keyCode Enum.KeyCode? -- optional keycode to show on the right
+    @param modifierKey Enum.ModifierKey? -- optional modifier keycode to show on the right
+    @param checked State<boolean>? -- state for whether the toggle is checked
+
+    @return MenuToggle    
+    
+    Creates a togglable button within a menu. The optional KeyCode and ModiferKey arguments act the same
+    as the MenuItem. It is not visually the same as a checkbox, but has the same functionality.
+    
+    ```lua
+    Iris.Window({"MenuToggle Demo"})
+        Iris.MenuBar()
+            Iris.MenuToggle({"Menu Toggle"})
+        Iris.End()
+    Iris.End()
+    ```
+
+    ![Example Menu Toggle](/Iris/assets/api/menu/basicMenuToggle.gif)
+]=]
+local API_MenuToggle = function(text: string, keyCode: Enum.KeyCode?, modifierKey: Enum.ModifierKey?, checked: Types.State<boolean>?)
+    return Internal._insert("MenuToggle", text, keyCode, modifierKey, checked) :: MenuToggle
+end
+
+return {
+    API_MenuBar = API_MenuBar,
+    API_Menu = API_Menu,
+    API_MenuItem = API_MenuItem,
+    API_MenuToggle = API_MenuToggle,
+}

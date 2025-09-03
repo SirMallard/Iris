@@ -38,13 +38,13 @@ local abstractTree = {
         ["opened"] = {
             ["Init"] = function(_thisWidget: CollapsingHeader) end,
             ["Get"] = function(thisWidget: CollapsingHeader)
-                return thisWidget.lastClosedTick == Internal._cycleTick
+                return thisWidget._lastClosedTick == Internal._cycleTick
             end,
         },
         ["closed"] = {
             ["Init"] = function(_thisWidget: CollapsingHeader) end,
             ["Get"] = function(thisWidget: CollapsingHeader)
-                return thisWidget.lastOpenedTick == Internal._cycleTick
+                return thisWidget._lastOpenedTick == Internal._cycleTick
             end,
         },
         ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
@@ -66,9 +66,9 @@ local abstractTree = {
 
         Arrow.Image = (if open then Utility.ICONS.DOWN_POINTING_TRIANGLE else Utility.ICONS.RIGHT_POINTING_TRIANGLE)
         if open then
-            thisWidget.lastOpenedTick = Internal._cycleTick + 1
+            thisWidget._lastOpenedTick = Internal._cycleTick + 1
         else
-            thisWidget.lastClosedTick = Internal._cycleTick + 1
+            thisWidget._lastClosedTick = Internal._cycleTick + 1
         end
 
         ChildContainer.Visible = open

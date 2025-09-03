@@ -32,17 +32,18 @@ local btest = bit32.btest
 --[=[
     @within Window
     @interface Window
+    .& Widget
     .opened () -> boolean -- once when opened
     .closed () -> boolean -- once when closed
     .shown () -> boolean -- once when shown
     .hidden () -> boolean -- once when hidden
     .hovered () -> boolean -- fires when the mouse hovers over any of the window
 
-    .arguments { [string]: any } -- all the passed non-state arguments
-    .state { [string]: State<any> } -- all the passed state
+    .arguments { Title: string?, Flags: number }
+    .state { size: State<Vector>, position: State<Vector2>, open: State<boolean>, shown: State<boolean>, scrollDistance: Types.State<number> }
 ]=]
 export type Window = Types.ParentWidget & {
-    usesScreenGuis: boolean,
+    _usesScreenGuis: boolean,
 
     arguments: {
         Title: string?,
@@ -57,6 +58,13 @@ export type Window = Types.ParentWidget & {
         scrollDistance: Types.State<number>,
     },
 } & Types.Opened & Types.Closed & Types.Shown & Types.Hidden & Types.Hovered
+
+--[=[
+    @within Window
+    @interface Tooltip
+    .& Widget
+    .arguments { Text: string }
+]=]
 
 export type Tooltip = Types.Widget & {
     arguments: {
@@ -175,7 +183,7 @@ local function setFocusedWindow(thisWidget: Window?)
         WindowButton.UIStroke.Color = Internal._config.BorderActiveColor
 
         windowDisplayOrder += 1
-        if thisWidget.usesScreenGuis then
+        if thisWidget._usesScreenGuis then
             Window.DisplayOrder = windowDisplayOrder + Internal._config.DisplayOrderOffset
         else
             Window.ZIndex = windowDisplayOrder + Internal._config.DisplayOrderOffset
@@ -459,11 +467,11 @@ Internal._widgetConstructor(
         Generate = function(thisWidget: Window)
             thisWidget.parentWidget = Internal._rootWidget -- only allow root as parent
 
-            thisWidget.usesScreenGuis = Internal._config.UseScreenGUIs
+            thisWidget._usesScreenGuis = Internal._config.UseScreenGUIs
             windowWidgets[thisWidget.ID] = thisWidget
 
             local Window
-            if thisWidget.usesScreenGuis then
+            if thisWidget._usesScreenGuis then
                 Window = Instance.new("ScreenGui")
                 Window.ResetOnSpawn = false
                 Window.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -1044,7 +1052,7 @@ Internal._widgetConstructor(
             WindowButton.Position = UDim2.fromOffset(statePosition.X, statePosition.Y)
 
             if stateShown then
-                if thisWidget.usesScreenGuis then
+                if thisWidget._usesScreenGuis then
                     Window.Enabled = true
                     WindowButton.Visible = true
                 else
@@ -1053,7 +1061,7 @@ Internal._widgetConstructor(
                 end
                 thisWidget._lastOpenedTick = Internal._cycleTick + 1
             else
-                if thisWidget.usesScreenGuis then
+                if thisWidget._usesScreenGuis then
                     Window.Enabled = false
                     WindowButton.Visible = false
                 else

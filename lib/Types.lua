@@ -8,7 +8,17 @@ export type ID = string
 
 --[=[
     @within State
-    @type State<T> { ID: ID, value: T, get: (self) -> T, set: (self, newValue: T) -> T, onChange: (self, callback: (newValue: T) -> ()) -> (), ConnectedWidgets: { [ID]: Widget }, ConnectedFunctions: { (newValue: T) -> () } }
+    @interface State<T>
+    .ID ID,
+    ._value T
+    ._lastChangeTick number
+    ._connectedWidgets { [ID]: Widget }
+    ._connectedFunctions { (newValue: T) -> () }
+
+    .get (self: State<T>) -> T
+    .set (self: State<T>, newValue: T, force: true?) -> ()
+    .onChange (self: State<T>, funcToConnect: (newValue: T) -> ()) -> () -> ()
+    .changed (self: State<T>) -> boolean
 ]=]
 export type State<T> = {
     ID: ID,
@@ -25,7 +35,17 @@ export type State<T> = {
 
 --[=[
     @within Iris
-    @type Widget { ID: ID, type: string, lastCycleTick: number, parentWidget: Widget, Instance: GuiObject, ZIndex: number, arguments: { [string]: any }}
+    @interface Widget
+    .ID ID -- unique widget ID
+    .type string -- type of widget
+    ._lastCycleTick number
+    ._trackedEvents {}
+    .parentWidget ParentWidget -- the current parent, only root has no parent
+
+    .arguments { [string]: any } -- all arguments that affect the widget
+
+    .instance GuiObject -- Roblox instance
+    .zindex number
 ]=]
 export type Widget = {
     ID: ID,
@@ -109,12 +129,12 @@ export type Closed = {
 
 export type Shown = {
     _lastShownTick: number,
-    collapsed: () -> boolean,
+    shown: () -> boolean,
 }
 
 export type Hidden = {
     _lastHiddenTick: number,
-    uncollapsed: () -> boolean,
+    hidden: () -> boolean,
 }
 
 export type Selected = {
@@ -130,16 +150,6 @@ export type Unselected = {
 export type Changed = {
     _lastChangedTick: number,
     changed: () -> boolean,
-}
-
-export type NumberChanged = {
-    _lastNumberChangedTick: number,
-    numberChanged: () -> boolean,
-}
-
-export type TextChanged = {
-    _lastTextChangedTick: number,
-    textChanged: () -> boolean,
 }
 
 export type Event = {
