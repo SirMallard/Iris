@@ -11,14 +11,14 @@ local Types = require(script.Parent.Parent.Types)
 --[=[
     @within Menu
     @interface MenuBar
-    .& Widget
+    .& ParentWidget
 ]=]
 export type MenuBar = Types.ParentWidget
 
 --[=[
     @within Menu
     @interface Menu
-    .& Widget
+    .& ParentWidget
     
     .hovered () -> boolean -- fires when the mouse hovers over any of the window
     .clicked () -> boolean -- fires when a button is clicked

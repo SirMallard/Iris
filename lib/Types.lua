@@ -62,6 +62,14 @@ export type Widget = {
     __index: (self: Widget, index: any) -> (),
 }
 
+--[=[
+    @within Iris
+    @interface ParentWidget
+    .& Widget
+    .childContainer GuiObject -- Instance which all children are placed into
+    .zoffset number
+    .zupdate boolean
+]=]
 export type ParentWidget = Widget & {
     childContainer: GuiObject,
     zoffset: number,

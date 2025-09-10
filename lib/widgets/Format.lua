@@ -3,14 +3,38 @@ local Utility = require(script.Parent)
 
 local Types = require(script.Parent.Parent.Types)
 
+--[=[
+    @class Format
+    Format API
+]=]
+
+--[=[
+    @within Format
+    @interface Separator
+    .& Widget
+]=]
 export type Separator = Types.Widget
 
+--[=[
+    @within Format
+    @interface Indent
+    .& Widget
+
+    .arugments { Width: number? }
+]=]
 export type Indent = Types.ParentWidget & {
     arguments: {
         Width: number?,
     },
 }
+--[=[
+    @within Format
+    @interface SameLine
+    .& Widget
 
+    .arguments { Width: number?, VerticalAlignment: Enum.VerticalAlignment?, HorizontalAlignment: Enum.HorizontalAlignment? }
+ }
+]=]
 export type SameLine = Types.ParentWidget & {
     arguments: {
         Width: number?,
@@ -18,7 +42,11 @@ export type SameLine = Types.ParentWidget & {
         HorizontalAlignment: Enum.HorizontalAlignment?,
     },
 }
-
+--[=[
+    @within Format
+    @interface Group
+    .& Widget
+]=]
 export type Group = Types.ParentWidget
 
 ---------------
@@ -180,4 +208,118 @@ Internal._widgetConstructor(
     } :: Types.WidgetClass
 )
 
-return {}
+--[=[
+    @within Format
+    @prop Separator Iris.Separator
+    @tag Widget
+
+    A vertical or horizonal line, depending on the context, which visually seperates widgets.
+    
+    ```lua
+    Iris.Window({"Separator Demo"})
+        Iris.Text({"Some text here!"})
+        Iris.Separator()
+        Iris.Text({"This text has been separated!"})
+    Iris.End()
+    ```
+
+    ![Example Separator](/Iris/assets/api/format/basicSeparator.png)
+
+    ```lua
+    hasChildren = false
+    hasState = false
+    ```
+]=]
+local API_Separator = function()
+    return Internal._insert("Separator") :: Separator
+end
+
+--[=[
+    @within Format
+    @prop Indent Iris.Indent
+    @tag Widget
+    @tag HasChildren
+    
+    Indents its child widgets.
+
+    ```lua
+    Iris.Window({"Indent Demo"})
+        Iris.Text({"Unindented text!"})
+        Iris.Indent()
+            Iris.Text({"This text has been indented!"})
+        Iris.End()
+    Iris.End()
+    ```
+
+    ![Example Indent](/Iris/assets/api/format/basicIndent.png)
+
+    ```lua
+    hasChildren = true
+    hasState = false
+    Arguments = {
+        Width: number? = Iris._config.IndentSpacing -- indent width ammount.
+    }
+    ```
+]=]
+local API_Indent = function(width: number?)
+    return Internal._insert("Indent", width) :: Indent
+end
+
+--[=[
+    @within Format
+    @prop SameLine Iris.SameLine
+    @tag Widget
+    @tag HasChildren
+    
+    Positions its children in a row, horizontally.
+
+    ```lua
+    Iris.Window({"Same Line Demo"})
+        Iris.Text({"All of these buttons are on the same line!"})
+        Iris.SameLine()
+            Iris.Button({"Button 1"})
+            Iris.Button({"Button 2"})
+            Iris.Button({"Button 3"})
+        Iris.End()
+    Iris.End()
+    ```
+
+    ![Example SameLine](/Iris/assets/api/format/basicSameLine.png)
+    
+    ```lua
+    hasChildren = true
+    hasState = false
+    Arguments = {
+        Width: number? = Iris._config.ItemSpacing.X, -- horizontal spacing between child widgets.
+        VerticalAlignment: Enum.VerticalAlignment? = Enum.VerticalAlignment.Center -- how widgets vertically to each other.
+        HorizontalAlignment: Enum.HorizontalAlignment? = Enum.HorizontalAlignment.Center -- how widgets are horizontally.
+    }
+    ```
+]=]
+local API_SameLine = function(width: number?, verticalAlignment: Enum.VerticalAlignment?, horizontalAlignment: Enum.HorizontalAlignment?)
+    return Internal._insert("SameLine", width, verticalAlignment, horizontalAlignment) :: SameLine
+end
+
+--[=[
+    @within Format
+    @prop Group Iris.Group
+    @tag Widget
+    @tag HasChildren
+    
+    Layout widget which contains its children as a single group.
+    
+    ```lua
+    hasChildren = true
+    hasState = false
+    ```
+]=]
+local API_Group = function()
+    return Internal._insert("Group") :: Group
+end
+
+return {
+    API_Separator = API_Separator,
+    API_Indent = API_Indent,
+    API_SameLine = API_SameLine,
+    API_Group = API_Group,
+}

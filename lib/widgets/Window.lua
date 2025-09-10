@@ -32,7 +32,7 @@ local btest = bit32.btest
 --[=[
     @within Window
     @interface Window
-    .& Widget
+    .& ParentWidget
     .opened () -> boolean -- once when opened
     .closed () -> boolean -- once when closed
     .shown () -> boolean -- once when shown
