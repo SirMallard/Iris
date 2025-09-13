@@ -72,6 +72,19 @@ export type Tooltip = Types.Widget & {
     },
 }
 
+--[=[
+    @within Window
+    @interface WindowFlags
+    .NoTitleBar number -- hide title bar (value 1)
+    .NoBackground number -- hide background colour (value 2)
+    .NoCollapse number -- hide collapsing button (value 4)
+    .NoClose number -- hide close button (value 8)
+    .NoMove number -- disable drag-to-move functionality (value 16)
+    .NoScrollbar number -- disable scrollbar (value 32)
+    .NoResize number -- disable drag-to-resize functionality (value 64)
+    .NoNav number -- unused (value 128)
+    .NoMenu number -- hide the menubar (value 256)
+]=]
 local WindowFlags = {
     NoTitleBar = 1,
     NoBackground = 2,

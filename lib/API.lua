@@ -35,251 +35,16 @@ API.TabFlags = Tab.TabFlags
 API.ComboFlags = Combo.ComboFlags
 API.TableFlags = Table.TableFlags
 
-----------------------------------
--- [SECTION] Format Widget Iris
-----------------------------------
-
---[=[
-    @class Format
-    Format API
-]=]
-
---[=[
-    @within Format
-    @prop Separator Iris.Separator
-    @tag Widget
-
-    A vertical or horizonal line, depending on the context, which visually seperates widgets.
-    
-    ```lua
-    Iris.Window({"Separator Demo"})
-        Iris.Text({"Some text here!"})
-        Iris.Separator()
-        Iris.Text({"This text has been separated!"})
-    Iris.End()
-    ```
-
-    ![Example Separator](/Iris/assets/api/format/basicSeparator.png)
-
-    ```lua
-    hasChildren = false
-    hasState = false
-    ```
-]=]
-API.Separator = function()
-    return Internal._insert("Separator") :: Format.Separator
-end
-
---[=[
-    @within Format
-    @prop Indent Iris.Indent
-    @tag Widget
-    @tag HasChildren
-    
-    Indents its child widgets.
-
-    ```lua
-    Iris.Window({"Indent Demo"})
-        Iris.Text({"Unindented text!"})
-        Iris.Indent()
-            Iris.Text({"This text has been indented!"})
-        Iris.End()
-    Iris.End()
-    ```
-
-    ![Example Indent](/Iris/assets/api/format/basicIndent.png)
-
-    ```lua
-    hasChildren = true
-    hasState = false
-    Arguments = {
-        Width: number? = Iris._config.IndentSpacing -- indent width ammount.
-    }
-    ```
-]=]
-API.Indent = function(width: number?)
-    return Internal._insert("Indent", width) :: Format.Indent
-end
-
---[=[
-    @within Format
-    @prop SameLine Iris.SameLine
-    @tag Widget
-    @tag HasChildren
-    
-    Positions its children in a row, horizontally.
-
-    ```lua
-    Iris.Window({"Same Line Demo"})
-        Iris.Text({"All of these buttons are on the same line!"})
-        Iris.SameLine()
-            Iris.Button({"Button 1"})
-            Iris.Button({"Button 2"})
-            Iris.Button({"Button 3"})
-        Iris.End()
-    Iris.End()
-    ```
-
-    ![Example SameLine](/Iris/assets/api/format/basicSameLine.png)
-    
-    ```lua
-    hasChildren = true
-    hasState = false
-    Arguments = {
-        Width: number? = Iris._config.ItemSpacing.X, -- horizontal spacing between child widgets.
-        VerticalAlignment: Enum.VerticalAlignment? = Enum.VerticalAlignment.Center -- how widgets vertically to each other.
-        HorizontalAlignment: Enum.HorizontalAlignment? = Enum.HorizontalAlignment.Center -- how widgets are horizontally.
-    }
-    ```
-]=]
-API.SameLine = function(width: number?, verticalAlignment: Enum.VerticalAlignment?, horizontalAlignment: Enum.HorizontalAlignment?)
-    return Internal._insert("SameLine", width, verticalAlignment, horizontalAlignment) :: Format.SameLine
-end
-
---[=[
-    @within Format
-    @prop Group Iris.Group
-    @tag Widget
-    @tag HasChildren
-    
-    Layout widget which contains its children as a single group.
-    
-    ```lua
-    hasChildren = true
-    hasState = false
-    ```
-]=]
-API.Group = function()
-    return Internal._insert("Group") :: Format.Group
-end
-
 --[[
     ---------------------------------
         [SECTION] Text Widget API
     ---------------------------------
 ]]
---[=[
-    @class Text
-    Text Widget API
-]=]
 
 --[=[
     @within Text
-    @prop Text Iris.Text
-    @tag Widget
-    
-    A text label to display the text argument.
-    The Wrapped argument will make the text wrap around if it is cut off by its parent.
-    The Color argument will change the color of the text, by default it is defined in the configuration file.
-
-    ```lua
-    Iris.Window({"Text Demo"})
-        Iris.Text({"This is regular text"})
-    Iris.End()
-    ```
-
-    ![Example Text](/Iris/assets/api/text/basicText.png)
-
-    ```lua
-    hasChildren = false
-    hasState = false
-    Arguments = {
-        Text: string,
-        Wrapped: boolean? = [CONFIG] = false, -- whether the text will wrap around inside the parent container. If not specified, then equal to the config
-        Color: Color3? = Iris._config.TextColor, -- the colour of the text.
-        RichText: boolean? = [CONFIG] = false -- enable RichText. If not specified, then equal to the config
-    }
-    Events = {
-        hovered: () -> boolean
-    }
-    ```
-]=]
-API.Text = function(text: string, flags: number?, color: Color3?)
-    return Internal._insert("Text", text, flags or 0, color) :: Text.Text
-end
-
---[=[
-    @within Text
-    @prop TextWrapped Iris.Text
-    @tag Widget
-    @deprecated v2.0.0 -- Use 'Text' with the Wrapped argument or change the config.
-
-    An alias for [Iris.Text](Text#Text) with the Wrapped argument set to true, and the text will wrap around if cut off by its parent.
-
-    ```lua
-    hasChildren = false
-    hasState = false
-    Arguments = {
-        Text: string,
-    }
-    Events = {
-        hovered: () -> boolean
-    }
-    ```
-]=]
-API.TextWrapped = function(text: string)
-    return Internal._insert("Text", text, Text.TextFlags.Wrapped) :: Text.Text
-end
-
---[=[
-    @within Text
-    @prop TextColored Iris.Text
-    @tag Widget
-    @deprecated v2.0.0 -- Use 'Text' with the Color argument or change the config.
-    
-    An alias for [Iris.Text](Text#Text) with the color set by the Color argument.
-
-    ```lua
-    hasChildren = false
-    hasState = false
-    Arguments = {
-        Text: string,
-        Color: Color3 -- the colour of the text.
-    }
-    Events = {
-        hovered: () -> boolean
-    }
-    ```
-]=]
-API.TextColored = function(text: string, color: Color3)
-    return Internal._insert("Text", text, 0, color) :: Text.Text
-end
-
---[=[
-    @within Text
-    @prop SeparatorText Iris.SeparatorText
-    @tag Widget
-    
-    Similar to [Iris.Separator](Format#Separator) but with a text label to be used as a header
-    when an [Iris.Tree](Tree#Tree) or [Iris.CollapsingHeader](Tree#CollapsingHeader) is not appropriate.
-
-    Visually a full width thin line with a text label clipping out part of the line.
-
-    ```lua
-    Iris.Window({"Separator Text Demo"})
-        Iris.Text({"Regular Text"})
-        Iris.SeparatorText({"This is a separator with text"})
-        Iris.Text({"More Regular Text"})
-    Iris.End()
-    ```
-
-    ![Example Separator Text](/Iris/assets/api/text/basicSeparatorText.png)
-    
-    ```lua
-    hasChildren = false
-    hasState = false
-    Arguments = {
-        Text: string
-    }
-    ```
-]=]
-API.SeparatorText = function(text: string)
-    return Internal._insert("SeparatorText", text) :: Text.SeparatorText
-end
-
---[=[
-    @within Text
-    @prop InputText Iris.InputText
+    @function InputText
+    @return InputText
     @tag Widget
     @tag HasState
 
@@ -313,131 +78,14 @@ end
         text: State<string>?
     }
     ```
+    @param text string?
+    @param textHint string?
+    @param flags number?
+    @param textBuffer Types.State<string>?
+
 ]=]
 API.InputText = function(text: string?, textHint: string?, flags: number?, textBuffer: Types.State<string>?)
     return Internal._insert("InputText", text, textHint, flags or 0, textBuffer) :: Input.InputText
-end
-
---[[
-    ----------------------------------
-        [SECTION] Basic Widget API
-    ----------------------------------
-]]
---[=[
-    @class Basic
-    Basic Widget API
-]=]
-
---[=[
-    @within Basic
-    @prop Button Iris.Button
-    @tag Widget
-    
-    A clickable button the size of the text with padding. Can listen to the `clicked()` event to determine if it was pressed.
-
-    ```lua
-    hasChildren = false
-    hasState = false
-    Arguments = {
-        Text: string,
-        Size: UDim2? = UDim2.fromOffset(0, 0),
-    }
-    Events = {
-        clicked: () -> boolean,
-        rightClicked: () -> boolean,
-        doubleClicked: () -> boolean,
-        ctrlClicked: () -> boolean, -- when the control key is down and clicked.
-        hovered: () -> boolean
-    }
-    ```
-]=]
-API.Button = function(text: string, size: UDim2?)
-    return Internal._insert("Button", text, size) :: Button.Button
-end
-
---[=[
-    @within Basic
-    @prop SmallButton Iris.SmallButton
-    @tag Widget
-    
-    A smaller clickable button, the same as a [Iris.Button](Basic#Button) but without padding. Can listen to the `clicked()` event to determine if it was pressed.
-
-    ```lua
-    hasChildren = false
-    hasState = false
-    Arguments = {
-        Text: string,
-        Size: UDim2? = 0,
-    }
-    Events = {
-        clicked: () -> boolean,
-        rightClicked: () -> boolean,
-        doubleClicked: () -> boolean,
-        ctrlClicked: () -> boolean, -- when the control key is down and clicked.
-        hovered: () -> boolean
-    }
-    ```
-]=]
-API.SmallButton = function(text: string, size: UDim2?)
-    return Internal._insert("SmallButton", text, size) :: Button.Button
-end
-
---[=[
-    @within Basic
-    @prop Checkbox Iris.Checkbox
-    @tag Widget
-    @tag HasState
-    
-    A checkable box with a visual tick to represent a boolean true or false state.
-
-    ```lua
-    hasChildren = false
-    hasState = true
-    Arguments = {
-        Text: string
-    }
-    Events = {
-        checked: () -> boolean, -- once when checked.
-        unchecked: () -> boolean, -- once when unchecked.
-        hovered: () -> boolean
-    }
-    State = {
-        isChecked = State<boolean>? -- whether the box is checked.
-    }
-    ```
-]=]
-API.Checkbox = function(text: string, checked: Types.State<boolean>?)
-    return Internal._insert("Checkbox", text, checked) :: Checkbox.Checkbox
-end
-
---[=[
-    @within Basic
-    @prop RadioButton Iris.RadioButton
-    @tag Widget
-    @tag HasState
-    
-    A circular selectable button, changing the state to its index argument. Used in conjunction with multiple other RadioButtons sharing the same state to represent one value from multiple options.
-    
-    ```lua
-    hasChildren = false
-    hasState = true
-    Arguments = {
-        Text: string,
-        Index: any -- the state object is set to when clicked.
-    }
-    Events = {
-        selected: () -> boolean,
-        unselected: () -> boolean,
-        active: () -> boolean, -- if the state index equals the RadioButton's index.
-        hovered: () -> boolean
-    }
-    State = {
-        index = State<any>? -- the state set by the index of a RadioButton.
-    }
-    ```
-]=]
-API.RadioButton = function(text: string, index: any, state: Types.State<any>?)
-    return Internal._insert("RadioButton", text, index, state) :: RadioButton.RadioButton
 end
 
 --[[
@@ -454,11 +102,12 @@ end
 
 --[=[
     @within Image
-    @prop Image Iris.Image
+    @function Image
+    @return Image
     @tag Widget
 
-    An image widget for displaying an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image and the rest of the ScaleType properties.
-    Some of the arguments are only used depending on the ScaleType property, such as TileSize or Slice which will be ignored.
+    An image widget for displaying an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image and the rest of the ScaleType functionerties
+    Some of the arguments are only used depending on the ScaleType functionerty
 
     ```lua
     hasChildren = false
@@ -477,6 +126,15 @@ end
         hovered: () -> boolean
     }
     ```
+    @param image string
+    @param size UDim2
+    @param rect Rect?
+    @param scaleType Enum.ScaleType?
+    @param resampleMode Enum.ResamplerMode?
+    @param tileSize UDim2?
+    @param sliceCenter Rect?
+    @param sliceScale number?
+
 ]=]
 API.Image = function(image: string, size: UDim2, rect: Rect?, scaleType: Enum.ScaleType?, resampleMode: Enum.ResamplerMode?, tileSize: UDim2?, sliceCenter: Rect?, sliceScale: number?)
     return Internal._insert("Image", image, size, rect, scaleType, resampleMode, tileSize, sliceCenter, sliceScale) :: Image.Image
@@ -484,10 +142,11 @@ end
 
 --[=[
     @within Image
-    @prop ImageButton Iris.ImageButton
+    @function ImageButton
+    @return ImageButton
     @tag Widget
 
-    An image button widget for a button as an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image, and the rest of the ScaleType properties.
+    An image button widget for a button as an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image, and the rest of the ScaleType functionerties
     Supports all of the events of a regular button.
 
     ```lua
@@ -511,6 +170,15 @@ end
         hovered: () -> boolean
     }
     ```
+    @param image string
+    @param size UDim2
+    @param rect Rect?
+    @param scaleType Enum.ScaleType?
+    @param resampleMode Enum.ResamplerMode?
+    @param tileSize UDim2?
+    @param sliceCenter Rect?
+    @param sliceScale number?
+
 ]=]
 API.ImageButton = function(image: string, size: UDim2, rect: Rect?, scaleType: Enum.ScaleType?, resampleMode: Enum.ResamplerMode?, tileSize: UDim2?, sliceCenter: Rect?, sliceScale: number?)
     return Internal._insert("ImageButton", image, size, rect, scaleType, resampleMode, tileSize, sliceCenter, sliceScale) :: Image.ImageButton_
@@ -528,7 +196,8 @@ end
 
 --[=[
     @within Tree
-    @prop Tree Iris.Tree
+    @function Tree
+    @return Tree
     @tag Widget
     @tag HasChildren
     @tag HasState
@@ -553,6 +222,10 @@ end
         isUncollapsed: State<boolean>? -- whether the widget is collapsed.
     }
     ```
+    @param text string
+    @param flags number?
+    @param open Types.State<boolean>?
+
 ]=]
 API.Tree = function(text: string, flags: number?, open: Types.State<boolean>?)
     return Internal._insert("Tree", text, flags, open) :: Tree.Tree
@@ -560,7 +233,8 @@ end
 
 --[=[
     @within Tree
-    @prop CollapsingHeader Iris.CollapsingHeader
+    @function CollapsingHeader
+    @return CollapsingHeader
     @tag Widget
     @tag HasChildren
     @tag HasState
@@ -583,6 +257,10 @@ end
         isUncollapsed: State<boolean>? -- whether the widget is collapsed.
     }
     ```
+    @param text string
+    @param flags number?
+    @param open Types.State<boolean>?
+
 ]=]
 API.CollapsingHeader = function(text: string, flags: number?, open: Types.State<boolean>?)
     return Internal._insert("CollapsingHeader", text, flags, open) :: Tree.CollapsingHeader
@@ -600,7 +278,8 @@ end
 
 --[=[
     @within Tab
-    @prop TabBar Iris.TabBar
+    @function TabBar
+    @return TabBar
     @tag Widget
     @tag HasChildren
     @tag HasState
@@ -618,6 +297,7 @@ end
         index: State<number>? -- whether the widget is collapsed.
     }
     ```
+    state: Types.State<number>?
 ]=]
 API.TabBar = function(state: Types.State<number>?)
     return Internal._insert("TabBar", state) :: Tab.TabBar
@@ -625,7 +305,8 @@ end
 
 --[=[
     @within Tab
-    @prop Tab Iris.Tab
+    @function Tab
+    @return Tab
     @tag Widget
     @tag HasChildren
     @tag HasState
@@ -656,6 +337,10 @@ end
         isOpened: State<boolean>?
     }
     ```
+    @param text string
+    @param flags number?
+    @param open Types.State<boolean>?
+
 ]=]
 API.Tab = function(text: string, flags: number?, open: Types.State<boolean>?)
     return Internal._insert("Tab", text, flags, open) :: Tab.Tab
@@ -705,7 +390,8 @@ end
 
 --[=[
     @within Input
-    @prop InputNum Iris.InputNum
+    @function InputNum
+    @return InputNum
     @tag Widget
     @tag HasState
     
@@ -731,6 +417,14 @@ end
         editingText: State<boolean>?
     }
     ```
+    @param text string
+    @param increment number?
+    @param min number?
+    @param max number?
+    @param format string? | { string }?
+    @param value Types.State<number>?
+    @param editing Types.State<boolean>?
+
 ]=]
 API.InputNum = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<number>?, editing: Types.State<boolean>?)
     return Internal._insert("InputNum", text, increment, min, max, format, value, editing) :: Input.Input<number>
@@ -738,7 +432,8 @@ end
 
 --[=[
     @within Input
-    @prop InputVector2 Iris.InputVector2
+    @function InputVector2
+    @return InputVector2
     @tag Widget
     @tag HasState
     
@@ -763,6 +458,14 @@ end
         editingText: State<boolean>?
     }
     ```
+    @param text string
+    @param increment Vector2?
+    @param min Vector2?
+    @param max Vector2?
+    @param format string? | { string }?
+    @param value Types.State<Vector2>?
+    @param editing Types.State<boolean>?
+
 ]=]
 API.InputVector2 = function(text: string, increment: Vector2?, min: Vector2?, max: Vector2?, format: string? | { string }?, value: Types.State<Vector2>?, editing: Types.State<boolean>?)
     return Internal._insert("InputVector2", text, increment, min, max, format, value, editing) :: Input.Input<Vector2>
@@ -770,7 +473,8 @@ end
 
 --[=[
     @within Input
-    @prop InputVector3 Iris.InputVector3
+    @function InputVector3
+    @return InputVector3
     @tag Widget
     @tag HasState
     
@@ -795,6 +499,14 @@ end
         editingText: State<boolean>?
     }
     ```
+    @param text string
+    @param increment Vector3?
+    @param min Vector3?
+    @param max Vector3?
+    @param format string? | { string }?
+    @param value Types.State<Vector3>?
+    @param editing Types.State<boolean>?
+
 ]=]
 API.InputVector3 = function(text: string, increment: Vector3?, min: Vector3?, max: Vector3?, format: string? | { string }?, value: Types.State<Vector3>?, editing: Types.State<boolean>?)
     return Internal._insert("InputVector3", text, increment, min, max, format, value, editing) :: Input.Input<Vector3>
@@ -802,7 +514,8 @@ end
 
 --[=[
     @within Input
-    @prop InputUDim Iris.InputUDim
+    @function InputUDim
+    @return InputUDim
     @tag Widget
     @tag HasState
     
@@ -828,6 +541,14 @@ end
         editingText: State<boolean>?
     }
     ```
+    @param text string
+    @param increment UDim?
+    @param min UDim?
+    @param max UDim?
+    @param format string? | { string }?
+    @param value Types.State<UDim>?
+    @param editing Types.State<boolean>?
+
 ]=]
 API.InputUDim = function(text: string, increment: UDim?, min: UDim?, max: UDim?, format: string? | { string }?, value: Types.State<UDim>?, editing: Types.State<boolean>?)
     return Internal._insert("InputUDim", text, increment, min, max, format, value, editing) :: Input.Input<UDim>
@@ -835,7 +556,8 @@ end
 
 --[=[
     @within Input
-    @prop InputUDim2 Iris.InputUDim2
+    @function InputUDim2
+    @return InputUDim2
     @tag Widget
     @tag HasState
     
@@ -861,6 +583,14 @@ end
         editingText: State<boolean>?
     }
     ```
+    @param text string
+    @param increment UDim2?
+    @param min UDim2?
+    @param max UDim2?
+    @param format string? | { string }?
+    @param value Types.State<UDim2>?
+    @param editing Types.State<boolean>?
+
 ]=]
 API.InputUDim2 = function(text: string, increment: UDim2?, min: UDim2?, max: UDim2?, format: string? | { string }?, value: Types.State<UDim2>?, editing: Types.State<boolean>?)
     return Internal._insert("InputUDim2", text, increment, min, max, format, value, editing) :: Input.Input<UDim2>
@@ -868,7 +598,8 @@ end
 
 --[=[
     @within Input
-    @prop InputRect Iris.InputRect
+    @function InputRect
+    @return InputRect
     @tag Widget
     @tag HasState
     
@@ -893,6 +624,14 @@ end
         editingText: State<boolean>?
     }
     ```
+    @param text string
+    @param increment Rect?
+    @param min Rect?
+    @param max Rect?
+    @param format string? | { string }?
+    @param value Types.State<Rect>?
+    @param editing Types.State<boolean>?
+
 ]=]
 API.InputRect = function(text: string, increment: Rect?, min: Rect?, max: Rect?, format: string? | { string }?, value: Types.State<Rect>?, editing: Types.State<boolean>?)
     return Internal._insert("InputRect", text, increment, min, max, format, value, editing) :: Input.Input<Rect>
@@ -914,7 +653,8 @@ end
 
 --[=[
     @within Drag
-    @prop DragNum Iris.DragNum
+    @function DragNum
+    @return DragNum
     @tag Widget
     @tag HasState
     
@@ -941,6 +681,14 @@ end
         editingText: State<boolean>?
     }
     ```
+    @param text string
+    @param increment number?
+    @param min number?
+    @param max number?
+    @param format string? | { string }?
+    @param value Types.State<number>?
+    @param editing Types.State<boolean>?
+
 ]=]
 API.DragNum = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<number>?, editing: Types.State<boolean>?)
     return Internal._insert("DragNum", text, increment, min, max, format, value, editing) :: Input.Input<number>
@@ -948,7 +696,8 @@ end
 
 --[=[
     @within Drag
-    @prop DragVector2 Iris.DragVector2
+    @function DragVector2
+    @return DragVector2
     @tag Widget
     @tag HasState
     
@@ -975,6 +724,14 @@ end
         editingText: State<boolean>?
     }
     ```
+    @param text string
+    @param increment Vector2?
+    @param min Vector2?
+    @param max Vector2?
+    @param format string? | { string }?
+    @param value Types.State<Vector2>?
+    @param editing Types.State<boolean>?
+
 ]=]
 API.DragVector2 = function(text: string, increment: Vector2?, min: Vector2?, max: Vector2?, format: string? | { string }?, value: Types.State<Vector2>?, editing: Types.State<boolean>?)
     return Internal._insert("DragVector2", text, increment, min, max, format, value, editing) :: Input.Input<Vector2>
@@ -982,7 +739,8 @@ end
 
 --[=[
     @within Drag
-    @prop DragVector3 Iris.DragVector3
+    @function DragVector3
+    @return DragVector3
     @tag Widget
     @tag HasState
     
@@ -1009,6 +767,14 @@ end
         editingText: State<boolean>?
     }
     ```
+    @param text string
+    @param increment Vector3?
+    @param min Vector3?
+    @param max Vector3?
+    @param format string? | { string }?
+    @param value Types.State<Vector3>?
+    @param editing Types.State<boolean>?
+
 ]=]
 API.DragVector3 = function(text: string, increment: Vector3?, min: Vector3?, max: Vector3?, format: string? | { string }?, value: Types.State<Vector3>?, editing: Types.State<boolean>?)
     return Internal._insert("DragVector3", text, increment, min, max, format, value, editing) :: Input.Input<Vector3>
@@ -1016,7 +782,8 @@ end
 
 --[=[
     @within Drag
-    @prop DragUDim Iris.DragUDim
+    @function DragUDim
+    @return DragUDim
     @tag Widget
     @tag HasState
     
@@ -1043,6 +810,14 @@ end
         editingText: State<boolean>?
     }
     ```
+    @param text string
+    @param increment UDim?
+    @param min UDim?
+    @param max UDim?
+    @param format string? | { string }?
+    @param value Types.State<UDim>?
+    @param editing Types.State<boolean>?
+
 ]=]
 API.DragUDim = function(text: string, increment: UDim?, min: UDim?, max: UDim?, format: string? | { string }?, value: Types.State<UDim>?, editing: Types.State<boolean>?)
     return Internal._insert("DragUDim", text, increment, min, max, format, value, editing) :: Input.Input<UDim>
@@ -1050,7 +825,8 @@ end
 
 --[=[
     @within Drag
-    @prop DragUDim2 Iris.DragUDim2
+    @function DragUDim2
+    @return DragUDim2
     @tag Widget
     @tag HasState
     
@@ -1077,6 +853,14 @@ end
         editingText: State<boolean>?
     }
     ```
+    @param text string
+    @param increment UDim2?
+    @param min UDim2?
+    @param max UDim2?
+    @param format string? | { string }?
+    @param value Types.State<UDim2>?
+    @param editing Types.State<boolean>?
+
 ]=]
 API.DragUDim2 = function(text: string, increment: UDim2?, min: UDim2?, max: UDim2?, format: string? | { string }?, value: Types.State<UDim2>?, editing: Types.State<boolean>?)
     return Internal._insert("DragUDim2", text, increment, min, max, format, value, editing) :: Input.Input<UDim2>
@@ -1084,7 +868,8 @@ end
 
 --[=[
     @within Drag
-    @prop DragRect Iris.DragRect
+    @function DragRect
+    @return DragRect
     @tag Widget
     @tag HasState
     
@@ -1111,6 +896,14 @@ end
         editingText: State<boolean>?
     }
     ```
+    @param text string
+    @param increment Rect?
+    @param min Rect?
+    @param max Rect?
+    @param format string? | { string }?
+    @param value Types.State<Rect>?
+    @param editing Types.State<boolean>?
+
 ]=]
 API.DragRect = function(text: string, increment: Rect?, min: Rect?, max: Rect?, format: string? | { string }?, value: Types.State<Rect>?, editing: Types.State<boolean>?)
     return Internal._insert("DragRect", text, increment, min, max, format, value, editing) :: Input.Input<Rect>
@@ -1118,7 +911,8 @@ end
 
 --[=[
     @within Input
-    @prop InputColor3 Iris.InputColor3
+    @function InputColor3
+    @return InputColor3
     @tag Widget
     @tag HasState
     
@@ -1144,6 +938,12 @@ end
         editingText: State<boolean>?
     }
     ```
+    @param text string
+    @param flags number?
+    @param format string? | { string }?
+    @param color Types.State<Color3>?
+    @param editing Types.State<boolean>?
+
 ]=]
 API.InputColor3 = function(text: string, flags: number?, format: string? | { string }?, color: Types.State<Color3>?, editing: Types.State<boolean>?)
     return Internal._insert("InputColor3", text, flags or 0, format, color, editing) :: Input.InputColor3
@@ -1151,7 +951,8 @@ end
 
 --[=[
     @within Input
-    @prop InputColor4 Iris.InputColor4
+    @function InputColor4
+    @return InputColor4
     @tag Widget
     @tag HasState
     
@@ -1180,6 +981,13 @@ end
         editingText: State<boolean>?
     }
     ```
+    @param text string
+    @param flags number?
+    @param format string? | { string }?
+    @param color Types.State<Color3>?
+    @param transparency Types.State<number>?
+    @param editing Types.State<boolean>?
+
 ]=]
 API.InputColor4 = function(text: string, flags: number?, format: string? | { string }?, color: Types.State<Color3>?, transparency: Types.State<number>?, editing: Types.State<boolean>?)
     return Internal._insert("InputColor4", text, flags or 0, format, color, transparency, editing) :: Input.InputColor4
@@ -1202,7 +1010,8 @@ end
 
 --[=[
     @within Slider
-    @prop SliderNum Iris.SliderNum
+    @function SliderNum
+    @return SliderNum
     @tag Widget
     @tag HasState
     
@@ -1228,6 +1037,14 @@ end
         editingText: State<boolean>?
     }
     ```
+    @param text string
+    @param increment number?
+    @param min number?
+    @param max number?
+    @param format string? | { string }?
+    @param value Types.State<number>?
+    @param editing Types.State<boolean>?
+
 ]=]
 API.SliderNum = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<number>?, editing: Types.State<boolean>?)
     return Internal._insert("SliderNum", text, increment, min, max, format, value, editing) :: Input.Input<number>
@@ -1235,7 +1052,8 @@ end
 
 --[=[
     @within Slider
-    @prop SliderVector2 Iris.SliderVector2
+    @function SliderVector2
+    @return SliderVector2
     @tag Widget
     @tag HasState
     
@@ -1261,6 +1079,14 @@ end
         editingText: State<boolean>?
     }
     ```
+    @param text string
+    @param increment Vector2?
+    @param min Vector2?
+    @param max Vector2?
+    @param format string? | { string }?
+    @param value Types.State<Vector2>?
+    @param editing Types.State<boolean>?
+
 ]=]
 API.SliderVector2 = function(text: string, increment: Vector2?, min: Vector2?, max: Vector2?, format: string? | { string }?, value: Types.State<Vector2>?, editing: Types.State<boolean>?)
     return Internal._insert("SliderVector2", text, increment, min, max, format, value, editing) :: Input.Input<Vector2>
@@ -1268,7 +1094,8 @@ end
 
 --[=[
     @within Slider
-    @prop SliderVector3 Iris.SliderVector3
+    @function SliderVector3
+    @return SliderVector3
     @tag Widget
     @tag HasState
     
@@ -1294,6 +1121,14 @@ end
         editingText: State<boolean>?
     }
     ```
+    @param text string
+    @param increment Vector3?
+    @param min Vector3?
+    @param max Vector3?
+    @param format string? | { string }?
+    @param value Types.State<Vector3>?
+    @param editing Types.State<boolean>?
+
 ]=]
 API.SliderVector3 = function(text: string, increment: Vector3?, min: Vector3?, max: Vector3?, format: string? | { string }?, value: Types.State<Vector3>?, editing: Types.State<boolean>?)
     return Internal._insert("SliderVector3", text, increment, min, max, format, value, editing) :: Input.Input<Vector3>
@@ -1301,7 +1136,8 @@ end
 
 --[=[
     @within Slider
-    @prop SliderUDim Iris.SliderUDim
+    @function SliderUDim
+    @return SliderUDim
     @tag Widget
     @tag HasState
     
@@ -1327,6 +1163,14 @@ end
         editingText: State<boolean>?
     }
     ```
+    @param text string
+    @param increment UDim?
+    @param min UDim?
+    @param max UDim?
+    @param format string? | { string }?
+    @param value Types.State<UDim>?
+    @param editing Types.State<boolean>?
+
 ]=]
 API.SliderUDim = function(text: string, increment: UDim?, min: UDim?, max: UDim?, format: string? | { string }?, value: Types.State<UDim>?, editing: Types.State<boolean>?)
     return Internal._insert("SliderUDim", text, increment, min, max, format, value, editing) :: Input.Input<UDim>
@@ -1334,7 +1178,8 @@ end
 
 --[=[
     @within Slider
-    @prop SliderUDim2 Iris.SliderUDim2
+    @function SliderUDim2
+    @return SliderUDim2
     @tag Widget
     @tag HasState
     
@@ -1360,6 +1205,14 @@ end
         editingText: State<boolean>?
     }
     ```
+    @param text string
+    @param increment UDim2?
+    @param min UDim2?
+    @param max UDim2?
+    @param format string? | { string }?
+    @param value Types.State<UDim2>?
+    @param editing Types.State<boolean>?
+
 ]=]
 API.SliderUDim2 = function(text: string, increment: UDim2?, min: UDim2?, max: UDim2?, format: string? | { string }?, value: Types.State<UDim2>?, editing: Types.State<boolean>?)
     return Internal._insert("SliderUDim2", text, increment, min, max, format, value, editing) :: Input.Input<UDim2>
@@ -1367,7 +1220,8 @@ end
 
 --[=[
     @within Slider
-    @prop SliderRect Iris.SliderRect
+    @function SliderRect
+    @return SliderRect
     @tag Widget
     @tag HasState
     
@@ -1393,6 +1247,14 @@ end
         editingText: State<boolean>?
     }
     ```
+    @param text string
+    @param increment Rect?
+    @param min Rect?
+    @param max Rect?
+    @param format string? | { string }?
+    @param value Types.State<Rect>?
+    @param editing Types.State<boolean>?
+
 ]=]
 API.SliderRect = function(text: string, increment: Rect?, min: Rect?, max: Rect?, format: string? | { string }?, value: Types.State<Rect>?, editing: Types.State<boolean>?)
     return Internal._insert("SliderRect", text, increment, min, max, format, value, editing) :: Input.Input<Rect>
@@ -1410,7 +1272,8 @@ end
 
 --[=[
     @within Combo
-    @prop Selectable Iris.Selectable
+    @function Selectable
+    @return Selectable
     @tag Widget
     @tag HasState
     
@@ -1438,6 +1301,11 @@ end
         index: State<any> -- a shared state between all selectables.
     }
     ```
+    @param text string
+    @param index any
+    @param flags number?
+    @param state Types.State<any>?
+
 ]=]
 API.Selectable = function(text: string, index: any, flags: number?, state: Types.State<any>?)
     return Internal._insert("Selectable", text, index, flags or 0, state) :: Combo.Selectable
@@ -1445,7 +1313,8 @@ end
 
 --[=[
     @within Combo
-    @prop Combo Iris.Combo
+    @function Combo
+    @return Combo
     @tag Widget
     @tag HasChildren
     @tag HasState
@@ -1472,6 +1341,11 @@ end
         isOpened: State<boolean>?
     }
     ```
+    @param text string
+    @param flags number?
+    @param state Types.State<any>?
+    @param open Types.State<boolean>?
+
 ]=]
 API.Combo = function(text: string, flags: number?, state: Types.State<any>?, open: Types.State<boolean>?)
     return Internal._insert("Combo", text, flags or 0, state, open) :: Combo.Combo
@@ -1479,7 +1353,8 @@ end
 
 --[=[
     @within Combo
-    @prop ComboArray Iris.Combo
+    @function ComboArray
+    @return ComboArray
     @tag Widget
     @tag HasChildren
     @tag HasState
@@ -1508,6 +1383,12 @@ end
         selectionArray: { any } -- the array to generate a combo from.
     }
     ```
+    @param T(text: string
+    @param array { any }
+    @param flags number?
+    @param state Types.State<any>?
+    @param open Types.State<boolean>?
+
 ]=]
 API.ComboArray = function<T>(text: string, array: { any }, flags: number?, state: Types.State<any>?, open: Types.State<boolean>?)
     local thisWidget = Internal._insert("Combo", text, flags or 0, state, open) :: Combo.Combo
@@ -1522,7 +1403,8 @@ end
 
 --[=[
     @within Combo
-    @prop ComboEnum Iris.Combo
+    @function ComboEnum
+    @return ComboEnum
     @tag Widget
     @tag HasChildren
     @tag HasState
@@ -1551,6 +1433,12 @@ end
         enumType: Enum -- the enum to generate a combo from.
     }
     ```
+    @param text string
+    @param enum Enum
+    @param flags number?
+    @param state Types.State<any>?
+    @param open Types.State<boolean>?
+
 ]=]
 API.ComboEnum = function(text: string, enum: Enum, flags: number?, state: Types.State<any>?, open: Types.State<boolean>?)
     local thisWidget = Internal._insert("Combo", text, flags or 0, state, open)
@@ -1566,7 +1454,8 @@ end
 --[=[
     @private
     @within Slider
-    @prop InputEnum Iris.InputEnum
+    @function InputEnum
+    @return InputEnum
     @tag Widget
     @tag HasState
     
@@ -1608,7 +1497,8 @@ API.InputEnum = API.ComboEnum
 
 --[=[
     @within Plot
-    @prop ProgressBar Iris.ProgressBar
+    @function ProgressBar
+    @return ProgressBar
     @tag Widget
     @tag HasState
 
@@ -1629,6 +1519,10 @@ API.InputEnum = API.ComboEnum
         progress: State<number>?
     }
     ```
+    @param text string?
+    @param format string?
+    @param progress Types.State<number>?
+
 ]=]
 API.ProgressBar = function(text: string?, format: string?, progress: Types.State<number>?)
     return Internal._insert("ProgressBar", text, format, progress) :: Plot.ProgressBar
@@ -1636,7 +1530,8 @@ end
 
 --[=[
     @within Plot
-    @prop PlotLines Iris.PlotLines
+    @function PlotLines
+    @return PlotLines
     @tag Widget
     @tag HasState
 
@@ -1659,9 +1554,17 @@ end
     }
     States = {
         values: State<{number}>?,
-        hovered: State<{number}>? -- read-only property
+        hovered: State<{number}>? -- read-only functionert
     }
     ```
+    @param text string?
+    @param height number?
+    @param min number?
+    @param max number?
+    @param textOverlay string?
+    @param values Types.State<number>?
+    @param hovered Types.State<number>?
+
 ]=]
 API.PlotLines = function(text: string?, height: number?, min: number?, max: number?, textOverlay: string?, values: Types.State<number>?, hovered: Types.State<number>?)
     return Internal._insert("PlotLines", text, height, min, max, textOverlay, values, hovered) :: Plot.PlotLines
@@ -1669,7 +1572,8 @@ end
 
 --[=[
     @within Plot
-    @prop PlotHistogram Iris.PlotHistogram
+    @function PlotHistogram
+    @return PlotHistogram
     @tag Widget
     @tag HasState
 
@@ -1693,9 +1597,18 @@ end
     }
     States = {
         values: State<{number}>?,
-        hovered: State<{number}>? -- read-only property
+        hovered: State<{number}>? -- read-only functionert
     }
     ```
+    @param text string?
+    @param height number?
+    @param min number?
+    @param max number?
+    @param textOverlay string?
+    @param baseline number?
+    @param values Types.State<number>?
+    @param hovered Types.State<number>?
+
 ]=]
 API.PlotHistogram = function(text: string?, height: number?, min: number?, max: number?, textOverlay: string?, baseline: number?, values: Types.State<number>?, hovered: Types.State<number>?)
     return Internal._insert("PlotHistogram", text, height, min, max, textOverlay, baseline, values, hovered) :: Plot.PlotHistogram
@@ -1737,7 +1650,8 @@ end
 
 --[=[
     @within Table
-    @prop Table Iris.Table
+    @function Table
+    @return Table
     @tag Widget
     @tag HasChildren
     
@@ -1751,7 +1665,7 @@ end
     integer.
 
     ProportionalWidth determines whether each column has the same width, or individual. By default, each column will take up an equal
-    proportion of the total table width. If true, then the columns will be allocated a width proportional to their total content size,
+    functionortion
     meaning wider columns take up a greater share of the total available space. For a fixed width table, by default each column will
     take the max width of all the columns. When true, each column width will the minimum to fit the children within.
 
@@ -1788,7 +1702,7 @@ end
         OuterBorders: boolean? = false, -- outer border on the entire table
         InnerBorders: boolean? = false, -- inner bordres on the entire table
         Resizable: boolean? = false, -- the columns can be resized by dragging or state
-        FixedWidth: boolean? = false, -- columns takes up a fixed pixel width, rather than a proportion of the total available
+        FixedWidth: boolean? = false, -- columns takes up a fixed pixel width, rather than a functionortion
         ProportionalWidth: boolean? = false, -- minimises the width of each column individually
         LimitTableWidth: boolean? = false, -- when a fixed width, cut of any unused space
     }
@@ -1799,18 +1713,22 @@ end
         widths: State<{ number }>? -- the widths of each column if Resizable
     }
     ```
+    @param numColumns number
+    @param flags number?
+    @param widths Types.State<{ number }>?
+
 ]=]
 API.Table = function(numColumns: number, flags: number?, widths: Types.State<{ number }>?)
     return Internal._insert("Table", numColumns, flags, widths) :: Table.Table
 end
 
 --[=[
-        @within Table
-        @function NextColumn
-        
-        In a table, moves to the next available cell. If the current cell is in the last column,
-        then moves to the cell in the first column of the next row.
-    ]=]
+    @within Table
+    @function NextColumn
+    
+    In a table, moves to the next available cell. If the current cell is in the last column,
+    then moves to the cell in the first column of the next row.
+]=]
 API.NextColumn = function()
     local thisWidget = Internal._getParentWidget() :: Table.Table
     assert(thisWidget ~= nil, "Iris.NextColumn() can only called when directly within a table.")
@@ -1826,11 +1744,11 @@ API.NextColumn = function()
 end
 
 --[=[
-        @within Table
-        @function NextRow
-        
-        In a table, moves to the cell in the first column of the next row.
-    ]=]
+    @within Table
+    @function NextRow
+    
+    In a table, moves to the cell in the first column of the next row.
+]=]
 API.NextRow = function()
     local thisWidget = Internal._getParentWidget() :: Table.Table
     assert(thisWidget ~= nil, "Iris.NextRow() can only called when directly within a table.")
@@ -1840,14 +1758,14 @@ API.NextRow = function()
 end
 
 --[=[
-        @within Table
-        @function SetColumnIndex
-        @param index number
-        
-        In a table, moves to the cell in the given column in the same previous row.
+    @within Table
+    @function SetColumnIndex
+    @param index number
+    
+    In a table, moves to the cell in the given column in the same previous row.
 
-        Will erorr if the given index is not in the range of 1 to NumColumns.
-    ]=]
+    Will erorr if the given index is not in the range of 1 to NumColumns.
+]=]
 API.SetColumnIndex = function(index: number)
     local thisWidget = Internal._getParentWidget() :: Table.Table
     assert(thisWidget ~= nil, "Iris.SetColumnIndex() can only called when directly within a table.")
@@ -1856,12 +1774,12 @@ API.SetColumnIndex = function(index: number)
 end
 
 --[=[
-        @within Table
-        @function SetRowIndex
-        @param index number
+    @within Table
+    @function SetRowIndex
+    @param index number
 
-        In a table, moves to the cell in the given row with the same previous column.
-    ]=]
+    In a table, moves to the cell in the given row with the same previous column.
+]=]
 API.SetRowIndex = function(index: number)
     local thisWidget = Internal._getParentWidget() :: Table.Table
     assert(thisWidget ~= nil, "Iris.SetRowIndex() can only called when directly within a table.")
@@ -1870,12 +1788,12 @@ API.SetRowIndex = function(index: number)
 end
 
 --[=[
-        @within Table
-        @function NextHeaderColumn
+    @within Table
+    @function NextHeaderColumn
 
-        In a table, moves to the cell in the next column in the header row (row index 0). Will loop around
-        from the last column to the first.
-    ]=]
+    In a table, moves to the cell in the next column in the header row (row index 0). Will loop around
+    from the last column to the first.
+]=]
 API.NextHeaderColumn = function()
     local thisWidget = Internal._getParentWidget() :: Table.Table
     assert(thisWidget ~= nil, "Iris.NextHeaderColumn() can only called when directly within a table.")
@@ -1887,14 +1805,14 @@ API.NextHeaderColumn = function()
 end
 
 --[=[
-        @within Table
-        @function SetHeaderColumnIndex
-        @param index number
+    @within Table
+    @function SetHeaderColumnIndex
+    @param index number
 
-        In a table, moves to the cell in the given column in the header row (row index 0).
+    In a table, moves to the cell in the given column in the header row (row index 0).
 
-        Will erorr if the given index is not in the range of 1 to NumColumns.
-    ]=]
+    Will erorr if the given index is not in the range of 1 to NumColumns.
+]=]
 API.SetHeaderColumnIndex = function(index: number)
     local thisWidget = Internal._getParentWidget() :: Table.Table
     assert(thisWidget ~= nil, "Iris.SetHeaderColumnIndex() can only called when directly within a table.")
@@ -1905,17 +1823,17 @@ API.SetHeaderColumnIndex = function(index: number)
 end
 
 --[=[
-        @within Table
-        @function SetColumnWidth
-        @param index number
-        @param width number
+    @within Table
+    @function SetColumnWidth
+    @param index number
+    @param width number
 
-        In a table, sets the width of the given column to the given value by changing the
-        Table's widths state. When the FixedWidth argument is true, the width should be in
-        pixels >2, otherwise as a float between 0 and 1.
+    In a table, sets the width of the given column to the given value by changing the
+    Table's widths state. When the FixedWidth argument is true, the width should be in
+    pixels >2, otherwise as a float between 0 and 1.
 
-        Will erorr if the given index is not in the range of 1 to NumColumns.
-    ]=]
+    Will erorr if the given index is not in the range of 1 to NumColumns.
+]=]
 API.SetColumnWidth = function(index: number, width: number)
     local thisWidget = Internal._getParentWidget() :: Table.Table
     assert(thisWidget ~= nil, "Iris.SetColumnWidth() can only called when directly within a table.")

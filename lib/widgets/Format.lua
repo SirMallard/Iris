@@ -5,7 +5,8 @@ local Types = require(script.Parent.Parent.Types)
 
 --[=[
     @class Format
-    Format API
+    
+    The format widgets are used to more easily separate and move widgets around.
 ]=]
 
 --[=[
@@ -33,7 +34,6 @@ export type Indent = Types.ParentWidget & {
     .& Widget
 
     .arguments { Width: number?, VerticalAlignment: Enum.VerticalAlignment?, HorizontalAlignment: Enum.HorizontalAlignment? }
- }
 ]=]
 export type SameLine = Types.ParentWidget & {
     arguments: {
@@ -210,8 +210,11 @@ Internal._widgetConstructor(
 
 --[=[
     @within Format
-    @prop Separator Iris.Separator
     @tag Widget
+
+    @function Separator
+    
+    @return Separator
 
     A vertical or horizonal line, depending on the context, which visually seperates widgets.
     
@@ -224,11 +227,6 @@ Internal._widgetConstructor(
     ```
 
     ![Example Separator](/Iris/assets/api/format/basicSeparator.png)
-
-    ```lua
-    hasChildren = false
-    hasState = false
-    ```
 ]=]
 local API_Separator = function()
     return Internal._insert("Separator") :: Separator
@@ -236,9 +234,13 @@ end
 
 --[=[
     @within Format
-    @prop Indent Iris.Indent
     @tag Widget
     @tag HasChildren
+
+    @function Indent
+    @param width number? -- indent in pixels, default is config IndentSpacing
+
+    @return Indent
     
     Indents its child widgets.
 
@@ -252,14 +254,6 @@ end
     ```
 
     ![Example Indent](/Iris/assets/api/format/basicIndent.png)
-
-    ```lua
-    hasChildren = true
-    hasState = false
-    Arguments = {
-        Width: number? = Iris._config.IndentSpacing -- indent width ammount.
-    }
-    ```
 ]=]
 local API_Indent = function(width: number?)
     return Internal._insert("Indent", width) :: Indent
@@ -267,9 +261,15 @@ end
 
 --[=[
     @within Format
-    @prop SameLine Iris.SameLine
     @tag Widget
     @tag HasChildren
+
+    @function SameLine
+    @param width number? -- horizontal spacing between widgets, default is config ItemSpacing.X
+    @param verticalAlignment Enum.VerticalAlignment? -- default centre alignment
+    @param horizontalAlignment Enum.HorizontalAlignment? -- default left alignment
+
+    @return Format
     
     Positions its children in a row, horizontally.
 
@@ -285,16 +285,6 @@ end
     ```
 
     ![Example SameLine](/Iris/assets/api/format/basicSameLine.png)
-    
-    ```lua
-    hasChildren = true
-    hasState = false
-    Arguments = {
-        Width: number? = Iris._config.ItemSpacing.X, -- horizontal spacing between child widgets.
-        VerticalAlignment: Enum.VerticalAlignment? = Enum.VerticalAlignment.Center -- how widgets vertically to each other.
-        HorizontalAlignment: Enum.HorizontalAlignment? = Enum.HorizontalAlignment.Center -- how widgets are horizontally.
-    }
-    ```
 ]=]
 local API_SameLine = function(width: number?, verticalAlignment: Enum.VerticalAlignment?, horizontalAlignment: Enum.HorizontalAlignment?)
     return Internal._insert("SameLine", width, verticalAlignment, horizontalAlignment) :: SameLine
@@ -302,16 +292,14 @@ end
 
 --[=[
     @within Format
-    @prop Group Iris.Group
     @tag Widget
     @tag HasChildren
+
+    @function Group
+
+    @return Group
     
     Layout widget which contains its children as a single group.
-    
-    ```lua
-    hasChildren = true
-    hasState = false
-    ```
 ]=]
 local API_Group = function()
     return Internal._insert("Group") :: Group

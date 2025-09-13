@@ -3,6 +3,23 @@ local Utility = require(script.Parent)
 
 local Types = require(script.Parent.Parent.Types)
 
+--[=[
+    @class Basic
+    Basic Widget API
+]=]
+
+--[=[
+    @within Basic
+    @interface Button
+    .& Widget
+    .clicked () -> boolean -- fires when a button is clicked
+    .rightClicked () -> boolean -- fires when a button is right clicked
+    .doubleClicked () -> boolean -- fires when a button is double clicked
+    .ctrlClicked () -> boolean -- fires when a button is ctrl clicked
+    .hovered () -> boolean -- fires when the mouse hovers over any of the window
+    
+    .arguments { Text: string?, Size: UDim2? }
+]=]
 export type Button = Types.Widget & {
     arguments: {
         Text: string?,
@@ -110,4 +127,39 @@ Internal._widgetConstructor(
     )
 )
 
-return {}
+--[=[
+    @within Basic
+    @tag Widget
+    
+    @function Button
+    @param text string
+    @param size UDim2? -- minimum button size, default 0
+    
+    @return Button
+    
+    A clickable button the size of the text with padding. Can listen to the `clicked()` event to determine if it was pressed.
+]=]
+local API_Button = function(text: string, size: UDim2?)
+    return Internal._insert("Button", text, size) :: Button
+end
+
+--[=[
+    @within Basic
+    @tag Widget
+
+    @function SmallButton
+    @param text string
+    @param size UDim2? -- minimum button size, default 0
+    
+    @return Button
+    
+    A smaller clickable button, the same as a [Iris.Button](Basic#Button) but without padding. Can listen to the `clicked()` event to determine if it was pressed.
+]=]
+local API_SmallButton = function(text: string, size: UDim2?)
+    return Internal._insert("SmallButton", text, size) :: Button
+end
+
+return {
+    API_Button = API_Button,
+    API_SmallButton = API_SmallButton,
+}

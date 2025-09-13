@@ -20,10 +20,10 @@ export type MenuBar = Types.ParentWidget
     @interface Menu
     .& ParentWidget
     
-    .hovered () -> boolean -- fires when the mouse hovers over any of the window
     .clicked () -> boolean -- fires when a button is clicked
     .opened () -> boolean -- once when opened
     .closed () -> boolean -- once when closed
+    .hovered () -> boolean -- fires when the mouse hovers over any of the window
 
     .arguments { Text: string? }
     .state { open: State<boolean> }
@@ -45,8 +45,8 @@ export type Menu = Types.ParentWidget & {
     @interface MenuItem
     .& Widget
     
-    .hovered () -> boolean -- fires when the mouse hovers over any of the window
     .clicked () -> boolean -- fires when a button is clicked
+    .hovered () -> boolean -- fires when the mouse hovers over any of the window
 
     .arguments { Text: string, KeyCode: Enum.KeyCode?, ModifierKey: Enum.ModifierKey? }
 ]=]
@@ -63,9 +63,9 @@ export type MenuItem = Types.Widget & {
     @interface MenuToggle
     .& Widget
     
-    .hovered () -> boolean -- fires when the mouse hovers over any of the window
     .checked () -> boolean -- once when checked
     .unchecked () -> boolean -- once when unchecked
+    .hovered () -> boolean -- fires when the mouse hovers over any of the window
     
     .arguments { Text: string, KeyCode: Enum.KeyCode?, ModifierKey: Enum.ModifierKey? }
     .state { checked: Types.State<boolean> }

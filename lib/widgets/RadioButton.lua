@@ -3,6 +3,19 @@ local Utility = require(script.Parent)
 
 local Types = require(script.Parent.Parent.Types)
 
+--[=[
+    @within Basic
+    @interface RadioButton
+    .& Widget
+
+    .active () -> boolean -- if the current radio button is selected
+    .selected () -> boolean -- once when selected
+    .unselected () -> boolean -- once when unselected
+    .hovered () -> boolean -- fires when the mouse hovers over any of the widget
+
+    .arguments { Text: string?, Index: any }
+    .state { index: State<any> }
+]=]
 export type RadioButton = Types.Widget & {
     arguments: {
         Text: string?,
@@ -143,4 +156,24 @@ Internal._widgetConstructor(
     } :: Types.WidgetClass
 )
 
-return {}
+--[=[
+    @within Basic
+    @tag Widget
+    @tag HasState
+
+    @function RadioButton
+    @param text string
+    @param index any -- unique index for the radio button
+    @param state Types.State<any>? -- global state shared by all grouped radio buttons
+
+    @return RadioButton
+    
+    A circular selectable button, changing the state to its index argument. Used in conjunction with multiple other RadioButtons sharing the same state to represent one value from multiple options.
+]=]
+local API_RadioButton = function(text: string, index: any, state: Types.State<any>?)
+    return Internal._insert("RadioButton", text, index, state) :: RadioButton
+end
+
+return {
+    API_RadioButton = API_RadioButton,
+}

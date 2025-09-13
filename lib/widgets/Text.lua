@@ -5,6 +5,22 @@ local Types = require(script.Parent.Parent.Types)
 
 local btest = bit32.btest
 
+--[=[
+    @class Text
+    
+    Widgets to show basic text within Iris. Do not have an extra functionality beyond text.
+
+    Can be configured to change the text colour, allow Rich Text support, or allowing the text to wrap.
+]=]
+
+--[=[
+    @within Text
+    @interface Text
+    .& Widget
+    .hovered () -> boolean -- fires when the mouse hovers over any of the widget
+
+    .arguments { Text: string, Flags: number, Color: Color3? }
+]=]
 export type Text = Types.Widget & {
     arguments: {
         Text: string,
@@ -13,12 +29,26 @@ export type Text = Types.Widget & {
     },
 } & Types.Hovered
 
+--[=[
+    @within Text
+    @interface SeparatorText
+    .& Widget
+    .hovered () -> boolean -- fires when the mouse hovers over any of the widget
+
+    .arguments { Text: string }
+]=]
 export type SeparatorText = Types.Widget & {
     arguments: {
         Text: string,
     },
 } & Types.Hovered
 
+--[=[
+    @within Text
+    @interface TextFlags
+    .Wrapped number -- enable text wrapping (value 1)
+    .RichText number -- enable rich text formatting (value 2)
+]=]
 local TextFlags = {
     Wrapped = 1,
     RichText = 2,
@@ -148,6 +178,99 @@ Internal._widgetConstructor(
     } :: Types.WidgetClass
 )
 
+--[=[
+    @within Text
+    @tag Widget
+
+    @function Text
+    @param text string
+    @param flags number? -- optional bit flags, using Iris.TextFlags, default 0
+    @param color Color3? -- overwrite default text colour
+
+    @return Text
+    
+    A text label to display the text argument.
+    The Wrapped argument will make the text wrap around if it is cut off by its parent.
+    The Color argument will change the color of the text, by default it is defined in the configuration file.
+
+    ```lua
+    Iris.Window({"Text Demo"})
+        Iris.Text({"This is regular text"})
+    Iris.End()
+    ```
+
+    ![Example Text](/Iris/assets/api/text/basicText.png)
+]=]
+local API_Text = function(text: string, flags: number?, color: Color3?)
+    return Internal._insert("Text", text, flags or 0, color) :: Text
+end
+
+--[=[
+    @within Text
+    @tag Widget
+    @deprecated v2.0.0 -- Use 'Text' with the Wrapped flag or change the config.
+
+    @function TextWrapped
+    @param text string
+    
+    @return Text
+
+    An alias for [Iris.Text](Text#Text) with the Wrapped argument set to true, and the text will wrap around if cut off by its parent.
+]=]
+local API_TextWrapped = function(text: string)
+    return Internal._insert("Text", text, TextFlags.Wrapped) :: Text
+end
+
+--[=[
+    @within Text
+    @tag Widget
+    @deprecated v2.0.0 -- Use 'Text' with the Color argument or change the config.
+
+    @function TextColored
+    @param text string
+    @param color Color3
+    
+    @return Text
+    
+    An alias for [Iris.Text](Text#Text) with the color set by the Color argument.
+
+]=]
+local API_TextColored = function(text: string, color: Color3)
+    return Internal._insert("Text", text, 0, color) :: Text
+end
+
+--[=[
+    @within Text
+    @tag Widget
+
+    @function SeparatorText
+    @param text: string
+
+    @return SeparatorText
+    
+    Similar to [Iris.Separator](Format#Separator) but with a text label to be used as a header
+    when an [Iris.Tree](Tree#Tree) or [Iris.CollapsingHeader](Tree#CollapsingHeader) is not apfunctionriate
+
+    Visually a full width thin line with a text label clipping out part of the line.
+
+    ```lua
+    Iris.Window({"Separator Text Demo"})
+        Iris.Text({"Regular Text"})
+        Iris.SeparatorText({"This is a separator with text"})
+        Iris.Text({"More Regular Text"})
+    Iris.End()
+    ```
+
+    ![Example Separator Text](/Iris/assets/api/text/basicSeparatorText.png)
+]=]
+local API_SeparatorText = function(text: string)
+    return Internal._insert("SeparatorText", text) :: SeparatorText
+end
+
 return {
     TextFlags = TextFlags,
+    API_Text = API_Text,
+    API_TextWrapped = API_TextWrapped,
+    API_TextColored = API_TextColored,
+    API_SeparatorText = API_SeparatorText,
 }

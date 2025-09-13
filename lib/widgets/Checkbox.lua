@@ -3,13 +3,24 @@ local Utility = require(script.Parent)
 
 local Types = require(script.Parent.Parent.Types)
 
+--[=[
+    @within Basic
+    @interface Checkbox
+    .& Widget
+    .checked () -> boolean -- once when checked
+    .unchecked () -> boolean -- once when unchecked
+    .hovered () -> boolean -- fires when the mouse hovers over any of the widget
+
+    .arguments { Text: string? }
+    .state { checked: State<boolean> }
+]=]
 export type Checkbox = Types.Widget & {
     arguments: {
         Text: string?,
     },
 
     state: {
-        isChecked: Types.State<boolean>,
+        checked: Types.State<boolean>,
     },
 } & Types.Unchecked & Types.Checked & Types.Hovered
 
@@ -87,7 +98,7 @@ Internal._widgetConstructor(
             Checkmark.Parent = Box
 
             Utility.applyButtonClick(Checkbox, function()
-                thisWidget.state.isChecked:set(not thisWidget.state.isChecked._value)
+                thisWidget.state.checked:set(not thisWidget.state.checked._value)
             end)
 
             local TextLabel = Instance.new("TextLabel")
@@ -103,8 +114,8 @@ Internal._widgetConstructor(
             return Checkbox
         end,
         GenerateState = function(thisWidget: Checkbox)
-            if thisWidget.state.isChecked == nil then
-                thisWidget.state.isChecked = Internal._widgetState(thisWidget, "checked", false)
+            if thisWidget.state.checked == nil then
+                thisWidget.state.checked = Internal._widgetState(thisWidget, "checked", false)
             end
         end,
         Update = function(thisWidget: Checkbox)
@@ -115,7 +126,7 @@ Internal._widgetConstructor(
             local Checkbox = thisWidget.instance :: TextButton
             local Box = Checkbox.Box :: Frame
             local Checkmark: ImageLabel = Box.Checkmark
-            if thisWidget.state.isChecked._value then
+            if thisWidget.state.checked._value then
                 Checkmark.ImageTransparency = Internal._config.CheckMarkTransparency
                 thisWidget._lastCheckedTick = Internal._cycleTick + 1
             else
@@ -130,4 +141,23 @@ Internal._widgetConstructor(
     } :: Types.WidgetClass
 )
 
-return {}
+--[=[
+    @within Basic
+    @tag Widget
+    @tag HasState
+
+    @function Checkbox
+    @param text string
+    @param checked Types.State<boolean>? -- checkbox state
+
+    @return Checkbox
+    
+    A checkable box with a visual tick to represent a boolean true or false state.
+]=]
+local API_Checkbox = function(text: string, checked: Types.State<boolean>?)
+    return Internal._insert("Checkbox", text, checked) :: Checkbox
+end
+
+return {
+    API_Checkbox = API_Checkbox,
+}
