@@ -3,6 +3,20 @@ local Utility = require(script.Parent)
 
 local Types = require(script.Parent.Parent.Types)
 
+--[=[
+    @class Plot
+    Plot Widget API
+]=]
+
+--[=[
+    @within Plot
+    @interface ProgressBar
+    .& Widget
+    .hovered () -> boolean -- fires when the mouse hovers over any of the widget
+
+    .arguments { Text: string?, Format: string? }
+    .state { progress: State<number> }
+]=]
 export type ProgressBar = Types.Widget & {
     arguments: {
         Text: string?,
@@ -14,10 +28,20 @@ export type ProgressBar = Types.Widget & {
     },
 } & Types.Changed & Types.Hovered
 
+--[=[
+    @within Plot
+    @interface PlotLines
+    .& Widget
+    .changed () -> boolean -- whenever the progress changes, depending on the state
+    .hovered () -> boolean -- fires when the mouse hovers over any of the widget
+
+    .arguments { Text: string, Height: number, Min: number, Max: number, TextOverlay: string }
+    .state { values: State<{ number }>, hovered: State<{ number }?> }
+]=]
 export type PlotLines = Types.Widget & {
-    Lines: { Frame },
-    HoveredLine: Frame | false,
-    Tooltip: TextLabel,
+    _lines: { Frame },
+    _hoveredLine: Frame | false,
+    _tooltip: TextLabel,
 
     arguments: {
         Text: string,
@@ -33,10 +57,19 @@ export type PlotLines = Types.Widget & {
     },
 } & Types.Hovered
 
+--[=[
+    @within Plot
+    @interface PlotHistogram
+    .& Widget
+    .hovered () -> boolean -- fires when the mouse hovers over any of the widget
+
+    .arguments { Text: string, Height: number, Min: number, Max: number, TextOverlay: string, BaseLine: number }
+    .state { values: State<{ number }>, hovered: State<number?> }
+]=]
 export type PlotHistogram = Types.Widget & {
-    Blocks: { Frame },
-    HoveredBlock: Frame | false,
-    Tooltip: TextLabel,
+    _blocks: { Frame },
+    _hoveredBlock: Frame | false,
+    _tooltip: TextLabel,
 
     arguments: {
         Text: string,
@@ -203,10 +236,10 @@ local function createLine(parent: Frame, index: number)
 end
 
 local function clearLine(thisWidget: PlotLines)
-    if thisWidget.HoveredLine then
-        thisWidget.HoveredLine.BackgroundColor3 = Internal._config.PlotLinesColor
-        thisWidget.HoveredLine.BackgroundTransparency = Internal._config.PlotLinesTransparency
-        thisWidget.HoveredLine = false
+    if thisWidget._hoveredLine then
+        thisWidget._hoveredLine.BackgroundColor3 = Internal._config.PlotLinesColor
+        thisWidget._hoveredLine.BackgroundTransparency = Internal._config.PlotLinesTransparency
+        thisWidget._hoveredLine = false
         thisWidget.state.hovered:set(nil)
     end
 end
@@ -220,23 +253,23 @@ local function updateLine(thisWidget: PlotLines, silent: true?)
 
     local position = Plot.AbsolutePosition - Utility.guiOffset
     local scale = (mousePosition.X - position.X) / Plot.AbsoluteSize.X
-    local index = math.ceil(scale * #thisWidget.Lines)
-    local line: Frame? = thisWidget.Lines[index]
+    local index = math.ceil(scale * #thisWidget._lines)
+    local line: Frame? = thisWidget._lines[index]
 
     if line then
-        if line ~= thisWidget.HoveredLine and not silent then
+        if line ~= thisWidget._hoveredLine and not silent then
             clearLine(thisWidget)
         end
         local start: number? = thisWidget.state.values._value[index]
         local stop: number? = thisWidget.state.values._value[index + 1]
         if start and stop then
             if math.floor(start) == start and math.floor(stop) == stop then
-                thisWidget.Tooltip.Text = ("%d: %d\n%d: %d"):format(index, start, index + 1, stop)
+                thisWidget._tooltip.Text = ("%d: %d\n%d: %d"):format(index, start, index + 1, stop)
             else
-                thisWidget.Tooltip.Text = ("%d: %.3f\n%d: %.3f"):format(index, start, index + 1, stop)
+                thisWidget._tooltip.Text = ("%d: %.3f\n%d: %.3f"):format(index, start, index + 1, stop)
             end
         end
-        thisWidget.HoveredLine = line
+        thisWidget._hoveredLine = line
         line.BackgroundColor3 = Internal._config.PlotLinesHoveredColor
         line.BackgroundTransparency = Internal._config.PlotLinesHoveredTransparency
         if silent then
@@ -328,7 +361,7 @@ Internal._widgetConstructor(
             local popup = Internal._rootInstance and Internal._rootInstance:FindFirstChild("PopupScreenGui")
             Tooltip.Parent = popup and popup:FindFirstChild("TooltipContainer")
 
-            thisWidget.Tooltip = Tooltip
+            thisWidget._tooltip = Tooltip
 
             Utility.applyMouseMoved(Plot, function()
                 updateLine(thisWidget)
@@ -340,8 +373,8 @@ Internal._widgetConstructor(
 
             Plot.Parent = Background
 
-            thisWidget.Lines = {}
-            thisWidget.HoveredLine = false
+            thisWidget._lines = {}
+            thisWidget._hoveredLine = false
 
             local TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
@@ -380,9 +413,9 @@ Internal._widgetConstructor(
         UpdateState = function(thisWidget: PlotLines)
             if thisWidget.state.hovered._lastChangeTick == Internal._cycleTick then
                 if thisWidget.state.hovered._value then
-                    thisWidget.Tooltip.Visible = true
+                    thisWidget._tooltip.Visible = true
                 else
-                    thisWidget.Tooltip.Visible = false
+                    thisWidget._tooltip.Visible = false
                 end
             end
 
@@ -393,7 +426,7 @@ Internal._widgetConstructor(
 
                 local values = thisWidget.state.values._value
                 local count = #values - 1
-                local numLines = #thisWidget.Lines
+                local numLines = #thisWidget._lines
 
                 local min = thisWidget.arguments.Min or math.huge
                 local max = thisWidget.arguments.Max or -math.huge
@@ -408,11 +441,11 @@ Internal._widgetConstructor(
                 -- add or remove blocks depending on how many are needed
                 if numLines < count then
                     for index = numLines + 1, count do
-                        table.insert(thisWidget.Lines, createLine(Plot, index))
+                        table.insert(thisWidget._lines, createLine(Plot, index))
                     end
                 elseif numLines > count then
                     for _ = count + 1, numLines do
-                        local line = table.remove(thisWidget.Lines)
+                        local line = table.remove(thisWidget._lines)
                         if line then
                             line:Destroy()
                         end
@@ -429,20 +462,20 @@ Internal._widgetConstructor(
                     local b = size * Vector2.new(index / count, (max - stop) / range)
                     local position = (a + b) / 2
 
-                    thisWidget.Lines[index].Size = UDim2.fromOffset((b - a).Magnitude + 1, 1)
-                    thisWidget.Lines[index].Position = UDim2.fromOffset(position.X, position.Y)
-                    thisWidget.Lines[index].Rotation = math.atan2(b.Y - a.Y, b.X - a.X) * (180 / math.pi)
+                    thisWidget._lines[index].Size = UDim2.fromOffset((b - a).Magnitude + 1, 1)
+                    thisWidget._lines[index].Position = UDim2.fromOffset(position.X, position.Y)
+                    thisWidget._lines[index].Rotation = math.atan2(b.Y - a.Y, b.X - a.X) * (180 / math.pi)
                 end
 
                 -- only update the hovered block if it exists.
-                if thisWidget.HoveredLine then
+                if thisWidget._hoveredLine then
                     updateLine(thisWidget, true)
                 end
             end
         end,
         Discard = function(thisWidget: PlotLines)
             thisWidget.instance:Destroy()
-            thisWidget.Tooltip:Destroy()
+            thisWidget._tooltip:Destroy()
             Utility.discardState(thisWidget)
         end,
     } :: Types.WidgetClass
@@ -461,10 +494,10 @@ local function createBlock(parent: Frame, index: number)
 end
 
 local function clearBlock(thisWidget: PlotHistogram)
-    if thisWidget.HoveredBlock then
-        thisWidget.HoveredBlock.BackgroundColor3 = Internal._config.PlotHistogramColor
-        thisWidget.HoveredBlock.BackgroundTransparency = Internal._config.PlotHistogramTransparency
-        thisWidget.HoveredBlock = false
+    if thisWidget._hoveredBlock then
+        thisWidget._hoveredBlock.BackgroundColor3 = Internal._config.PlotHistogramColor
+        thisWidget._hoveredBlock.BackgroundTransparency = Internal._config.PlotHistogramTransparency
+        thisWidget._hoveredBlock = false
         thisWidget.state.hovered:set(nil)
     end
 end
@@ -478,18 +511,18 @@ local function updateBlock(thisWidget: PlotHistogram, silent: true?)
 
     local position = Plot.AbsolutePosition - Utility.guiOffset
     local scale = (mousePosition.X - position.X) / Plot.AbsoluteSize.X
-    local index = math.ceil(scale * #thisWidget.Blocks)
-    local block: Frame? = thisWidget.Blocks[index]
+    local index = math.ceil(scale * #thisWidget._blocks)
+    local block: Frame? = thisWidget._blocks[index]
 
     if block then
-        if block ~= thisWidget.HoveredBlock and not silent then
+        if block ~= thisWidget._hoveredBlock and not silent then
             clearBlock(thisWidget)
         end
         local value: number? = thisWidget.state.values._value[index]
         if value then
-            thisWidget.Tooltip.Text = if math.floor(value) == value then ("%d: %d"):format(index, value) else ("%d: %.3f"):format(index, value)
+            thisWidget._tooltip.Text = if math.floor(value) == value then ("%d: %d"):format(index, value) else ("%d: %.3f"):format(index, value)
         end
-        thisWidget.HoveredBlock = block
+        thisWidget._hoveredBlock = block
         block.BackgroundColor3 = Internal._config.PlotHistogramHoveredColor
         block.BackgroundTransparency = Internal._config.PlotHistogramHoveredTransparency
         if silent then
@@ -577,7 +610,7 @@ Internal._widgetConstructor(
             local popup = Internal._rootInstance and Internal._rootInstance:FindFirstChild("PopupScreenGui")
             Tooltip.Parent = popup and popup:FindFirstChild("TooltipContainer")
 
-            thisWidget.Tooltip = Tooltip
+            thisWidget._tooltip = Tooltip
 
             Utility.applyMouseMoved(Plot, function()
                 updateBlock(thisWidget)
@@ -589,8 +622,8 @@ Internal._widgetConstructor(
 
             Plot.Parent = Background
 
-            thisWidget.Blocks = {}
-            thisWidget.HoveredBlock = false
+            thisWidget._blocks = {}
+            thisWidget._hoveredBlock = false
 
             local TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
@@ -629,9 +662,9 @@ Internal._widgetConstructor(
         UpdateState = function(thisWidget: PlotHistogram)
             if thisWidget.state.hovered._lastChangeTick == Internal._cycleTick then
                 if thisWidget.state.hovered._value then
-                    thisWidget.Tooltip.Visible = true
+                    thisWidget._tooltip.Visible = true
                 else
-                    thisWidget.Tooltip.Visible = false
+                    thisWidget._tooltip.Visible = false
                 end
             end
 
@@ -642,7 +675,7 @@ Internal._widgetConstructor(
 
                 local values = thisWidget.state.values._value
                 local count = #values
-                local numBlocks = #thisWidget.Blocks
+                local numBlocks = #thisWidget._blocks
 
                 local min = thisWidget.arguments.Min or math.huge
                 local max = thisWidget.arguments.Max or -math.huge
@@ -658,11 +691,11 @@ Internal._widgetConstructor(
                 -- add or remove blocks depending on how many are needed
                 if numBlocks < count then
                     for index = numBlocks + 1, count do
-                        table.insert(thisWidget.Blocks, createBlock(Plot, index))
+                        table.insert(thisWidget._blocks, createBlock(Plot, index))
                     end
                 elseif numBlocks > count then
                     for _ = count + 1, numBlocks do
-                        local block = table.remove(thisWidget.Blocks)
+                        local block = table.remove(thisWidget._blocks)
                         if block then
                             block:Destroy()
                         end
@@ -674,26 +707,97 @@ Internal._widgetConstructor(
                 for index = 1, count do
                     local num = values[index]
                     if num >= 0 then
-                        thisWidget.Blocks[index].Size = UDim2.new(width, UDim.new((num - baseline) / range))
-                        thisWidget.Blocks[index].Position = UDim2.fromScale((index - 1) / count, (max - num) / range)
+                        thisWidget._blocks[index].Size = UDim2.new(width, UDim.new((num - baseline) / range))
+                        thisWidget._blocks[index].Position = UDim2.fromScale((index - 1) / count, (max - num) / range)
                     else
-                        thisWidget.Blocks[index].Size = UDim2.new(width, UDim.new((baseline - num) / range))
-                        thisWidget.Blocks[index].Position = UDim2.fromScale((index - 1) / count, (max - baseline) / range)
+                        thisWidget._blocks[index].Size = UDim2.new(width, UDim.new((baseline - num) / range))
+                        thisWidget._blocks[index].Position = UDim2.fromScale((index - 1) / count, (max - baseline) / range)
                     end
                 end
 
                 -- only update the hovered block if it exists.
-                if thisWidget.HoveredBlock then
+                if thisWidget._hoveredBlock then
                     updateBlock(thisWidget, true)
                 end
             end
         end,
         Discard = function(thisWidget: PlotHistogram)
             thisWidget.instance:Destroy()
-            thisWidget.Tooltip:Destroy()
+            thisWidget._tooltip:Destroy()
             Utility.discardState(thisWidget)
         end,
     } :: Types.WidgetClass
 )
 
-return {}
+--[=[
+    @within Plot
+    @tag Widget
+    @tag HasState
+
+    @function ProgressBar
+    @param text string?
+    @param format string? -- optional to override with a custom progress such as `29/54`
+    @param progress State<number>?
+
+    @return ProgressBar
+
+    A progress bar line with a state value to show the current state.
+]=]
+local API_ProgressBar = function(text: string?, format: string?, progress: Types.State<number>?)
+    return Internal._insert("ProgressBar", text, format, progress) :: ProgressBar
+end
+
+--[=[
+    @within Plot
+    @tag Widget
+    @tag HasState
+
+    @function PlotLines
+    @param text string?
+    @param height number -- height of the graph
+    @param min number? -- minimum value before clipping, default is the minimum value from the values
+    @param max number? -- maximum value before clipping, default is the maximum value from the values
+    @param textOverlay string? -- additional string to overlay on the top
+    @param values State<{ number }>? -- state representing a list of numbers
+    @param hovered State<number>? -- read-only state to get the currently hovered value
+
+    @return PlotLines
+
+    A line graph for plotting a single line. Includes hovering to see a specific value on the graph,
+    and automatic scaling. Has an overlay text option at the top of the plot for displaying any
+    information.
+]=]
+local API_PlotLines = function(text: string?, height: number, min: number?, max: number?, textOverlay: string?, values: Types.State<{ number }>?, hovered: Types.State<number>?)
+    return Internal._insert("PlotLines", text, height, min, max, textOverlay, values, hovered) :: PlotLines
+end
+
+--[=[
+    @within Plot
+    @tag Widget
+    @tag HasState
+
+    @function PlotHistogram
+    @param text string?
+    @param height number -- height of the graph
+    @param min number? -- minimum value before clipping, default is the minimum value from the values
+    @param max number? -- maximum value before clipping, default is the maximum value from the values
+    @param textOverlay string? -- additional string to overlay on the top
+    @param baseline number? -- the level at which the bars start from, default is 0
+    @param values State<{ number }>? -- state representing a list of numbers
+    @param hovered State<number>? -- read-only state to get the currently hovered value
+
+    @return PlotHistogram
+
+    A hisogram graph for showing values. Includes hovering to see a specific block on the graph,
+    and automatic scaling. Has an overlay text option at the top of the plot for displaying any
+    information. Also supports a baseline option, which determines where the blocks start from.
+]=]
+local API_PlotHistogram = function(text: string?, height: number?, min: number?, max: number?, textOverlay: string?, baseline: number?, values: Types.State<{ number }>?, hovered: Types.State<number>?)
+    return Internal._insert("PlotHistogram", text, height, min, max, textOverlay, baseline, values, hovered) :: PlotHistogram
+end
+
+return {
+    API_ProgressBar = API_ProgressBar,
+    API_PlotLines = API_PlotLines,
+    API_PlotHistogram = API_PlotHistogram,
+}

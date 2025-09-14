@@ -671,14 +671,7 @@ end
     Each widget called which might have children should be paired with a call to `Iris.End()`, **even if the Widget doesnt currently have any children**.
     :::
 ]=]
-function Iris.End()
-    if Internal._stackIndex == 1 then
-        error("Too many calls to Iris.End().", 2)
-    end
-
-    Internal._IDStack[Internal._stackIndex] = nil
-    Internal._stackIndex -= 1
-end
+Iris.End = Internal._end
 
 -- local Root = require(script.Parent.widgets.Root)
 local Window = require(script.widgets.Window)
@@ -714,6 +707,69 @@ Iris.TableFlags = Table.TableFlags
 Iris.Window = Window.API_Window
 Iris.SetFocusedWindow = Window.API_SetFocusedWindow
 Iris.Tooltip = Window.API_Tooltip
+
+Iris.MenuBar = Menu.API_MenuBar
+Iris.Menu = Menu.API_Menu
+Iris.MenuItem = Menu.API_MenuItem
+Iris.MenuToggle = Menu.API_MenuToggle
+
+Iris.Separator = Format.API_Separator
+Iris.Indent = Format.API_Indent
+Iris.SameLine = Format.API_SameLine
+Iris.Group = Format.API_Group
+
+Iris.Text = Text.API_Text
+Iris.SeparatorText = Text.API_SeparatorText
+Iris.Button = Button.API_Button
+Iris.SmallButton = Button.API_SmallButton
+Iris.Checkbox = Checkbox.API_Checkbox
+Iris.RadioButton = RadioButton.API_RadioButton
+Iris.Image = Image.API_Image
+Iris.ImageButton = Image.API_ImageButton
+Iris.Tree = Tree.API_Tree
+Iris.CollapsingHeader = Tree.API_CollapsingHeader
+
+Iris.TabBar = Tab.API_TabBar
+Iris.Tab = Tab.API_Tab
+Iris.Selectable = Combo.API_Selectable
+Iris.Combo = Combo.API_Combo
+Iris.ComboArray = Combo.API_ComboArray
+Iris.ComboEnum = Combo.API_ComboEnum
+
+Iris.InputText = Input.API_InputText
+Iris.InputNum = Input.API_InputNum
+Iris.InputVector2 = Input.API_InputVector2
+Iris.InputVector3 = Input.API_InputVector3
+Iris.InputUDim = Input.API_InputUDim
+Iris.InputUDim2 = Input.API_InputUDim2
+Iris.InputRect = Input.API_InputRect
+Iris.DragNum = Input.API_DragNum
+Iris.DragVector2 = Input.API_DragVector2
+Iris.DragVector3 = Input.API_DragVector3
+Iris.DragUDim = Input.API_DragUDim
+Iris.DragUDim2 = Input.API_DragUDim2
+Iris.DragRect = Input.API_DragRect
+Iris.InputColor3 = Input.API_InputColor3
+Iris.InputColor4 = Input.API_InputColor4
+Iris.SliderNum = Input.API_SliderNum
+Iris.SliderVector2 = Input.API_SliderVector2
+Iris.SliderVector3 = Input.API_SliderVector3
+Iris.SliderUDim = Input.API_SliderUDim
+Iris.SliderUDim2 = Input.API_SliderUDim2
+Iris.SliderRect = Input.API_SliderRect
+
+Iris.Table = Table.API_Table
+Iris.NextColumn = Table.API_NextColumn
+Iris.NextRow = Table.API_NextRow
+Iris.SetColumnIndex = Table.API_SetColumnIndex
+Iris.SetRowIndex = Table.API_SetRowIndex
+Iris.NextHeaderColumn = Table.API_NextHeaderColumn
+Iris.SetHeaderColumnIndex = Table.API_SetHeaderColumnIndex
+Iris.SetColumnWidth = Table.API_SetColumnWidth
+
+Iris.ProgressBar = Plot.API_ProgressBar
+Iris.PlotLines = Plot.API_PlotLines
+Iris.PlotHistogram = Plot.API_PlotHistogram
 
 export type Iris = typeof(Iris)
 

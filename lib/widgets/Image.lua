@@ -3,9 +3,24 @@ local Utility = require(script.Parent)
 
 local Types = require(script.Parent.Parent.Types)
 
+--[=[
+    @class Image
+
+    Provides two widgets for Images and ImageButtons, with the same controls as an ImageLabel instance.
+]=]
+
+--[=[
+    @within Image
+    @interface Image
+    .& Widget
+    .hovered () -> boolean -- fires when the mouse hovers over any of the image
+    
+    .arguments { Content: Content, Size: UDim2, Rect: Rect?, ScaleType: Enum.ScaleType?, TileSize: UDim2?, SliceCenter: Rect?, SliceScale: number?, ResampleMode: Enum.ResamplerMode? }
+]=]
+
 export type Image = Types.Widget & {
     arguments: {
-        Image: string,
+        Content: Content,
         Size: UDim2,
         Rect: Rect?,
         ScaleType: Enum.ScaleType?,
@@ -16,8 +31,15 @@ export type Image = Types.Widget & {
     },
 } & Types.Hovered
 
--- ooops, may have overriden a Roblox type, and then got a weird type message
--- let's just hope I don't have to use a Roblox ImageButton type anywhere by name in this file
+--[=[
+    @within Image
+    @interface ImageButton_
+    .& Image
+    .clicked () -> boolean -- fires when a button is clicked
+    .rightClicked () -> boolean -- fires when a button is right clicked
+    .doubleClicked () -> boolean -- fires when a button is double clicked
+    .ctrlClicked () -> boolean -- fires when a button is ctrl clicked
+]=]
 export type ImageButton_ = Image & Types.Clicked & Types.RightClicked & Types.DoubleClicked & Types.CtrlClicked
 
 local abstractImage = {
@@ -59,7 +81,7 @@ Internal._widgetConstructor(
             Update = function(thisWidget: Image)
                 local Image = thisWidget.instance :: ImageLabel
 
-                Image.Image = thisWidget.arguments.Image or Utility.ICONS.UNKNOWN_TEXTURE
+                Image.ImageContent = thisWidget.arguments.Content or Utility.ICONS.UNKNOWN_TEXTURE
                 Image.Size = thisWidget.arguments.Size
                 if thisWidget.arguments.ScaleType then
                     Image.ScaleType = thisWidget.arguments.ScaleType
@@ -151,7 +173,7 @@ Internal._widgetConstructor(
                 local Button = thisWidget.instance :: TextButton
                 local Image: ImageLabel = Button.ImageLabel
 
-                Image.Image = thisWidget.arguments.Image or Utility.ICONS.UNKNOWN_TEXTURE
+                Image.ImageContent = thisWidget.arguments.Content or Utility.ICONS.UNKNOWN_TEXTURE
                 Image.Size = thisWidget.arguments.Size
                 if thisWidget.arguments.ScaleType then
                     Image.ScaleType = thisWidget.arguments.ScaleType
@@ -180,4 +202,53 @@ Internal._widgetConstructor(
     )
 )
 
-return {}
+--[=[
+    @within Image
+    @tag Widget
+
+    @function Image
+    @param content Content -- texture content, allowing support for editable images
+    @param size UDim2 -- required size in the window
+    @param rect Rect? -- default to a zero rect, making no difference
+    @param scaleType Enum.ScaleType? -- determines type of image scaling, default is Enum.ScaleType.Stretch
+    @param resampleMode Enum.ResamplerMode? -- default is Enum.ResampleMode.Default
+    @param tileSize UDim2? -- only used if ScaleType is Tile, default is UDim2.fromScale(1, 1)
+    @param sliceCenter Rect? -- only used if ScaleType is Slice, default is empty Rect
+    @param sliceScale number? -- only used if ScaleType is Slice, default is 1
+
+    @return Image
+
+    An image widget for displaying an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image and the rest of the ScaleType functionerties
+    Some of the arguments are only used depending on the ScaleType functionerty
+]=]
+local API_Image = function(content: Content, size: UDim2, rect: Rect?, scaleType: Enum.ScaleType?, resampleMode: Enum.ResamplerMode?, tileSize: UDim2?, sliceCenter: Rect?, sliceScale: number?)
+    return Internal._insert("Image", content, size, rect, scaleType, resampleMode, tileSize, sliceCenter, sliceScale) :: Image
+end
+
+--[=[
+    @within Image
+    @tag Widget
+    
+    @function ImageButton
+    @param content Content -- texture content, allowing support for editable images
+    @param size UDim2 -- required size in the window
+    @param rect Rect? -- default to a zero rect, making no difference
+    @param scaleType Enum.ScaleType? -- determines type of image scaling, default is Enum.ScaleType.Stretch
+    @param resampleMode Enum.ResamplerMode? -- default is Enum.ResampleMode.Default
+    @param tileSize UDim2? -- only used if ScaleType is Tile, default is UDim2.fromScale(1, 1)
+    @param sliceCenter Rect? -- only used if ScaleType is Slice, default is empty Rect
+    @param sliceScale number? -- only used if ScaleType is Slice, default is 1
+    
+    @return ImageButton
+
+    An image button widget for a button as an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image, and the rest of the ScaleType functionerties
+    Supports all of the events of a regular button.
+]=]
+local API_ImageButton = function(content: Content, size: UDim2, rect: Rect?, scaleType: Enum.ScaleType?, resampleMode: Enum.ResamplerMode?, tileSize: UDim2?, sliceCenter: Rect?, sliceScale: number?)
+    return Internal._insert("ImageButton", content, size, rect, scaleType, resampleMode, tileSize, sliceCenter, sliceScale) :: ImageButton_
+end
+
+return {
+    API_Image = API_Image,
+    API_ImageButton = API_ImageButton,
+}

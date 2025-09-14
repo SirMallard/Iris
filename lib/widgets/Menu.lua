@@ -295,7 +295,7 @@ Internal._widgetConstructor(
                 Icon.BorderSizePixel = 0
                 Icon.ImageColor3 = Internal._config.TextColor
                 Icon.ImageTransparency = Internal._config.TextTransparency
-                Icon.Image = Utility.ICONS.RIGHT_POINTING_TRIANGLE
+                Icon.ImageContent = Utility.ICONS.RIGHT_POINTING_TRIANGLE
                 Icon.LayoutOrder = 1
 
                 Icon.Parent = Menu
@@ -359,9 +359,9 @@ Internal._widgetConstructor(
             ChildContainer.ScrollBarThickness = Internal._config.ScrollbarSize
             ChildContainer.CanvasSize = UDim2.fromScale(0, 0)
             ChildContainer.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
-            ChildContainer.TopImage = Utility.ICONS.BLANK_SQUARE
-            ChildContainer.MidImage = Utility.ICONS.BLANK_SQUARE
-            ChildContainer.BottomImage = Utility.ICONS.BLANK_SQUARE
+            ChildContainer.TopImageContent = Utility.ICONS.BLANK_SQUARE
+            ChildContainer.MidImageContent = Utility.ICONS.BLANK_SQUARE
+            ChildContainer.BottomImageContent = Utility.ICONS.BLANK_SQUARE
 
             ChildContainer.ZIndex = 6
             ChildContainer.LayoutOrder = 6
@@ -648,7 +648,7 @@ Internal._widgetConstructor(
             Icon.BorderSizePixel = 0
             Icon.ImageColor3 = Internal._config.TextColor
             Icon.ImageTransparency = Internal._config.TextTransparency
-            Icon.Image = Utility.ICONS.CHECK_MARK
+            Icon.ImageContent = Utility.ICONS.CHECK_MARK
             Icon.LayoutOrder = 2
 
             Icon.Parent = MenuToggle

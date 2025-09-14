@@ -5,8 +5,28 @@ local Types = require(script.Parent.Parent.Types)
 
 local btest = bit32.btest
 
+--[=[
+    @class Combo
+    Combo Widget API
+]=]
+
+--[=[
+    @within Combo
+    @interface Selectable
+    .& Widget
+    .selected () -> boolean -- once when selected
+    .unselected () -> boolean -- once when unselected
+    .clicked () -> boolean -- fires when a button is clicked
+    .rightClicked () -> boolean -- fires when a button is right clicked
+    .doubleClicked () -> boolean -- fires when a button is double clicked
+    .ctrlClicked () -> boolean -- fires when a button is ctrl clicked
+    .hovered () -> boolean -- fires when the mouse hovers over any of the widget
+
+    .arguments { Text: string?, Index: any?, Flags: number }
+    .state { index: State<any> }
+]=]
 export type Selectable = Types.Widget & {
-    ButtonColors: { [string]: Color3 | number },
+    _buttonColors: { [string]: Color3 | number },
 
     arguments: {
         Text: string?,
@@ -19,7 +39,22 @@ export type Selectable = Types.Widget & {
     },
 } & Types.Selected & Types.Unselected & Types.Clicked & Types.RightClicked & Types.DoubleClicked & Types.CtrlClicked & Types.Hovered
 
+--[=[
+    @within Combo
+    @interface Combo
+    .& ParentWidget
+    .clicked () -> boolean -- fires when a button is clicked
+    .changed () -> boolean -- whenever the state changes
+    .opened () -> boolean -- once when opened
+    .closed () -> boolean -- once when closed
+    .hovered () -> boolean -- fires when the mouse hovers over any of the widget
+
+    .arguments { Text: string?, Flags: number }
+    .state { index: State<any>, open: State<boolean> }
+]=]
 export type Combo = Types.ParentWidget & {
+    _listLayout: UIListLayout,
+
     arguments: {
         Text: string?,
         Flags: number,
@@ -29,10 +64,15 @@ export type Combo = Types.ParentWidget & {
         index: Types.State<any>,
         open: Types.State<boolean>,
     },
-
-    UIListLayout: UIListLayout,
 } & Types.Opened & Types.Closed & Types.Changed & Types.Clicked & Types.Hovered
 
+--[=[
+    @within Combo
+    @interface ComboFlags
+    .NoClick 1 -- prevents the selectable from being clicked by the user
+    .NoButton 2 -- hide the dropdown button
+    .NoPreview 4 -- hide the preview field
+]=]
 local ComboFlags = {
     NoClick = 1,
     NoButton = 2,
@@ -54,7 +94,7 @@ local function UpdateChildContainerTransform(thisWidget: Combo)
     local borderSize = Internal._config.PopupBorderSize
     local screenSize: Vector2 = ChildContainer.Parent.AbsoluteSize
 
-    local absoluteContentSize = thisWidget.UIListLayout.AbsoluteContentSize.Y
+    local absoluteContentSize = thisWidget._listLayout.AbsoluteContentSize.Y
     CachedContentSize = absoluteContentSize
 
     local contentsSize = absoluteContentSize + 2 * Internal._config.WindowPadding.Y
@@ -114,7 +154,7 @@ end
 
 table.insert(Internal._postCycleCallbacks, function()
     if AnyOpenedCombo and OpenedCombo then
-        local contentSize = OpenedCombo.UIListLayout.AbsoluteContentSize.Y
+        local contentSize = OpenedCombo._listLayout.AbsoluteContentSize.Y
         if contentSize ~= CachedContentSize then
             UpdateChildContainerTransform(OpenedCombo)
         end
@@ -194,7 +234,7 @@ Internal._widgetConstructor(
             Utility.applyTextStyle(SelectableButton)
             Utility.UISizeConstraint(SelectableButton, Vector2.xAxis)
 
-            thisWidget.ButtonColors = {
+            thisWidget._buttonColors = {
                 Color = Internal._config.HeaderColor,
                 Transparency = 1,
                 HoveredColor = Internal._config.HeaderHoveredColor,
@@ -203,7 +243,7 @@ Internal._widgetConstructor(
                 ActiveTransparency = Internal._config.HeaderActiveTransparency,
             }
 
-            Utility.applyInteractionHighlights("Background", SelectableButton, SelectableButton, thisWidget.ButtonColors)
+            Utility.applyInteractionHighlights("Background", SelectableButton, SelectableButton, thisWidget._buttonColors)
 
             Utility.applyButtonClick(SelectableButton, function()
                 if not btest(ComboFlags.NoClick, thisWidget.arguments.Flags) then
@@ -237,11 +277,11 @@ Internal._widgetConstructor(
             local SelectableButton: TextButton = Selectable.SelectableButton
 
             if thisWidget.state.index._value == thisWidget.arguments.Index or thisWidget.state.index._value == true then
-                thisWidget.ButtonColors.Transparency = Internal._config.HeaderTransparency
+                thisWidget._buttonColors.Transparency = Internal._config.HeaderTransparency
                 SelectableButton.BackgroundTransparency = Internal._config.HeaderTransparency
                 thisWidget._lastSelectedTick = Internal._cycleTick + 1
             else
-                thisWidget.ButtonColors.Transparency = 1
+                thisWidget._buttonColors.Transparency = 1
                 SelectableButton.BackgroundTransparency = 1
                 thisWidget._lastUnselectedTick = Internal._cycleTick + 1
             end
@@ -415,9 +455,9 @@ Internal._widgetConstructor(
             ChildContainer.ScrollBarThickness = Internal._config.ScrollbarSize
             ChildContainer.CanvasSize = UDim2.fromScale(0, 0)
             ChildContainer.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
-            ChildContainer.TopImage = Utility.ICONS.BLANK_SQUARE
-            ChildContainer.MidImage = Utility.ICONS.BLANK_SQUARE
-            ChildContainer.BottomImage = Utility.ICONS.BLANK_SQUARE
+            ChildContainer.TopImageContent = Utility.ICONS.BLANK_SQUARE
+            ChildContainer.MidImageContent = Utility.ICONS.BLANK_SQUARE
+            ChildContainer.BottomImageContent = Utility.ICONS.BLANK_SQUARE
 
             -- appear over everything else
             ChildContainer.ClipsDescendants = true
@@ -438,7 +478,7 @@ Internal._widgetConstructor(
             ChildContainer.Parent = RootPopupScreenGui
 
             thisWidget.childContainer = ChildContainer
-            thisWidget.UIListLayout = ChildContainerUIListLayout
+            thisWidget._listLayout = ChildContainerUIListLayout
             return Combo
         end,
         GenerateState = function(thisWidget: Combo)
@@ -499,7 +539,7 @@ Internal._widgetConstructor(
                 thisWidget._lastOpenedTick = Internal._cycleTick + 1
 
                 -- ImGui also does not do this, and the Arrow is always facing down
-                Dropdown.Image = Utility.ICONS.RIGHT_POINTING_TRIANGLE
+                Dropdown.ImageContent = Utility.ICONS.RIGHT_POINTING_TRIANGLE
                 ChildContainer.Visible = true
 
                 UpdateChildContainerTransform(thisWidget)
@@ -509,7 +549,7 @@ Internal._widgetConstructor(
                     OpenedCombo = nil
                     thisWidget._lastClosedTick = Internal._cycleTick + 1
                 end
-                Dropdown.Image = Utility.ICONS.DOWN_POINTING_TRIANGLE
+                Dropdown.ImageContent = Utility.ICONS.DOWN_POINTING_TRIANGLE
                 ChildContainer.Visible = false
             end
 
@@ -534,6 +574,105 @@ Internal._widgetConstructor(
     } :: Types.WidgetClass
 )
 
+--[=[
+    @within Combo
+    @tag Widget
+    @tag HasState
+
+    @function Selectable
+    @param text string
+    @param index any -- unique index of selectable value
+    @param flags ComboFlags? -- optional bit flags, using Iris.ComboFlags, default is 0
+    @param state State<any>? -- a shared state between all selectables
+
+    @return Selectable
+    
+    An object which can be selected.
+]=]
+local API_Selectable = function(text: string, index: any, flags: number?, state: Types.State<any>?)
+    return Internal._insert("Selectable", text, index, flags or 0, state) :: Selectable
+end
+
+--[=[
+    @within Combo
+    @tag Widget
+    @tag HasChildren
+    @tag HasState
+
+    @function Combo
+    @param text string
+    @param flags number? -- optional bit flags, using Iris.ComboFlags, default is 0
+    @param state State<any>? -- index state detailing the current selection
+    @param open State<boolean>? -- state for combo box being open
+
+    @return Combo
+    
+    A dropdown menu box to make a selection from a list of values.
+]=]
+local API_Combo = function(text: string, flags: number?, state: Types.State<any>?, open: Types.State<boolean>?)
+    return Internal._insert("Combo", text, flags or 0, state, open) :: Combo
+end
+
+--[=[
+    @within Combo
+    @tag Widget
+    @tag HasChildren
+    @tag HasState
+
+    @function Combo
+    @param text string
+    @param array { any } -- array to turn into a combo and selectables
+    @param flags number? -- optional bit flags, using Iris.ComboFlags, default is 0
+    @param state State<any>? -- index state detailing the current selection
+    @param open State<boolean>? -- state for combo box being open
+
+    @return Combo
+
+    A selection box to choose a value from an array.
+]=]
+local API_ComboArray = function<T>(text: string, array: { any }, flags: number?, state: Types.State<any>?, open: Types.State<boolean>?)
+    local thisWidget = Internal._insert("Combo", text, flags or 0, state, open) :: Combo
+    local sharedIndex = thisWidget.state.index
+    for _, Selection in array do
+        Internal._insert("Selectable", tostring(Selection), Selection, flags or 0, sharedIndex)
+    end
+    Internal._end()
+
+    return thisWidget
+end
+
+--[=[
+    @within Combo
+    @tag Widget
+    @tag HasChildren
+    @tag HasState
+
+    @function Combo
+    @param text string
+    @param enum Enum -- enum to turn into a combo and selectables
+    @param flags number? -- optional bit flags, using Iris.ComboFlags, default is 0
+    @param state State<any>? -- index state detailing the current selection
+    @param open State<boolean>? -- state for combo box being open
+
+    @return Combo
+
+    A selection box to choose a value from an Enum.
+]=]
+local API_ComboEnum = function(text: string, enum: Enum, flags: number?, state: Types.State<any>?, open: Types.State<boolean>?)
+    local thisWidget = Internal._insert("Combo", text, flags or 0, state, open)
+    local sharedIndex = thisWidget.state.index
+    for _, selection: EnumItem in enum:GetEnumItems() do
+        Internal._insert("Selectable", selection.Name, selection, flags or 0, sharedIndex)
+    end
+    Internal._end()
+
+    return thisWidget
+end
+
 return {
     ComboFlags = ComboFlags,
+    API_Selectable = API_Selectable,
+    API_Combo = API_Combo,
+    API_ComboArray = API_ComboArray,
+    API_ComboEnum = API_ComboEnum,
 }

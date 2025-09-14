@@ -327,15 +327,15 @@ function Utility.registerEvent(event: string, callback: (...any) -> ())
 end
 
 Utility.ICONS = {
-    BLANK_SQUARE = "rbxasset://textures/SurfacesDefault.png",
-    RIGHT_POINTING_TRIANGLE = "rbxasset://textures/DeveloperFramework/button_arrow_right.png",
-    DOWN_POINTING_TRIANGLE = "rbxasset://textures/DeveloperFramework/button_arrow_down.png",
-    MULTIPLICATION_SIGN = "rbxasset://textures/AnimationEditor/icon_close.png", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
-    BOTTOM_RIGHT_CORNER = "rbxasset://textures/ui/InspectMenu/gr-item-selector-triangle.png", -- used in window resize icon in bottom right
-    CHECK_MARK = "rbxasset://textures/AnimationEditor/icon_checkmark.png",
-    BORDER = "rbxasset://textures/ui/InspectMenu/gr-item-selector.png",
-    ALPHA_BACKGROUND_TEXTURE = "rbxasset://textures/meshPartFallback.png", -- used for color4 alpha
-    UNKNOWN_TEXTURE = "rbxasset://textures/ui/GuiImagePlaceholder.png",
+    BLANK_SQUARE = Content.fromUri("rbxasset://textures/SurfacesDefault.png"),
+    RIGHT_POINTING_TRIANGLE = Content.fromUri("rbxasset://textures/DeveloperFramework/button_arrow_right.png"),
+    DOWN_POINTING_TRIANGLE = Content.fromUri("rbxasset://textures/DeveloperFramework/button_arrow_down.png"),
+    MULTIPLICATION_SIGN = Content.fromUri("rbxasset://textures/AnimationEditor/icon_close.png"), -- best approximation for a close X which roblox supports, needs to be scaled about 2x
+    BOTTOM_RIGHT_CORNER = Content.fromUri("rbxasset://textures/ui/InspectMenu/gr-item-selector-triangle.png"), -- used in window resize icon in bottom right
+    CHECK_MARK = Content.fromUri("rbxasset://textures/AnimationEditor/icon_checkmark.png"),
+    BORDER = Content.fromUri("rbxasset://textures/ui/InspectMenu/gr-item-selector.png"),
+    ALPHA_BACKGROUND_TEXTURE = Content.fromUri("rbxasset://textures/meshPartFallback.png"), -- used for color4 alpha
+    UNKNOWN_TEXTURE = Content.fromUri("rbxasset://textures/ui/GuiImagePlaceholder.png"),
 }
 
 Utility.EVENTS = {

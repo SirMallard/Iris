@@ -184,7 +184,7 @@ Internal._widgetConstructor(
 
     @function Text
     @param text string
-    @param flags number? -- optional bit flags, using Iris.TextFlags, default 0
+    @param flags TextFlags? -- optional bit flags, using Iris.TextFlags, default 0
     @param color Color3? -- overwrite default text colour
 
     @return Text
@@ -203,40 +203,6 @@ Internal._widgetConstructor(
 ]=]
 local API_Text = function(text: string, flags: number?, color: Color3?)
     return Internal._insert("Text", text, flags or 0, color) :: Text
-end
-
---[=[
-    @within Text
-    @tag Widget
-    @deprecated v2.0.0 -- Use 'Text' with the Wrapped flag or change the config.
-
-    @function TextWrapped
-    @param text string
-    
-    @return Text
-
-    An alias for [Iris.Text](Text#Text) with the Wrapped argument set to true, and the text will wrap around if cut off by its parent.
-]=]
-local API_TextWrapped = function(text: string)
-    return Internal._insert("Text", text, TextFlags.Wrapped) :: Text
-end
-
---[=[
-    @within Text
-    @tag Widget
-    @deprecated v2.0.0 -- Use 'Text' with the Color argument or change the config.
-
-    @function TextColored
-    @param text string
-    @param color Color3
-    
-    @return Text
-    
-    An alias for [Iris.Text](Text#Text) with the color set by the Color argument.
-
-]=]
-local API_TextColored = function(text: string, color: Color3)
-    return Internal._insert("Text", text, 0, color) :: Text
 end
 
 --[=[
@@ -270,7 +236,5 @@ end
 return {
     TextFlags = TextFlags,
     API_Text = API_Text,
-    API_TextWrapped = API_TextWrapped,
-    API_TextColored = API_TextColored,
     API_SeparatorText = API_SeparatorText,
 }

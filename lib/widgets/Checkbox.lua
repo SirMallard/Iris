@@ -90,7 +90,7 @@ Internal._widgetConstructor(
             Checkmark.Name = "Checkmark"
             Checkmark.Size = UDim2.fromScale(1, 1)
             Checkmark.BackgroundTransparency = 1
-            Checkmark.Image = Utility.ICONS.CHECK_MARK
+            Checkmark.ImageContent = Utility.ICONS.CHECK_MARK
             Checkmark.ImageColor3 = Internal._config.CheckMarkColor
             Checkmark.ImageTransparency = 1
             Checkmark.ScaleType = Enum.ScaleType.Fit

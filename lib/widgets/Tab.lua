@@ -5,18 +5,47 @@ local Types = require(script.Parent.Parent.Types)
 
 local btest = bit32.btest
 
+--[=[
+    @class Tab
+    Tab Widget API
+]=]
+
+--[=[
+    @within Tab
+    @interface TabBar
+    .& ParentWidget
+    ._tabs { Tab } -- all the tabs under this tab bar
+
+    .state { index: State<number> }
+]=]
 export type TabBar = Types.ParentWidget & {
-    Tabs: { Tab },
+    _tabs: { Tab },
 
     state: {
         index: Types.State<number>,
     },
 }
 
+--[=[
+    @within Tab
+    @interface Tab
+    .& ParentWidget
+    ._tabIndex number -- unique index of this tab
+    .active () -> boolean -- if the current radio button is selected
+    .clicked () -> boolean -- fires when the tab is clicked
+    .selected () -> boolean -- once when selected
+    .unselected () -> boolean -- once when unselected
+    .shown () -> boolean -- once when shown
+    .hidden () -> boolean -- once when hidden
+    .hovered () -> boolean -- fires when the mouse hovers over any of the tab button
+
+    .arguments { Text: string, Flags: number }
+    .state { index: Types.State<number>, open: Types.State<boolean> }
+]=]
 export type Tab = Types.ParentWidget & {
     parentWidget: TabBar,
-    Index: number,
-    ButtonColors: { [string]: Color3 | number },
+    _tabIndex: number,
+    _buttonColors: { [string]: Color3 | number },
 
     arguments: {
         Text: string,
@@ -25,10 +54,15 @@ export type Tab = Types.ParentWidget & {
 
     state: {
         index: Types.State<number>,
-        open: Types.State<boolean>,
+        shown: Types.State<boolean>,
     },
-} & Types.Clicked & Types.Opened & Types.Selected & Types.Unselected & Types.Active & Types.Closed & Types.Hovered
+} & Types.Clicked & Types.Selected & Types.Unselected & Types.Active & Types.Shown & Types.Hidden & Types.Hovered
 
+--[=[
+    @within Tab
+    @interface TabFlags
+    .Hideable 1 -- enables the hide tab button
+]=]
 local TabFlags = {
     Hideable = 1,
 }
@@ -52,15 +86,15 @@ local function closeTab(TabBar: TabBar, Index: number)
 
     -- search left for open tabs
     for i = Index - 1, 1, -1 do
-        if TabBar.Tabs[i].state.open._value == true then
+        if TabBar._tabs[i].state.shown._value == true then
             TabBar.state.index:set(i)
             return
         end
     end
 
     -- search right for open tabs
-    for i = Index, #TabBar.Tabs do
-        if TabBar.Tabs[i].state.open._value == true then
+    for i = Index, #TabBar._tabs do
+        if TabBar._tabs[i].state.shown._value == true then
             TabBar.state.index:set(i)
             return
         end
@@ -125,7 +159,7 @@ Internal._widgetConstructor(
             ChildContainer.Parent = TabBar
 
             thisWidget.childContainer = ChildContainer
-            thisWidget.Tabs = {}
+            thisWidget._tabs = {}
 
             return TabBar
         end,
@@ -134,18 +168,18 @@ Internal._widgetConstructor(
             assert(thisChild.type == "Tab", "Only Iris.Tab can be parented to Iris.TabBar.")
             local TabBar = thisWidget.instance :: Frame
             thisChild.childContainer.Parent = thisWidget.childContainer
-            thisChild.Index = #thisWidget.Tabs + 1
+            thisChild._tabIndex = #thisWidget._tabs + 1
             thisWidget.state.index._connectedWidgets[thisChild.ID] = thisChild
-            table.insert(thisWidget.Tabs, thisChild)
+            table.insert(thisWidget._tabs, thisChild)
 
             return TabBar.Bar
         end,
         ChildDiscarded = function(thisWidget: TabBar, thisChild: Tab)
-            local Index = thisChild.Index
-            table.remove(thisWidget.Tabs, Index)
+            local Index = thisChild._tabIndex
+            table.remove(thisWidget._tabs, Index)
 
-            for i = Index, #thisWidget.Tabs do
-                thisWidget.Tabs[i].Index = i
+            for i = Index, #thisWidget._tabs do
+                thisWidget._tabs[i]._tabIndex = i
             end
 
             closeTab(thisWidget, Index)
@@ -195,19 +229,19 @@ Internal._widgetConstructor(
             ["active"] = {
                 ["Init"] = function(_thisWidget: Tab) end,
                 ["Get"] = function(thisWidget: Tab)
-                    return thisWidget.state.index._value == thisWidget.Index
+                    return thisWidget.state.index._value == thisWidget._tabIndex
                 end,
             },
-            ["opened"] = {
+            ["shown"] = {
                 ["Init"] = function(_thisWidget: Tab) end,
                 ["Get"] = function(thisWidget: Tab)
-                    return thisWidget._lastOpenedTick == Internal._cycleTick
+                    return thisWidget._lastShownTick == Internal._cycleTick
                 end,
             },
-            ["closed"] = {
+            ["hidden"] = {
                 ["Init"] = function(_thisWidget: Tab) end,
                 ["Get"] = function(thisWidget: Tab)
-                    return thisWidget._lastClosedTick == Internal._cycleTick
+                    return thisWidget._lastHiddenTick == Internal._cycleTick
                 end,
             },
         },
@@ -221,7 +255,7 @@ Internal._widgetConstructor(
             Tab.Text = ""
             Tab.AutoButtonColor = false
 
-            thisWidget.ButtonColors = {
+            thisWidget._buttonColors = {
                 Color = Internal._config.TabColor,
                 Transparency = Internal._config.TabTransparency,
                 HoveredColor = Internal._config.TabHoveredColor,
@@ -233,9 +267,9 @@ Internal._widgetConstructor(
             Utility.UIPadding(Tab, Vector2.new(Internal._config.FramePadding.X, 0))
             Utility.applyFrameStyle(Tab, true, true)
             Utility.UIListLayout(Tab, Enum.FillDirection.Horizontal, UDim.new(0, Internal._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
-            Utility.applyInteractionHighlights("Background", Tab, Tab, thisWidget.ButtonColors)
+            Utility.applyInteractionHighlights("Background", Tab, Tab, thisWidget._buttonColors)
             Utility.applyButtonClick(Tab, function()
-                thisWidget.state.index:set(thisWidget.Index)
+                thisWidget.state.index:set(thisWidget._tabIndex)
             end)
 
             local TextLabel = Instance.new("TextLabel")
@@ -262,8 +296,8 @@ Internal._widgetConstructor(
 
             Utility.UICorner(CloseButton)
             Utility.applyButtonClick(CloseButton, function()
-                thisWidget.state.open:set(false)
-                closeTab(thisWidget.parentWidget, thisWidget.Index)
+                thisWidget.state.shown:set(false)
+                closeTab(thisWidget.parentWidget, thisWidget._tabIndex)
             end)
 
             Utility.applyInteractionHighlights("Background", CloseButton, CloseButton, {
@@ -284,7 +318,7 @@ Internal._widgetConstructor(
             Icon.Size = UDim2.fromOffset(math.floor(0.7 * ButtonSize), math.floor(0.7 * ButtonSize))
             Icon.BackgroundTransparency = 1
             Icon.BorderSizePixel = 0
-            Icon.Image = Utility.ICONS.MULTIPLICATION_SIGN
+            Icon.ImageContent = Utility.ICONS.MULTIPLICATION_SIGN
             Icon.ImageTransparency = 1
 
             Utility.applyInteractionHighlights("Image", Tab, Icon, {
@@ -327,37 +361,37 @@ Internal._widgetConstructor(
             thisWidget.state.index = thisWidget.parentWidget.state.index
             thisWidget.state.index._connectedWidgets[thisWidget.ID] = thisWidget
 
-            if thisWidget.state.open == nil then
-                thisWidget.state.open = Internal._widgetState(thisWidget, "open", true)
+            if thisWidget.state.shown == nil then
+                thisWidget.state.shown = Internal._widgetState(thisWidget, "open", true)
             end
         end,
         UpdateState = function(thisWidget: Tab)
             local Tab = thisWidget.instance :: TextButton
             local Container = thisWidget.childContainer :: Frame
 
-            if thisWidget.state.open._lastChangeTick == Internal._cycleTick then
-                if thisWidget.state.open._value == true then
-                    thisWidget._lastOpenedTick = Internal._cycleTick + 1
-                    openTab(thisWidget.parentWidget, thisWidget.Index)
+            if thisWidget.state.shown._lastChangeTick == Internal._cycleTick then
+                if thisWidget.state.shown._value == true then
+                    thisWidget._lastShownTick = Internal._cycleTick + 1
+                    openTab(thisWidget.parentWidget, thisWidget._tabIndex)
                     Tab.Visible = true
                 else
-                    thisWidget._lastClosedTick = Internal._cycleTick + 1
-                    closeTab(thisWidget.parentWidget, thisWidget.Index)
+                    thisWidget._lastHiddenTick = Internal._cycleTick + 1
+                    closeTab(thisWidget.parentWidget, thisWidget._tabIndex)
                     Tab.Visible = false
                 end
             end
 
             if thisWidget.state.index._lastChangeTick == Internal._cycleTick then
-                if thisWidget.state.index._value == thisWidget.Index then
-                    thisWidget.ButtonColors.Color = Internal._config.TabActiveColor
-                    thisWidget.ButtonColors.Transparency = Internal._config.TabActiveTransparency
+                if thisWidget.state.index._value == thisWidget._tabIndex then
+                    thisWidget._buttonColors.Color = Internal._config.TabActiveColor
+                    thisWidget._buttonColors.Transparency = Internal._config.TabActiveTransparency
                     Tab.BackgroundColor3 = Internal._config.TabActiveColor
                     Tab.BackgroundTransparency = Internal._config.TabActiveTransparency
                     Container.Visible = true
                     thisWidget._lastSelectedTick = Internal._cycleTick + 1
                 else
-                    thisWidget.ButtonColors.Color = Internal._config.TabColor
-                    thisWidget.ButtonColors.Transparency = Internal._config.TabTransparency
+                    thisWidget._buttonColors.Color = Internal._config.TabColor
+                    thisWidget._buttonColors.Transparency = Internal._config.TabTransparency
                     Tab.BackgroundColor3 = Internal._config.TabColor
                     Tab.BackgroundTransparency = Internal._config.TabTransparency
                     Container.Visible = false
@@ -366,8 +400,8 @@ Internal._widgetConstructor(
             end
         end,
         Discard = function(thisWidget: Tab)
-            if thisWidget.state.open._value == true then
-                closeTab(thisWidget.parentWidget, thisWidget.Index)
+            if thisWidget.state.shown._value == true then
+                closeTab(thisWidget.parentWidget, thisWidget._tabIndex)
             end
 
             thisWidget.instance:Destroy()
@@ -377,6 +411,51 @@ Internal._widgetConstructor(
     } :: Types.WidgetClass
 )
 
+--[=[
+    @within Tab
+    @tag Widget
+    @tag HasChildren
+    @tag HasState
+
+    @function TabBar
+    @param state State<number>? -- current tab index state
+
+    @return TabBar
+    
+    Creates a TabBar for putting tabs under. This does not create the tabs but just the container for them to be in.
+    The index state is used to control the current tab and is based on an index starting from 1 rather than the
+    text provided to a Tab. The TabBar will replicate the index to the Tab children .
+    
+]=]
+local API_TabBar = function(state: Types.State<number>?)
+    return Internal._insert("TabBar", state) :: TabBar
+end
+
+--[=[
+    @within Tab
+    @tag Widget
+    @tag HasChildren
+    @tag HasState
+
+    @function Tab
+    @param text string -- tab title
+    @param flags TabFlags? -- optional bit flags, using Iris.TabFlags, default is 0
+    @param shown State<boolean>? -- unique state if the tab is shown or not
+    
+    @return Tab
+    
+    The tab item for use under a TabBar. The TabBar must be the parent and determines the index value. You cannot
+    provide a state for this tab. The optional Hideable argument determines if a tab can be closed, which is
+    controlled by the isOpened state.
+
+    A tab will take up the full horizontal width of the parent and hide any other tabs in the TabBar.
+]=]
+local API_Tab = function(text: string, flags: number?, shown: Types.State<boolean>?)
+    return Internal._insert("Tab", text, flags, shown) :: Tab
+end
+
 return {
     TabFlags = TabFlags,
+    API_TabBar = API_TabBar,
+    API_Tab = API_Tab,
 }

@@ -16,7 +16,7 @@ local Types = require(script.Parent.Parent.Types)
     .rightClicked () -> boolean -- fires when a button is right clicked
     .doubleClicked () -> boolean -- fires when a button is double clicked
     .ctrlClicked () -> boolean -- fires when a button is ctrl clicked
-    .hovered () -> boolean -- fires when the mouse hovers over any of the window
+    .hovered () -> boolean -- fires when the mouse hovers over any of the button
     
     .arguments { Text: string?, Size: UDim2? }
 ]=]

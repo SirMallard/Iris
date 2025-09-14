@@ -712,6 +712,15 @@ function Internal._getParentWidget(): Types.ParentWidget
     return Internal._VDOM[Internal._IDStack[Internal._stackIndex]] :: Types.ParentWidget
 end
 
+function Internal._end()
+    if Internal._stackIndex == 1 then
+        error("Too many calls to Iris.End().", 2)
+    end
+
+    Internal._IDStack[Internal._stackIndex] = nil
+    Internal._stackIndex -= 1
+end
+
 -- Generate
 
 --[=[

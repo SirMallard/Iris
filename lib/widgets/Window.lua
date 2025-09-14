@@ -75,15 +75,15 @@ export type Tooltip = Types.Widget & {
 --[=[
     @within Window
     @interface WindowFlags
-    .NoTitleBar number -- hide title bar (value 1)
-    .NoBackground number -- hide background colour (value 2)
-    .NoCollapse number -- hide collapsing button (value 4)
-    .NoClose number -- hide close button (value 8)
-    .NoMove number -- disable drag-to-move functionality (value 16)
-    .NoScrollbar number -- disable scrollbar (value 32)
-    .NoResize number -- disable drag-to-resize functionality (value 64)
-    .NoNav number -- unused (value 128)
-    .NoMenu number -- hide the menubar (value 256)
+    .NoTitleBar 1 -- hide title bar
+    .NoBackground 2 -- hide background colour
+    .NoCollapse 4 -- hide collapsing button
+    .NoClose 8 -- hide close button
+    .NoMove 16 -- disable drag-to-move functionality
+    .NoScrollbar 32 -- disable scrollbar
+    .NoResize 64 -- disable drag-to-resize functionality
+    .NoNav 128 -- unused
+    .NoMenu 256 -- hide the menubar
 ]=]
 local WindowFlags = {
     NoTitleBar = 1,
@@ -561,9 +561,9 @@ Internal._widgetConstructor(
             ChildContainer.ScrollBarImageColor3 = Internal._config.ScrollbarGrabColor
             ChildContainer.CanvasSize = UDim2.fromScale(0, 0)
             ChildContainer.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
-            ChildContainer.TopImage = Utility.ICONS.BLANK_SQUARE
-            ChildContainer.MidImage = Utility.ICONS.BLANK_SQUARE
-            ChildContainer.BottomImage = Utility.ICONS.BLANK_SQUARE
+            ChildContainer.TopImageContent = Utility.ICONS.BLANK_SQUARE
+            ChildContainer.MidImageContent = Utility.ICONS.BLANK_SQUARE
+            ChildContainer.BottomImageContent = Utility.ICONS.BLANK_SQUARE
 
             ChildContainer.LayoutOrder = thisWidget.zindex + 0xFFFF
             ChildContainer.ClipsDescendants = true
@@ -661,7 +661,7 @@ Internal._widgetConstructor(
             CollapseArrow.Position = UDim2.fromScale(0.5, 0.5)
             CollapseArrow.BackgroundTransparency = 1
             CollapseArrow.BorderSizePixel = 0
-            CollapseArrow.Image = Utility.ICONS.MULTIPLICATION_SIGN
+            CollapseArrow.ImageContent = Utility.ICONS.MULTIPLICATION_SIGN
             CollapseArrow.ImageColor3 = Internal._config.TextColor
             CollapseArrow.ImageTransparency = Internal._config.TextTransparency
             CollapseArrow.Parent = CollapseButton
@@ -702,7 +702,7 @@ Internal._widgetConstructor(
             CloseIcon.Position = UDim2.fromScale(0.5, 0.5)
             CloseIcon.BackgroundTransparency = 1
             CloseIcon.BorderSizePixel = 0
-            CloseIcon.Image = Utility.ICONS.MULTIPLICATION_SIGN
+            CloseIcon.ImageContent = Utility.ICONS.MULTIPLICATION_SIGN
             CloseIcon.ImageColor3 = Internal._config.TextColor
             CloseIcon.ImageTransparency = Internal._config.TextTransparency
             CloseIcon.Parent = CloseButton
@@ -739,7 +739,7 @@ Internal._widgetConstructor(
             LeftResizeGrip.Size = UDim2.fromOffset(ResizeButtonSize, ResizeButtonSize)
             LeftResizeGrip.BackgroundTransparency = 1
             LeftResizeGrip.BorderSizePixel = 0
-            LeftResizeGrip.Image = Utility.ICONS.BOTTOM_RIGHT_CORNER
+            LeftResizeGrip.ImageContent = Utility.ICONS.BOTTOM_RIGHT_CORNER
             LeftResizeGrip.ImageColor3 = Internal._config.ResizeGripColor
             LeftResizeGrip.ImageTransparency = 1
             LeftResizeGrip.AutoButtonColor = false
@@ -775,7 +775,7 @@ Internal._widgetConstructor(
             RightResizeGrip.Size = UDim2.fromOffset(ResizeButtonSize, ResizeButtonSize)
             RightResizeGrip.BackgroundTransparency = 1
             RightResizeGrip.BorderSizePixel = 0
-            RightResizeGrip.Image = Utility.ICONS.BOTTOM_RIGHT_CORNER
+            RightResizeGrip.ImageContent = Utility.ICONS.BOTTOM_RIGHT_CORNER
             RightResizeGrip.ImageColor3 = Internal._config.ResizeGripColor
             RightResizeGrip.ImageTransparency = Internal._config.ResizeGripTransparency
             RightResizeGrip.AutoButtonColor = false
@@ -808,7 +808,7 @@ Internal._widgetConstructor(
             LeftResizeBorder.Position = UDim2.fromScale(0, 0.5)
             LeftResizeBorder.Size = UDim2.new(0, Internal._config.WindowResizePadding.X, 1, 2 * Internal._config.WindowBorderSize)
             LeftResizeBorder.Transparency = 1
-            LeftResizeBorder.Image = Utility.ICONS.BORDER
+            LeftResizeBorder.ImageContent = Utility.ICONS.BORDER
             LeftResizeBorder.ResampleMode = Enum.ResamplerMode.Pixelated
             LeftResizeBorder.ScaleType = Enum.ScaleType.Slice
             LeftResizeBorder.SliceCenter = Rect.new(0, 0, 1, 1)
@@ -826,7 +826,7 @@ Internal._widgetConstructor(
             RightResizeBorder.Position = UDim2.fromScale(1, 0.5)
             RightResizeBorder.Size = UDim2.new(0, Internal._config.WindowResizePadding.X, 1, 2 * Internal._config.WindowBorderSize)
             RightResizeBorder.Transparency = 1
-            RightResizeBorder.Image = Utility.ICONS.BORDER
+            RightResizeBorder.ImageContent = Utility.ICONS.BORDER
             RightResizeBorder.ResampleMode = Enum.ResamplerMode.Pixelated
             RightResizeBorder.ScaleType = Enum.ScaleType.Slice
             RightResizeBorder.SliceCenter = Rect.new(1, 0, 2, 1)
@@ -844,7 +844,7 @@ Internal._widgetConstructor(
             TopResizeBorder.Position = UDim2.fromScale(0.5, 0)
             TopResizeBorder.Size = UDim2.new(1, 2 * Internal._config.WindowBorderSize, 0, Internal._config.WindowResizePadding.Y)
             TopResizeBorder.Transparency = 1
-            TopResizeBorder.Image = Utility.ICONS.BORDER
+            TopResizeBorder.ImageContent = Utility.ICONS.BORDER
             TopResizeBorder.ResampleMode = Enum.ResamplerMode.Pixelated
             TopResizeBorder.ScaleType = Enum.ScaleType.Slice
             TopResizeBorder.SliceCenter = Rect.new(0, 0, 1, 1)
@@ -862,7 +862,7 @@ Internal._widgetConstructor(
             BottomResizeBorder.Position = UDim2.fromScale(0.5, 1)
             BottomResizeBorder.Size = UDim2.new(1, 2 * Internal._config.WindowBorderSize, 0, Internal._config.WindowResizePadding.Y)
             BottomResizeBorder.Transparency = 1
-            BottomResizeBorder.Image = Utility.ICONS.BORDER
+            BottomResizeBorder.ImageContent = Utility.ICONS.BORDER
             BottomResizeBorder.ResampleMode = Enum.ResamplerMode.Pixelated
             BottomResizeBorder.ScaleType = Enum.ScaleType.Slice
             BottomResizeBorder.SliceCenter = Rect.new(0, 1, 1, 2)
@@ -1085,7 +1085,7 @@ Internal._widgetConstructor(
             end
 
             if stateOpen then
-                TitleBar.CollapseButton.Arrow.Image = Utility.ICONS.DOWN_POINTING_TRIANGLE
+                TitleBar.CollapseButton.Arrow.ImageContent = Utility.ICONS.DOWN_POINTING_TRIANGLE
                 if MenuBar then
                     MenuBar.Visible = not btest(WindowFlags.NoMenu, thisWidget.arguments.Flags)
                 end
@@ -1102,7 +1102,7 @@ Internal._widgetConstructor(
                 thisWidget._lastOpenedTick = Internal._cycleTick + 1
             else
                 local collapsedHeight: number = TitleBar.AbsoluteSize.Y -- Internal._config.TextSize + Internal._config.FramePadding.Y * 2
-                TitleBar.CollapseButton.Arrow.Image = Utility.ICONS.RIGHT_POINTING_TRIANGLE
+                TitleBar.CollapseButton.Arrow.ImageContent = Utility.ICONS.RIGHT_POINTING_TRIANGLE
 
                 if MenuBar then
                     MenuBar.Visible = false
@@ -1182,12 +1182,12 @@ Internal._widgetConstructor(
 
     @function Window
     @param title string -- titlebar text of the window
-    @param flags number? -- optional bit flags, using Iris.WindowFlags, default 0
-    @param size State<Vector>? -- state size of the entire window, default Vector2.new(400, 300)
+    @param flags WindowFlags? -- optional bit flags, using Iris.WindowFlags, default is 0
+    @param size State<Vector>? -- state size of the entire window, default is Vector2.new(400, 300)
     @param position State<Vector2>? -- state position relative to the top-left corner
-    @param open State<boolean>? -- state for the entire window visible, or closed with just the titlebar, default true
-    @param shown State<boolean?> -- state to hide the entire widget, default true
-    @param scrollDistance Types.State<number>? -- state vertical scroll distance down the window
+    @param open State<boolean>? -- state for the entire window visible, or closed with just the titlebar, default is true
+    @param shown State<boolean?> -- state to hide the entire widget, default is true
+    @param scrollDistance State<number>? -- state vertical scroll distance down the window
 
     @return Window
     

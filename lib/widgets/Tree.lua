@@ -5,16 +5,25 @@ local Types = require(script.Parent.Parent.Types)
 
 local btest = bit32.btest
 
-export type Tree = CollapsingHeader & {
+--[=[
+    @class Tree
+    Tree Widget API
+]=]
+
+--[=[
+    @within Tree
+    @interface Tree
+    .& ParentWidget
+    .opened () -> boolean -- once when opened
+    .closed () -> boolean -- once when closed
+    .hovered () -> boolean -- fires when the mouse hovers over any of the tree label
+
+    .arguments { Text: string, Flags: number }
+    .state { open: State<boolean> }
+]=]
+export type Tree = Types.ParentWidget & {
     arguments: {
         Text: string,
-        Flags: number,
-    },
-}
-
-export type CollapsingHeader = Types.ParentWidget & {
-    arguments: {
-        Text: string?,
         Flags: number,
     },
 
@@ -23,6 +32,13 @@ export type CollapsingHeader = Types.ParentWidget & {
     },
 } & Types.Opened & Types.Closed & Types.Hovered
 
+--[=[
+    @within Tree
+    @interface TreeFlags
+    .SpanAvailWidth 1 -- the tree title will fill all horizontal space to the end its parent container
+    .NoIndent 2 -- the child widgets will not be indented underneath
+    .DefaultOpen 4 -- initially opens the tree if no state is provided
+]=]
 local TreeFlags = {
     SpanAvailWidth = 1,
     NoIndent = 2,
@@ -36,14 +52,14 @@ local abstractTree = {
     Arguments = { "Text", "Flags", "open" },
     Events = {
         ["opened"] = {
-            ["Init"] = function(_thisWidget: CollapsingHeader) end,
-            ["Get"] = function(thisWidget: CollapsingHeader)
+            ["Init"] = function(_thisWidget: Tree) end,
+            ["Get"] = function(thisWidget: Tree)
                 return thisWidget._lastClosedTick == Internal._cycleTick
             end,
         },
         ["closed"] = {
-            ["Init"] = function(_thisWidget: CollapsingHeader) end,
-            ["Get"] = function(thisWidget: CollapsingHeader)
+            ["Init"] = function(_thisWidget: Tree) end,
+            ["Get"] = function(thisWidget: Tree)
                 return thisWidget._lastOpenedTick == Internal._cycleTick
             end,
         },
@@ -51,12 +67,12 @@ local abstractTree = {
             return thisWidget.instance
         end),
     },
-    GenerateState = function(thisWidget: CollapsingHeader)
+    GenerateState = function(thisWidget: Tree)
         if thisWidget.state.open == nil then
             thisWidget.state.open = Internal._widgetState(thisWidget, "open", btest(TreeFlags.DefaultOpen, thisWidget.arguments.Flags))
         end
     end,
-    UpdateState = function(thisWidget: CollapsingHeader)
+    UpdateState = function(thisWidget: Tree)
         local open = thisWidget.state.open._value
         local Tree = thisWidget.instance :: Frame
         local ChildContainer = thisWidget.childContainer :: Frame
@@ -64,7 +80,7 @@ local abstractTree = {
         local Button = Header.Button :: TextButton
         local Arrow: ImageLabel = Button.Arrow
 
-        Arrow.Image = (if open then Utility.ICONS.DOWN_POINTING_TRIANGLE else Utility.ICONS.RIGHT_POINTING_TRIANGLE)
+        Arrow.ImageContent = (if open then Utility.ICONS.DOWN_POINTING_TRIANGLE else Utility.ICONS.RIGHT_POINTING_TRIANGLE)
         if open then
             thisWidget._lastOpenedTick = Internal._cycleTick + 1
         else
@@ -73,14 +89,14 @@ local abstractTree = {
 
         ChildContainer.Visible = open
     end,
-    ChildAdded = function(thisWidget: CollapsingHeader, _thisChild: Types.Widget)
+    ChildAdded = function(thisWidget: Tree, _thisChild: Types.Widget)
         local ChildContainer = thisWidget.childContainer :: Frame
 
         ChildContainer.Visible = thisWidget.state.open._value
 
         return ChildContainer
     end,
-    Discard = function(thisWidget: CollapsingHeader)
+    Discard = function(thisWidget: Tree)
         thisWidget.instance:Destroy()
         Utility.discardState(thisWidget)
     end,
@@ -215,7 +231,7 @@ Internal._widgetConstructor(
     Utility.extend(
         abstractTree,
         {
-            Generate = function(thisWidget: CollapsingHeader)
+            Generate = function(thisWidget: Tree)
                 local CollapsingHeader = Instance.new("Frame")
                 CollapsingHeader.Name = "Iris_CollapsingHeader"
                 CollapsingHeader.AutomaticSize = Enum.AutomaticSize.Y
@@ -305,7 +321,7 @@ Internal._widgetConstructor(
                 thisWidget.childContainer = ChildContainer
                 return CollapsingHeader
             end,
-            Update = function(thisWidget: CollapsingHeader)
+            Update = function(thisWidget: Tree)
                 local Tree = thisWidget.instance :: Frame
                 local Header = Tree.Header :: Frame
                 local Button = Header.Button :: TextButton
@@ -317,6 +333,47 @@ Internal._widgetConstructor(
     )
 )
 
+--[=[
+    @within Tree
+    @tag Widget
+    @tag HasChildren
+    @tag HasState
+
+    @function Tree
+    @param text string
+    @param flags TreeFlags? -- optional bit flags, using Iris.TreeFlags, default is 0
+    @param open Types.State<boolean>? -- open state
+
+    @return Tree
+
+    A collapsable container for other widgets, to organise and hide widgets when not needed. The state determines whether the child widgets are visible or not. Clicking on the widget will open or close it.
+]=]
+local API_Tree = function(text: string, flags: number?, open: Types.State<boolean>?)
+    return Internal._insert("Tree", text, flags, open) :: Tree
+end
+
+--[=[
+    @within Tree
+    @tag Widget
+    @tag HasChildren
+    @tag HasState
+
+    @function Tree
+    @param text string
+    @param flags TreeFlags? -- optional bit flags, using Iris.TreeFlags, default is 0
+    @param open Types.State<boolean>? -- open state
+
+    @return Tree
+
+    The same as a Tree Widget, but with a larger title and clearer, used mainly for organsing widgets on the first level of a window.
+
+]=]
+local API_CollapsingHeader = function(text: string, flags: number?, open: Types.State<boolean>?)
+    return Internal._insert("CollapsingHeader", text, flags, open) :: Tree
+end
+
 return {
     TreeFlags = TreeFlags,
+    API_Tree = API_Tree,
+    API_CollapsingHeader = API_CollapsingHeader,
 }
