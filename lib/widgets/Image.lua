@@ -14,7 +14,7 @@ local Types = require(script.Parent.Parent.Types)
     @interface Image
     .& Widget
     .hovered () -> boolean -- fires when the mouse hovers over any of the image
-    
+
     .arguments { Content: Content, Size: UDim2, Rect: Rect?, ScaleType: Enum.ScaleType?, TileSize: UDim2?, SliceCenter: Rect?, SliceScale: number?, ResampleMode: Enum.ResamplerMode? }
 ]=]
 
@@ -228,7 +228,7 @@ end
 --[=[
     @within Image
     @tag Widget
-    
+
     @function ImageButton
     @param content Content -- texture content, allowing support for editable images
     @param size UDim2 -- required size in the window
@@ -238,7 +238,7 @@ end
     @param tileSize UDim2? -- only used if ScaleType is Tile, default is UDim2.fromScale(1, 1)
     @param sliceCenter Rect? -- only used if ScaleType is Slice, default is empty Rect
     @param sliceScale number? -- only used if ScaleType is Slice, default is 1
-    
+
     @return ImageButton
 
     An image button widget for a button as an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image, and the rest of the ScaleType functionerties

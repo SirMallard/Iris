@@ -19,7 +19,7 @@ export type MenuBar = Types.ParentWidget
     @within Menu
     @interface Menu
     .& ParentWidget
-    
+
     .clicked () -> boolean -- fires when a button is clicked
     .opened () -> boolean -- once when opened
     .closed () -> boolean -- once when closed
@@ -44,7 +44,7 @@ export type Menu = Types.ParentWidget & {
     @within Menu
     @interface MenuItem
     .& Widget
-    
+
     .clicked () -> boolean -- fires when a button is clicked
     .hovered () -> boolean -- fires when the mouse hovers over any of the window
 
@@ -62,11 +62,11 @@ export type MenuItem = Types.Widget & {
     @within Menu
     @interface MenuToggle
     .& Widget
-    
+
     .checked () -> boolean -- once when checked
     .unchecked () -> boolean -- once when unchecked
     .hovered () -> boolean -- fires when the mouse hovers over any of the window
-    
+
     .arguments { Text: string, KeyCode: Enum.KeyCode?, ModifierKey: Enum.ModifierKey? }
     .state { checked: Types.State<boolean> }
 ]=]
@@ -697,11 +697,11 @@ Internal._widgetConstructor(
     @within Menu
     @tag Widget
     @tag HasChildren
-    
+
     @function MenuBar
-    
+
     @return MenuBar
-    
+
     Creates a MenuBar for the current window. Must be called directly under a Window and not within a child widget.
     :::info
         This does not create any menus, just tells the window that we going to add menus within.
@@ -722,7 +722,7 @@ end
     @param open State<boolean? -- state for whether the menu is open
 
     @return Menu
-    
+
     Creates an collapsable menu. If the Menu is created directly under a MenuBar, then the widget will
     be placed horizontally below the window title. If the menu Menu is created within another menu, then
     it will be placed vertically alongside MenuItems and display an arrow alongside.
@@ -754,14 +754,14 @@ end
 --[=[
     @within Menu
     @tag Widget
-    
+
     @function MenuItem
     @param text string -- title of the item
     @param keyCode Enum.KeyCode? -- optional keycode to show on the right
     @param modifierKey Enum.ModifierKey? -- optional modifier keycode to show on the right
 
     @return MenuItem
-    
+
     Creates a button within a menu. The optional KeyCode and ModiferKey arguments will show the keys next
     to the title, but **will not** bind any connection to them. You will need to do this yourself.
 
@@ -783,7 +783,7 @@ end
     @within Menu
     @tag Widget
     @tag HasState
-    
+
     @function MenuToggle
 
     @param text string -- title of the item
@@ -791,11 +791,11 @@ end
     @param modifierKey Enum.ModifierKey? -- optional modifier keycode to show on the right
     @param checked State<boolean>? -- state for whether the toggle is checked
 
-    @return MenuToggle    
-    
+    @return MenuToggle
+
     Creates a togglable button within a menu. The optional KeyCode and ModiferKey arguments act the same
     as the MenuItem. It is not visually the same as a checkbox, but has the same functionality.
-    
+
     ```lua
     Iris.Window({"MenuToggle Demo"})
         Iris.MenuBar()

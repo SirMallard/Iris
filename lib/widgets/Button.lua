@@ -17,7 +17,7 @@ local Types = require(script.Parent.Parent.Types)
     .doubleClicked () -> boolean -- fires when a button is double clicked
     .ctrlClicked () -> boolean -- fires when a button is ctrl clicked
     .hovered () -> boolean -- fires when the mouse hovers over any of the button
-    
+
     .arguments { Text: string?, Size: UDim2? }
 ]=]
 export type Button = Types.Widget & {
@@ -130,13 +130,13 @@ Internal._widgetConstructor(
 --[=[
     @within Basic
     @tag Widget
-    
+
     @function Button
     @param text string
     @param size UDim2? -- minimum button size, default 0
-    
+
     @return Button
-    
+
     A clickable button the size of the text with padding. Can listen to the `clicked()` event to determine if it was pressed.
 ]=]
 local API_Button = function(text: string, size: UDim2?)
@@ -150,9 +150,9 @@ end
     @function SmallButton
     @param text string
     @param size UDim2? -- minimum button size, default 0
-    
+
     @return Button
-    
+
     A smaller clickable button, the same as a [Iris.Button](Basic#Button) but without padding. Can listen to the `clicked()` event to determine if it was pressed.
 ]=]
 local API_SmallButton = function(text: string, size: UDim2?)

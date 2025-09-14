@@ -151,7 +151,7 @@ Internal._widgetConstructor(
     @param checked Types.State<boolean>? -- checkbox state
 
     @return Checkbox
-    
+
     A checkable box with a visual tick to represent a boolean true or false state.
 ]=]
 local API_Checkbox = function(text: string, checked: Types.State<boolean>?)

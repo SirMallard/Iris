@@ -21,7 +21,7 @@ local btest = bit32.btest
             -- for each column
             for j = 1, 4 do
                 if i == 0 then
-                    -- 
+                    --
                     Iris.Text({ `H: {j}` })
                 else
                     Iris.Text({ `R: {i}, C: {j}` })
@@ -39,7 +39,7 @@ local btest = bit32.btest
     @interface Table
     .& ParentWidget
     .hovered () -> boolean -- fires when the mouse hovers over any of the table
-    
+
     .arguments { NumColumns: number, Flags: number }
     .state { widths: Types.State<{ number }> }
 ]=]
@@ -692,7 +692,7 @@ Internal._widgetConstructor(
     @param widths State<{ number }>? -- the widths of each column if Resizable
 
     @return Table
-    
+
     A layout widget which allows children to be displayed in configurable columns and rows. Highly configurable for many different
     options, with options for custom width columns as configured by the user, or automatically use the best size.
 
@@ -737,7 +737,7 @@ end
 --[=[
     @within Table
     @function NextColumn
-    
+
     In a table, moves to the next available cell. If the current cell is in the last column,
     then moves to the cell in the first column of the next row.
 ]=]
@@ -758,7 +758,7 @@ end
 --[=[
     @within Table
     @function NextRow
-    
+
     In a table, moves to the cell in the first column of the next row.
 ]=]
 local API_NextRow = function()
@@ -773,7 +773,7 @@ end
     @within Table
     @function SetColumnIndex
     @param index number
-    
+
     In a table, moves to the cell in the given column in the same previous row.
 
     Will erorr if the given index is not in the range of 1 to NumColumns.

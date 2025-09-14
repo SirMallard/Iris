@@ -137,7 +137,7 @@ end)
 --[=[
     @within State
     @prop _value T
-    
+
     Current value of the state
 ]=]
 

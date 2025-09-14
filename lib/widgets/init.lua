@@ -435,26 +435,4 @@ Utility.EVENTS = {
 
 Utility.setupOffsets()
 
--- require(script.Root)(Internal, widgets)
--- require(script.Window)(Internal, widgets)
-
--- require(script.Menu)(Internal, widgets)
-
--- require(script.Format)(Internal, widgets)
-
--- require(script.Text)(Internal, widgets)
--- require(script.Button)(Internal, widgets)
--- require(script.Checkbox)(Internal, widgets)
--- require(script.RadioButton)(Internal, widgets)
--- require(script.Image)(Internal, widgets)
-
--- require(script.Tree)(Internal, widgets)
--- require(script.Tab)(Internal, widgets)
-
--- require(script.Input)(Internal, widgets)
--- require(script.Combo)(Internal, widgets)
--- require(script.Plot)(Internal, widgets)
-
--- require(script.Table)(Internal, widgets)
-
 return Utility

@@ -586,7 +586,7 @@ Internal._widgetConstructor(
     @param state State<any>? -- a shared state between all selectables
 
     @return Selectable
-    
+
     An object which can be selected.
 ]=]
 local API_Selectable = function(text: string, index: any, flags: number?, state: Types.State<any>?)
@@ -606,7 +606,7 @@ end
     @param open State<boolean>? -- state for combo box being open
 
     @return Combo
-    
+
     A dropdown menu box to make a selection from a list of values.
 ]=]
 local API_Combo = function(text: string, flags: number?, state: Types.State<any>?, open: Types.State<boolean>?)

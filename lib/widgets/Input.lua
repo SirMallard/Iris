@@ -24,7 +24,7 @@ type InputType = "Input" | "Drag" | "Slider"
     [Rect](https://create.roblox.com/docs/reference/engine/datatypes/Rect),
     [Color3](https://create.roblox.com/docs/reference/engine/datatypes/Color3)
     and the custom [Color4](https://create.roblox.com/docs/reference/engine/datatypes/Color3).
-    
+
     Each Input widget has the same arguments but the types depend of the DataType:
     1. Text: string? = "Input{type}" -- the text to be displayed to the right of the textbox.
     2. Increment: DataType? = nil, -- the increment argument determines how a value will be rounded once the textbox looses focus.
@@ -52,7 +52,7 @@ type InputType = "Input" | "Drag" | "Slider"
     .& Widget
     .changed () -> boolean -- whenever the value changes, depending on the state
     .hovered () -> boolean -- fires when the mouse hovers over any of the input
-    
+
     .arguments { Text: string?, Increment: T, Min: T, Max: T, Format: { string }, Prefix: { string }, Flags: number }
     .state { number: State<T>, editing: State<number> }
 ]=]
@@ -80,7 +80,7 @@ export type Input<T> = Types.Widget & {
     @within Input
     @interface InputColor3
     .& Input<{ number }>
-    
+
     .state { color: State<Color3>, editing: State<boolean> }
 ]=]
 export type InputColor3 = Input<{ number }> & {
@@ -94,7 +94,7 @@ export type InputColor3 = Input<{ number }> & {
     @within Input
     @interface InputColor4
     .& InputColor3
-    
+
     .state { transparency: State<number> }
 ]=]
 export type InputColor4 = InputColor3 & {
@@ -104,7 +104,7 @@ export type InputColor4 = InputColor3 & {
 }
 
 --[=[
-    @within Input
+    @within Text
     @interface InputText
     .& Widget
     .changed () -> boolean -- whenever the value changes, depending on the state
@@ -1421,7 +1421,7 @@ end
     @param editing State<boolean>? -- read-only for when the state is changing
 
     @return Input<number>
-    
+
     An input box for numbers. The number can be either an integer or a float.
 ]=]
 local API_InputNum = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<number>?, editing: Types.State<boolean>?)
@@ -1443,7 +1443,7 @@ end
     @param editing State<boolean>? -- read-only for when the state is changing
 
     @return Input<Vector2>
-    
+
     An input box for Vector2s. The numbers can be either an integer or a float.
 ]=]
 local API_InputVector2 = function(text: string, increment: Vector2?, min: Vector2?, max: Vector2?, format: string? | { string }?, value: Types.State<Vector2>?, editing: Types.State<boolean>?)
@@ -1465,7 +1465,7 @@ end
     @param editing State<boolean>? -- read-only for when the state is changing
 
     @return Input<Vector3>
-    
+
     An input box for Vector3s. The numbers can be either an integer or a float.
 ]=]
 local API_InputVector3 = function(text: string, increment: Vector3?, min: Vector3?, max: Vector3?, format: string? | { string }?, value: Types.State<Vector3>?, editing: Types.State<boolean>?)
@@ -1487,7 +1487,7 @@ end
     @param editing State<boolean>? -- read-only for when the state is changing
 
     @return Input<UDim>
-    
+
     An input box for UDim. The Scale box will be a float and the Offset box will be
     an integer, unless specified differently.
 ]=]
@@ -1510,7 +1510,7 @@ end
     @param editing State<boolean>? -- read-only for when the state is changing
 
     @return Input<UDim2>
-    
+
     An input box for UDim2. The Scale boxes will be floats and the Offset boxes will be
     integers, unless specified differently.
 ]=]
@@ -1533,7 +1533,7 @@ end
     @param editing State<boolean>? -- read-only for when the state is changing
 
     @return Input<Rect>
-    
+
     An input box for Rect. The numbers will default to integers, unless specified differently.
 ]=]
 local API_InputRect = function(text: string, increment: Rect?, min: Rect?, max: Rect?, format: string? | { string }?, value: Types.State<Rect>?, editing: Types.State<boolean>?)
@@ -1545,7 +1545,7 @@ end
     Drag Widget API
 
     A draggable widget for each datatype. Allows direct typing input but also dragging values by clicking and holding.
-    
+
     See [Input] for more details on the arguments.
 ]=]
 
@@ -1564,7 +1564,7 @@ end
     @param editing State<boolean>? -- read-only for when the state is changing
 
     @return Input<number>
-    
+
     A field which allows the user to click and drag their cursor to enter a number.
     You can ctrl + click to directly input a number, like InputNum.
     You can hold Shift to increase speed, and Alt to decrease speed when dragging.
@@ -1588,7 +1588,7 @@ end
     @param editing State<boolean>? -- read-only for when the state is changing
 
     @return Input<Vector2>
-    
+
     A field which allows the user to click and drag their cursor to enter a Vector2.
     You can ctrl + click to directly input a Vector2, like InputVector2.
     You can hold Shift to increase speed, and Alt to decrease speed when dragging.
@@ -1613,7 +1613,7 @@ end
     @param editing State<boolean>? -- read-only for when the state is changing
 
     @return Input<Vector3>
-        
+
     A field which allows the user to click and drag their cursor to enter a Vector3.
     You can ctrl + click to directly input a Vector3, like InputVector3.
     You can hold Shift to increase speed, and Alt to decrease speed when dragging.
@@ -1637,7 +1637,7 @@ end
     @param editing State<boolean>? -- read-only for when the state is changing
 
     @return Input<UDim>
-        
+
     A field which allows the user to click and drag their cursor to enter a UDim.
     You can ctrl + click to directly input a UDim, like InputUDim.
     You can hold Shift to increase speed, and Alt to decrease speed when dragging.
@@ -1661,7 +1661,7 @@ end
     @param editing State<boolean>? -- read-only for when the state is changing
 
     @return Input<UDim2>
-    
+
     A field which allows the user to click and drag their cursor to enter a UDim2.
     You can ctrl + click to directly input a UDim2, like InputUDim2.
     You can hold Shift to increase speed, and Alt to decrease speed when dragging.
@@ -1685,7 +1685,7 @@ end
     @param editing State<boolean>? -- read-only for when the state is changing
 
     @return Input<Rect>
-    
+
     A field which allows the user to click and drag their cursor to enter a Rect.
     You can ctrl + click to directly input a Rect, like InputRect.
     You can hold Shift to increase speed, and Alt to decrease speed when dragging.
@@ -1707,7 +1707,7 @@ end
     @param editing State<boolean>?
 
     @return InputColor3
-    
+
     An input box for Color3. The input boxes are draggable between 0 and 255 or if UseFloats then between 0 and 1.
     Input can also be done using HSV instead of the default RGB.
     If no format argument is provided then a default R, G, B or H, S, V prefix is applied.
@@ -1730,7 +1730,7 @@ end
     @param editing State<boolean>?
 
     @return InputColor4
-    
+
     An input box for Color4. Color4 is a combination of Color3 and a fourth transparency argument.
     It has two states for this purpose.
     The input boxes are draggable between 0 and 255 or if UseFloats then between 0 and 1.
@@ -1747,7 +1747,7 @@ end
 
     A draggable widget with a visual bar constrained between a min and max for each datatype.
     Allows direct typing input but also dragging the slider by clicking and holding anywhere in the box.
-    
+
     See [Input] for more details on the arguments.
 ]=]
 
@@ -1755,7 +1755,7 @@ end
     @within Slider
     @tag Widget
     @tag HasState
-    
+
     @function SliderNum
     @param text string
     @param increment number?
@@ -1766,7 +1766,7 @@ end
     @param editing State<boolean>? -- read-only for when the state is changing
 
     @return Input<number>
-    
+
     A field which allows the user to slide a grip to enter a number within a range.
     You can ctrl + click to directly input a number, like InputNum.
 ]=]
@@ -1778,7 +1778,7 @@ end
     @within Slider
     @tag Widget
     @tag HasState
-    
+
     @function SliderVector2
     @param text string
     @param increment Vector2?
@@ -1789,7 +1789,7 @@ end
     @param editing State<boolean>? -- read-only for when the state is changing
 
     @return Input<Vector2>
-    
+
     A field which allows the user to slide a grip to enter a Vector2 within a range.
     You can ctrl + click to directly input a Vector2, like InputVector2.
 ]=]
@@ -1801,7 +1801,7 @@ end
     @within Slider
     @tag Widget
     @tag HasState
-    
+
     @function SliderVector3
     @param text string
     @param increment Vector3?
@@ -1824,7 +1824,7 @@ end
     @within Slider
     @tag Widget
     @tag HasState
-    
+
     @function SliderUDim
     @param text string
     @param increment UDim?
@@ -1835,7 +1835,7 @@ end
     @param editing State<boolean>? -- read-only for when the state is changing
 
     @return Input<UDim>
-    
+
     A field which allows the user to slide a grip to enter a UDim within a range.
     You can ctrl + click to directly input a UDim, like InputUDim.
 ]=]
@@ -1847,7 +1847,7 @@ end
     @within Slider
     @tag Widget
     @tag HasState
-    
+
     @function SliderUDim2
     @param text string
     @param increment UDim2?
@@ -1858,7 +1858,7 @@ end
     @param editing State<boolean>? -- read-only for when the state is changing
 
     @return Input<UDim2>
-    
+
     A field which allows the user to slide a grip to enter a UDim2 within a range.
     You can ctrl + click to directly input a UDim2, like InputUDim2.
 ]=]
@@ -1870,7 +1870,7 @@ end
     @within Slider
     @tag Widget
     @tag HasState
-    
+
     @function SliderRect
     @param text string
     @param increment Rect?
@@ -1881,7 +1881,7 @@ end
     @param editing State<boolean>? -- read-only for when the state is changing
 
     @return Input<Rect>
-    
+
     A field which allows the user to slide a grip to enter a Rect within a range.
     You can ctrl + click to directly input a Rect, like InputRect.
 ]=]

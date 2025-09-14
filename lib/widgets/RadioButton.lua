@@ -167,7 +167,7 @@ Internal._widgetConstructor(
     @param state Types.State<any>? -- global state shared by all grouped radio buttons
 
     @return RadioButton
-    
+
     A circular selectable button, changing the state to its index argument. Used in conjunction with multiple other RadioButtons sharing the same state to represent one value from multiple options.
 ]=]
 local API_RadioButton = function(text: string, index: any, state: Types.State<any>?)

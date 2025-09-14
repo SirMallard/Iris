@@ -7,7 +7,7 @@ local btest = bit32.btest
 
 --[=[
     @class Text
-    
+
     Widgets to show basic text within Iris. Do not have an extra functionality beyond text.
 
     Can be configured to change the text colour, allow Rich Text support, or allowing the text to wrap.
@@ -188,7 +188,7 @@ Internal._widgetConstructor(
     @param color Color3? -- overwrite default text colour
 
     @return Text
-    
+
     A text label to display the text argument.
     The Wrapped argument will make the text wrap around if it is cut off by its parent.
     The Color argument will change the color of the text, by default it is defined in the configuration file.
@@ -213,7 +213,7 @@ end
     @param text: string
 
     @return SeparatorText
-    
+
     Similar to [Iris.Separator](Format#Separator) but with a text label to be used as a header
     when an [Iris.Tree](Tree#Tree) or [Iris.CollapsingHeader](Tree#CollapsingHeader) is not apfunctionriate
 

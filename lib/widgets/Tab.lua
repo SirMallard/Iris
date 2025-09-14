@@ -421,11 +421,11 @@ Internal._widgetConstructor(
     @param state State<number>? -- current tab index state
 
     @return TabBar
-    
+
     Creates a TabBar for putting tabs under. This does not create the tabs but just the container for them to be in.
     The index state is used to control the current tab and is based on an index starting from 1 rather than the
     text provided to a Tab. The TabBar will replicate the index to the Tab children .
-    
+
 ]=]
 local API_TabBar = function(state: Types.State<number>?)
     return Internal._insert("TabBar", state) :: TabBar
@@ -441,9 +441,9 @@ end
     @param text string -- tab title
     @param flags TabFlags? -- optional bit flags, using Iris.TabFlags, default is 0
     @param shown State<boolean>? -- unique state if the tab is shown or not
-    
+
     @return Tab
-    
+
     The tab item for use under a TabBar. The TabBar must be the parent and determines the index value. You cannot
     provide a state for this tab. The optional Hideable argument determines if a tab can be closed, which is
     controlled by the isOpened state.

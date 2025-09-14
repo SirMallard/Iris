@@ -7,7 +7,7 @@ local btest = bit32.btest
 
 --[=[
     @class Window
-    
+
     Windows are the fundamental widget for Iris. Every other widget must be a descendant of a window.
 
     ```lua
@@ -1190,7 +1190,7 @@ Internal._widgetConstructor(
     @param scrollDistance State<number>? -- state vertical scroll distance down the window
 
     @return Window
-    
+
     The top-level widget to contain every other widget within. Made of a titlebar, an optional
     menubar, and a content area for widgets. Can be moved and resized across the screen, and
     closed to hide everything except the titlebar.

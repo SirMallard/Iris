@@ -5,7 +5,7 @@ local Types = require(script.Parent.Parent.Types)
 
 --[=[
     @class Format
-    
+
     The format widgets are used to more easily separate and move widgets around.
 ]=]
 
@@ -213,11 +213,11 @@ Internal._widgetConstructor(
     @tag Widget
 
     @function Separator
-    
+
     @return Separator
 
     A vertical or horizonal line, depending on the context, which visually seperates widgets.
-    
+
     ```lua
     Iris.Window({"Separator Demo"})
         Iris.Text({"Some text here!"})
@@ -241,7 +241,7 @@ end
     @param width number? -- indent in pixels, default is config IndentSpacing
 
     @return Indent
-    
+
     Indents its child widgets.
 
     ```lua
@@ -270,7 +270,7 @@ end
     @param horizontalAlignment Enum.HorizontalAlignment? -- default left alignment
 
     @return Format
-    
+
     Positions its children in a row, horizontally.
 
     ```lua
@@ -298,7 +298,7 @@ end
     @function Group
 
     @return Group
-    
+
     Layout widget which contains its children as a single group.
 ]=]
 local API_Group = function()
