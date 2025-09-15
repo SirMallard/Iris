@@ -2,7 +2,7 @@
 --!optimize 2
 
 local Types = require(script.Parent.Types)
-local Config = require(script.Parent.Config)
+local Config = require(script.Parent.config)
 
 --[=[
     @class Internal

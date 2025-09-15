@@ -20,7 +20,7 @@ export type Checkbox = Types.Widget & {
     },
 
     state: {
-        checked: Types.State<boolean>,
+        check: Types.State<boolean>,
     },
 } & Types.Unchecked & Types.Checked & Types.Hovered
 
@@ -98,7 +98,7 @@ Internal._widgetConstructor(
             Checkmark.Parent = Box
 
             Utility.applyButtonClick(Checkbox, function()
-                thisWidget.state.checked:set(not thisWidget.state.checked._value)
+                thisWidget.state.check:set(not thisWidget.state.check._value)
             end)
 
             local TextLabel = Instance.new("TextLabel")
@@ -114,8 +114,8 @@ Internal._widgetConstructor(
             return Checkbox
         end,
         GenerateState = function(thisWidget: Checkbox)
-            if thisWidget.state.checked == nil then
-                thisWidget.state.checked = Internal._widgetState(thisWidget, "checked", false)
+            if thisWidget.state.check == nil then
+                thisWidget.state.check = Internal._widgetState(thisWidget, "check", false)
             end
         end,
         Update = function(thisWidget: Checkbox)
@@ -126,7 +126,7 @@ Internal._widgetConstructor(
             local Checkbox = thisWidget.instance :: TextButton
             local Box = Checkbox.Box :: Frame
             local Checkmark: ImageLabel = Box.Checkmark
-            if thisWidget.state.checked._value then
+            if thisWidget.state.check._value then
                 Checkmark.ImageTransparency = Internal._config.CheckMarkTransparency
                 thisWidget._lastCheckedTick = Internal._cycleTick + 1
             else
@@ -140,6 +140,8 @@ Internal._widgetConstructor(
         end,
     } :: Types.WidgetClass
 )
+
+Internal._widgetConstructor("CheckkboxFlags", {} :: Types.WidgetClass)
 
 --[=[
     @within Basic
