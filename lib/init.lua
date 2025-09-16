@@ -723,6 +723,7 @@ Iris.SeparatorText = Text.API_SeparatorText
 Iris.Button = Button.API_Button
 Iris.SmallButton = Button.API_SmallButton
 Iris.Checkbox = Checkbox.API_Checkbox
+Iris.CheckboxFlags = Checkbox.API_CheckboxFlags
 Iris.RadioButton = RadioButton.API_RadioButton
 Iris.Image = Image.API_Image
 Iris.ImageButton = Image.API_ImageButton
