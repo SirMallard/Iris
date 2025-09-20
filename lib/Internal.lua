@@ -2,7 +2,7 @@
 --!optimize 2
 
 local Types = require(script.Parent.Types)
-local Config = require(script.Parent.config)
+local Config = require(script.Parent.Config)
 
 --[=[
     @class Internal
@@ -11,7 +11,7 @@ local Config = require(script.Parent.config)
 ]=]
 local Internal = {}
 
-Internal._version = [[ 2.5.0 ]]
+Internal._version = [[ 3.0.0 ]]
 Internal._started = false -- has Iris.connect been called yet
 Internal._paused = false
 Internal._shutdown = false
