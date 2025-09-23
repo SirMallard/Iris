@@ -12,7 +12,7 @@ local Types = require(script.Parent.Parent.Types)
     .hovered () -> boolean -- fires when the mouse hovers over any of the widget
 
     .arguments { Text: string? }
-    .state { checked: State<boolean> }
+    .state { check: State<boolean> }
 ]=]
 export type Checkbox = Types.Widget & {
     arguments: {
@@ -50,21 +50,11 @@ local abstractCheckbox = {
     hasState = true,
     hasChildren = false,
     numArguments = 1,
-    Arguments = { "Text", "checked" },
+    Arguments = { "Text", "check" },
     Events = {
-        ["checked"] = {
-            ["Init"] = function(_thisWidget: Checkbox) end,
-            ["Get"] = function(thisWidget: Checkbox)
-                return thisWidget._lastCheckedTick == Internal._cycleTick
-            end,
-        },
-        ["unchecked"] = {
-            ["Init"] = function(_thisWidget: Checkbox) end,
-            ["Get"] = function(thisWidget: Checkbox)
-                return thisWidget._lastUncheckedTick == Internal._cycleTick
-            end,
-        },
-        ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
+        ["checked"] = Utility.EVENTS.check,
+        ["unchecked"] = Utility.EVENTS.uncheck,
+        ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
             return thisWidget.instance
         end),
     },
@@ -157,10 +147,8 @@ local abstractCheckbox = {
 
         if checked then
             Checkmark.ImageTransparency = Internal._config.CheckMarkTransparency
-            thisWidget._lastCheckedTick = Internal._cycleTick + 1
         else
             Checkmark.ImageTransparency = 1
-            thisWidget._lastUncheckedTick = Internal._cycleTick + 1
         end
     end,
     Discard = function(thisWidget: Checkbox)
@@ -179,7 +167,7 @@ Internal._widgetConstructor(
         abstractCheckbox,
         {
             numArguments = 1,
-            Arguments = { "Text", "checked" },
+            Arguments = { "Text", "check" },
             GenerateState = function(thisWidget: Checkbox)
                 if thisWidget.state.check == nil then
                     thisWidget.state.check = Internal._widgetState(thisWidget, "check", false)
@@ -195,7 +183,7 @@ Internal._widgetConstructor(
         abstractCheckbox,
         {
             numArguments = 2,
-            Arguments = { "Text", "bit", "checked" },
+            Arguments = { "Text", "bit", "check" },
             GenerateState = function(thisWidget: CheckboxFlags)
                 if thisWidget.state.flags == nil then
                     thisWidget.state.flags = Internal._widgetState(thisWidget, "flags", 0)
@@ -212,14 +200,14 @@ Internal._widgetConstructor(
 
     @function Checkbox
     @param text string?
-    @param checked Types.State<boolean>? -- checkbox state
+    @param check State<boolean>? -- checkbox state
 
     @return Checkbox
 
     A checkable box with a visual tick to represent a boolean true or false state.
 ]=]
-local API_Checkbox = function(text: string?, checked: Types.State<boolean>?)
-    return Internal._insert("Checkbox", text, checked) :: Checkbox
+local API_Checkbox = function(text: string?, check: Types.APIState<boolean>?)
+    return Internal._insert("Checkbox", text, check) :: Checkbox
 end
 
 --[=[
@@ -236,7 +224,7 @@ end
 
     A checkable box with a visual tick to represent a boolean true or false state.
 ]=]
-local API_CheckboxFlags = function(text: string?, bit: number, flags: Types.State<number>?)
+local API_CheckboxFlags = function(text: string?, bit: number, flags: Types.APIState<number>?)
     return Internal._insert("CheckboxFlags", text, bit, flags) :: Checkbox
 end
 

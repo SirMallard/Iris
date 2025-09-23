@@ -66,7 +66,7 @@ Internal._widgetConstructor(
         numArguments = 3,
         Arguments = { "Text", "Flags", "Color" },
         Events = {
-            ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
+            ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 return thisWidget.instance
             end),
         },
@@ -112,7 +112,7 @@ Internal._widgetConstructor(
         numArguments = 1,
         Arguments = { "Text" },
         Events = {
-            ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
+            ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 return thisWidget.instance
             end),
         },

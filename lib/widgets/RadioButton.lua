@@ -41,25 +41,16 @@ Internal._widgetConstructor(
         numArguments = 2,
         Arguments = { "Text", "Index", "index" },
         Events = {
-            ["selected"] = {
-                ["Init"] = function(_thisWidget: RadioButton) end,
-                ["Get"] = function(thisWidget: RadioButton)
-                    return thisWidget._lastSelectedTick == Internal._cycleTick
-                end,
-            },
-            ["unselected"] = {
-                ["Init"] = function(_thisWidget: RadioButton) end,
-                ["Get"] = function(thisWidget: RadioButton)
-                    return thisWidget._lastUnselectedTick == Internal._cycleTick
-                end,
-            },
+            ["selected"] = Utility.EVENTS.select,
+            ["unselected"] = Utility.EVENTS.unselect,
             ["active"] = {
-                ["Init"] = function(_thisWidget: RadioButton) end,
+                ["Init"] = function(_thisWidget) end,
                 ["Get"] = function(thisWidget: RadioButton)
                     return thisWidget.state.index._value == thisWidget.arguments.Index
                 end,
             },
-            ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
+            ["changed"] = Utility.EVENTS.change("index"),
+            ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 return thisWidget.instance
             end),
         },
@@ -147,10 +138,8 @@ Internal._widgetConstructor(
             if thisWidget.state.index._value == thisWidget.arguments.Index then
                 -- only need to hide the circle
                 Circle.BackgroundTransparency = Internal._config.CheckMarkTransparency
-                thisWidget._lastSelectedTick = Internal._cycleTick + 1
             else
                 Circle.BackgroundTransparency = 1
-                thisWidget._lastUnselectedTick = Internal._cycleTick + 1
             end
         end,
     } :: Types.WidgetClass
@@ -164,13 +153,13 @@ Internal._widgetConstructor(
     @function RadioButton
     @param text string
     @param index any -- unique index for the radio button
-    @param state Types.State<any>? -- global state shared by all grouped radio buttons
+    @param state State<any>? -- global state shared by all grouped radio buttons
 
     @return RadioButton
 
     A circular selectable button, changing the state to its index argument. Used in conjunction with multiple other RadioButtons sharing the same state to represent one value from multiple options.
 ]=]
-local API_RadioButton = function(text: string, index: any, state: Types.State<any>?)
+local API_RadioButton = function(text: string, index: any, state: Types.APIState<any>?)
     return Internal._insert("RadioButton", text, index, state) :: RadioButton
 end
 

@@ -45,7 +45,7 @@ Utility.abstractButton = {
         ["ctrlClicked"] = Utility.EVENTS.ctrlClick(function(thisWidget: Types.Widget)
             return thisWidget.instance :: GuiButton
         end),
-        ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
+        ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
             return thisWidget.instance
         end),
     },

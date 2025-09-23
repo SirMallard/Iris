@@ -2,7 +2,7 @@
 --!optimize 2
 
 local Types = require(script.Parent.Types)
-local Config = require(script.Parent.Config)
+local Config = require(script.Parent.config)
 
 --[=[
     @class Internal
@@ -11,7 +11,7 @@ local Config = require(script.Parent.Config)
 ]=]
 local Internal = {}
 
-Internal._version = [[ 3.0.0 ]]
+Internal._version = [[ 2.5.0 ]]
 Internal._started = false -- has Iris.connect been called yet
 Internal._paused = false
 Internal._shutdown = false
@@ -579,8 +579,12 @@ function Internal._genNewWidget(widgetType: string, ID: Types.ID, ...: any)
         local stateWidget = thisWidget :: Types.StateWidget
         stateWidget.state = {}
         for index, state: Types.State<any> in select(thisWidgetClass.numArguments + 1, ...) or {} do
-            state._lastChangeTick = Internal._cycleTick
-            state._connectedWidgets[ID] = stateWidget
+            if typeof(state) == "table" and getmetatable(state :: any) == StateClass then
+                state._lastChangeTick = Internal._cycleTick
+                state._connectedWidgets[ID] = stateWidget
+            else
+                state = Internal._widgetState(stateWidget, thisWidgetClass.Arguments[thisWidgetClass.numArguments + index], state :: any)
+            end
             stateWidget.state[thisWidgetClass.Arguments[index]] = state
         end
 

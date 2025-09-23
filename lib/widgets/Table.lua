@@ -38,10 +38,11 @@ local btest = bit32.btest
     @within Table
     @interface Table
     .& ParentWidget
+    .changed () -> boolean -- fires when the widths of the table changes
     .hovered () -> boolean -- fires when the mouse hovers over any of the table
 
     .arguments { NumColumns: number, Flags: number }
-    .state { widths: Types.State<{ number }> }
+    .state { widths: State<{ number }> }
 ]=]
 export type Table = Types.ParentWidget & {
     _columnIndex: number,
@@ -63,7 +64,7 @@ export type Table = Types.ParentWidget & {
     state: {
         widths: Types.State<{ number }>,
     },
-} & Types.Hovered
+} & Types.Changed & Types.Hovered
 
 --[=[
     @within Table
@@ -402,7 +403,9 @@ Internal._widgetConstructor(
         hasChildren = true,
         numArguments = 2,
         Arguments = { "NumColumns", "Flags", "widths" },
-        Events = {},
+        Events = {
+            ["changed"] = Utility.EVENTS.change("widths"),
+        },
         Generate = function(thisWidget: Table)
             Tables[thisWidget.ID] = thisWidget
             TableMinWidths[thisWidget] = {}
@@ -730,7 +733,7 @@ Internal._widgetConstructor(
     :::
     :::
 ]=]
-local API_Table = function(numColumns: number, flags: number?, widths: Types.State<{ number }>?)
+local API_Table = function(numColumns: number, flags: number?, widths: Types.APIState<{ number }>?)
     return Internal._insert("Table", numColumns, flags or 0, widths) :: Table
 end
 

@@ -357,6 +357,71 @@ Utility.EVENTS = {
         }
     end,
 
+    open = {
+        ["Init"] = function(_thisWidget: Types.Widget) end,
+        ["Get"] = function(thisWidget: Types.StateWidget)
+            return thisWidget.state.open:changed() and thisWidget.state.open._value
+        end,
+    },
+
+    close = {
+        ["Init"] = function(_thisWidget: Types.Widget) end,
+        ["Get"] = function(thisWidget: Types.StateWidget)
+            return thisWidget.state.open:changed() and not thisWidget.state.open._value
+        end,
+    },
+
+    show = {
+        ["Init"] = function(_thisWidget: Types.Widget) end,
+        ["Get"] = function(thisWidget: Types.StateWidget)
+            return thisWidget.state.shown:changed() and thisWidget.state.shown._value
+        end,
+    },
+
+    hide = {
+        ["Init"] = function(_thisWidget: Types.Widget) end,
+        ["Get"] = function(thisWidget: Types.StateWidget)
+            return thisWidget.state.shown:changed() and not thisWidget.state.shown._value
+        end,
+    },
+
+    check = {
+        ["Init"] = function(_thisWidget: Types.Widget) end,
+        ["Get"] = function(thisWidget: Types.StateWidget)
+            return thisWidget.state.check:changed() and thisWidget.state.check._value
+        end,
+    },
+
+    uncheck = {
+        ["Init"] = function(_thisWidget: Types.Widget) end,
+        ["Get"] = function(thisWidget: Types.StateWidget)
+            return thisWidget.state.check:changed() and not thisWidget.state.check._value
+        end,
+    },
+
+    select = {
+        ["Init"] = function(_thisWidget: Types.Widget) end,
+        ["Get"] = function(thisWidget: Types.StateWidget & Types.Active)
+            return thisWidget.state.index:changed() and thisWidget.active()
+        end,
+    },
+
+    unselect = {
+        ["Init"] = function(_thisWidget: Types.Widget) end,
+        ["Get"] = function(thisWidget: Types.StateWidget & Types.Active)
+            return thisWidget.state.index:changed() and not thisWidget.active()
+        end,
+    },
+
+    change = function(name: string)
+        return {
+            ["Init"] = function(_thisWidget: Types.Widget) end,
+            ["Get"] = function(thisWidget: Types.StateWidget & Types.Active)
+                return thisWidget.state[name]:changed()
+            end,
+        }
+    end,
+
     click = function(pathToClicked: (thisWidget: Types.Widget) -> GuiButton)
         return {
             ["Init"] = function(thisWidget: Types.Widget & Types.Clicked)

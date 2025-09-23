@@ -40,7 +40,7 @@ local btest = bit32.btest
     .hovered () -> boolean -- fires when the mouse hovers over any of the window
 
     .arguments { Title: string?, Flags: number }
-    .state { size: State<Vector>, position: State<Vector2>, open: State<boolean>, shown: State<boolean>, scrollDistance: Types.State<number> }
+    .state { size: State<Vector>, position: State<Vector2>, open: State<boolean>, shown: State<boolean>, scrollDistance: State<number> }
 ]=]
 export type Window = Types.ParentWidget & {
     _usesScreenGuis: boolean,
@@ -65,7 +65,6 @@ export type Window = Types.ParentWidget & {
     .& Widget
     .arguments { Text: string }
 ]=]
-
 export type Tooltip = Types.Widget & {
     arguments: {
         Text: string,
@@ -448,31 +447,11 @@ Internal._widgetConstructor(
         numArguments = 2,
         Arguments = { "Title", "Flags", "size", "position", "open", "shown", "scrollDistance" },
         Events = {
-            ["opened"] = {
-                ["Init"] = function(_thisWidget: Window) end,
-                ["Get"] = function(thisWidget: Window)
-                    return thisWidget._lastClosedTick == Internal._cycleTick
-                end,
-            },
-            ["closed"] = {
-                ["Init"] = function(_thisWidget: Window) end,
-                ["Get"] = function(thisWidget: Window)
-                    return thisWidget._lastOpenedTick == Internal._cycleTick
-                end,
-            },
-            ["shown"] = {
-                ["Init"] = function(_thisWidget: Window) end,
-                ["Get"] = function(thisWidget: Window)
-                    return thisWidget._lastHiddenTick == Internal._cycleTick
-                end,
-            },
-            ["hidden"] = {
-                ["Init"] = function(_thisWidget: Window) end,
-                ["Get"] = function(thisWidget: Window)
-                    return thisWidget._lastShownTick == Internal._cycleTick
-                end,
-            },
-            ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
+            ["opened"] = Utility.EVENTS.open,
+            ["closed"] = Utility.EVENTS.close,
+            ["shown"] = Utility.EVENTS.show,
+            ["hidden"] = Utility.EVENTS.hide,
+            ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 local Window = thisWidget.instance :: Frame
                 return Window.WindowButton
             end),
@@ -1072,7 +1051,6 @@ Internal._widgetConstructor(
                     Window.Visible = true
                     WindowButton.Visible = true
                 end
-                thisWidget._lastOpenedTick = Internal._cycleTick + 1
             else
                 if thisWidget._usesScreenGuis then
                     Window.Enabled = false
@@ -1081,7 +1059,6 @@ Internal._widgetConstructor(
                     Window.Visible = false
                     WindowButton.Visible = false
                 end
-                thisWidget._lastClosedTick = Internal._cycleTick + 1
             end
 
             if stateOpen then
@@ -1099,7 +1076,6 @@ Internal._widgetConstructor(
                     BottomResizeBorder.Visible = true
                 end
                 WindowButton.AutomaticSize = Enum.AutomaticSize.None
-                thisWidget._lastOpenedTick = Internal._cycleTick + 1
             else
                 local collapsedHeight: number = TitleBar.AbsoluteSize.Y -- Internal._config.TextSize + Internal._config.FramePadding.Y * 2
                 TitleBar.CollapseButton.Arrow.ImageContent = Utility.ICONS.RIGHT_POINTING_TRIANGLE
@@ -1115,7 +1091,6 @@ Internal._widgetConstructor(
                 TopResizeBorder.Visible = false
                 BottomResizeBorder.Visible = false
                 WindowButton.Size = UDim2.fromOffset(stateSize.X, collapsedHeight)
-                thisWidget._lastClosedTick = Internal._cycleTick + 1
             end
 
             if stateShown and stateOpen then
@@ -1197,7 +1172,7 @@ Internal._widgetConstructor(
 
     Does not contain embedded windows.
 ]=]
-local API_Window = function(title: string, flags: number?, size: Types.State<Vector2>?, position: Types.State<Vector2>?, open: Types.State<boolean>?, shown: Types.State<boolean>?, scrollDistance: Types.State<number>?)
+local API_Window = function(title: string, flags: number?, size: Types.APIState<Vector2>?, position: Types.APIState<Vector2>?, open: Types.APIState<boolean>?, shown: Types.APIState<boolean>?, scrollDistance: Types.APIState<number>?)
     return Internal._insert("Window", title, flags or 0, size, position, open, shown, scrollDistance) :: Window
 end
 

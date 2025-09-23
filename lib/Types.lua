@@ -33,6 +33,8 @@ export type State<T> = {
     changed: (self: State<T>) -> boolean,
 }
 
+export type APIState<T> = State<T> | T
+
 --[=[
     @within Iris
     @interface Widget
@@ -116,47 +118,38 @@ export type Active = {
 }
 
 export type Checked = {
-    _lastCheckedTick: number,
     checked: () -> boolean,
 }
 
 export type Unchecked = {
-    _lastUncheckedTick: number,
     unchecked: () -> boolean,
 }
 
 export type Opened = {
-    _lastOpenedTick: number,
     opened: () -> boolean,
 }
 
 export type Closed = {
-    _lastClosedTick: number,
     closed: () -> boolean,
 }
 
 export type Shown = {
-    _lastShownTick: number,
     shown: () -> boolean,
 }
 
 export type Hidden = {
-    _lastHiddenTick: number,
     hidden: () -> boolean,
 }
 
 export type Selected = {
-    _lastSelectedTick: number,
     selected: () -> boolean,
 }
 
 export type Unselected = {
-    _lastUnselectedTick: number,
     unselected: () -> boolean,
 }
 
 export type Changed = {
-    _lastChangedTick: number,
     changed: () -> boolean,
 }
 

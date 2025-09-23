@@ -177,18 +177,8 @@ Internal._widgetConstructor(
         numArguments = 3,
         Arguments = { "Text", "Index", "Flags", "index" },
         Events = {
-            ["selected"] = {
-                ["Init"] = function(_thisWidget: Selectable) end,
-                ["Get"] = function(thisWidget: Selectable)
-                    return thisWidget._lastSelectedTick == Internal._cycleTick
-                end,
-            },
-            ["unselected"] = {
-                ["Init"] = function(_thisWidget: Selectable) end,
-                ["Get"] = function(thisWidget: Selectable)
-                    return thisWidget._lastUnselectedTick == Internal._cycleTick
-                end,
-            },
+            ["selected"] = Utility.EVENTS.select,
+            ["unselected"] = Utility.EVENTS.unselect,
             ["active"] = {
                 ["Init"] = function(_thisWidget: Selectable) end,
                 ["Get"] = function(thisWidget: Selectable)
@@ -211,7 +201,7 @@ Internal._widgetConstructor(
                 local Selectable = thisWidget.instance :: Frame
                 return Selectable.SelectableButton
             end),
-            ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
+            ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 local Selectable = thisWidget.instance :: Frame
                 return Selectable.SelectableButton
             end),
@@ -279,11 +269,9 @@ Internal._widgetConstructor(
             if thisWidget.state.index._value == thisWidget.arguments.Index or thisWidget.state.index._value == true then
                 thisWidget._buttonColors.Transparency = Internal._config.HeaderTransparency
                 SelectableButton.BackgroundTransparency = Internal._config.HeaderTransparency
-                thisWidget._lastSelectedTick = Internal._cycleTick + 1
             else
                 thisWidget._buttonColors.Transparency = 1
                 SelectableButton.BackgroundTransparency = 1
-                thisWidget._lastUnselectedTick = Internal._cycleTick + 1
             end
         end,
         Discard = function(thisWidget: Selectable)
@@ -305,29 +293,14 @@ Internal._widgetConstructor(
         numArguments = 2,
         Arguments = { "Text", "Flags", "index", "open" },
         Events = {
-            ["opened"] = {
-                ["Init"] = function(_thisWidget: Combo) end,
-                ["Get"] = function(thisWidget: Combo)
-                    return thisWidget._lastOpenedTick == Internal._cycleTick
-                end,
-            },
-            ["closed"] = {
-                ["Init"] = function(_thisWidget: Combo) end,
-                ["Get"] = function(thisWidget: Combo)
-                    return thisWidget._lastClosedTick == Internal._cycleTick
-                end,
-            },
-            ["changed"] = {
-                ["Init"] = function(_thisWidget: Combo) end,
-                ["Get"] = function(thisWidget: Combo)
-                    return thisWidget._lastChangedTick == Internal._cycleTick
-                end,
-            },
+            ["opened"] = Utility.EVENTS.open,
+            ["closed"] = Utility.EVENTS.close,
+            ["changed"] = Utility.EVENTS.change("index"),
             ["clicked"] = Utility.EVENTS.click(function(thisWidget: Types.Widget)
                 local Combo = thisWidget.instance :: Frame
                 return Combo.PreviewContainer
             end),
-            ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
+            ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 return thisWidget.instance
             end),
         },
@@ -490,7 +463,6 @@ Internal._widgetConstructor(
             end
 
             thisWidget.state.index:onChange(function()
-                thisWidget._lastChangedTick = Internal._cycleTick + 1
                 if thisWidget.state.open._value then
                     thisWidget.state.open:set(false)
                 end
@@ -536,7 +508,6 @@ Internal._widgetConstructor(
                 AnyOpenedCombo = true
                 OpenedCombo = thisWidget
                 ComboOpenedTick = Internal._cycleTick
-                thisWidget._lastOpenedTick = Internal._cycleTick + 1
 
                 -- ImGui also does not do this, and the Arrow is always facing down
                 Dropdown.ImageContent = Utility.ICONS.RIGHT_POINTING_TRIANGLE
@@ -547,7 +518,6 @@ Internal._widgetConstructor(
                 if AnyOpenedCombo then
                     AnyOpenedCombo = false
                     OpenedCombo = nil
-                    thisWidget._lastClosedTick = Internal._cycleTick + 1
                 end
                 Dropdown.ImageContent = Utility.ICONS.DOWN_POINTING_TRIANGLE
                 ChildContainer.Visible = false
@@ -589,7 +559,7 @@ Internal._widgetConstructor(
 
     An object which can be selected.
 ]=]
-local API_Selectable = function(text: string, index: any, flags: number?, state: Types.State<any>?)
+local API_Selectable = function(text: string, index: any, flags: number?, state: Types.APIState<any>?)
     return Internal._insert("Selectable", text, index, flags or 0, state) :: Selectable
 end
 
@@ -609,7 +579,7 @@ end
 
     A dropdown menu box to make a selection from a list of values.
 ]=]
-local API_Combo = function(text: string, flags: number?, state: Types.State<any>?, open: Types.State<boolean>?)
+local API_Combo = function(text: string, flags: number?, state: Types.APIState<any>?, open: Types.APIState<boolean>?)
     return Internal._insert("Combo", text, flags or 0, state, open) :: Combo
 end
 
@@ -630,7 +600,7 @@ end
 
     A selection box to choose a value from an array.
 ]=]
-local API_ComboArray = function<T>(text: string, array: { any }, flags: number?, state: Types.State<any>?, open: Types.State<boolean>?)
+local API_ComboArray = function<T>(text: string, array: { any }, flags: number?, state: Types.APIState<any>?, open: Types.APIState<boolean>?)
     local thisWidget = Internal._insert("Combo", text, flags or 0, state, open) :: Combo
     local sharedIndex = thisWidget.state.index
     for _, Selection in array do
@@ -658,7 +628,7 @@ end
 
     A selection box to choose a value from an Enum.
 ]=]
-local API_ComboEnum = function(text: string, enum: Enum, flags: number?, state: Types.State<any>?, open: Types.State<boolean>?)
+local API_ComboEnum = function(text: string, enum: Enum, flags: number?, state: Types.APIState<any>?, open: Types.APIState<boolean>?)
     local thisWidget = Internal._insert("Combo", text, flags or 0, state, open)
     local sharedIndex = thisWidget.state.index
     for _, selection: EnumItem in enum:GetEnumItems() do

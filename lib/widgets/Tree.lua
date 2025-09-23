@@ -51,18 +51,9 @@ local abstractTree = {
     numArguments = 2,
     Arguments = { "Text", "Flags", "open" },
     Events = {
-        ["opened"] = {
-            ["Init"] = function(_thisWidget: Tree) end,
-            ["Get"] = function(thisWidget: Tree)
-                return thisWidget._lastClosedTick == Internal._cycleTick
-            end,
-        },
-        ["closed"] = {
-            ["Init"] = function(_thisWidget: Tree) end,
-            ["Get"] = function(thisWidget: Tree)
-                return thisWidget._lastOpenedTick == Internal._cycleTick
-            end,
-        },
+        ["opened"] = Utility.EVENTS.open,
+        ["closed"] = Utility.EVENTS.close,
+        ["changed"] = Utility.EVENTS.change("open"),
         ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
             return thisWidget.instance
         end),
@@ -81,11 +72,6 @@ local abstractTree = {
         local Arrow: ImageLabel = Button.Arrow
 
         Arrow.ImageContent = (if open then Utility.ICONS.DOWN_POINTING_TRIANGLE else Utility.ICONS.RIGHT_POINTING_TRIANGLE)
-        if open then
-            thisWidget._lastOpenedTick = Internal._cycleTick + 1
-        else
-            thisWidget._lastClosedTick = Internal._cycleTick + 1
-        end
 
         ChildContainer.Visible = open
     end,
@@ -342,13 +328,13 @@ Internal._widgetConstructor(
     @function Tree
     @param text string
     @param flags TreeFlags? -- optional bit flags, using Iris.TreeFlags, default is 0
-    @param open Types.State<boolean>? -- open state
+    @param open State<boolean>? -- open state
 
     @return Tree
 
     A collapsable container for other widgets, to organise and hide widgets when not needed. The state determines whether the child widgets are visible or not. Clicking on the widget will open or close it.
 ]=]
-local API_Tree = function(text: string, flags: number?, open: Types.State<boolean>?)
+local API_Tree = function(text: string, flags: number?, open: Types.APIState<boolean>?)
     return Internal._insert("Tree", text, flags, open) :: Tree
 end
 
@@ -361,14 +347,14 @@ end
     @function Tree
     @param text string
     @param flags TreeFlags? -- optional bit flags, using Iris.TreeFlags, default is 0
-    @param open Types.State<boolean>? -- open state
+    @param open State<boolean>? -- open state
 
     @return Tree
 
     The same as a Tree Widget, but with a larger title and clearer, used mainly for organsing widgets on the first level of a window.
 
 ]=]
-local API_CollapsingHeader = function(text: string, flags: number?, open: Types.State<boolean>?)
+local API_CollapsingHeader = function(text: string, flags: number?, open: Types.APIState<boolean>?)
     return Internal._insert("CollapsingHeader", text, flags, open) :: Tree
 end
 

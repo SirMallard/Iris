@@ -98,15 +98,10 @@ Internal._widgetConstructor(
         numArguments = 2,
         Arguments = { "Text", "Format", "progress" },
         Events = {
-            ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
+            ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 return thisWidget.instance
             end),
-            ["changed"] = {
-                ["Init"] = function(_thisWidget: ProgressBar) end,
-                ["Get"] = function(thisWidget: ProgressBar)
-                    return thisWidget._lastChangedTick == Internal._cycleTick
-                end,
-            },
+            ["changed"] = Utility.EVENTS.change("progress"),
         },
         Generate = function(_thisWidget: ProgressBar)
             local ProgressBar = Instance.new("Frame")
@@ -213,7 +208,6 @@ Internal._widgetConstructor(
             else
                 Value.Text = string.format("%d%%", progress * 100)
             end
-            thisWidget._lastChangedTick = Internal._cycleTick + 1
         end,
         Discard = function(thisWidget: ProgressBar)
             thisWidget.instance:Destroy()
@@ -292,7 +286,7 @@ Internal._widgetConstructor(
         numArguments = 5,
         Arguments = { "Text", "Height", "Min", "Max", "TextOverlay", "values", "hovered" },
         Events = {
-            ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
+            ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 return thisWidget.instance
             end),
         },
@@ -545,7 +539,7 @@ Internal._widgetConstructor(
         numArguments = 6,
         Arguments = { "Text", "Height", "Min", "Max", "TextOverlay", "BaseLine", "values", "hovered" },
         Events = {
-            ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
+            ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 return thisWidget.instance
             end),
         },
@@ -743,7 +737,7 @@ Internal._widgetConstructor(
 
     A progress bar line with a state value to show the current state.
 ]=]
-local API_ProgressBar = function(text: string?, format: string?, progress: Types.State<number>?)
+local API_ProgressBar = function(text: string?, format: string?, progress: Types.APIState<number>?)
     return Internal._insert("ProgressBar", text, format, progress) :: ProgressBar
 end
 
@@ -767,7 +761,7 @@ end
     and automatic scaling. Has an overlay text option at the top of the plot for displaying any
     information.
 ]=]
-local API_PlotLines = function(text: string?, height: number, min: number?, max: number?, textOverlay: string?, values: Types.State<{ number }>?, hovered: Types.State<number>?)
+local API_PlotLines = function(text: string?, height: number, min: number?, max: number?, textOverlay: string?, values: Types.APIState<{ number }>?, hovered: Types.APIState<number>?)
     return Internal._insert("PlotLines", text, height, min, max, textOverlay, values, hovered) :: PlotLines
 end
 
@@ -792,7 +786,7 @@ end
     and automatic scaling. Has an overlay text option at the top of the plot for displaying any
     information. Also supports a baseline option, which determines where the blocks start from.
 ]=]
-local API_PlotHistogram = function(text: string?, height: number?, min: number?, max: number?, textOverlay: string?, baseline: number?, values: Types.State<{ number }>?, hovered: Types.State<number>?)
+local API_PlotHistogram = function(text: string?, height: number?, min: number?, max: number?, textOverlay: string?, baseline: number?, values: Types.APIState<{ number }>?, hovered: Types.APIState<number>?)
     return Internal._insert("PlotHistogram", text, height, min, max, textOverlay, baseline, values, hovered) :: PlotHistogram
 end
 

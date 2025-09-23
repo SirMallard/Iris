@@ -62,7 +62,7 @@ Internal._widgetConstructor(
         abstractImage,
         {
             Events = {
-                ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
+                ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                     return thisWidget.instance
                 end),
             },
@@ -132,7 +132,7 @@ Internal._widgetConstructor(
                 ["ctrlClicked"] = Utility.EVENTS.ctrlClick(function(thisWidget: Types.Widget)
                     return thisWidget.instance
                 end),
-                ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
+                ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                     return thisWidget.instance
                 end),
             },

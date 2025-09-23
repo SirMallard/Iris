@@ -68,7 +68,7 @@ export type MenuItem = Types.Widget & {
     .hovered () -> boolean -- fires when the mouse hovers over any of the window
 
     .arguments { Text: string, KeyCode: Enum.KeyCode?, ModifierKey: Enum.ModifierKey? }
-    .state { checked: Types.State<boolean> }
+    .state { checked: State<boolean> }
 ]=]
 export type MenuToggle = Types.Widget & {
     arguments: {
@@ -232,21 +232,11 @@ Internal._widgetConstructor(
             ["clicked"] = Utility.EVENTS.click(function(thisWidget: Types.Widget)
                 return thisWidget.instance :: any
             end),
-            ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
+            ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 return thisWidget.instance
             end),
-            ["opened"] = {
-                ["Init"] = function(_thisWidget: Menu) end,
-                ["Get"] = function(thisWidget: Menu)
-                    return thisWidget._lastOpenedTick == Internal._cycleTick
-                end,
-            },
-            ["closed"] = {
-                ["Init"] = function(_thisWidget: Menu) end,
-                ["Get"] = function(thisWidget: Menu)
-                    return thisWidget._lastClosedTick == Internal._cycleTick
-                end,
-            },
+            ["opened"] = Utility.EVENTS.open,
+            ["closed"] = Utility.EVENTS.close,
         },
         Generate = function(thisWidget: Menu)
             local Menu: TextButton
@@ -409,13 +399,11 @@ Internal._widgetConstructor(
             local ChildContainer = thisWidget.childContainer :: ScrollingFrame
 
             if thisWidget.state.open._value then
-                thisWidget._lastOpenedTick = Internal._cycleTick + 1
                 thisWidget.ButtonColors.Transparency = Internal._config.HeaderTransparency
                 ChildContainer.Visible = true
 
                 UpdateChildContainerTransform(thisWidget)
             else
-                thisWidget._lastClosedTick = Internal._cycleTick + 1
                 thisWidget.ButtonColors.Transparency = 1
                 ChildContainer.Visible = false
             end
@@ -456,7 +444,7 @@ Internal._widgetConstructor(
             ["clicked"] = Utility.EVENTS.click(function(thisWidget: Types.Widget)
                 return thisWidget.instance
             end),
-            ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
+            ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 return thisWidget.instance
             end),
         },
@@ -557,19 +545,9 @@ Internal._widgetConstructor(
         numArguments = 3,
         Arguments = { "Text", "KeyCode", "ModifierKey", "checked" },
         Events = {
-            ["checked"] = {
-                ["Init"] = function(_thisWidget: MenuToggle) end,
-                ["Get"] = function(thisWidget: MenuToggle): boolean
-                    return thisWidget._lastCheckedTick == Internal._cycleTick
-                end,
-            },
-            ["unchecked"] = {
-                ["Init"] = function(_thisWidget: MenuToggle) end,
-                ["Get"] = function(thisWidget: MenuToggle): boolean
-                    return thisWidget._lastUncheckedTick == Internal._cycleTick
-                end,
-            },
-            ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
+            ["checked"] = Utility.EVENTS.check,
+            ["unchecked"] = Utility.EVENTS.uncheck,
+            ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 return thisWidget.instance
             end),
         },
@@ -680,10 +658,8 @@ Internal._widgetConstructor(
 
             if thisWidget.state.checked._value then
                 Icon.ImageTransparency = Internal._config.TextTransparency
-                thisWidget._lastCheckedTick = Internal._cycleTick + 1
             else
                 Icon.ImageTransparency = 1
-                thisWidget._lastUncheckedTick = Internal._cycleTick + 1
             end
         end,
         Discard = function(thisWidget: MenuToggle)
@@ -747,7 +723,7 @@ end
     preventing you from adding any widget as a child, but the behaviour is unexplained and not intended.
     :::
 ]=]
-local API_Menu = function(text: string, open: Types.State<boolean>?)
+local API_Menu = function(text: string, open: Types.APIState<boolean>?)
     return Internal._insert("Menu", text, open) :: Menu
 end
 
@@ -806,7 +782,7 @@ end
 
     ![Example Menu Toggle](/Iris/assets/api/menu/basicMenuToggle.gif)
 ]=]
-local API_MenuToggle = function(text: string, keyCode: Enum.KeyCode?, modifierKey: Enum.ModifierKey?, checked: Types.State<boolean>?)
+local API_MenuToggle = function(text: string, keyCode: Enum.KeyCode?, modifierKey: Enum.ModifierKey?, checked: Types.APIState<boolean>?)
     return Internal._insert("MenuToggle", text, keyCode, modifierKey, checked) :: MenuToggle
 end
 

@@ -350,7 +350,7 @@ local function generateAbstract<T>(inputType: InputType, dataType: InputDataType
         Arguments = { "Text", "Increment", "Min", "Max", "Format", "number", "editing" },
         Events = {
             ["numberChanged"] = numberChanged,
-            ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
+            ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 return thisWidget.instance
             end),
         },
@@ -1295,7 +1295,7 @@ Internal._widgetConstructor(
                     return thisWidget._lastChangedTick == Internal._cycleTick
                 end,
             },
-            ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
+            ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 return thisWidget.instance
             end),
         },
@@ -1402,7 +1402,7 @@ Internal._widgetConstructor(
 
     ![Example Input Text](/Iris/assets/api/text/basicInputText.gif)
 ]=]
-local API_InputText = function(text: string?, textHint: string?, flags: number?, textBuffer: Types.State<string>?)
+local API_InputText = function(text: string?, textHint: string?, flags: number?, textBuffer: Types.APIState<string>?)
     return Internal._insert("InputText", text, textHint, flags or 0, textBuffer) :: InputText
 end
 
@@ -1424,7 +1424,7 @@ end
 
     An input box for numbers. The number can be either an integer or a float.
 ]=]
-local API_InputNum = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<number>?, editing: Types.State<boolean>?)
+local API_InputNum = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.APIState<number>?, editing: Types.APIState<boolean>?)
     return Internal._insert("InputNum", text, increment, min, max, format, value, editing) :: Input<number>
 end
 
@@ -1446,7 +1446,7 @@ end
 
     An input box for Vector2s. The numbers can be either an integer or a float.
 ]=]
-local API_InputVector2 = function(text: string, increment: Vector2?, min: Vector2?, max: Vector2?, format: string? | { string }?, value: Types.State<Vector2>?, editing: Types.State<boolean>?)
+local API_InputVector2 = function(text: string, increment: Vector2?, min: Vector2?, max: Vector2?, format: string? | { string }?, value: Types.APIState<Vector2>?, editing: Types.APIState<boolean>?)
     return Internal._insert("InputVector2", text, increment, min, max, format, value, editing) :: Input<Vector2>
 end
 
@@ -1468,7 +1468,7 @@ end
 
     An input box for Vector3s. The numbers can be either an integer or a float.
 ]=]
-local API_InputVector3 = function(text: string, increment: Vector3?, min: Vector3?, max: Vector3?, format: string? | { string }?, value: Types.State<Vector3>?, editing: Types.State<boolean>?)
+local API_InputVector3 = function(text: string, increment: Vector3?, min: Vector3?, max: Vector3?, format: string? | { string }?, value: Types.APIState<Vector3>?, editing: Types.APIState<boolean>?)
     return Internal._insert("InputVector3", text, increment, min, max, format, value, editing) :: Input<Vector3>
 end
 
@@ -1491,7 +1491,7 @@ end
     An input box for UDim. The Scale box will be a float and the Offset box will be
     an integer, unless specified differently.
 ]=]
-local API_InputUDim = function(text: string, increment: UDim?, min: UDim?, max: UDim?, format: string? | { string }?, value: Types.State<UDim>?, editing: Types.State<boolean>?)
+local API_InputUDim = function(text: string, increment: UDim?, min: UDim?, max: UDim?, format: string? | { string }?, value: Types.APIState<UDim>?, editing: Types.APIState<boolean>?)
     return Internal._insert("InputUDim", text, increment, min, max, format, value, editing) :: Input<UDim>
 end
 
@@ -1514,7 +1514,7 @@ end
     An input box for UDim2. The Scale boxes will be floats and the Offset boxes will be
     integers, unless specified differently.
 ]=]
-local API_InputUDim2 = function(text: string, increment: UDim2?, min: UDim2?, max: UDim2?, format: string? | { string }?, value: Types.State<UDim2>?, editing: Types.State<boolean>?)
+local API_InputUDim2 = function(text: string, increment: UDim2?, min: UDim2?, max: UDim2?, format: string? | { string }?, value: Types.APIState<UDim2>?, editing: Types.APIState<boolean>?)
     return Internal._insert("InputUDim2", text, increment, min, max, format, value, editing) :: Input<UDim2>
 end
 
@@ -1536,7 +1536,7 @@ end
 
     An input box for Rect. The numbers will default to integers, unless specified differently.
 ]=]
-local API_InputRect = function(text: string, increment: Rect?, min: Rect?, max: Rect?, format: string? | { string }?, value: Types.State<Rect>?, editing: Types.State<boolean>?)
+local API_InputRect = function(text: string, increment: Rect?, min: Rect?, max: Rect?, format: string? | { string }?, value: Types.APIState<Rect>?, editing: Types.APIState<boolean>?)
     return Internal._insert("InputRect", text, increment, min, max, format, value, editing) :: Input<Rect>
 end
 
@@ -1569,7 +1569,7 @@ end
     You can ctrl + click to directly input a number, like InputNum.
     You can hold Shift to increase speed, and Alt to decrease speed when dragging.
 ]=]
-local API_DragNum = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<number>?, editing: Types.State<boolean>?)
+local API_DragNum = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.APIState<number>?, editing: Types.APIState<boolean>?)
     return Internal._insert("DragNum", text, increment, min, max, format, value, editing) :: Input<number>
 end
 
@@ -1594,7 +1594,7 @@ end
     You can hold Shift to increase speed, and Alt to decrease speed when dragging.
 
 ]=]
-local API_DragVector2 = function(text: string, increment: Vector2?, min: Vector2?, max: Vector2?, format: string? | { string }?, value: Types.State<Vector2>?, editing: Types.State<boolean>?)
+local API_DragVector2 = function(text: string, increment: Vector2?, min: Vector2?, max: Vector2?, format: string? | { string }?, value: Types.APIState<Vector2>?, editing: Types.APIState<boolean>?)
     return Internal._insert("DragVector2", text, increment, min, max, format, value, editing) :: Input<Vector2>
 end
 
@@ -1618,7 +1618,7 @@ end
     You can ctrl + click to directly input a Vector3, like InputVector3.
     You can hold Shift to increase speed, and Alt to decrease speed when dragging.
     ]=]
-local API_DragVector3 = function(text: string, increment: Vector3?, min: Vector3?, max: Vector3?, format: string? | { string }?, value: Types.State<Vector3>?, editing: Types.State<boolean>?)
+local API_DragVector3 = function(text: string, increment: Vector3?, min: Vector3?, max: Vector3?, format: string? | { string }?, value: Types.APIState<Vector3>?, editing: Types.APIState<boolean>?)
     return Internal._insert("DragVector3", text, increment, min, max, format, value, editing) :: Input<Vector3>
 end
 
@@ -1642,7 +1642,7 @@ end
     You can ctrl + click to directly input a UDim, like InputUDim.
     You can hold Shift to increase speed, and Alt to decrease speed when dragging.
 ]=]
-local API_DragUDim = function(text: string, increment: UDim?, min: UDim?, max: UDim?, format: string? | { string }?, value: Types.State<UDim>?, editing: Types.State<boolean>?)
+local API_DragUDim = function(text: string, increment: UDim?, min: UDim?, max: UDim?, format: string? | { string }?, value: Types.APIState<UDim>?, editing: Types.APIState<boolean>?)
     return Internal._insert("DragUDim", text, increment, min, max, format, value, editing) :: Input<UDim>
 end
 
@@ -1666,7 +1666,7 @@ end
     You can ctrl + click to directly input a UDim2, like InputUDim2.
     You can hold Shift to increase speed, and Alt to decrease speed when dragging.
 ]=]
-local API_DragUDim2 = function(text: string, increment: UDim2?, min: UDim2?, max: UDim2?, format: string? | { string }?, value: Types.State<UDim2>?, editing: Types.State<boolean>?)
+local API_DragUDim2 = function(text: string, increment: UDim2?, min: UDim2?, max: UDim2?, format: string? | { string }?, value: Types.APIState<UDim2>?, editing: Types.APIState<boolean>?)
     return Internal._insert("DragUDim2", text, increment, min, max, format, value, editing) :: Input<UDim2>
 end
 
@@ -1690,7 +1690,7 @@ end
     You can ctrl + click to directly input a Rect, like InputRect.
     You can hold Shift to increase speed, and Alt to decrease speed when dragging.
 ]=]
-local API_DragRect = function(text: string, increment: Rect?, min: Rect?, max: Rect?, format: string? | { string }?, value: Types.State<Rect>?, editing: Types.State<boolean>?)
+local API_DragRect = function(text: string, increment: Rect?, min: Rect?, max: Rect?, format: string? | { string }?, value: Types.APIState<Rect>?, editing: Types.APIState<boolean>?)
     return Internal._insert("DragRect", text, increment, min, max, format, value, editing) :: Input<Rect>
 end
 
@@ -1712,7 +1712,7 @@ end
     Input can also be done using HSV instead of the default RGB.
     If no format argument is provided then a default R, G, B or H, S, V prefix is applied.
 ]=]
-local API_InputColor3 = function(text: string, flags: number?, format: string? | { string }?, color: Types.State<Color3>?, editing: Types.State<boolean>?)
+local API_InputColor3 = function(text: string, flags: number?, format: string? | { string }?, color: Types.APIState<Color3>?, editing: Types.APIState<boolean>?)
     return Internal._insert("InputColor3", text, flags or 0, format, color, editing) :: InputColor3
 end
 
@@ -1737,7 +1737,7 @@ end
     Input can also be done using HSV instead of the default RGB.
     If no format argument is provided then a default R, G, B, T or H, S, V, T prefix is applied.
 ]=]
-local API_InputColor4 = function(text: string, flags: number?, format: string? | { string }?, color: Types.State<Color3>?, transparency: Types.State<number>?, editing: Types.State<boolean>?)
+local API_InputColor4 = function(text: string, flags: number?, format: string? | { string }?, color: Types.APIState<Color3>?, transparency: Types.APIState<number>?, editing: Types.APIState<boolean>?)
     return Internal._insert("InputColor4", text, flags or 0, format, color, transparency, editing) :: InputColor4
 end
 
@@ -1770,7 +1770,7 @@ end
     A field which allows the user to slide a grip to enter a number within a range.
     You can ctrl + click to directly input a number, like InputNum.
 ]=]
-local API_SliderNum = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.State<number>?, editing: Types.State<boolean>?)
+local API_SliderNum = function(text: string, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.APIState<number>?, editing: Types.APIState<boolean>?)
     return Internal._insert("SliderNum", text, increment, min, max, format, value, editing) :: Input<number>
 end
 
@@ -1793,7 +1793,7 @@ end
     A field which allows the user to slide a grip to enter a Vector2 within a range.
     You can ctrl + click to directly input a Vector2, like InputVector2.
 ]=]
-local API_SliderVector2 = function(text: string, increment: Vector2?, min: Vector2?, max: Vector2?, format: string? | { string }?, value: Types.State<Vector2>?, editing: Types.State<boolean>?)
+local API_SliderVector2 = function(text: string, increment: Vector2?, min: Vector2?, max: Vector2?, format: string? | { string }?, value: Types.APIState<Vector2>?, editing: Types.APIState<boolean>?)
     return Internal._insert("SliderVector2", text, increment, min, max, format, value, editing) :: Input<Vector2>
 end
 
@@ -1816,7 +1816,7 @@ end
     A field which allows the user to slide a grip to enter a Vector3 within a range.
     You can ctrl + click to directly input a Vector3, like InputVector3.
 ]=]
-local API_SliderVector3 = function(text: string, increment: Vector3?, min: Vector3?, max: Vector3?, format: string? | { string }?, value: Types.State<Vector3>?, editing: Types.State<boolean>?)
+local API_SliderVector3 = function(text: string, increment: Vector3?, min: Vector3?, max: Vector3?, format: string? | { string }?, value: Types.APIState<Vector3>?, editing: Types.APIState<boolean>?)
     return Internal._insert("SliderVector3", text, increment, min, max, format, value, editing) :: Input<Vector3>
 end
 
@@ -1839,7 +1839,7 @@ end
     A field which allows the user to slide a grip to enter a UDim within a range.
     You can ctrl + click to directly input a UDim, like InputUDim.
 ]=]
-local API_SliderUDim = function(text: string, increment: UDim?, min: UDim?, max: UDim?, format: string? | { string }?, value: Types.State<UDim>?, editing: Types.State<boolean>?)
+local API_SliderUDim = function(text: string, increment: UDim?, min: UDim?, max: UDim?, format: string? | { string }?, value: Types.APIState<UDim>?, editing: Types.APIState<boolean>?)
     return Internal._insert("SliderUDim", text, increment, min, max, format, value, editing) :: Input<UDim>
 end
 
@@ -1862,7 +1862,7 @@ end
     A field which allows the user to slide a grip to enter a UDim2 within a range.
     You can ctrl + click to directly input a UDim2, like InputUDim2.
 ]=]
-local API_SliderUDim2 = function(text: string, increment: UDim2?, min: UDim2?, max: UDim2?, format: string? | { string }?, value: Types.State<UDim2>?, editing: Types.State<boolean>?)
+local API_SliderUDim2 = function(text: string, increment: UDim2?, min: UDim2?, max: UDim2?, format: string? | { string }?, value: Types.APIState<UDim2>?, editing: Types.APIState<boolean>?)
     return Internal._insert("SliderUDim2", text, increment, min, max, format, value, editing) :: Input<UDim2>
 end
 
@@ -1885,7 +1885,7 @@ end
     A field which allows the user to slide a grip to enter a Rect within a range.
     You can ctrl + click to directly input a Rect, like InputRect.
 ]=]
-local API_SliderRect = function(text: string, increment: Rect?, min: Rect?, max: Rect?, format: string? | { string }?, value: Types.State<Rect>?, editing: Types.State<boolean>?)
+local API_SliderRect = function(text: string, increment: Rect?, min: Rect?, max: Rect?, format: string? | { string }?, value: Types.APIState<Rect>?, editing: Types.APIState<boolean>?)
     return Internal._insert("SliderRect", text, increment, min, max, format, value, editing) :: Input<Rect>
 end
 

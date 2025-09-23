@@ -40,7 +40,7 @@ export type TabBar = Types.ParentWidget & {
     .hovered () -> boolean -- fires when the mouse hovers over any of the tab button
 
     .arguments { Text: string, Flags: number }
-    .state { index: Types.State<number>, open: Types.State<boolean> }
+    .state { index: State<number>, open: State<boolean> }
 ]=]
 export type Tab = Types.ParentWidget & {
     parentWidget: TabBar,
@@ -211,39 +211,19 @@ Internal._widgetConstructor(
             ["clicked"] = Utility.EVENTS.click(function(thisWidget: Types.Widget)
                 return thisWidget.instance
             end),
-            ["hovered"] = Utility.EVENTS.hover(function(thisWidget: Types.Widget)
-                return thisWidget.instance
-            end),
-            ["selected"] = {
-                ["Init"] = function(_thisWidget: Tab) end,
-                ["Get"] = function(thisWidget: Tab)
-                    return thisWidget._lastSelectedTick == Internal._cycleTick
-                end,
-            },
-            ["unselected"] = {
-                ["Init"] = function(_thisWidget: Tab) end,
-                ["Get"] = function(thisWidget: Tab)
-                    return thisWidget._lastUnselectedTick == Internal._cycleTick
-                end,
-            },
+            ["selected"] = Utility.EVENTS.select,
+            ["unselected"] = Utility.EVENTS.unselect,
+            ["shown"] = Utility.EVENTS.show,
+            ["hidden"] = Utility.EVENTS.hide,
             ["active"] = {
                 ["Init"] = function(_thisWidget: Tab) end,
                 ["Get"] = function(thisWidget: Tab)
                     return thisWidget.state.index._value == thisWidget._tabIndex
                 end,
             },
-            ["shown"] = {
-                ["Init"] = function(_thisWidget: Tab) end,
-                ["Get"] = function(thisWidget: Tab)
-                    return thisWidget._lastShownTick == Internal._cycleTick
-                end,
-            },
-            ["hidden"] = {
-                ["Init"] = function(_thisWidget: Tab) end,
-                ["Get"] = function(thisWidget: Tab)
-                    return thisWidget._lastHiddenTick == Internal._cycleTick
-                end,
-            },
+            ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
+                return thisWidget.instance
+            end),
         },
         Generate = function(thisWidget: Tab)
             local Tab = Instance.new("TextButton")
@@ -371,11 +351,9 @@ Internal._widgetConstructor(
 
             if thisWidget.state.shown._lastChangeTick == Internal._cycleTick then
                 if thisWidget.state.shown._value == true then
-                    thisWidget._lastShownTick = Internal._cycleTick + 1
                     openTab(thisWidget.parentWidget, thisWidget._tabIndex)
                     Tab.Visible = true
                 else
-                    thisWidget._lastHiddenTick = Internal._cycleTick + 1
                     closeTab(thisWidget.parentWidget, thisWidget._tabIndex)
                     Tab.Visible = false
                 end
@@ -388,14 +366,12 @@ Internal._widgetConstructor(
                     Tab.BackgroundColor3 = Internal._config.TabActiveColor
                     Tab.BackgroundTransparency = Internal._config.TabActiveTransparency
                     Container.Visible = true
-                    thisWidget._lastSelectedTick = Internal._cycleTick + 1
                 else
                     thisWidget._buttonColors.Color = Internal._config.TabColor
                     thisWidget._buttonColors.Transparency = Internal._config.TabTransparency
                     Tab.BackgroundColor3 = Internal._config.TabColor
                     Tab.BackgroundTransparency = Internal._config.TabTransparency
                     Container.Visible = false
-                    thisWidget._lastUnselectedTick = Internal._cycleTick + 1
                 end
             end
         end,
@@ -427,7 +403,7 @@ Internal._widgetConstructor(
     text provided to a Tab. The TabBar will replicate the index to the Tab children .
 
 ]=]
-local API_TabBar = function(state: Types.State<number>?)
+local API_TabBar = function(state: Types.APIState<number>?)
     return Internal._insert("TabBar", state) :: TabBar
 end
 
@@ -450,7 +426,7 @@ end
 
     A tab will take up the full horizontal width of the parent and hide any other tabs in the TabBar.
 ]=]
-local API_Tab = function(text: string, flags: number?, shown: Types.State<boolean>?)
+local API_Tab = function(text: string, flags: number?, shown: Types.APIState<boolean>?)
     return Internal._insert("Tab", text, flags, shown) :: Tab
 end
 
