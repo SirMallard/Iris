@@ -6,16 +6,16 @@ unlisted: true
 # Iris
 <!--moonwave-hide-before-this-line-->
 
-Iris is an Immediate mode GUI Library for Roblox, Based on [Dear ImGui](https://github.com/ocornut/imgui). It solves the same problems as Dear ImGui: providing a simple and bloat-free UI system, designed for visualisation and debugging. It is fast, portable, and self-contained (no external dependencies).
+Iris is an immediate-mode GUI Library for Roblox, based on [Dear ImGui](https://github.com/ocornut/imgui). It solves the same problems as Dear ImGui: providing a simple and bloat-free UI system, designed for visualisation and debugging. It is fast, portable, and self-contained (no external dependencies).
 
 <div align="center">
     <img src="/Iris/assets/docs/demoWindow.png"/>
 </div>
 
 ## What is Dear ImGui, and why is it important?
-Dear ImGui is best known for allowing developers to create content-creation and visualisation and debugging UI. Using the Dear ImGui paradigm (Immediate Mode), UI design is remarkably easy and simple. Because of this, Dear ImGui has been adopted in almost every major game engine from Unity and Unreal Engine to in-house engines from Rockstar and Ubisoft (and now Roblox!).
+Dear ImGui is best known for allowing developers to create content-creation and visualisation and debugging UI. Using the Dear ImGui paradigm (immediate-mode), UI design is remarkably simple and straightfoward. Because of this, Dear ImGui has been adopted in almost every major game engine, both commercial and proprietary.
 
-Iris favors simplicity and productivity; It is designed to simplify UI, streamlining the process for creating visualisation, debug, and data input tools. To accomplish this, Iris offers a different approach to Roblox UI than existing libraries, at the cost of certain features commonly found in more intricate UI libraries. Iris opts to supercede the Roblox UI API, instead having a streamlined Immediate-Mode library and a set of widgets which developers can use to build the UI and tools they need.
+Iris favors simplicity and productivity; it is designed to simplify UI, streamlining the process for creating visualisation, debug, and data input tools. To accomplish this, Iris offers a different approach to Roblox UI than existing libraries, providing a range of UI elements, whilst handling all inputs, placement and styling. This allows the focus to be on developing your project.
 
 Demo Place: https://rblx.games/7245022703
 

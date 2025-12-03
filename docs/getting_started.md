@@ -8,11 +8,10 @@ sidebar_position: 2
 
 Iris is available to download using Wally, use the release from GitHub, or build yourself. It is best to
 place Iris somewhere on the client, such as under `StarterPlayerScripts` or `ReplicatedStorage`. Once
-Iris is installed, you can `require(path.to.Iris)` the module from any client script. Iris also has a
-public types system, which you can access from `require(path.to.Iris.PubTypes)`. To start Iris, you will
-need to run `Iris.Init()` before using Iris anywhere else. This can be difficult when you have multiple
-scripts running at the same time, so it is best to organise your code with a single entry point to
-initialise Iris from.
+Iris is installed, you can `require(path.to.Iris)` the module from any client script. To start Iris, you
+will need to call `Iris.Init()` before using Iris anywhere else. This can be difficult when you have
+multiple scripts running at the same time, so it is best to organise your code with a single entry point
+to initialise Iris from.
 
 # Checking Iris Works
 
@@ -20,9 +19,10 @@ We can first test Iris works properly by using the DemoWindow, to display all th
 First we'll create a client script under `StarterPlayer.StarterPlayerScipts`, and put this into it:
 ```lua
 local Iris = require(path.to.Iris)
+local DemoWindow = require(path.to.Iris.demoWindow)
 
 Iris.Init()
-Iris:Connect(Iris.ShowDemoWindow)
+Iris:Connect(DemoWindow)
 ```
 If we then run the game, we should see the Iris Demo Window appear on the screen. This shows that Iris
 is working properly and we can start writing our own code. Check [here](./intro.md) for some example code,
@@ -31,56 +31,74 @@ file to see how the demo window works, or check the rest of the documentation fo
 
 ## Understanding the API
 
-The Iris API is fairly unique and can be difficult to understand initially. However, once understood, it
-becomes much clearer and is consistent between all widgets.
+The Iris API is about calling functions to return widget objects. Each widget has a set of arguments, some
+which are optional. Optional arguments are indicated by a `?` at the end.
 
 We will use a Window as an example because it best demonstrates the API and is used in every Iris project.
 
 The API documentation for a window is as follows and contains all the information we need:  
-```lua
-hasChildren = true
-hasState = true
-Arguments = {
-    Title: string,
-    NoTitleBar: boolean? = false,
-    NoBackground: boolean? = false, -- the background behind the widget container.
-    NoCollapse: boolean? = false,
-    NoClose: boolean? = false,
-    NoMove: boolean? = false,
-    NoScrollbar: boolean? = false, -- the scrollbar if the window is too short for all widgets.
-    NoResize: boolean? = false,
-    NoNav: boolean? = false, -- unimplemented.
-    NoMenu: boolean? = false -- whether the menubar will show if created.
+```
+Window <Widget <HasChildren <HasState -- returns a widget, which contains children and uses state objects
+
+Iris.Window(
+    title: string, -- titlebar text of the window
+    flags: WindowFlags?, -- optional bit flags, using Iris.WindowFlags, default is 0
+    size: State<Vector>?, -- state size of the entire window, default is Vector2.new(400, 300)
+    position: State<Vector2>?, -- state position relative to the top-left corner
+    open: State<boolean>?, -- state for the entire window visible, or closed with just the titlebar, default is true
+    shown: State<boolean?>, -- state to hide the entire widget, default is true
+    scrollDistance: State<number>? -- state vertical scroll distance down the window
+) → Window
+
+interface Window {
+    &: ParentWidget -- inherits from the ParentWidget interface
+    opened: () → boolean -- once when opened
+    closed: () → boolean -- once when closed
+    shown: () → boolean -- once when shown
+    hidden: () → boolean -- once when hidden
+    hovered: () → boolean -- fires when the mouse hovers over any of the window
+    
+    arguments: {
+        Title: string?,
+        Flags: number
+    }
+    state: {
+        size: State<Vector>,
+        position: State<Vector2>,
+        open: State<boolean>,
+        shown: State<boolean>,
+        scrollDistance: State<number>
+    }
 }
-Events = {
-    opened: () -> boolean, -- once when opened.
-    closed: () -> boolean, -- once when closed.
-    collapsed: () -> boolean, -- once when collapsed.
-    uncollapsed: () -> boolean, -- once when uncollapsed.
-    hovered: () -> boolean -- fires when the mouse hovers over any of the window.
-}
-States = {
-    size = State<Vector2>? = Vector2.new(400, 300),
-    position = State<Vector2>?,
-    isUncollapsed = State<boolean>? = true,
-    isOpened = State<boolean>? = true,
-    scrollDistance = State<number>? -- vertical scroll distance, if too short.
+
+interface WindowFlags {
+    NoTitleBar: 1 -- hide title bar
+    NoBackground: 2 -- hide background colour
+    NoCollapse: 4 -- hide collapsing button
+    NoClose: 8 -- hide close button
+    NoMove: 16 -- disable drag-to-move functionality
+    NoScrollbar: 32 -- disable scrollbar
+    NoResize: 64 -- disable drag-to-resize functionality
+    NoNav: 128 -- unused
+    NoMenu: 256 -- hide the menubar
 }
 ```
 
-The first documentation says that a Window has children, and therefore, we know that calling `Iris.Windw()`
-must always be followed eventually by `Iris.End()` to exit out of the window. We are then told that a window
-has state, and the different states, their types and default values are shown in the State table. We are also
-told that they are all optional, and will be created if not provided.
+The first documentation says that a Window:
+1. has children, so any call to `Iris.Windw()` must end with a `Iris.End()`
+2. has state, so each state will have default values, if not given
 
 ### Using Arguments
+
+The arguments are provided like any regular function, with a number of defined 
+
 
 The next information is the Arguments table. This contains the ordered list of all arguments, the type and
 default value if optional. For a Window, the Title is a required string, whereas the other arguments are all
 optional booleans defaulting to false. We will thus need to provide a string as the first argument for any window.
 
 :::info
-THe arguments provided to a widget are sent as an array with index 1 as the first argument, index 2 as the
+The arguments provided to a widget are sent as an array with index 1 as the first argument, index 2 as the
 second and so on. This means it is possible to provide the arguments in a different order, such as
 `{ [1] = "Title", [6] = true}` which provides the title and also sets `NoMove` to true. We therefore do not
 have to provide

@@ -126,7 +126,7 @@ export type InputText = Types.Widget & {
 } & Types.Changed & Types.Hovered
 
 --[=[
-    @within Input
+    @within Text
     @interface InputTextFlags
     .ReadOnly 1 --
     .MultiLine 2 --
@@ -150,13 +150,6 @@ local InputFlags = {
 ---------------
 -- Constants
 ---------------
-
-local numberChanged = {
-    ["Init"] = function(_thisWidget: Types.Widget) end,
-    ["Get"] = function(thisWidget: Input<any>)
-        return thisWidget._lastChangedTick == Internal._cycleTick
-    end,
-}
 
 local defaultIncrements: { [InputDataTypes]: { number } } = {
     Num = { 1 },
@@ -349,7 +342,7 @@ local function generateAbstract<T>(inputType: InputType, dataType: InputDataType
         numArguments = 5,
         Arguments = { "Text", "Increment", "Min", "Max", "Format", "number", "editing" },
         Events = {
-            ["numberChanged"] = numberChanged,
+            ["numberChanged"] = Utility.EVENTS.change("number"),
             ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 return thisWidget.instance
             end),
@@ -469,7 +462,6 @@ local function focusLost<T>(thisWidget: Input<T>, InputField: TextBox, index: nu
         end
 
         state:set(updateValueByIndex(state._value, index, newValue, thisWidget.arguments))
-        thisWidget._lastChangedTick = Internal._cycleTick + 1
     end
 
     local value = getValueByIndex(state._value, index, thisWidget.arguments)
@@ -519,7 +511,6 @@ do
                 newValue = math.min(newValue, getValueByIndex(thisWidget.arguments.Max, 1, thisWidget.arguments))
             end
             thisWidget.state.number:set(newValue)
-            thisWidget._lastChangedTick = Internal._cycleTick + 1
         end)
 
         local AddButton = Utility.abstractButton.Generate(thisWidget) :: TextButton
@@ -542,7 +533,6 @@ do
                 newValue = math.min(newValue, getValueByIndex(thisWidget.arguments.Max, 1, thisWidget.arguments))
             end
             thisWidget.state.number:set(newValue)
-            thisWidget._lastChangedTick = Internal._cycleTick + 1
         end)
 
         return 2 * Internal._config.ItemInnerSpacing.X + 2 * textHeight
@@ -701,7 +691,6 @@ do
         end
 
         state:set(updateValueByIndex(state._value, ActiveIndex, newValue, ActiveDrag.arguments))
-        ActiveDrag._lastChangedTick = Internal._cycleTick + 1
     end
 
     local function DragMouseDown(thisWidget: Input<InputDataType>, dataTypes: InputDataTypes, index: number, x: number, y: number)
@@ -1017,7 +1006,6 @@ do
         local newValue = math.clamp(math.round(Ratio * Positions) * increment + min, min, max)
 
         ActiveSlider.state.number:set(updateValueByIndex(ActiveSlider.state.number._value, ActiveIndex, newValue, ActiveSlider.arguments))
-        ActiveSlider._lastChangedTick = Internal._cycleTick + 1
     end
 
     local function SliderMouseDown(thisWidget: Input<InputDataType>, dataType: InputDataTypes, index: number)
@@ -1287,14 +1275,7 @@ Internal._widgetConstructor(
         numArguments = 3,
         Arguments = { "Text", "TextHint", "Flags", "text" },
         Events = {
-            ["textChanged"] = {
-                ["Init"] = function(thisWidget: InputText)
-                    thisWidget._lastChangedTick = 0
-                end,
-                ["Get"] = function(thisWidget: InputText)
-                    return thisWidget._lastChangedTick == Internal._cycleTick
-                end,
-            },
+            ["textChanged"] = Utility.EVENTS.change("text"),
             ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 return thisWidget.instance
             end),
@@ -1329,7 +1310,6 @@ Internal._widgetConstructor(
 
             InputField.FocusLost:Connect(function()
                 thisWidget.state.text:set(InputField.Text)
-                thisWidget._lastChangedTick = Internal._cycleTick + 1
             end)
 
             local frameHeight: number = Internal._config.TextSize + 2 * Internal._config.FramePadding.Y
@@ -1376,6 +1356,7 @@ Internal._widgetConstructor(
     } :: Types.WidgetClass
 )
 
+-- todo: update documentation
 --[=[
     @within Text
     @tag Widget
