@@ -5,7 +5,7 @@ local Types = require(script.Types)
 local Iris = {}
 
 local Internal = require(script.Internal)
-local Utility = require(script.widgets)
+local Utility = require(script.Widgets)
 
 Iris._internal = Internal
 Iris._utility = Utility
@@ -284,7 +284,7 @@ end
 
     TemplateConfig provides a table of default styles and configurations which you may apply to your UI.
 ]=]
-Iris.TemplateConfig = require(script.config)
+Iris.TemplateConfig = require(script.Config)
 Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark) -- use colorDark and sizeDefault themes by default
 Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
 Iris.UpdateGlobalConfig(Iris.TemplateConfig.utilityDefault)
@@ -674,25 +674,25 @@ end
 Iris.End = Internal._end
 
 -- local Root = require(script.Parent.widgets.Root)
-local Window = require(script.widgets.Window)
-local Menu = require(script.widgets.Menu)
+local Window = require(script.Widgets.Window)
+local Menu = require(script.Widgets.Menu)
 
-local Format = require(script.widgets.Format)
+local Format = require(script.Widgets.Format)
 
-local Text = require(script.widgets.Text)
-local Button = require(script.widgets.Button)
-local Checkbox = require(script.widgets.Checkbox)
-local RadioButton = require(script.widgets.RadioButton)
-local Image = require(script.widgets.Image)
+local Text = require(script.Widgets.Text)
+local Button = require(script.Widgets.Button)
+local Checkbox = require(script.Widgets.Checkbox)
+local RadioButton = require(script.Widgets.RadioButton)
+local Image = require(script.Widgets.Image)
 
-local Tree = require(script.widgets.Tree)
-local Tab = require(script.widgets.Tab)
+local Tree = require(script.Widgets.Tree)
+local Tab = require(script.Widgets.Tab)
 
-local Input = require(script.widgets.Input)
-local Combo = require(script.widgets.Combo)
-local Plot = require(script.widgets.Plot)
+local Input = require(script.Widgets.Input)
+local Combo = require(script.Widgets.Combo)
+local Plot = require(script.Widgets.Plot)
 
-local Table = require(script.widgets.Table)
+local Table = require(script.Widgets.Table)
 
 Iris.WindowFlags = Window.WindowFlags
 Iris.TextFlags = Text.TextFlags
