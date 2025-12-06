@@ -177,7 +177,7 @@ Internal._widgetConstructor(
             local Progress = thisWidget.instance :: Frame
             local TextLabel: TextLabel = Progress.TextLabel
             local Bar = Progress.Bar :: Frame
-            local Value: TextLabel = Bar._value
+            local Value: TextLabel = Bar.Value
 
             if thisWidget.arguments.Format ~= nil and typeof(thisWidget.arguments.Format) == "string" then
                 Value.Text = thisWidget.arguments.Format
@@ -189,7 +189,7 @@ Internal._widgetConstructor(
             local ProgressBar = thisWidget.instance :: Frame
             local Bar = ProgressBar.Bar :: Frame
             local Progress: TextLabel = Bar.Progress
-            local Value: TextLabel = Bar._value
+            local Value: TextLabel = Bar.Value
 
             local progress = math.clamp(thisWidget.state.progress._value, 0, 1)
             local totalWidth = Bar.AbsoluteSize.X

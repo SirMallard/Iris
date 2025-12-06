@@ -35,8 +35,8 @@ export type TabBar = Types.ParentWidget & {
     .clicked () -> boolean -- fires when the tab is clicked
     .selected () -> boolean -- once when selected
     .unselected () -> boolean -- once when unselected
-    .shown () -> boolean -- once when shown
-    .hidden () -> boolean -- once when hidden
+    .opened () -> boolean -- once when opened
+    .closed () -> boolean -- once when closed
     .hovered () -> boolean -- fires when the mouse hovers over any of the tab button
 
     .arguments { Text: string, Flags: number }
@@ -54,9 +54,9 @@ export type Tab = Types.ParentWidget & {
 
     state: {
         index: Types.State<number>,
-        shown: Types.State<boolean>,
+        open: Types.State<boolean>,
     },
-} & Types.Clicked & Types.Selected & Types.Unselected & Types.Active & Types.Shown & Types.Hidden & Types.Hovered
+} & Types.Clicked & Types.Selected & Types.Unselected & Types.Active & Types.Opened & Types.Closed & Types.Hovered
 
 --[=[
     @within Tab
@@ -86,7 +86,7 @@ local function closeTab(TabBar: TabBar, Index: number)
 
     -- search left for open tabs
     for i = Index - 1, 1, -1 do
-        if TabBar._tabs[i].state.shown._value == true then
+        if TabBar._tabs[i].state.open._value == true then
             TabBar.state.index:set(i)
             return
         end
@@ -94,7 +94,7 @@ local function closeTab(TabBar: TabBar, Index: number)
 
     -- search right for open tabs
     for i = Index, #TabBar._tabs do
-        if TabBar._tabs[i].state.shown._value == true then
+        if TabBar._tabs[i].state.open._value == true then
             TabBar.state.index:set(i)
             return
         end
@@ -276,7 +276,7 @@ Internal._widgetConstructor(
 
             Utility.UICorner(CloseButton)
             Utility.applyButtonClick(CloseButton, function()
-                thisWidget.state.shown:set(false)
+                thisWidget.state.open:set(false)
                 closeTab(thisWidget.parentWidget, thisWidget._tabIndex)
             end)
 
@@ -341,16 +341,16 @@ Internal._widgetConstructor(
             thisWidget.state.index = thisWidget.parentWidget.state.index
             thisWidget.state.index._connectedWidgets[thisWidget.ID] = thisWidget
 
-            if thisWidget.state.shown == nil then
-                thisWidget.state.shown = Internal._widgetState(thisWidget, "open", true)
+            if thisWidget.state.open == nil then
+                thisWidget.state.open = Internal._widgetState(thisWidget, "open", true)
             end
         end,
         UpdateState = function(thisWidget: Tab)
             local Tab = thisWidget.instance :: TextButton
             local Container = thisWidget.childContainer :: Frame
 
-            if thisWidget.state.shown._lastChangeTick == Internal._cycleTick then
-                if thisWidget.state.shown._value == true then
+            if thisWidget.state.open._lastChangeTick == Internal._cycleTick then
+                if thisWidget.state.open._value == true then
                     openTab(thisWidget.parentWidget, thisWidget._tabIndex)
                     Tab.Visible = true
                 else
@@ -376,7 +376,7 @@ Internal._widgetConstructor(
             end
         end,
         Discard = function(thisWidget: Tab)
-            if thisWidget.state.shown._value == true then
+            if thisWidget.state.open._value == true then
                 closeTab(thisWidget.parentWidget, thisWidget._tabIndex)
             end
 
@@ -427,7 +427,7 @@ end
     A tab will take up the full horizontal width of the parent and hide any other tabs in the TabBar.
 ]=]
 local API_Tab = function(text: string, flags: number?, shown: Types.APIState<boolean>?)
-    return Internal._insert("Tab", text, flags, shown) :: Tab
+    return Internal._insert("Tab", text, flags or 0, shown) :: Tab
 end
 
 return {

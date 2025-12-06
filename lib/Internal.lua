@@ -578,14 +578,14 @@ function Internal._genNewWidget(widgetType: string, ID: Types.ID, ...: any)
     if thisWidgetClass.hasState then
         local stateWidget = thisWidget :: Types.StateWidget
         stateWidget.state = {}
-        for index, state: Types.State<any> in select(thisWidgetClass.numArguments + 1, ...) or {} do
+        for index, state: Types.State<any> in { select(thisWidgetClass.numArguments + 1, ...) } do
             if typeof(state) == "table" and getmetatable(state :: any) == StateClass then
                 state._lastChangeTick = Internal._cycleTick
                 state._connectedWidgets[ID] = stateWidget
             else
                 state = Internal._widgetState(stateWidget, thisWidgetClass.Arguments[thisWidgetClass.numArguments + index], state :: any)
             end
-            stateWidget.state[thisWidgetClass.Arguments[index]] = state
+            stateWidget.state[thisWidgetClass.Arguments[thisWidgetClass.numArguments + index]] = state
         end
 
         thisWidgetClass.GenerateState(stateWidget)

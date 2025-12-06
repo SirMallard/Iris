@@ -673,7 +673,7 @@ end
 ]=]
 Iris.End = Internal._end
 
--- local Root = require(script.Parent.widgets.Root)
+local _ = require(script.Widgets.Root)
 local Window = require(script.Widgets.Window)
 local Menu = require(script.Widgets.Menu)
 

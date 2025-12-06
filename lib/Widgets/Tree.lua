@@ -335,7 +335,7 @@ Internal._widgetConstructor(
     A collapsable container for other widgets, to organise and hide widgets when not needed. The state determines whether the child widgets are visible or not. Clicking on the widget will open or close it.
 ]=]
 local API_Tree = function(text: string, flags: number?, open: Types.APIState<boolean>?)
-    return Internal._insert("Tree", text, flags, open) :: Tree
+    return Internal._insert("Tree", text, flags or 0, open) :: Tree
 end
 
 --[=[
@@ -355,7 +355,7 @@ end
 
 ]=]
 local API_CollapsingHeader = function(text: string, flags: number?, open: Types.APIState<boolean>?)
-    return Internal._insert("CollapsingHeader", text, flags, open) :: Tree
+    return Internal._insert("CollapsingHeader", text, flags or 0, open) :: Tree
 end
 
 return {

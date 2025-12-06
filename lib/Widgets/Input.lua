@@ -243,7 +243,7 @@ local function getValueByIndex<T>(value: T, index: number, arguments: any)
             return val.Y.Offset
         end
     elseif typeof(val) == "Color3" then
-        local color = if btest(InputFlags.UseHSV, arguments) then { val:ToHSV() } else { val.R, val.G, val.B }
+        local color = if btest(InputFlags.UseHSV, arguments.Flags) then { val:ToHSV() } else { val.R, val.G, val.B }
         if index == 1 then
             return color[1]
         elseif index == 2 then
@@ -313,7 +313,7 @@ local function updateValueByIndex<T>(value: T, index: number, newValue: number, 
             return Rect.new(val.Min, Vector2.new(val.Max.X, newValue)) :: any
         end
     elseif typeof(val) == "Color3" then
-        if btest(InputFlags.UseHSV, arguments) then
+        if btest(InputFlags.UseHSV, arguments.Flags) then
             local h: number, s: number, v: number = val:ToHSV()
             if index == 1 then
                 return Color3.fromHSV(newValue, s, v) :: any
@@ -342,7 +342,7 @@ local function generateAbstract<T>(inputType: InputType, dataType: InputDataType
         numArguments = 5,
         Arguments = { "Text", "Increment", "Min", "Max", "Format", "number", "editing" },
         Events = {
-            ["numberChanged"] = Utility.EVENTS.change("number"),
+            ["changed"] = Utility.EVENTS.change("number"),
             ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 return thisWidget.instance
             end),

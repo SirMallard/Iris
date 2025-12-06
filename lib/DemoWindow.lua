@@ -222,21 +222,15 @@ local widgetDemos = {
             Iris.PushConfig({ ContentWidth = UDim.new(1, -200) })
             local sharedComboIndex = Iris.State("No Selection")
 
-            local NoPreview, NoButton
+            local BitFlags = Iris.State(0)
             Iris.SameLine()
             do
-                NoPreview = Iris.Checkbox("No Preview")
-                NoButton = Iris.Checkbox("No Button")
-                if NoPreview.checked() and NoButton.check._value == true then
-                    NoButton.check:set(false)
-                end
-                if NoButton.checked() and NoPreview.check._value == true then
-                    NoPreview.check:set(false)
-                end
+                Iris.CheckboxFlags("No Preview", Iris.ComboFlags.NoPreview, BitFlags)
+                Iris.CheckboxFlags("No Button", Iris.ComboFlags.NoButton, BitFlags)
             end
             Iris.End()
 
-            Iris.Combo("Basic Usage", NoButton.check:get(), NoPreview.check:get(), sharedComboIndex)
+            Iris.Combo("Basic Usage", BitFlags._value)
             do
                 Iris.Selectable("Select 1", "One", nil, sharedComboIndex)
                 Iris.Selectable("Select 2", "Two", nil, sharedComboIndex)
@@ -273,7 +267,7 @@ local widgetDemos = {
             Iris.End()
 
             local ComboEnum = Iris.ComboEnum("Using ComboEnum", Enum.UserInputState, nil, Enum.UserInputState.Begin)
-            Iris.Text("Selected: " .. ComboEnum.index:get().Name)
+            Iris.Text("Selected: " .. ComboEnum.state.index:get().Name)
             Iris.PopConfig()
         end
         Iris.End()
@@ -282,7 +276,7 @@ local widgetDemos = {
     Tree = function()
         Iris.Tree("Trees")
         do
-            Iris.Tree("Tree using SpanAvailWidth", true)
+            Iris.Tree("Tree using SpanAvailWidth", Iris.TreeFlags.SpanAvailWidth)
             do
                 helpMarker("SpanAvailWidth determines if the Tree is selectable from its entire with, or only the text area")
             end
@@ -390,7 +384,7 @@ local widgetDemos = {
 
                 Iris.TabBar()
                 do
-                    Iris.Tab("🍎", true, a)
+                    Iris.Tab("🍎", Iris.TabFlags.Hideable, a)
                     do
                         Iris.Text("Who loves apples?")
                         if Iris.Button("I don't like apples.").clicked() then
@@ -398,7 +392,7 @@ local widgetDemos = {
                         end
                     end
                     Iris.End()
-                    Iris.Tab("🥦", true, b)
+                    Iris.Tab("🥦", Iris.TabFlags.Hideable, b)
                     do
                         Iris.Text("And what about broccoli?")
                         if Iris.Button("Not for me.").clicked() then
@@ -406,7 +400,7 @@ local widgetDemos = {
                         end
                     end
                     Iris.End()
-                    Iris.Tab("🥕", true, c)
+                    Iris.Tab("🥕", Iris.TabFlags.Hideable, c)
                     do
                         Iris.Text("But carrots are the best.")
                         if Iris.Button("I disagree with you.").clicked() then
@@ -466,9 +460,9 @@ local widgetDemos = {
                 -- [Iris.Args.InputNum.NoButtons] = NoButtons._value,
             )
             Iris.PopConfig()
-            Iris.Text("The Value is: " .. InputNum.number._value)
+            Iris.Text("The Value is: " .. InputNum.state.number._value)
             if Iris.Button("Randomize Number").clicked() then
-                InputNum.number:set(math.random(1, 99))
+                InputNum.state.number:set(math.random(1, 99))
             end
             local NoFieldCheckbox = Iris.Checkbox("NoField", NoField)
             local NoButtonsCheckbox = Iris.Checkbox("NoButtons", NoButtons)
@@ -537,7 +531,7 @@ local widgetDemos = {
         Iris.Tree("Input Text")
         do
             local InputText = Iris.InputText("Input Text Test", "Input Text here")
-            Iris.Text("The text is: " .. InputText.text._value)
+            Iris.Text("The text is: " .. InputText.state.text._value)
         end
         Iris.End()
     end,
@@ -593,7 +587,7 @@ local widgetDemos = {
             end
             local dynamicText = Iris.State("Hello ")
             local numRepeat = Iris.State(1)
-            if Iris.InputNum("# of repeat", 1, 1, 50, nil, numRepeat).numberChanged() then
+            if Iris.InputNum("# of repeat", 1, 1, 50, nil, numRepeat).changed() then
                 dynamicText:set(string.rep("Hello ", numRepeat:get()))
             end
             if Iris.Checkbox("Show dynamic text tooltip").state.check._value then
@@ -637,7 +631,7 @@ local widgetDemos = {
                 local Animated = Iris.Checkbox("Animate")
                 local plotFunc = Iris.ComboArray("Plotting Function", { "Sin", "Cos", "Tan", "Saw" }, nil, FunctionState)
                 local samples = Iris.SliderNum("Samples", 1, 1, 145, "%d samples", SampleState)
-                if Iris.SliderNum("Baseline", 0.1, -1, 1, nil, BaseLineState).numberChanged() then
+                if Iris.SliderNum("Baseline", 0.1, -1, 1, nil, BaseLineState).changed() then
                     ValueState:set(ValueState._value, true)
                 end
 
@@ -675,7 +669,7 @@ local widgetDemosOrder = { "Basic", "Image", "Selectable", "Combo", "Tree", "Col
 local function recursiveTree()
     local theTree = Iris.Tree("Recursive Tree")
     do
-        if theTree.state.isUncollapsed._value then
+        if theTree.state.open._value then
             recursiveTree()
         end
     end
@@ -788,7 +782,7 @@ local function runtimeInfo()
         end
         Iris.End()
 
-        if Iris.Tree("Widgets").state.isUncollapsed._value then
+        if Iris.Tree("Widgets").state.open._value then
             local widgetCount = 0
             local widgetStr = ""
             for _, v in lastVDOM do
@@ -802,7 +796,7 @@ local function runtimeInfo()
         end
         Iris.End()
 
-        if Iris.Tree("States").state.isUncollapsed._value then
+        if Iris.Tree("States").state.open._value then
             local stateCount = 0
             local stateStr = ""
             for i, v in states do
@@ -928,7 +922,7 @@ do
 
                 local function SliderInput(input: string, arguments: { any })
                     local Input = Iris[input](arguments, { number = Iris.WeakState(Iris._internal._config[arguments[1]]) })
-                    if Input.numberChanged() then
+                    if Input.changed() then
                         UpdatedConfig._value[arguments[1]] = Input.number:get()
                     end
                 end
@@ -1034,7 +1028,7 @@ do
                         color = Iris.WeakState(Iris._internal._config[vColor .. "Color"]),
                         transparency = Iris.WeakState(Iris._internal._config[vColor .. "Transparency"]),
                     })
-                    if Input.numberChanged() then
+                    if Input.changed() then
                         UpdatedConfig._value[vColor .. "Color"] = Input.color:get()
                         UpdatedConfig._value[vColor .. "Transparency"] = Input.transparency:get()
                     end
@@ -1071,7 +1065,7 @@ do
                 Iris.SeparatorText("Size")
 
                 local TextSize = Iris.SliderNum("Font Size", 1, 4, 20, nil, Iris.WeakState(Iris._internal._config.TextSize))
-                if TextSize.numberChanged() then
+                if TextSize.changed() then
                     UpdatedConfig._value["TextSize"] = TextSize.state.number:get()
                 end
 
@@ -1757,7 +1751,7 @@ local function layoutDemo()
             end
             Iris.End()
 
-            Iris.InputText({ "text" }, { text = text })
+            Iris.InputText("text", nil, nil, text)
             Iris.ProgressBar("progress", nil, progress)
             Iris.DragNum("number", 1, 0, 100, nil, value)
             Iris.ComboEnum("axis", Enum.Axis, nil, index)
@@ -1816,7 +1810,7 @@ return function()
     debug.profilebegin("Iris/Demo/Window")
     local window = Iris.Window("Iris Demo Window", Bitflags._value, Iris.State(Vector2.new(600, 550)), Iris.State(Vector2.new(100, 25)), showMainWindow)
 
-    if window.state.isUncollapsed._value and window.state.isOpened._value then
+    if window.state.open._value and window.state.shown._value then
         debug.profilebegin("Iris/Demo/MenuBar")
         mainMenuBar()
         debug.profileend()
@@ -1848,6 +1842,7 @@ return function()
                 Iris.NextColumn()
             end
             Iris.End()
+            Iris.Text(`Flags: {Bitflags._value}`)
         end
         Iris.End()
         debug.profileend()
@@ -1894,8 +1889,8 @@ return function()
 
         Iris.CollapsingHeader("Background")
         do
-            Iris.Checkbox({ "Show background colour" }, { check = showBackground })
-            Iris.InputColor4({ "Background colour" }, { color = backgroundColour, transparency = backgroundTransparency })
+            Iris.Checkbox("Show background colour", showBackground)
+            Iris.InputColor4("Background colour", nil, nil, backgroundColour, backgroundTransparency)
         end
         Iris.End()
     end

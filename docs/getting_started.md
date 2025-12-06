@@ -19,14 +19,14 @@ We can first test Iris works properly by using the DemoWindow, to display all th
 First we'll create a client script under `StarterPlayer.StarterPlayerScipts`, and put this into it:
 ```lua
 local Iris = require(path.to.Iris)
-local DemoWindow = require(path.to.Iris.demoWindow)
+local DemoWindow = require(path.to.Iris.DemoWindow)
 
 Iris.Init()
 Iris:Connect(DemoWindow)
 ```
 If we then run the game, we should see the Iris Demo Window appear on the screen. This shows that Iris
 is working properly and we can start writing our own code. Check [here](./intro.md) for some example code,
-read through the [`demoWindow.lua`](https://github.com/SirMallard/Iris/blob/main/lib/demoWindow.lua)
+read through the [`DemoWindow.lua`](https://github.com/SirMallard/Iris/blob/main/lib/DemoWindow.lua)
 file to see how the demo window works, or check the rest of the documentation for each widget.
 
 ## Understanding the API

@@ -10,7 +10,7 @@ per-widget basis. There are also some global properties which may need to be cha
 is initialised, because they affect the entire UI.
 
 The config is kept as a key-value pairs in a global table, viewable under `Iris.Internal._config`.
-The file `config.lua` contains a few different configurations (light, dark, big, small), of
+The file `Config.lua` contains a few different configurations (light, dark, big, small), of
 which some are loaded by default when first requiring Iris. You can use this file to refer to the
 default configuration, which are under 'colorDark', 'sizeDefault' and 'utilityDefault' (these
 'categories' are purely to make the organisation clearer).
@@ -22,7 +22,7 @@ table containing a set of configuration names and values which you would like to
 need to change all the values, since everything already has a default one.
 
 If you would like to use an existing configuration (such as light mode), you can refer to
-`Iris.TemplateConfig` which is the `config.lua` file.
+`Iris.TemplateConfig` which is the `Config.lua` file.
 
 ```lua
 Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorLight) -- change to the template light mode
