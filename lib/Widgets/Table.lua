@@ -141,7 +141,8 @@ local function UpdateActiveColumn()
 
     local BorderX = Table.AbsolutePosition.X
     local LeftX: number -- the start of the current column
-    -- local CurrentX: number = BorderContainer:FindFirstChild(`Border_{ActiveColumn}`).AbsolutePosition.X + 3 - BorderX -- the current column position
+    -- local CurrentX: number = BorderContainer:FindFirstChild(`Border_{ActiveColumn}`).AbsolutePosition.X + 3 - BorderX
+    -- -- the current column position
     local RightX: number -- the end of the next column
     if ActiveColumn == 1 then
         LeftX = 0
@@ -543,8 +544,7 @@ Internal._widgetConstructor(
                 thisWidget._columnBorders[0].Visible = btest(TableFlags.LimitTableWidth, thisWidget.arguments.Flags) and (btest(TableFlags.Resizable, thisWidget.arguments.Flags) or btest(TableFlags.OuterBorders, thisWidget.arguments.Flags))
             end
 
-            -- the header border visibility must be updated after settings all borders
-            -- visiblity or not
+            -- the header border visibility must be updated after settings all borders visiblity or not
             local HeaderRow: Frame? = thisWidget._rowInstances[0]
             local HeaderBorder: Frame? = thisWidget._rowBorders[0]
             if HeaderRow ~= nil then

@@ -322,7 +322,8 @@ Utility.registerEvent("InputChanged", function(input: InputObject)
         local intendedPosition = mouseLocation - moveDeltaCursorPosition
         local newPos = fitPositionToWindowBounds(dragWindow, intendedPosition)
 
-        -- state shouldnt be used like this, but calling :set would run the entire UpdateState function for the window, which is slow.
+        -- state shouldnt be used like this, but calling :set would run the entire UpdateState function for the window,
+        -- which is slow.
         dragInstance.Position = UDim2.fromOffset(newPos.X, newPos.Y)
         dragWindow.state.position._value = newPos
     end
@@ -737,7 +738,8 @@ Internal._widgetConstructor(
             Utility.applyButtonDown(LeftResizeGrip, function()
                 if not anyFocusedWindow or not (focusedWindow == thisWidget) then
                     setFocusedWindow(thisWidget)
-                    -- mitigating wrong focus when clicking on buttons inside of a window without clicking the window itself
+                    -- mitigating wrong focus when clicking on buttons inside of a window without clicking the window
+                    -- itself
                 end
                 isResizing = true
                 resizeFromTopBottom = Enum.TopBottom.Bottom
@@ -773,7 +775,8 @@ Internal._widgetConstructor(
             Utility.applyButtonDown(RightResizeGrip, function()
                 if not anyFocusedWindow or not (focusedWindow == thisWidget) then
                     setFocusedWindow(thisWidget)
-                    -- mitigating wrong focus when clicking on buttons inside of a window without clicking the window itself
+                    -- mitigating wrong focus when clicking on buttons inside of a window without clicking the window
+                    -- itself
                 end
                 isResizing = true
                 resizeFromTopBottom = Enum.TopBottom.Bottom

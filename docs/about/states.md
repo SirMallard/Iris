@@ -4,12 +4,12 @@ sidebar_position: 3
 
 # Understanding State
 
-An Iris State object is simply a table containg a value, and an array of connected widgets. It provides functions to
-get or set the value, the latter of which will update any widgets UI that are dependent on that state. Functions can
-also be connected which will be fired whenever the value changes.
+An Iris State object is simply a table containg a value, and an array of connected widgets. It provides functions to get
+or set the value, the latter of which will update any widgets UI that are dependent on that state. Functions can also be
+connected which will be fired whenever the value changes.
 
-A state object ultimately attempts to copy the behaviour that a pointer would do in other languages, but is not
-possible in native Luau. A Luau table is the best option, because it is passed by reference.
+A state object ultimately attempts to copy the behaviour that a pointer would do in other languages, but is not possible
+in native Luau. A Luau table is the best option, because it is passed by reference.
 
 ## Types of State
 
@@ -21,9 +21,9 @@ The base and most common state type, which implements the basically functionalit
 
 ### WeakState
 
-A WeakState is very similar to State, except that every time it is called by ID, using `Iris.WeakState()`, all
-connected widgets and functions are removed, whilst keeping the value. This is useful if you need to disconnect any
-widgets from a state, so that they no longer update, whilst also keeping the existing value.
+A WeakState is very similar to State, except that every time it is called by ID, using `Iris.WeakState()`, all connected
+widgets and functions are removed, whilst keeping the value. This is useful if you need to disconnect any widgets from a
+state, so that they no longer update, whilst also keeping the existing value.
 
 ### VariableState
 

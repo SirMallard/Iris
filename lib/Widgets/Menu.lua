@@ -157,7 +157,8 @@ Utility.registerEvent("InputBegan", function(inputObject: InputObject)
         return
     end
 
-    -- this only checks if we clicked outside all the menus. If we clicked in any menu, then the hover function handles this.
+    -- this only checks if we clicked outside all the menus. If we clicked in any menu, then the hover function handles
+    -- this.
     local isInMenu = false
     local MouseLocation = Utility.getMouseLocation()
     for _, menu in MenuStack do
@@ -357,10 +358,8 @@ Internal._widgetConstructor(
             ChildContainer.LayoutOrder = 6
             ChildContainer.ClipsDescendants = true
 
-            -- Unfortunatley, ScrollingFrame does not work with UICorner
-            -- if Internal._config.PopupRounding > 0 then
-            --     Utility.UICorner(ChildContainer, Internal._config.PopupRounding)
-            -- end
+            -- Unfortunatley, ScrollingFrame does not work with UICorner if Internal._config.PopupRounding > 0 then
+            -- Utility.UICorner(ChildContainer, Internal._config.PopupRounding) end
 
             Utility.UIStroke(ChildContainer, Internal._config.WindowBorderSize, Internal._config.BorderColor, Internal._config.BorderTransparency)
             Utility.UIPadding(ChildContainer, Vector2.new(2, Internal._config.WindowPadding.Y - Internal._config.ItemSpacing.Y))

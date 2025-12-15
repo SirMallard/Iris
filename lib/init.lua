@@ -653,8 +653,7 @@ end
     -- Widgets placed here **will not** be inside the tree
     Iris.Text({"Above and outside the tree"})
 
-    -- A Tree widget can contain children.
-    -- We must therefore remember to call `Iris.End()`
+    -- A Tree widget can contain children. We must therefore remember to call `Iris.End()`
     Iris.Tree({"My First Tree"})
         -- Widgets placed here **will** be inside the tree
         Iris.Text({"Tree item 1"})

@@ -251,8 +251,7 @@ function Utility.applyInteractionHighlightsWithMultiHighlightee(property: "Backg
 end
 
 function Utility.applyFrameStyle(thisInstance: GuiObject, noPadding: boolean?, noCorner: boolean?)
-    -- padding, border, and rounding
-    -- optimized to only use what instances are needed, based on style
+    -- padding, border, and rounding optimized to only use what instances are needed, based on style
     local FrameBorderSize = Internal._config.FrameBorderSize
     local FrameRounding = Internal._config.FrameRounding
     thisInstance.BorderSizePixel = 0

@@ -456,8 +456,7 @@ local widgetDemos = {
                 Min._value,
                 Max._value,
                 { Format._value }
-                -- [Iris.Args.InputNum.NoField] = NoField._value,
-                -- [Iris.Args.InputNum.NoButtons] = NoButtons._value,
+                -- [Iris.Args.InputNum.NoField] = NoField._value, [Iris.Args.InputNum.NoButtons] = NoButtons._value,
             )
             Iris.PopConfig()
             Iris.Text("The Value is: " .. InputNum.state.number._value)
@@ -689,7 +688,8 @@ local function recursiveWindow(parentCheckboxState)
     end
 end
 
--- shows list of runtime widgets and states, including IDs. shows other info about runtime and can show widgets/state info in depth.
+-- shows list of runtime widgets and states, including IDs. shows other info about runtime and can show widgets/state
+-- info in depth.
 local function runtimeInfo()
     local runtimeInfoWindow = Iris.Window("Runtime Info", nil, nil, nil, showRuntimeInfo)
     do
@@ -818,16 +818,16 @@ local function debugPanel()
     do
         Iris.CollapsingHeader("Widgets")
         do
-            -- Iris.SeparatorText( "GuiService" )
-            -- Iris.Text( `GuiOffset: {Iris._internal._utility.guiOffset}` )
+            -- Iris.SeparatorText( "GuiService" ) Iris.Text( `GuiOffset: {Iris._internal._utility.guiOffset}` )
             -- Iris.Text( `MouseOffset: {Iris._internal._utility.mouseOffset}` )
 
-            -- Iris.SeparatorText( "UserInputService" )
-            -- Iris.Text( `MousePosition: {Iris._internal._utility.UserInputService:GetMouseLocation()}` )
-            -- Iris.Text( `MouseLocation: {Iris._internal._utility.getMouseLocation()}` )
+            -- Iris.SeparatorText( "UserInputService" ) Iris.Text( `MousePosition:
+            -- {Iris._internal._utility.UserInputService:GetMouseLocation()}` ) Iris.Text( `MouseLocation:
+            -- {Iris._internal._utility.getMouseLocation()}` )
 
-            -- Iris.Text( `Left Control: {Iris._internal._utility.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl)}` )
-            -- Iris.Text( `Right Control: {Iris._internal._utility.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)}` )
+            -- Iris.Text( `Left Control: {Iris._internal._utility.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl)}`
+            -- ) Iris.Text( `Right Control:
+            -- {Iris._internal._utility.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)}` )
         end
         Iris.End()
     end
@@ -890,10 +890,9 @@ local function mainMenuBar()
 end
 
 local function mainMenuBarExample()
-    -- local screenSize = Iris._internal._rootWidget.Instance.PseudoWindowScreenGui.AbsoluteSize
-    -- Iris.Window(
-    --     {[Iris.Args.Window.NoBackground] = true, [Iris.Args.Window.NoTitleBar] = true, [Iris.Args.Window.NoMove] = true, [Iris.Args.Window.NoResize] = true},
-    --     {size = Iris.State(screenSize), position = Iris.State(Vector2.new(0, 0))}
+    -- local screenSize = Iris._internal._rootWidget.Instance.PseudoWindowScreenGui.AbsoluteSize Iris.Window(
+    -- {[Iris.Args.Window.NoBackground] = true, [Iris.Args.Window.NoTitleBar] = true, [Iris.Args.Window.NoMove] = true,
+    -- [Iris.Args.Window.NoResize] = true}, {size = Iris.State(screenSize), position = Iris.State(Vector2.new(0, 0))}
     -- )
 
     mainMenuBar()
@@ -1277,9 +1276,9 @@ local function tablesDemo()
 
     Iris.CollapsingHeader("Tables & Columns", nil, showTablesTree)
     if showTablesTree._value == false then
-        -- optimization to skip code which draws GUI which wont be seen.
-        -- its a trade off because when the tree becomes opened widgets will all have to be generated again.
-        -- Dear ImGui utilizes the same trick, but its less useful here because the Retained mode Backend
+        -- optimization to skip code which draws GUI which wont be seen. its a trade off because when the tree becomes
+        -- opened widgets will all have to be generated again. Dear ImGui utilizes the same trick, but its less useful
+        -- here because the Retained mode Backend
         Iris.End()
     else
         Iris.Tree("Basic")

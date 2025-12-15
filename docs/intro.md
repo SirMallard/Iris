@@ -4,11 +4,19 @@ sidebar_position: 1
 
 # Iris
 
-Iris is an immediate mode GUI Library for Roblox, based on Dear ImGui, for creating the UI for debug / visualisation and content-creation tools.
+Iris is an immediate mode GUI Library for Roblox, based on Dear ImGui, for creating the UI for debug / visualisation and
+content-creation tools.
 
-Iris does this by requiring the developer to only describe what they want, letting Iris will handle all of the 'how'. This allows quick iterations with simple and minimal code to produce the tools you need anywhere in your game. Iris makes it faster and more convenient for developers to use a wide range of powerful widgets to build their UI systems. Iris is aimed at the developers who need to quickly check and alter code in development rather than an end-user UI solution, but how you use it is up to you.
+Iris does this by requiring the developer to only describe what they want, letting Iris will handle all of the 'how'.
+This allows quick iterations with simple and minimal code to produce the tools you need anywhere in your game. Iris
+makes it faster and more convenient for developers to use a wide range of powerful widgets to build their UI systems.
+Iris is aimed at the developers who need to quickly check and alter code in development rather than an end-user UI
+solution, but how you use it is up to you.
 
-Iris uses an immediate mode UI paradigm, which is different from other conventional UI libraries designed for Roblox. Instead of keeping a reference to every UI element, with Iris you declare the UI you want to appear every frame and it will show you what you asked for. Iris also manages the layout and arrangment of UI elements, making it simple to construct a fully suite of UI debugging tools without worrying about where the UI is going to be positioned.
+Iris uses an immediate mode UI paradigm, which is different from other conventional UI libraries designed for Roblox.
+Instead of keeping a reference to every UI element, with Iris you declare the UI you want to appear every frame and it
+will show you what you asked for. Iris also manages the layout and arrangment of UI elements, making it simple to
+construct a fully suite of UI debugging tools without worrying about where the UI is going to be positioned.
 
 ## Demonstration
 
@@ -100,8 +108,12 @@ end)
 </div>
 </div>
 
-This example has introduced the state object which allows us to control the state or value of Iris widgets and use these values in actual code. This is the bridge between your variables and being able to modify them in Iris. We also demonstrate the tree node which is useful for helping organise your UI.
+This example has introduced the state object which allows us to control the state or value of Iris widgets and use these
+values in actual code. This is the bridge between your variables and being able to modify them in Iris. We also
+demonstrate the tree node which is useful for helping organise your UI.
 
 ## Adding to your Game
 
-So far we've seen how Iris works in a simple environment, but Iris is most helpful when you are using it alongside your main code. For more examples of Iris being used in actual games as either debug and visualisation tools or for content creation tooling, checkout the [Showcases](./showcase.md) page.
+So far we've seen how Iris works in a simple environment, but Iris is most helpful when you are using it alongside your
+main code. For more examples of Iris being used in actual games as either debug and visualisation tools or for content
+creation tooling, checkout the [Showcases](./showcase.md) page.

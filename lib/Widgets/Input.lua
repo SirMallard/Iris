@@ -586,7 +586,8 @@ do
 
                     Utility.UIListLayout(Input, Enum.FillDirection.Horizontal, UDim.new(0, Internal._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
-                    -- we add plus and minus buttons if there is only one box. This can be disabled through the argument.
+                    -- we add plus and minus buttons if there is only one box. This can be disabled through the
+                    -- argument.
                     local rightPadding = 0
                     local textHeight = Internal._config.TextSize + 2 * Internal._config.FramePadding.Y
 
@@ -594,9 +595,9 @@ do
                         rightPadding = generateButtons(thisWidget :: any, Input, textHeight)
                     end
 
-                    -- we divide the total area evenly between each field. This includes accounting for any additional boxes and the offset.
-                    -- for the final field, we make sure it's flush by calculating the space avaiable for it. This only makes the Vector2 box
-                    -- 4 pixels shorter, all for the sake of flush.
+                    -- we divide the total area evenly between each field. This includes accounting for any additional
+                    -- boxes and the offset. for the final field, we make sure it's flush by calculating the space
+                    -- avaiable for it. This only makes the Vector2 box 4 pixels shorter, all for the sake of flush.
                     local componentWidth = UDim.new(Internal._config.ContentWidth.Scale / components, (Internal._config.ContentWidth.Offset - (Internal._config.ItemInnerSpacing.X * (components - 1)) - rightPadding) / components)
                     local totalWidth = UDim.new(componentWidth.Scale * (components - 1), (componentWidth.Offset * (components - 1)) + (Internal._config.ItemInnerSpacing.X * (components - 1)) + rightPadding)
                     local lastComponentWidth = Internal._config.ContentWidth - totalWidth
@@ -677,7 +678,8 @@ do
         local increment = ActiveDrag.arguments.Increment and getValueByIndex(ActiveDrag.arguments.Increment, ActiveIndex, ActiveDrag.arguments) or defaultIncrements[ActiveDataType][ActiveIndex]
         increment *= (Utility.UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) or Utility.UserInputService:IsKeyDown(Enum.KeyCode.RightShift)) and 10 or 1
         increment *= (Utility.UserInputService:IsKeyDown(Enum.KeyCode.LeftAlt) or Utility.UserInputService:IsKeyDown(Enum.KeyCode.RightAlt)) and 0.1 or 1
-        -- we increase the speed for Color3 and Color4 since it's too slow because the increment argument needs to be low.
+        -- we increase the speed for Color3 and Color4 since it's too slow because the increment argument needs to be
+        -- low.
         increment *= (ActiveDataType == "Color3" or ActiveDataType == "Color4") and 5 or 1
 
         local value = getValueByIndex(state._value, ActiveIndex, ActiveDrag.arguments)
@@ -828,9 +830,9 @@ do
                         ColorBox.Parent = Drag
                     end
 
-                    -- we divide the total area evenly between each field. This includes accounting for any additional boxes and the offset.
-                    -- for the final field, we make sure it's flush by calculating the space avaiable for it. This only makes the Vector2 box
-                    -- 4 pixels shorter, all for the sake of flush.
+                    -- we divide the total area evenly between each field. This includes accounting for any additional
+                    -- boxes and the offset. for the final field, we make sure it's flush by calculating the space
+                    -- avaiable for it. This only makes the Vector2 box 4 pixels shorter, all for the sake of flush.
                     local componentWidth = UDim.new(Internal._config.ContentWidth.Scale / components, (Internal._config.ContentWidth.Offset - (Internal._config.ItemInnerSpacing.X * (components - 1)) - rightPadding) / components)
                     local totalWidth = UDim.new(componentWidth.Scale * (components - 1), (componentWidth.Offset * (components - 1)) + (Internal._config.ItemInnerSpacing.X * (components - 1)) + rightPadding)
                     local lastComponentWidth = Internal._config.ContentWidth - totalWidth
@@ -1154,9 +1156,9 @@ do
 
                     Utility.UIListLayout(Slider, Enum.FillDirection.Horizontal, UDim.new(0, Internal._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
-                    -- we divide the total area evenly between each field. This includes accounting for any additional boxes and the offset.
-                    -- for the final field, we make sure it's flush by calculating the space avaiable for it. This only makes the Vector2 box
-                    -- 4 pixels shorter, all for the sake of flush.
+                    -- we divide the total area evenly between each field. This includes accounting for any additional
+                    -- boxes and the offset. for the final field, we make sure it's flush by calculating the space
+                    -- avaiable for it. This only makes the Vector2 box 4 pixels shorter, all for the sake of flush.
                     local componentWidth = UDim.new(Internal._config.ContentWidth.Scale / components, (Internal._config.ContentWidth.Offset - (Internal._config.ItemInnerSpacing.X * (components - 1))) / components)
                     local totalWidth = UDim.new(componentWidth.Scale * (components - 1), (componentWidth.Offset * (components - 1)) + (Internal._config.ItemInnerSpacing.X * (components - 1)))
                     local lastComponentWidth = Internal._config.ContentWidth - totalWidth
@@ -1229,9 +1231,7 @@ do
 end
 
 ---------------
--- Input<T>
--- Drag<T>
--- Slider<T>
+-- Input<T> Drag<T> Slider<T>
 ---------------
 
 do

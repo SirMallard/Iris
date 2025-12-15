@@ -104,8 +104,8 @@ local function UpdateChildContainerTransform(thisWidget: Combo)
     local anchor = Vector2.zero
     local distanceToScreen = screenSize.Y - y
 
-    -- Only extend upwards if we cannot fully extend downwards, and we are on the bottom half of the screen.
-    --  i.e. there is more space upwards than there is downwards.
+    -- Only extend upwards if we cannot fully extend downwards, and we are on the bottom half of the screen. i.e. there
+    --  is more space upwards than there is downwards.
     if contentsSize > distanceToScreen and y > (screenSize.Y / 2) then
         y = previewPosition.Y - borderSize
         anchor = Vector2.yAxis
@@ -370,8 +370,8 @@ Internal._widgetConstructor(
 
             DropdownButton.Parent = PreviewContainer
 
-            -- for some reason ImGui Combo has no highlights for Active, only hovered.
-            -- so this deviates from ImGui, but its a good UX change
+            -- for some reason ImGui Combo has no highlights for Active, only hovered. so this deviates from ImGui, but
+            -- its a good UX change
             Utility.applyInteractionHighlightsWithMultiHighlightee("Background", PreviewContainer, {
                 {
                     PreviewLabel,
@@ -435,10 +435,8 @@ Internal._widgetConstructor(
             -- appear over everything else
             ChildContainer.ClipsDescendants = true
 
-            -- Unfortunatley, ScrollingFrame does not work with UICorner
-            -- if Internal._config.PopupRounding > 0 then
-            --     Utility.UICorner(ChildContainer, Internal._config.PopupRounding)
-            -- end
+            -- Unfortunatley, ScrollingFrame does not work with UICorner if Internal._config.PopupRounding > 0 then
+            -- Utility.UICorner(ChildContainer, Internal._config.PopupRounding) end
 
             Utility.UIStroke(ChildContainer, Internal._config.WindowBorderSize, Internal._config.BorderColor, Internal._config.BorderTransparency)
             Utility.UIPadding(ChildContainer, Vector2.new(2, Internal._config.WindowPadding.Y))

@@ -242,14 +242,14 @@ function Internal._cycle(deltaTime: number)
 
     for _, widget in Internal._lastVDOM do
         if widget._lastCycleTick ~= Internal._cycleTick and (widget._lastCycleTick ~= -1) then
-            -- a widget which used to be rendered was not called last frame, so we discard it.
-            -- if the cycle tick is -1 we have already discarded it.
+            -- a widget which used to be rendered was not called last frame, so we discard it. if the cycle tick is -1
+            -- we have already discarded it.
             Internal._discardWidget(widget)
         end
     end
 
-    -- represents all widgets created last frame. We keep the _lastVDOM to reuse widgets from the previous frame
-    -- rather than creating a new instance every frame.
+    -- represents all widgets created last frame. We keep the _lastVDOM to reuse widgets from the previous frame rather
+    -- than creating a new instance every frame.
     setmetatable(Internal._lastVDOM, { __mode = "kv" })
     Internal._lastVDOM = Internal._VDOM
     Internal._VDOM = Internal._generateEmptyVDOM()
@@ -264,8 +264,7 @@ function Internal._cycle(deltaTime: number)
     end)
 
     if Internal._globalRefreshRequested then
-        -- rerender every widget
-        --debug.profilebegin("Iris Refresh")
+        -- rerender every widget debug.profilebegin("Iris Refresh")
         Internal._generateSelectionImageObject()
         Internal._globalRefreshRequested = false
         for _, widget in Internal._lastVDOM do
@@ -281,16 +280,14 @@ function Internal._cycle(deltaTime: number)
     Internal._deltaTime = deltaTime
     table.clear(Internal._usedIDs)
 
-    -- if Internal.parentInstance:IsA("GuiBase2d") and math.min(Internal.parentInstance.AbsoluteSize.X, Internal.parentInstance.AbsoluteSize.Y) < 100 then
-    --     error("Iris Parent Instance is too small")
-    -- end
+    -- if Internal.parentInstance:IsA("GuiBase2d") and math.min(Internal.parentInstance.AbsoluteSize.X,
+    --     Internal.parentInstance.AbsoluteSize.Y) < 100 then error("Iris Parent Instance is too small") end
     local compatibleParent = (Internal._parentInstance:IsA("GuiBase2d") or Internal._parentInstance:IsA("BasePlayerGui"))
     if compatibleParent == false then
         error("The Iris parent instance will not display any GUIs.")
     end
 
-    -- if we are running in Studio, we want full error tracebacks, so we don't have
-    -- any pcall to protect from an error.
+    -- if we are running in Studio, we want full error tracebacks, so we don't have any pcall to protect from an error.
     if Internal._fullErrorTracebacks then
         -- debug.profilebegin("Iris/Cycle/Callback")
         for _, callback in Internal._connectedFunctions do
@@ -302,8 +299,8 @@ function Internal._cycle(deltaTime: number)
         -- each frame we check on our thread status.
         local coroutineStatus = coroutine.status(Internal._cycleCoroutine)
         if coroutineStatus == "suspended" then
-            -- suspended means it yielded, either because it was a complete success
-            -- or it caught an error in the code. We run it again for this frame.
+            -- suspended means it yielded, either because it was a complete success or it caught an error in the code.
+            -- We run it again for this frame.
             local _, success, result = coroutine.resume(Internal._cycleCoroutine)
             if success == false then
                 -- Connected function code errored
@@ -325,8 +322,8 @@ function Internal._cycle(deltaTime: number)
         error("Too few calls to Iris.End().", 0)
     end
 
-    -- Errors if the end user forgot to pop all their ids as they would leak over into the next frame
-    -- could also just clear, but that might be confusing behaviour.
+    -- Errors if the end user forgot to pop all their ids as they would leak over into the next frame could also just
+    -- clear, but that might be confusing behaviour.
     if #Internal._pushedIds ~= 0 then
         error("Too few calls to Iris.PopId().", 0)
     end
@@ -389,8 +386,8 @@ function Internal._widgetConstructor(type: string, widgetClass: Types.WidgetClas
         },
     }
 
-    -- we ensure all essential functions and properties are present, otherwise the code will break later.
-    -- some functions will only be needed if the widget has children or has state.
+    -- we ensure all essential functions and properties are present, otherwise the code will break later. some functions
+    -- will only be needed if the widget has children or has state.
     local thisWidgetClass = {} :: Types.WidgetClass
     for _, field in Fields.All.Required do
         assert(widgetClass[field] ~= nil, `field {field} is missing from widget {type}, it is required for all widgets`)

@@ -4,25 +4,23 @@ sidebar_position: 5
 
 # Understanding the Configuration
 
-Each widget has a range of styling options to change its visual appearances, whether that be the
-colours or sizing. These can either be configured for all widgets as a global style, or on a
-per-widget basis. There are also some global properties which may need to be changed before Iris
-is initialised, because they affect the entire UI.
+Each widget has a range of styling options to change its visual appearances, whether that be the colours or sizing.
+These can either be configured for all widgets as a global style, or on a per-widget basis. There are also some global
+properties which may need to be changed before Iris is initialised, because they affect the entire UI.
 
-The config is kept as a key-value pairs in a global table, viewable under `Iris.Internal._config`.
-The file `Config.lua` contains a few different configurations (light, dark, big, small), of
-which some are loaded by default when first requiring Iris. You can use this file to refer to the
-default configuration, which are under 'colorDark', 'sizeDefault' and 'utilityDefault' (these
-'categories' are purely to make the organisation clearer).
+The config is kept as a key-value pairs in a global table, viewable under `Iris.Internal._config`. The file `Config.lua`
+contains a few different configurations (light, dark, big, small), of which some are loaded by default when first
+requiring Iris. You can use this file to refer to the default configuration, which are under 'colorDark', 'sizeDefault'
+and 'utilityDefault' (these 'categories' are purely to make the organisation clearer).
 
 ## Global
 
-To change the global configuration, you can use `Iris.UpdateGlobalConfig()` with a key-value pair
-table containing a set of configuration names and values which you would like to change. You do not
-need to change all the values, since everything already has a default one.
+To change the global configuration, you can use `Iris.UpdateGlobalConfig()` with a key-value pair table containing a set
+of configuration names and values which you would like to change. You do not need to change all the values, since
+everything already has a default one.
 
-If you would like to use an existing configuration (such as light mode), you can refer to
-`Iris.TemplateConfig` which is the `Config.lua` file.
+If you would like to use an existing configuration (such as light mode), you can refer to `Iris.TemplateConfig` which is
+the `Config.lua` file.
 
 ```lua
 Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorLight) -- change to the template light mode
@@ -40,17 +38,15 @@ Iris.UpdateGlobalConfig({
 Iris.Init()
 ```
 
-:::caution Warn
-`Iris.UpdateGlobalConfig()` should be called sparingly, normally when Iris is first initialised, or
-when a specific configuration is manually made and never every frame, since it requires redrawing
-every widget, which involves destroying and then creating every instance.
-:::
+:::caution Warn `Iris.UpdateGlobalConfig()` should be called sparingly, normally when Iris is first initialised, or when
+a specific configuration is manually made and never every frame, since it requires redrawing every widget, which
+involves destroying and then creating every instance. :::
 
 ## Per-Widget
 
-To change the config for a specific widget, you can use `Iris.PushConfig()` and `Iris.PopConfig()`
-around the widget. Internally, this updates the config with anything you pushed and then removes it
-once you pop. This also stacks, so child widgets can be entirely different to their parent.
+To change the config for a specific widget, you can use `Iris.PushConfig()` and `Iris.PopConfig()` around the widget.
+Internally, this updates the config with anything you pushed and then removes it once you pop. This also stacks, so
+child widgets can be entirely different to their parent.
 
 ```lua
 Iris.PushConfig({
@@ -66,26 +62,22 @@ end
 Iris.PopConfig()
 ```
 
-:::caution Warn
-When a widget's config is changed between frames, Iris has to destroy and then create
-the widget from scratch, so constantly changing the configuration on lots of widgets may decrease
-performance significantly. However, if this the config stays the same, Iris does not require a
-redraw.
-:::
+:::caution Warn When a widget's config is changed between frames, Iris has to destroy and then create the widget from
+scratch, so constantly changing the configuration on lots of widgets may decrease performance significantly. However, if
+this the config stays the same, Iris does not require a redraw. :::
 
 
 ## Configuration
 
 ### Colours
 
-Every config option has both a colour and a transparency. The colour will always end with `Color`
-and the transparency will always end with `Transparency`, where `0` is fully opaque and `1` is
-fully transparent. Many colours will be in pairs or trios, as the normal, the `Hovered` and the
-`Active`.
+Every config option has both a colour and a transparency. The colour will always end with `Color` and the transparency
+will always end with `Transparency`, where `0` is fully opaque and `1` is fully transparent. Many colours will be in
+pairs or trios, as the normal, the `Hovered` and the `Active`.
 
-Below the columns have been combined to put colour and transparency in the same row, and just the
-suffix of the key. To change a value, append the key with either `Color` or `Transparency`, ie. the
-colour of a hovering button would be `ButtonHovered` .. `Color` is `ButtonHoveredColor`.
+Below the columns have been combined to put colour and transparency in the same row, and just the suffix of the key. To
+change a value, append the key with either `Color` or `Transparency`, ie. the colour of a hovering button would be
+`ButtonHovered` .. `Color` is `ButtonHoveredColor`.
 
 | Key                        | Color                           | Transparency | Notes                                    |
 | -------------------------- | ------------------------------- | ------------ | ---------------------------------------- |
@@ -136,13 +128,11 @@ colour of a hovering button would be `ButtonHovered` .. `Color` is `ButtonHovere
 
 ### Sizing
 
-Sizing is either handled in pixel terms, as a number or Vector2, or as a UDim for both scale and
-pixels.
+Sizing is either handled in pixel terms, as a number or Vector2, or as a UDim for both scale and pixels.
 
-ContentWidth is seen most notably on any widget which does not have a fixed widget, but instead
-a scaling item on the left and then the text on the right, such as for Input widgets. By default,
-the 'boxes' on the left will take up 65% of the total width, leaving 35% for the text. This can be
-configured for the 'boxes' to take up the entire width.
+ContentWidth is seen most notably on any widget which does not have a fixed widget, but instead a scaling item on the
+left and then the text on the right, such as for Input widgets. By default, the 'boxes' on the left will take up 65% of
+the total width, leaving 35% for the text. This can be configured for the 'boxes' to take up the entire width.
 
 | Key                     | Value                           | Notes                                                                                                       |
 | ----------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------- |
@@ -175,15 +165,14 @@ configured for the 'boxes' to take up the entire width.
 
 ### Others
 
-Other config options available, some of which should be defined before initialisation and then
-left unchanged.
+Other config options available, some of which should be defined before initialisation and then left unchanged.
 
-The RichText option will allow any text instance to support rich text. Equivalent with
-TextWrapped and these both rely on Roblox to handle support for this.
+The RichText option will allow any text instance to support rich text. Equivalent with TextWrapped and these both rely
+on Roblox to handle support for this.
 
-UseScreenGUIs will determine whether the root UI instances are ScreenGUIs or Frames. This is useful
-for when Iris is put inside existing UI, such as plugins or stories. ScreenInsets is applied first,
-so make sure that IgnoreGuiInset agrees with the value (false when CoreUISafeInsets, true otherwise).
+UseScreenGUIs will determine whether the root UI instances are ScreenGUIs or Frames. This is useful for when Iris is put
+inside existing UI, such as plugins or stories. ScreenInsets is applied first, so make sure that IgnoreGuiInset agrees
+with the value (false when CoreUISafeInsets, true otherwise).
 
 | Key                     | Value                                | Notes                                                                 |
 | ----------------------- | ------------------------------------ | --------------------------------------------------------------------- |

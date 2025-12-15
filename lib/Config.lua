@@ -122,7 +122,7 @@ local TemplateConfig = {
         BorderColor = Color3.fromRGB(64, 64, 64),
         BorderActiveColor = Color3.fromRGB(64, 64, 64), -- does not exist in Dear ImGui
 
-        -- BorderTransparency will be problematic for non UIStroke border implimentations
+        -- BorderTransparency will be problematic for non UIStroke border implementations
         -- will not be implimented because of this
         BorderTransparency = 0.5,
         BorderActiveTransparency = 0.2,
