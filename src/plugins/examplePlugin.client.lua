@@ -1,4 +1,5 @@
 local Iris = require(script.Parent.Iris)
+local DemoWindow = require(script.Parent.Iris.DemoWindow)
 local Input = require(script.Parent.UserInputService)
 
 -- Create the plugin toolbar, button and dockwidget for Iris to work in.
@@ -18,18 +19,18 @@ local IrisEnabled = false
 Input.SinkFrame.Parent = IrisWidget
 
 -- configure a few things within Iris. We need to provide our own UserInputService and change the config.
-Iris.Internal._utility.UserInputService = Input
+Iris._utility.UserInputService = Input
 Iris.UpdateGlobalConfig({
     UseScreenGUIs = false,
 })
-Iris.Disabled = true
+Iris._internal._paused = true
 
 Iris.Init(IrisWidget)
 
 -- We can start defining our code. This just uses the demo window and then forces it to be the same size
 -- as the Plugin Widget. You don't have to do it this way.
 Iris:Connect(function()
-    local window = Iris.ShowDemoWindow()
+    local window = DemoWindow()
     window.state.size:set(IrisWidget.AbsoluteSize)
     window.state.position:set(Vector2.zero)
 end)
@@ -37,14 +38,14 @@ end)
 IrisWidget:BindToClose(function()
     IrisEnabled = false
     IrisWidget.Enabled = false
-    Iris.Disabled = true
+    Iris._internal._paused = true
     ToggleButton:SetActive(false)
 end)
 
 ToggleButton.Click:Connect(function()
     IrisEnabled = not IrisEnabled
     IrisWidget.Enabled = IrisEnabled
-    Iris.Disabled = not IrisEnabled
+    Iris._internal._paused = not IrisEnabled
     ToggleButton:SetActive(IrisEnabled)
 end)
 
@@ -60,6 +61,6 @@ plugin.Unloading:Connect(function()
 
     IrisEnabled = false
     IrisWidget.Enabled = false
-    Iris.Disabled = true
+    Iris._internal._paused = true
     ToggleButton:SetActive(false)
 end)

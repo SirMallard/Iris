@@ -1,3 +1,5 @@
+--!strict
+
 local TemplateConfig = {
     colorDark = { -- Dear, ImGui default dark
         TextColor = Color3.fromRGB(255, 255, 255),
@@ -120,7 +122,7 @@ local TemplateConfig = {
         BorderColor = Color3.fromRGB(64, 64, 64),
         BorderActiveColor = Color3.fromRGB(64, 64, 64), -- does not exist in Dear ImGui
 
-        -- BorderTransparency will be problematic for non UIStroke border implimentations
+        -- BorderTransparency will be problematic for non UIStroke border implementations
         -- will not be implimented because of this
         BorderTransparency = 0.5,
         BorderActiveTransparency = 0.2,
@@ -301,5 +303,7 @@ local TemplateConfig = {
         HoverTransparency = 0.1,
     },
 }
+
+export type Config = typeof(TemplateConfig.colorDark) & typeof(TemplateConfig.sizeDefault) & typeof(TemplateConfig.utilityDefault)
 
 return TemplateConfig

@@ -88,7 +88,7 @@ Finally, Iris comes with a demo window, `Iris.ShowDemoWindow`. This window demon
 
 ### Learning Iris
 
-The best way to learn Iris is to look at the `Iris.DemoWindow` example file, which showcases all of Iris' features. The code can be found under `lib\demoWindow.lua`.
+The best way to learn Iris is to look at the `DemoWindow` example file, which showcases all of Iris' features. The code can be found under `lib\DemoWindow.lua`.
 
 ### How it Works
 
