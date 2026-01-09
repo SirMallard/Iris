@@ -553,7 +553,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Icon.BorderSizePixel = 0
             Icon.ImageColor3 = Iris._config.TextColor
             Icon.ImageTransparency = Iris._config.TextTransparency
-            Icon.Image = widgets.ICONS.CHECK_MARK
+            Icon.Image = widgets.ICONS.CHECKMARK
             Icon.LayoutOrder = 2
 
             Icon.Parent = MenuToggle

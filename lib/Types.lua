@@ -306,7 +306,7 @@ export type WidgetUtility = {
         DOWN_POINTING_TRIANGLE: string,
         MULTIPLICATION_SIGN: string,
         BOTTOM_RIGHT_CORNER: string,
-        CHECK_MARK: string,
+        CHECKMARK: string,
         BORDER: string,
         ALPHA_BACKGROUND_TEXTURE: string,
         UNKNOWN_TEXTURE: string,
