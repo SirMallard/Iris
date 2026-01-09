@@ -8,6 +8,15 @@ Iris is already being used across Roblox. A few examples of what people have pub
 about Iris are shown here. Over time, this page will be updated. If you are using Iris or see Iris being used somewhere,
 reach out to us so we can add it here.
 
+## Projects and Libraries
+
+### [Rocket](https://github.com/team-fireworks/rocket)
+Rocket uses Iris under-the-hood, with some well designed theming, to produce a visual user interface.
+
+> Rocket is a Roblox Studio plugin to supercharge your workflows with powerful productivity commands, all packaged with
+> an extendable command launcher.
+
+
 ## Quotes
 
 > "Iris [...] is probably the best thing that ever happened to development tooling." -

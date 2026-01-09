@@ -625,7 +625,7 @@ Internal._widgetConstructor(
             Icon.BorderSizePixel = 0
             Icon.ImageColor3 = Internal._config.TextColor
             Icon.ImageTransparency = Internal._config.TextTransparency
-            Icon.ImageContent = Utility.ICONS.CHECK_MARK
+            Icon.ImageContent = Utility.ICONS.CHECKMARK
             Icon.LayoutOrder = 2
 
             Icon.Parent = MenuToggle
