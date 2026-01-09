@@ -6,7 +6,7 @@ local widgetInfo = DockWidgetPluginGuiInfo.new(Enum.InitialDockState.Float, fals
 
 local Toolbar = plugin:CreateToolbar("Iris")
 local ToggleButton = Toolbar:CreateButton("Toggle Iris", "Toggle Iris running in a plugin window.", "rbxasset://textures/AnimationEditor/icon_checkmark.png")
-local IrisWidget = plugin:CreateDockWidgetPluginGui("IrisWidget", widgetInfo)
+local IrisWidget = plugin:CreateDockWidgetPluginGuiAsync("IrisWidget", widgetInfo)
 
 -- defein the widget and button properties
 IrisWidget.Name = "Iris"
