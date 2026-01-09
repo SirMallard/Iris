@@ -10,15 +10,15 @@ return function(Iris: Types.Internal)
     widgets.TextService = game:GetService("TextService")
 
     widgets.ICONS = {
-        BLANK_SQUARE = "rbxasset://textures/SurfacesDefault.png",
-        RIGHT_POINTING_TRIANGLE = "rbxasset://textures/ui/AvatarContextMenu_Arrow.png",
-        DOWN_POINTING_TRIANGLE = "rbxasset://textures/AvatarEditorImages/Sliders/body-type-slider-background.png",
-        MULTIPLICATION_SIGN = "rbxasset://textures/ui/InspectMenu/x@2x.png", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
-        BOTTOM_RIGHT_CORNER = "rbxasset://textures/ui/InspectMenu/gr-item-selector-triangle.png", -- used in window resize icon in bottom right
-        CHECK_MARK = "rbxasset://textures/ui/LuaChat/icons/ic-check@3x.png",
-        BORDER = "rbxasset://textures/ui/InspectMenu/gr-item-selector.png",
-        ALPHA_BACKGROUND_TEXTURE = "rbxasset://textures/meshPartFallback.png", -- used for color4 alpha
-        UNKNOWN_TEXTURE = "rbxasset://textures/ui/GuiImagePlaceholder.png",
+        BLANK_SQUARE = "rbxassetid://83265623867126",
+        RIGHT_POINTING_TRIANGLE = "rbxassetid://105541346271951",
+        DOWN_POINTING_TRIANGLE = "rbxassetid://95465797476827",
+        MULTIPLICATION_SIGN = "rbxassetid://133890060015237", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
+        BOTTOM_RIGHT_CORNER = "rbxassetid://125737344915000", -- used in window resize icon in bottom right
+        CHECKMARK = "rbxassetid://109638815494221",
+        BORDER = "rbxassetid://133803690460269",
+        ALPHA_BACKGROUND_TEXTURE = "rbxassetid://114090016039876", -- used for color4 alpha
+        UNKNOWN_TEXTURE = "rbxassetid://95045813476061",
     }
 
     widgets.IS_STUDIO = widgets.RunService:IsStudio()

@@ -63,7 +63,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             Checkmark.Name = "Checkmark"
             Checkmark.Size = UDim2.fromScale(1, 1)
             Checkmark.BackgroundTransparency = 1
-            Checkmark.Image = widgets.ICONS.CHECK_MARK
+            Checkmark.Image = widgets.ICONS.CHECKMARK
             Checkmark.ImageColor3 = Iris._config.CheckMarkColor
             Checkmark.ImageTransparency = 1
             Checkmark.ScaleType = Enum.ScaleType.Fit
