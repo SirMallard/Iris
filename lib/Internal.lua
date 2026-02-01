@@ -807,7 +807,8 @@ return function(Iris: Types.Iris): Types.Internal
         local ID = ""
         local levelInfo = debug.info(i, "l")
         while levelInfo ~= -1 and levelInfo ~= nil do
-            ID ..= "+" .. levelInfo
+            local source = debug.info(i, "s")
+            ID ..= "+" .. source .. ":" .. levelInfo
             i += 1
             levelInfo = debug.info(i, "l")
         end
