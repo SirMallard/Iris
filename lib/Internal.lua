@@ -11,9 +11,9 @@ local Config = require(script.Parent.Config)
 ]=]
 local Internal = {}
 
-Internal._version = [[ 2.5.0 ]]
-Internal._started = false -- has Iris.connect been called yet
+Internal._version = [[ 2.5.1 ]]
 Internal._paused = false
+Internal._started = false -- has Iris.connect been called yet
 Internal._shutdown = false
 Internal._cycleTick = 0 -- increments for each call to Cycle, used to determine the relative age and freshness of generated widgets
 Internal._deltaTime = 0

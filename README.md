@@ -102,6 +102,12 @@ Therefore, you are not keeping track of the UI instances, you just declare what 
 
 Check out the Dear ImGuis [About the IMGUI paradigm](https://github.com/ocornut/imgui/wiki/About-the-IMGUI-paradigm) section if you want to understand the core principles behind the IMGUI paradigm.
 
+### Extensions
+
+Iris has an amazing community, who have created some extensions to Iris or adding new features. Check them out!
+- [ImPlot](https://devforum.roblox.com/t/4301691): a range of 2D graphing and plotting widgets - [LinusKat/ImPlot](https://github.com/LinusKat/ImPlot)
+- [Ceive ImGizmo](https://devforum.roblox.com/t/2470790): a 3D gizmo rendering library - [JakeyWasTaken/CeiveImGizmo](https://github.com/JakeyWasTaken/CeiveImGizmo)
+
 ### Credits
 
 Created originally by [Michael_48](https://github.com/Michael-48) and now maintained by [SirMallard](https://github.com/SirMallard).

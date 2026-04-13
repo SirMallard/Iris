@@ -6,6 +6,6 @@
 [tools]
 rojo = "rojo-rbx/rojo@7.6.1"
 wally = "UpliftGames/wally@0.3.2"
-stylua = "johnnymorganz/stylua@2.3.1"
-selene = "Kampfkarren/selene@0.29.0"
+stylua = "johnnymorganz/stylua@2.4.0"
+selene = "Kampfkarren/selene@0.30.1"
 rbxcloud = "sleitnick/rbxcloud@0.17.0"
