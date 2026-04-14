@@ -1,7 +1,8 @@
-local Internal = require(script.Parent.Parent.Internal)
-local Utility = require(script.Parent)
+local Internal = require("../Internal")
+local Utility = require(".")
 
-local Types = require(script.Parent.Parent.Types)
+local Types = require("../Types")
+
 local NumNonWindowChildren: number = 0
 
 export type Root = Types.ParentWidget

@@ -1,8 +1,8 @@
 --!strict
 --!optimize 2
 
-local Types = require(script.Parent.Types)
-local Config = require(script.Parent.Config)
+local Types = require("./Types")
+local Config = require("./Config")
 
 --[=[
     @class Internal

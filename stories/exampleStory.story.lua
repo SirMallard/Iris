@@ -1,9 +1,7 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
 return function(parent: GuiObject)
-    local Iris = require(ReplicatedStorage.Iris)
-    local DemoWindow = require(ReplicatedStorage.Iris.DemoWindow)
-    local Input = require(script.Parent.UserInputService)
+    local Iris = require("@game/ReplicatedStorage/Iris")
+    local DemoWindow = require("@game/ReplicatedStorage/Iris/DemoWindow")
+    local Input = require("./UserInputService")
 
     Input.SinkFrame.Parent = parent
 

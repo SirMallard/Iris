@@ -1,6 +1,6 @@
 --!strict
 
-local Iris = require(script.Parent)
+local Iris = require(".")
 
 local showMainWindow = Iris.State(true)
 local showRecursiveWindow = Iris.State(false)

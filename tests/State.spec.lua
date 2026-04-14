@@ -1,7 +1,5 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
 return function()
-    local Iris = require(ReplicatedStorage.Iris)
+    local Iris = require("@game/ReplicatedStorage/Iris")
 
     local state
 

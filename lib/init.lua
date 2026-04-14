@@ -1,11 +1,11 @@
 --!strict
 --!optimize 2
 
-local Types = require(script.Types)
+local Types = require("@self/Types")
 local Iris = {}
 
-local Internal = require(script.Internal)
-local Utility = require(script.Widgets)
+local Internal = require("@self/Internal")
+local Utility = require("@self/Widgets")
 
 Iris._internal = Internal
 Iris._utility = Utility
@@ -284,7 +284,7 @@ end
 
     TemplateConfig provides a table of default styles and configurations which you may apply to your UI.
 ]=]
-Iris.TemplateConfig = require(script.Config)
+Iris.TemplateConfig = require("@self/Config")
 Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark) -- use colorDark and sizeDefault themes by default
 Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
 Iris.UpdateGlobalConfig(Iris.TemplateConfig.utilityDefault)
@@ -391,7 +391,7 @@ end
     In this example, the code will work properly, and increment every frame.
     :::
 ]=]
-function Iris.State<T>(initialValue: T): Types.State<T>
+function Iris.State<T>(initialValue: T?): Types.State<T>
     local ID = Internal._getID(2)
     if Internal._states[ID] then
         return Internal._states[ID]
@@ -417,7 +417,7 @@ end
 
     Constructs a new state object, subsequent ID calls will return the same object, except all widgets connected to the state are discarded, the state reverts to the passed initialValue
 ]=]
-function Iris.WeakState<T>(initialValue: T): Types.State<T>
+function Iris.WeakState<T>(initialValue: T?): Types.State<T>
     local ID = Internal._getID(2)
     if Internal._states[ID] then
         if next(Internal._states[ID]._connectedWidgets) == nil then
@@ -672,26 +672,26 @@ end
 ]=]
 Iris.End = Internal._end
 
-local _ = require(script.Widgets.Root)
-local Window = require(script.Widgets.Window)
-local Menu = require(script.Widgets.Menu)
+local _ = require("@self/Widgets/Root")
+local Window = require("@self/Widgets/Window")
+local Menu = require("@self/Widgets/Menu")
 
-local Format = require(script.Widgets.Format)
+local Format = require("@self/Widgets/Format")
 
-local Text = require(script.Widgets.Text)
-local Button = require(script.Widgets.Button)
-local Checkbox = require(script.Widgets.Checkbox)
-local RadioButton = require(script.Widgets.RadioButton)
-local Image = require(script.Widgets.Image)
+local Text = require("@self/Widgets/Text")
+local Button = require("@self/Widgets/Button")
+local Checkbox = require("@self/Widgets/Checkbox")
+local RadioButton = require("@self/Widgets/RadioButton")
+local Image = require("@self/Widgets/Image")
 
-local Tree = require(script.Widgets.Tree)
-local Tab = require(script.Widgets.Tab)
+local Tree = require("@self/Widgets/Tree")
+local Tab = require("@self/Widgets/Tab")
 
-local Input = require(script.Widgets.Input)
-local Combo = require(script.Widgets.Combo)
-local Plot = require(script.Widgets.Plot)
+local Input = require("@self/Widgets/Input")
+local Combo = require("@self/Widgets/Combo")
+local Plot = require("@self/Widgets/Plot")
 
-local Table = require(script.Widgets.Table)
+local Table = require("@self/Widgets/Table")
 
 Iris.WindowFlags = Window.WindowFlags
 Iris.TextFlags = Text.TextFlags
