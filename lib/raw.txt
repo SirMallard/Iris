@@ -1,0 +1,26 @@
+*lib children*
+
+Init
+https://raw.githubusercontent.com/NoobProgramer6918/Iris4Cheats/refs/heads/main/lib/init.lua
+
+Api
+https://raw.githubusercontent.com/NoobProgramer6918/Iris4Cheats/refs/heads/main/lib/API.lua
+
+Types
+https://raw.githubusercontent.com/NoobProgramer6918/Iris4Cheats/refs/heads/main/lib/Types.lua
+
+Internal
+https://raw.githubusercontent.com/NoobProgramer6918/Iris4Cheats/refs/heads/main/lib/Internal.lua
+
+Pubtypes
+https://raw.githubusercontent.com/NoobProgramer6918/Iris4Cheats/refs/heads/main/lib/PubTypes.lua
+
+WidgetTypes
+https://raw.githubusercontent.com/NoobProgramer6918/Iris4Cheats/refs/heads/main/lib/WidgetTypes.lua
+
+Config
+https://raw.githubusercontent.com/NoobProgramer6918/Iris4Cheats/refs/heads/main/lib/config.lua
+
+*widgets children*
+
+
