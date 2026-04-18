@@ -185,7 +185,6 @@ Internal._widgetConstructor(
             numArguments = 2,
             Arguments = { "Text", "Bit", "flags" },
             GenerateState = function(thisWidget: CheckboxFlags)
-                print("CheckboxFlags:", thisWidget)
                 if thisWidget.state.flags == nil then
                     thisWidget.state.flags = Internal._widgetState(thisWidget, "flags", 0)
                 end

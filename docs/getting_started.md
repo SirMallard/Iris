@@ -6,16 +6,19 @@ sidebar_position: 2
 
 ## Installing Iris
 
-Iris is available to download using Wally, use the release from GitHub, or build yourself. It is best to place Iris
-somewhere on the client, such as under `StarterPlayerScripts` or `ReplicatedStorage`. Once Iris is installed, you can
-`require(path.to.Iris)` the module from any client script. To start Iris, you will need to call `Iris.Init()` before
-using Iris anywhere else. This can be difficult when you have multiple scripts running at the same time, so it is best
+Iris is available to download using Wally, use the release from GitHub, or build
+yourself. It is best to place Iris somewhere on the client, such as under
+`StarterPlayerScripts` or `ReplicatedStorage`. Once Iris is installed, you can
+`require(path.to.Iris)` the module from any client script. To start Iris, you
+will need to call `Iris.Init()` before using Iris anywhere else. This can be
+difficult when you have multiple scripts running at the same time, so it is best
 to organise your code with a single entry point to initialise Iris from.
 
 # Checking Iris Works
 
-We can first test Iris works properly by using the DemoWindow, to display all the widgets in Iris. First we'll create a
-client script under `StarterPlayer.StarterPlayerScipts`, and put this into it:
+We can first test Iris works properly by using the DemoWindow, to display all
+the widgets in Iris. First we'll create a client script under
+`StarterPlayer.StarterPlayerScipts`, and put this into it:
 ```lua
 local Iris = require(path.to.Iris)
 local DemoWindow = require(path.to.Iris.DemoWindow)
@@ -23,19 +26,20 @@ local DemoWindow = require(path.to.Iris.DemoWindow)
 Iris.Init()
 Iris:Connect(DemoWindow)
 ```
-If we then run the game, we should see the Iris Demo Window appear on the screen. This shows that Iris is working
-properly and we can start writing our own code. Check [here](./intro.md) for some example code, read through the
-[`DemoWindow.lua`](https://github.com/SirMallard/Iris/blob/main/lib/DemoWindow.lua) file to see how the demo window
-works, or check the rest of the documentation for each widget.
+If we then run the game, we should see the Iris Demo Window appear on the
+screen. This shows that Iris is working properly and we can start writing our
+own code. Check [here](./intro.md) for some example code, read through the
+[`DemoWindow.lua`](https://github.com/SirMallard/Iris/blob/main/lib/DemoWindow.lua)
+file to see how the demo window works, or check the rest of the documentation
+for each widget.
 
 ## Understanding the API
 
-The Iris API is about calling functions to return widget objects. Each widget has a set of arguments, some which are
-optional. Optional arguments are indicated by a `?` at the end.
+The Iris API is about calling functions to return widget objects. Each widget
+has a set of arguments, some which are optional. Optional arguments are
+indicated by a `?` at the end.
 
-We will use a Window as an example because it best demonstrates the API and is used in every Iris project.
-
-The API documentation for a window is as follows and contains all the information we need:  
+We will use a `Window` as an example because it best demonstrates all widget options and is used in every Iris project:
 ```
 Window <Widget <HasChildren <HasState -- returns a widget, which contains children and uses state objects
 
@@ -84,96 +88,96 @@ interface WindowFlags {
 ```
 
 The first documentation says that a Window:
-1. has children, so any call to `Iris.Windw()` must end with a `Iris.End()`
-2. has state, so each state will have default values, if not given
+1. is a widget - must be called every frame
+1. has children - any call to `Iris.Windw()` must end with a `Iris.End()`
+2. has state - each state will have default values, if not given
+
+In order to create a widget, we must call the function, as specified by the
+function type. A function is called with a selction of arugments and states and
+returns our widget object.
 
 ### Using Arguments
 
-The arguments are provided like any regular function, with a number of defined 
+Arguments control the settings or behaviour of a widget. They may control how
+the widget looks, what features it has and what values a state tied to the
+widget can take. Some of the arguments are required, and others are optional.
 
+For a `Window`, the `title` is a required string, but the `flags` and `State<>`
+are optional.
 
-The next information is the Arguments table. This contains the ordered list of all arguments, the type and default value
-if optional. For a Window, the Title is a required string, whereas the other arguments are all optional booleans
-defaulting to false. We will thus need to provide a string as the first argument for any window.
+#### Flags
 
-:::info The arguments provided to a widget are sent as an array with index 1 as the first argument, index 2 as the
-second and so on. This means it is possible to provide the arguments in a different order, such as `{ [1] = "Title", [6]
-= true}` which provides the title and also sets `NoMove` to true. We therefore do not have to provide :::
+The `flags` is a selection of boolean options, stored in a number (each bit is a
+different option). Our flags are shown in the `WindowFlags` interface as well.
+We can construct a selection of flags using either the `bit32.bor` or with
+`+` addition.
 
-We will ignore the Events table for now, since they are not required for calling a widget.
-
-The window API prototype looks like this: `(arguments: { any }, states: { [string]: State<any> }?) -> Window`. Each
-widget is a function which takes two parameters, an array of arguments and a string dictionary of States. Notice how the
-arguments array is required but the state dictionary is optional, because none of the states is optional. If the
-arguments were all optional, then the arguments array would itself also be optional.
-
-Using this, we can now assemble our API call for a window. The arguments for this will be the `TItle`, `NoClose` and
-`NoResize`. We will not provide any states, instead Iris will generate them for us. Our final function looks like this:
-
+For example, to create `WindowFlags` of  `NoClose`, `NoResize` and `NoMenu`, we
+can use:
 ```lua
-local Iris = require(Iris)
-
--- These are all equivalent:
-Iris.Window({"Title", nil, nil, nil, true, nil, nil, true})
-Iris.Window({ [1] = "Title", [5] = true, [8] = true })
-Iris.Window({ [Iris.Args.Window.Title] = "Title", [Iris.Args.Window.NoClose] = true, [Iris.Args.Window.NoResize] = true })
+local flags = bit32.bor(Iris.WindowFlags.NoClose, Iris.WindowFlags.NoResize, Iris.WindowFlags.NoMenu)
+-- or
+local flags = Iris.WindowFlags.NoClose + Iris.WindowFlags.NoResize + Iris.WindowFlags.NoMenu
 ```
-For the last two, the order no longer matters and the arguments can be placed in any order. The last one uses
-`Iris.Args.[WIDGET].[ARGUMENT]` which contains the index or number for each argument position. It makes it clearer which
-arguments you are using, but at the cost of longer function calls. This is generally only used for widgets with rarely
-used arguments. :::info These are what the values actually are. `Iris.Args.Window.Title` = 1 `Iris.Args.Window.NoClose`
-= 5 `Iris.Args.Window.NoResize` = 8
 
-These are just shorthands, making it easier for you, if you choose to use them.
-
-Providing `{Title = "Title"}` or any variation of this with a string index will not work and will error. :::
-
-Iris is designed to mainly use the first example, because it is very similar to Dear ImGui and acts the same way as if
-providing the arguments directly to a function, where the order matters. However, because widgets have both arguments
-and state, the separation into two tables is required and we cannot use a regular function.
+:::info
+Using `bit32.bor` is the safer option, because addition will overflow to the
+next bit if not used properly.
+:::
 
 ### Using State
 
-If we decided that we wanted to provide a state to the widget, we can use the state table to determine the correct name
-and type for each widget. The state is what controls any properties which the user can both send and receive data from a
-widget, which may be updated by either the user or by an interaction with the widget. For example, moving a window
-around will change the position state. And if the user sets the position state somewhere in the code, the window will be
-moved to that position.
+State is used to send and recieve values to and from a widget. Unlike arguments,
+which affect the behaviour of the widget, the state determine the values. States
+are passed after all the arguments for a widget. For most widgets, states are
+optional and will come with default values if not specified.
 
-:::info States in Iris take the place of pointers in C++ that Dear ImGui uses. If we have a number and then provide it
-as an parameter to a function, the value will be copied over in memory for the function and therefore updating the
-number in the function would not update it outside the function. If Lua had pointers, this would work, but instead we
-use states which are tables to store all the changes. :::
+For a `Window`, we have `size`, `position` as `Vector2` states, `open` and
+`shown` as `boolean` states and `scrollDistance` as a `number` state.
 
-Providing a state in Iris is very easy, we first create it and then provide it with the string name to the widget:
+:::info
+States in Iris take the place of pointers in C++ that Dear ImGui uses. We use
+tables because Luau passed the fully object.
+:::
+
+Providing a state in Iris is very easy. We first create it and then pass it into
+the function:
 ```lua
 local positionState = Iris.State(Vector2.new(100, 100))
 
-Iris.Window({ "Positioned Window" }, { position = positionState })
+Iris.Window("Positioned Window", nil, nil, positionState)
 ```
 
-We now have access to the window position state which we can set or read from anywhere else in our code. When first
-created, the window will be positioned at (100, 100) on the screen, but can still be moved around. Notice how we provide
-the state number rather than an index for the state table.
+:::info
+Notice how we pass nil values for the the `flags` argument and `size` state. The
+order of parameters is very important.
+:::
 
-We do not need to provide the state to use the widget, we can just grab it from the created widget:
+We now have access to the window position state which we can set or read from
+anywhere else in our code. When first created, the window will be positioned at
+(100, 100) on the screen, but can still be moved around.
+
+#### Default
+
+If we do not pass a state, the widget will create one. We can then modify this
+state by taking it from the widget:
 ```lua
-local window = Iris.Window({ "Positioned Window" })
+local window = Iris.Window("Positioned Window")
 
 local positionState = window.state.position
 ```
 
 ### Using Events
 
-We've covered children, arguments and state but not yet events. Events are what make widgets interactive and allow us
-run code when we use a widget. Each widget has a set of predefined events which we can check for every frame.
+Events are functions we call to check for a change in the widget. Each widget
+will have a series of events, such as hovering, clicking, changing, etc.
 
 To listen to any event, we can just call the function on the widget like this:
 
 ```lua
-local window = Iris.Window({"Window"})
--- the window has opened and uncollapsed events, which return booleans
-if window.opened() and window.uncollapsed() then
+local window = Iris.Window("Window")
+-- the window has shown and opened events, which return booleans
+if window.shown() and window.opened() then
     -- run the window code only if the window is actually open and uncollapsed,
     -- which is more efficient.
 
@@ -185,7 +189,8 @@ end
 Iris.End()
 ```
 
-Here, we are listening to events which are just functions that return a boolean if the condition is true. We can refer
-to the API to find all the events, and they should be fairly self-explanatory in what they do. Some events will only
-happen once when the user interacts with the widget, others will depend on the state of the widget, such as if it is
-open.
+Here, we are listening to events which are just functions that return a boolean
+if the condition is true. We can refer to the API to find all the events, and
+they should be fairly self-explanatory in what they do. Some events will only
+happen once when the user interacts with the widget, others will depend on the
+state of the widget, such as if it is open.
