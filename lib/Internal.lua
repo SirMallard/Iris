@@ -22,11 +22,11 @@ Internal._deltaTime = 0
 Internal._globalRefreshRequested = false -- refresh means that all GUI is destroyed and regenerated, usually because a style change was made and needed to be propogated to all UI
 Internal._refreshCounter = 0 -- if true, when _Insert is called, the widget called will be regenerated
 Internal._refreshLevel = 1
-Internal._refreshStack = table.create(16)
+Internal._refreshStack = table.create(16) :: { boolean }
 
 -- Widgets & Instances
-Internal._widgets = {}
-Internal._rootInstance = nil
+Internal._widgets = {} :: { [string]: Types.WidgetClass }
+Internal._rootInstance = nil :: GuiObject?
 Internal._rootWidget = {
     ID = "R",
     type = "Root",
