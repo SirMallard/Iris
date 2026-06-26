@@ -133,12 +133,12 @@ export type Closed = {
     closed: () -> boolean,
 }
 
-export type Shown = {
-    shown: () -> boolean,
+export type Collapsed = {
+    collapsed: () -> boolean,
 }
 
-export type Hidden = {
-    hidden: () -> boolean,
+export type Uncollapsed = {
+    uncollapsed: () -> boolean,
 }
 
 export type Selected = {

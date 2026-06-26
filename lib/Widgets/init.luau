@@ -370,31 +370,31 @@ Utility.EVENTS = {
         end,
     },
 
-    show = {
+    collapse = {
         ["Init"] = function(_thisWidget: Types.Widget) end,
         ["Get"] = function(thisWidget: Types.StateWidget)
-            return thisWidget.state.shown:changed() and thisWidget.state.shown._value
+            return thisWidget.state.collapsed:changed() and thisWidget.state.collapsed._value
         end,
     },
 
-    hide = {
+    uncollapse = {
         ["Init"] = function(_thisWidget: Types.Widget) end,
         ["Get"] = function(thisWidget: Types.StateWidget)
-            return thisWidget.state.shown:changed() and not thisWidget.state.shown._value
+            return thisWidget.state.collapsed:changed() and not thisWidget.state.collapsed._value
         end,
     },
 
     check = {
         ["Init"] = function(_thisWidget: Types.Widget) end,
         ["Get"] = function(thisWidget: Types.StateWidget)
-            return thisWidget.state.check:changed() and thisWidget.state.check._value
+            return thisWidget.state.checked:changed() and thisWidget.state.checked._value
         end,
     },
 
     uncheck = {
         ["Init"] = function(_thisWidget: Types.Widget) end,
         ["Get"] = function(thisWidget: Types.StateWidget)
-            return thisWidget.state.check:changed() and not thisWidget.state.check._value
+            return thisWidget.state.checked:changed() and not thisWidget.state.checked._value
         end,
     },
 
@@ -409,6 +409,13 @@ Utility.EVENTS = {
         ["Init"] = function(_thisWidget: Types.Widget) end,
         ["Get"] = function(thisWidget: Types.StateWidget & Types.Active)
             return thisWidget.state.index:changed() and not thisWidget.active()
+        end,
+    },
+
+    active = {
+        ["Init"] = function(_thisWidget) end,
+        ["Get"] = function(thisWidget: Types.StateWidget)
+            return thisWidget.state.index._value == thisWidget.arguments.Index
         end,
     },
 

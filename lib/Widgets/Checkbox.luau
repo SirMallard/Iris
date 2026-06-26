@@ -1,5 +1,5 @@
 local Internal = require("../Internal")
-local Utility = require(".")
+local Utility = require("../Widgets")
 
 local Types = require("../Types")
 
@@ -12,7 +12,7 @@ local Types = require("../Types")
     .hovered () -> boolean -- fires when the mouse hovers over any of the widget
 
     .arguments { Text: string? }
-    .state { check: State<boolean> }
+    .state { checked: State<boolean> }
 ]=]
 export type Checkbox = Types.Widget & {
     arguments: {
@@ -20,9 +20,9 @@ export type Checkbox = Types.Widget & {
     },
 
     state: {
-        check: Types.State<boolean>,
+        checked: Types.State<boolean>,
     },
-} & Types.Unchecked & Types.Checked & Types.Hovered
+} & Types.Checked & Types.Unchecked & Types.Hovered
 
 --[=[
     @within Basic
@@ -44,13 +44,13 @@ export type CheckboxFlags = Types.Widget & {
     state: {
         flags: Types.State<number>,
     },
-} & Types.Unchecked & Types.Checked & Types.Hovered
+} & Types.Checked & Types.Unchecked & Types.Hovered
 
 local abstractCheckbox = {
     hasState = true,
     hasChildren = false,
     numArguments = 1,
-    Arguments = { "Text", "check" },
+    Arguments = { "Text", "checked" },
     Events = {
         ["checked"] = Utility.EVENTS.check,
         ["unchecked"] = Utility.EVENTS.uncheck,
@@ -105,7 +105,7 @@ local abstractCheckbox = {
 
         Utility.applyButtonClick(Checkbox, function()
             if thisWidget.type == "Checkbox" then
-                thisWidget.state.check:set(not thisWidget.state.check._value)
+                thisWidget.state.checked:set(not thisWidget.state.checked._value)
             else
                 local checkboxFlags: CheckboxFlags = thisWidget :: any
                 checkboxFlags.state.flags:set(bit32.bxor(checkboxFlags.state.flags._value, checkboxFlags.arguments.Bit))
@@ -135,7 +135,7 @@ local abstractCheckbox = {
 
         local checked = false
         if thisWidget.type == "Checkbox" then
-            if thisWidget.state.check._value then
+            if thisWidget.state.checked._value then
                 checked = true
             end
         else
@@ -169,8 +169,8 @@ Internal._widgetConstructor(
             numArguments = 1,
             Arguments = { "Text", "check" },
             GenerateState = function(thisWidget: Checkbox)
-                if thisWidget.state.check == nil then
-                    thisWidget.state.check = Internal._widgetState(thisWidget, "check", false)
+                if thisWidget.state.checked == nil then
+                    thisWidget.state.checked = Internal._widgetState(thisWidget, "check", false)
                 end
             end,
         } :: Types.WidgetClass

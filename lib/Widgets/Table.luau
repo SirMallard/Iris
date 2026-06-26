@@ -1,5 +1,5 @@
 local Internal = require("../Internal")
-local Utility = require(".")
+local Utility = require("../Widgets")
 
 local Types = require("../Types")
 
@@ -81,6 +81,7 @@ export type Table = Types.ParentWidget & {
 local TableFlags = {
     Header = 1,
     RowBackground = 2,
+    Borders = bit32.bor(4, 8),
     OuterBorders = 4,
     InnerBorders = 8,
     Resizable = 16,

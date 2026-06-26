@@ -1,6 +1,6 @@
 --!strict
 
-local Iris = require(".")
+local Iris = require("../Iris")
 
 local showMainWindow = Iris.State(true)
 local showRecursiveWindow = Iris.State(false)
@@ -1809,7 +1809,7 @@ return function()
     debug.profilebegin("Iris/Demo/Window")
     local window = Iris.Window("Iris Demo Window", Bitflags._value, Iris.State(Vector2.new(600, 550)), Iris.State(Vector2.new(100, 25)), showMainWindow)
 
-    if window.state.open._value and window.state.shown._value then
+    if window.state.open._value and not window.state.collapsed._value then
         debug.profilebegin("Iris/Demo/MenuBar")
         mainMenuBar()
         debug.profileend()

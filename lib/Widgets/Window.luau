@@ -1,5 +1,5 @@
 local Internal = require("../Internal")
-local Utility = require(".")
+local Utility = require("../Widgets")
 
 local Types = require("../Types")
 
@@ -57,7 +57,7 @@ export type Window = Types.ParentWidget & {
         collapsed: Types.State<boolean>,
         scrollDistance: Types.State<number>,
     },
-} & Types.Opened & Types.Closed & Types.Shown & Types.Hidden & Types.Hovered
+} & Types.Opened & Types.Closed & Types.Collapsed & Types.Uncollapsed & Types.Hovered
 
 --[=[
     @within Window
@@ -450,8 +450,8 @@ Internal._widgetConstructor(
         Events = {
             ["opened"] = Utility.EVENTS.open,
             ["closed"] = Utility.EVENTS.close,
-            ["shown"] = Utility.EVENTS.show,
-            ["hidden"] = Utility.EVENTS.hide,
+            ["collapsed"] = Utility.EVENTS.collapse,
+            ["uncollapsed"] = Utility.EVENTS.uncollapse,
             ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 local Window = thisWidget.instance :: Frame
                 return Window.WindowButton

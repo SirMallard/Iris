@@ -1,5 +1,5 @@
 local Internal = require("../Internal")
-local Utility = require(".")
+local Utility = require("../Widgets")
 
 local Types = require("../Types")
 
