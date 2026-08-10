@@ -77,6 +77,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             -- update the border container size to be the same, albeit *every* frame!
             local Table = thisWidget.Instance :: Frame
+            if Table.Parent == nil then
+                continue
+            end
             local BorderContainer: Frame = Table.BorderContainer
             BorderContainer.Size = UDim2.new(1, 0, 0, thisWidget._rowContainer.AbsoluteSize.Y)
             thisWidget._columnBorders[0].Size = UDim2.fromOffset(5, thisWidget._rowContainer.AbsoluteSize.Y)
