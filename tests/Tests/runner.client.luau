@@ -6,6 +6,9 @@ if not arguments then
     return
 end
 
+local event: RemoteEvent = game.ReplicatedStorage:WaitForChild("TestRunnerEvent")
+event.OnServerEvent:Wait()
+
 local lastClockTime = os.clock()
 local waitEvent = Instance.new("BindableEvent")
 local stepTime = false
@@ -18,7 +21,8 @@ local eventConnection = coroutine.wrap(function()
     while true do
         -- local deltaTime = if stepTime then waitEvent.Event:Wait() else nil
         local deltaTime = game.RunService.Heartbeat
-        if deltaTime == nil then
+        if deltaTime == ni
+        l then
             local clockTime = os.clock()
             deltaTime = clockTime - lastClockTime
             lastClockTime = clockTime
@@ -34,7 +38,7 @@ stepTime = true
 
 task.wait(3)
 
-StudioTestService:EndTest({
+event:FireServer({
     status = "success",
     passed = 0,
     failed = 0,

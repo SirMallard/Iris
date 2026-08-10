@@ -13,12 +13,12 @@ local Types = require("../Types")
     .unselected () -> boolean -- once when unselected
     .hovered () -> boolean -- fires when the mouse hovers over any of the widget
 
-    .arguments { Text: string?, Index: any }
+    .arguments { Label: string?, Index: any }
     .state { index: State<any> }
 ]=]
 export type RadioButton = Types.Widget & {
     arguments: {
-        Text: string?,
+        Label: string?,
         Index: any,
     },
 
@@ -39,7 +39,7 @@ Internal._widgetConstructor(
         hasState = true,
         hasChildren = false,
         numArguments = 2,
-        Arguments = { "Text", "Index", "index" },
+        Arguments = { "Label", "Index", "index" },
         Events = {
             ["selected"] = Utility.EVENTS.select,
             ["unselected"] = Utility.EVENTS.unselect,
@@ -115,7 +115,7 @@ Internal._widgetConstructor(
             local RadioButton = thisWidget.instance :: TextButton
             local TextLabel: TextLabel = RadioButton.TextLabel
 
-            TextLabel.Text = thisWidget.arguments.Text or "Radio Button"
+            TextLabel.Text = thisWidget.arguments.Label or "Radio Button"
             if thisWidget.state then
                 thisWidget.state.index._lastChangeTick = Internal._cycleTick
                 Internal._widgets[thisWidget.type].UpdateState(thisWidget)

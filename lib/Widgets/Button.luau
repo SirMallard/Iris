@@ -1,3 +1,4 @@
+--!strict
 local Internal = require("../Internal")
 local Utility = require("../Widgets")
 
@@ -18,11 +19,11 @@ local Types = require("../Types")
     .ctrlClicked () -> boolean -- fires when a button is ctrl clicked
     .hovered () -> boolean -- fires when the mouse hovers over any of the button
 
-    .arguments { Text: string?, Size: UDim2? }
+    .arguments { Label: string?, Size: UDim2? }
 ]=]
 export type Button = Types.Widget & {
     arguments: {
-        Text: string?,
+        Label: string?,
         Size: UDim2?,
     },
 } & Types.Clicked & Types.RightClicked & Types.DoubleClicked & Types.CtrlClicked & Types.Hovered
@@ -31,7 +32,7 @@ Utility.abstractButton = {
     hasState = false,
     hasChildren = false,
     numArguments = 2,
-    Arguments = { "Text", "Size" },
+    Arguments = { "Label", "Size" },
     Events = {
         ["clicked"] = Utility.EVENTS.click(function(thisWidget: Types.Widget)
             return thisWidget.instance :: GuiButton
@@ -75,7 +76,7 @@ Utility.abstractButton = {
     end,
     Update = function(thisWidget: Button)
         local Button = thisWidget.instance :: TextButton
-        Button.Text = thisWidget.arguments.Text or "Button"
+        Button.Text = thisWidget.arguments.Label or "Button"
         Button.Size = thisWidget.arguments.Size or UDim2.fromOffset(0, 0)
     end,
     Discard = function(thisWidget: Button)

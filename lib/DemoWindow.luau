@@ -465,11 +465,11 @@ local widgetDemos = {
             end
             local NoFieldCheckbox = Iris.Checkbox("NoField", NoField)
             local NoButtonsCheckbox = Iris.Checkbox("NoButtons", NoButtons)
-            if NoFieldCheckbox.checked() and NoButtonsCheckbox.check._value == true then
-                NoButtonsCheckbox.state.check:set(false)
+            if NoFieldCheckbox.checked() and NoButtonsCheckbox.state.value._value == true then
+                NoButtonsCheckbox.state.value:set(false)
             end
-            if NoButtonsCheckbox.checked() and NoFieldCheckbox.check._value == true then
-                NoFieldCheckbox.state.check:set(false)
+            if NoButtonsCheckbox.checked() and NoFieldCheckbox.state.value._value == true then
+                NoFieldCheckbox.state.value:set(false)
             end
 
             Iris.PushConfig({ ContentWidth = UDim.new(1, -120) })
@@ -589,7 +589,7 @@ local widgetDemos = {
             if Iris.InputNum("# of repeat", 1, 1, 50, nil, numRepeat).changed() then
                 dynamicText:set(string.rep("Hello ", numRepeat:get()))
             end
-            if Iris.Checkbox("Show dynamic text tooltip").state.check._value then
+            if Iris.Checkbox("Show dynamic text tooltip").state.value._value then
                 Iris.Tooltip(dynamicText:get())
             end
         end
@@ -634,8 +634,8 @@ local widgetDemos = {
                     ValueState:set(ValueState._value, true)
                 end
 
-                if Animated.state.check._value or plotFunc.closed() or samples.changed() or #ValueState._value == 0 then
-                    if Animated.state.check._value then
+                if Animated.state.value._value or plotFunc.closed() or samples.changed() or #ValueState._value == 0 then
+                    if Animated.state.value._value then
                         TimeState:set(TimeState._value + Iris._internal._deltaTime)
                     end
                     local offset = math.floor(TimeState._value * 30) - 1
@@ -683,8 +683,8 @@ local function recursiveWindow(parentCheckboxState)
     end
     Iris.End()
 
-    if theCheckbox.check._value then
-        recursiveWindow(theCheckbox.check)
+    if theCheckbox.value._value then
+        recursiveWindow(theCheckbox.value)
     end
 end
 
@@ -920,16 +920,16 @@ do
                 Iris.End()
 
                 local function SliderInput(input: string, arguments: { any })
-                    local Input = Iris[input](arguments, { number = Iris.WeakState(Iris._internal._config[arguments[1]]) })
+                    local Input = Iris[input](arguments, { value = Iris.WeakState(Iris._internal._config[arguments[1]]) })
                     if Input.changed() then
-                        UpdatedConfig._value[arguments[1]] = Input.number:get()
+                        UpdatedConfig._value[arguments[1]] = Input.value:get()
                     end
                 end
 
                 local function BooleanInput(arguments: { any })
-                    local Input = Iris.Checkbox(arguments, { check = Iris.WeakState(Iris._internal._config[arguments[1]]) })
+                    local Input = Iris.Checkbox(arguments, { value = Iris.WeakState(Iris._internal._config[arguments[1]]) })
                     if Input.checked() or Input.unchecked() then
-                        UpdatedConfig._value[arguments[1]] = Input.check:get()
+                        UpdatedConfig._value[arguments[1]] = Input.value:get()
                     end
                 end
 
@@ -1221,15 +1221,15 @@ local function widgetStateInteractivity()
     Iris.CollapsingHeader("Widget State Interactivity")
     do
         local checkbox0 = Iris.Checkbox("Widget-Generated State")
-        Iris.Text(`check: {checkbox0.state.check._value}\n`)
+        Iris.Text(`value: {checkbox0.state.value._value}\n`)
 
         local checkboxState0 = Iris.State(false)
         local checkbox1 = Iris.Checkbox("User-Generated State", checkboxState0)
-        Iris.Text(`check: {checkbox1.state.check._value}\n`)
+        Iris.Text(`value: {checkbox1.state.value._value}\n`)
 
         local checkbox2 = Iris.Checkbox("Widget Coupled State")
-        local checkbox3 = Iris.Checkbox("Coupled to above Checkbox", checkbox2.state.check)
-        Iris.Text(`check: {checkbox3.state.check._value}\n`)
+        local checkbox3 = Iris.Checkbox("Coupled to above Checkbox", checkbox2.state.value)
+        Iris.Text(`value: {checkbox3.state.value._value}\n`)
 
         local checkboxState1 = Iris.State(false)
         local _checkbox4 = Iris.Checkbox("Widget and Code Coupled State", checkboxState1)
@@ -1237,7 +1237,7 @@ local function widgetStateInteractivity()
         if Button0.clicked() then
             checkboxState1:set(not checkboxState1:get())
         end
-        Iris.Text(`check: {checkboxState1._value}\n`)
+        Iris.Text(`value: {checkboxState1._value}\n`)
 
         local checkboxState2 = Iris.State(true)
         local checkboxState3 = Iris.ComputedState(checkboxState2, function(newValue)
@@ -1245,7 +1245,7 @@ local function widgetStateInteractivity()
         end)
         local _checkbox5 = Iris.Checkbox("ComputedState (dynamic coupling)", checkboxState2)
         local _checkbox5 = Iris.Checkbox("Inverted of above checkbox", checkboxState3)
-        Iris.Text(`check: {checkboxState3._value}\n`)
+        Iris.Text(`value: {checkboxState3._value}\n`)
     end
     Iris.End()
 end

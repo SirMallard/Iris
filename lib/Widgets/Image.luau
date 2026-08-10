@@ -46,7 +46,7 @@ local abstractImage = {
     hasState = false,
     hasChildren = false,
     numArguments = 8,
-    Arguments = { "Image", "Size", "Rect", "ScaleType", "ResampleMode", "TileSize", "SliceCenter", "SliceScale" },
+    Arguments = { "Content", "Size", "Rect", "ScaleType", "ResampleMode", "TileSize", "SliceCenter", "SliceScale" },
     Discard = function(thisWidget: Image)
         thisWidget.instance:Destroy()
     end,

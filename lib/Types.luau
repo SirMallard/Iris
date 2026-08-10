@@ -153,6 +153,10 @@ export type Changed = {
     changed: () -> boolean,
 }
 
+export type Editing = {
+    editing: () -> boolean,
+}
+
 export type Event = {
     Init: (Widget) -> (),
     Get: (Widget) -> boolean,

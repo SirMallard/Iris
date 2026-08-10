@@ -1,7 +1,7 @@
 --!strict
 
-local Types = require(script.Parent.Types)
-local Internal = require(script.Parent.Internal)
+local Types = require("./Types")
+local Internal = require("./Internal")
 
 local Utility = {}
 
@@ -387,14 +387,14 @@ Utility.EVENTS = {
     check = {
         ["Init"] = function(_thisWidget: Types.Widget) end,
         ["Get"] = function(thisWidget: Types.StateWidget)
-            return thisWidget.state.checked:changed() and thisWidget.state.checked._value
+            return thisWidget.state.value:changed() and thisWidget.state.value._value
         end,
     },
 
     uncheck = {
         ["Init"] = function(_thisWidget: Types.Widget) end,
         ["Get"] = function(thisWidget: Types.StateWidget)
-            return thisWidget.state.checked:changed() and not thisWidget.state.checked._value
+            return thisWidget.state.value:changed() and not thisWidget.state.value._value
         end,
     },
 

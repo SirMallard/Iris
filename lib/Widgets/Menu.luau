@@ -78,7 +78,7 @@ export type MenuToggle = Types.Widget & {
     },
 
     state: {
-        checked: Types.State<boolean>,
+        value: Types.State<boolean>,
     },
 } & Types.Checked & Types.Unchecked & Types.Hovered
 
@@ -542,7 +542,7 @@ Internal._widgetConstructor(
         hasState = true,
         hasChildren = false,
         numArguments = 3,
-        Arguments = { "Text", "KeyCode", "ModifierKey", "checked" },
+        Arguments = { "Text", "KeyCode", "ModifierKey", "value" },
         Events = {
             ["checked"] = Utility.EVENTS.check,
             ["unchecked"] = Utility.EVENTS.uncheck,
@@ -574,7 +574,7 @@ Internal._widgetConstructor(
             })
 
             Utility.applyButtonClick(MenuToggle, function()
-                thisWidget.state.checked:set(not thisWidget.state.checked._value)
+                thisWidget.state.value:set(not thisWidget.state.value._value)
                 EmptyMenuStack()
             end)
 
@@ -633,8 +633,8 @@ Internal._widgetConstructor(
             return MenuToggle
         end,
         GenerateState = function(thisWidget: MenuToggle)
-            if thisWidget.state.checked == nil then
-                thisWidget.state.checked = Internal._widgetState(thisWidget, "checked", false)
+            if thisWidget.state.value == nil then
+                thisWidget.state.value = Internal._widgetState(thisWidget, "value", false)
             end
         end,
         Update = function(thisWidget: MenuToggle)
@@ -655,7 +655,7 @@ Internal._widgetConstructor(
             local MenuItem = thisWidget.instance :: TextButton
             local Icon: ImageLabel = MenuItem.Icon
 
-            if thisWidget.state.checked._value then
+            if thisWidget.state.value._value then
                 Icon.ImageTransparency = Internal._config.TextTransparency
             else
                 Icon.ImageTransparency = 1

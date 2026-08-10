@@ -11,16 +11,16 @@ local Types = require("../Types")
     .unchecked () -> boolean -- once when unchecked
     .hovered () -> boolean -- fires when the mouse hovers over any of the widget
 
-    .arguments { Text: string? }
+    .arguments { Label: string? }
     .state { checked: State<boolean> }
 ]=]
 export type Checkbox = Types.Widget & {
     arguments: {
-        Text: string?,
+        Label: string?,
     },
 
     state: {
-        checked: Types.State<boolean>,
+        value: Types.State<boolean>,
     },
 } & Types.Checked & Types.Unchecked & Types.Hovered
 
@@ -32,12 +32,12 @@ export type Checkbox = Types.Widget & {
     .unchecked () -> boolean -- once when unchecked
     .hovered () -> boolean -- fires when the mouse hovers over any of the widget
 
-    .arguments { Text: string?, Bit: number }
+    .arguments { Label: string?, Bit: number }
     .state { flags: State<number> }
 ]=]
 export type CheckboxFlags = Types.Widget & {
     arguments: {
-        Text: string?,
+        Label: string?,
         Bit: number,
     },
 
@@ -50,7 +50,7 @@ local abstractCheckbox = {
     hasState = true,
     hasChildren = false,
     numArguments = 1,
-    Arguments = { "Text", "checked" },
+    Arguments = { "Label", "checked" },
     Events = {
         ["checked"] = Utility.EVENTS.check,
         ["unchecked"] = Utility.EVENTS.uncheck,
@@ -105,7 +105,7 @@ local abstractCheckbox = {
 
         Utility.applyButtonClick(Checkbox, function()
             if thisWidget.type == "Checkbox" then
-                thisWidget.state.checked:set(not thisWidget.state.checked._value)
+                thisWidget.state.value:set(not thisWidget.state.value._value)
             else
                 local checkboxFlags: CheckboxFlags = thisWidget :: any
                 checkboxFlags.state.flags:set(bit32.bxor(checkboxFlags.state.flags._value, checkboxFlags.arguments.Bit))
@@ -126,7 +126,7 @@ local abstractCheckbox = {
     end,
     Update = function(thisWidget: Checkbox)
         local Checkbox = thisWidget.instance :: TextButton
-        Checkbox.TextLabel.Text = thisWidget.arguments.Text or "Checkbox"
+        Checkbox.TextLabel.Text = thisWidget.arguments.Label or "Checkbox"
     end,
     UpdateState = function(thisWidget: Checkbox)
         local Checkbox = thisWidget.instance :: TextButton
@@ -135,7 +135,7 @@ local abstractCheckbox = {
 
         local checked = false
         if thisWidget.type == "Checkbox" then
-            if thisWidget.state.checked._value then
+            if thisWidget.state.value._value then
                 checked = true
             end
         else
@@ -167,10 +167,10 @@ Internal._widgetConstructor(
         abstractCheckbox,
         {
             numArguments = 1,
-            Arguments = { "Text", "check" },
+            Arguments = { "Label", "check" },
             GenerateState = function(thisWidget: Checkbox)
-                if thisWidget.state.checked == nil then
-                    thisWidget.state.checked = Internal._widgetState(thisWidget, "check", false)
+                if thisWidget.state.value == nil then
+                    thisWidget.state.value = Internal._widgetState(thisWidget, "value", false)
                 end
             end,
         } :: Types.WidgetClass
@@ -183,7 +183,7 @@ Internal._widgetConstructor(
         abstractCheckbox,
         {
             numArguments = 2,
-            Arguments = { "Text", "Bit", "flags" },
+            Arguments = { "Label", "Bit", "flags" },
             GenerateState = function(thisWidget: CheckboxFlags)
                 if thisWidget.state.flags == nil then
                     thisWidget.state.flags = Internal._widgetState(thisWidget, "flags", 0)

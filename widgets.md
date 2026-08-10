@@ -125,7 +125,7 @@
     ReadOnly: boolean? = false
     MultiLine: boolean? = false
 ## Events
-    textChanged: () -> boolean
+    changed: () -> boolean
     hovered: () -> boolean
 ## States
     text: State<string>?
@@ -156,6 +156,20 @@
     hovered: () -> boolean
 ## States
     value = State<boolean>?
+
+# CheckboxFlags Iris.CheckboxFlags
+    hasChildren = false
+    hasState = true
+## Arguments
+    Label: string
+    Bit: number
+## Events
+    checked: () -> boolean
+    unchecked: () -> boolean
+    hovered: () -> boolean
+## States
+    flags = State<number>?
+
     
 
 # RadioButton Iris.RadioButton
@@ -218,8 +232,9 @@
     NoIndent: boolean? = false
     DefaultOpen: boolean? = false
 ## Events
-    collapsed: () -> boolean
-    uncollapsed: () -> boolean
+    open: () -> boolean
+    closed: () -> boolean
+    changed: () -> boolean
     hovered: () -> boolean
 ## States
     open: State<boolean>?
@@ -259,7 +274,8 @@
     Format: string? | { string }? = [DYNAMIC]
     NoButtons: boolean? = false
 ## Events
-    numberChanged: () -> boolean
+    changed: () -> boolean
+    editing: () -> boolean
     hovered: () -> boolean
 ## States
     value: State<number>?
@@ -275,7 +291,8 @@
     Max: number? = nil
     Format: string? | { string }? = [DYNAMIC]
 ## Events
-    numberChanged: () -> boolean
+    changed: () -> boolean
+    editing: () -> boolean
     hovered: () -> boolean
 ## States
     value: State<number>?
@@ -290,7 +307,8 @@
     UseHSV: boolean? = false
     Format: string? | { string }? = [DYNAMIC]
 ## Events
-    numberChanged: () -> boolean
+    changed: () -> boolean
+    editing: () -> boolean
     hovered: () -> boolean
 ## States
     color: State<Color3>?
@@ -305,7 +323,8 @@
     UseHSV: boolean? = false
     Format: string? | { string }? = [DYNAMIC]
 ## Events
-    numberChanged: () -> boolean
+    changed: () -> boolean
+    editing: () -> boolean
     hovered: () -> boolean
 ## States
     color: State<Color3>?
@@ -322,7 +341,8 @@
     Max: number? = 100
     Format: string? | { string }? = [DYNAMIC]
 ## Events
-    numberChanged: () -> boolean
+    changed: () -> boolean
+    editing: () -> boolean
     hovered: () -> boolean
 ## States
     value: State<number>?
