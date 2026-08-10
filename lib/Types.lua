@@ -1,3 +1,4 @@
+local ArgTypes = require(script.Parent.ArgTypes)
 local WidgetTypes = require(script.Parent.WidgetTypes)
 
 export type ID = WidgetTypes.ID
@@ -649,7 +650,7 @@ export type Iris = {
 
     Internal: Internal,
     Disabled: boolean,
-    Args: { [string]: { [string]: number } },
+    Args: ArgTypes.Args,
     Events: { [string]: () -> boolean },
 
     TemplateConfig: { [string]: Config },
