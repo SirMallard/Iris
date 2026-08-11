@@ -196,7 +196,7 @@ local function setFocusedWindow(thisWidget: Window?)
 
         windowDisplayOrder += 1
         if thisWidget._usesScreenGuis then
-            Window.DisplayOrder = windowDisplayOrder + Internal._config.DisplayOrderOffset
+            ((Window :: any) :: ScreenGui).DisplayOrder = windowDisplayOrder + Internal._config.DisplayOrderOffset
         else
             Window.ZIndex = windowDisplayOrder + Internal._config.DisplayOrderOffset
         end

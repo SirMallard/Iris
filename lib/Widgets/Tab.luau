@@ -39,7 +39,7 @@ export type TabBar = Types.ParentWidget & {
     .closed () -> boolean -- once when closed
     .hovered () -> boolean -- fires when the mouse hovers over any of the tab button
 
-    .arguments { Text: string, Flags: number }
+    .arguments { Label: string, Flags: number }
     .state { index: State<number>, open: State<boolean> }
 ]=]
 export type Tab = Types.ParentWidget & {
@@ -48,7 +48,7 @@ export type Tab = Types.ParentWidget & {
     _buttonColors: { [string]: Color3 | number },
 
     arguments: {
-        Text: string,
+        Label: string,
         Flags: number,
     },
 
@@ -206,7 +206,7 @@ Internal._widgetConstructor(
         hasState = true,
         hasChildren = true,
         numArguments = 2,
-        Arguments = { "Text", "Flags", "open" },
+        Arguments = { "Label", "Flags", "open" },
         Events = {
             ["clicked"] = Utility.EVENTS.click(function(thisWidget: Types.Widget)
                 return thisWidget.instance
@@ -331,7 +331,7 @@ Internal._widgetConstructor(
             local TextLabel: TextLabel = Tab.TextLabel
             local CloseButton: TextButton = Tab.CloseButton
 
-            TextLabel.Text = thisWidget.arguments.Text
+            TextLabel.Text = thisWidget.arguments.Label
             CloseButton.Visible = btest(TabFlags.Hideable, thisWidget.arguments.Flags)
         end,
         ChildAdded = function(thisWidget: Tab, _thisChild: Types.Widget)
@@ -414,7 +414,7 @@ end
     @tag HasState
 
     @function Tab
-    @param text string -- tab title
+    @param label string -- tab title
     @param flags TabFlags? -- optional bit flags, using Iris.TabFlags, default is 0
     @param shown State<boolean>? -- unique state if the tab is shown or not
 
@@ -426,8 +426,8 @@ end
 
     A tab will take up the full horizontal width of the parent and hide any other tabs in the TabBar.
 ]=]
-local API_Tab = function(text: string, flags: number?, shown: Types.APIState<boolean>?)
-    return Internal._insert("Tab", text, flags or 0, shown) :: Tab
+local API_Tab = function(label: string, flags: number?, shown: Types.APIState<boolean>?)
+    return Internal._insert("Tab", label, flags or 0, shown) :: Tab
 end
 
 return {

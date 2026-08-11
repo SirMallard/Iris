@@ -199,15 +199,15 @@ Internal._widgetConstructor(
     @tag HasState
 
     @function Checkbox
-    @param text string?
+    @param label string?
     @param check State<boolean>? -- checkbox state
 
     @return Checkbox
 
     A checkable box with a visual tick to represent a boolean true or false state.
 ]=]
-local API_Checkbox = function(text: string?, check: Types.APIState<boolean>?)
-    return Internal._insert("Checkbox", text, check) :: Checkbox
+local API_Checkbox = function(label: string?, check: Types.APIState<boolean>?)
+    return Internal._insert("Checkbox", label, check) :: Checkbox
 end
 
 --[=[
@@ -216,7 +216,7 @@ end
     @tag HasState
 
     @function CheckboxFlags
-    @param text string?
+    @param label string?
     @param bit number
     @param flags State<number>? -- bit flags state
 
@@ -224,8 +224,8 @@ end
 
     A checkable box with a visual tick to represent a boolean true or false state.
 ]=]
-local API_CheckboxFlags = function(text: string?, bit: number, flags: Types.APIState<number>?)
-    return Internal._insert("CheckboxFlags", text, bit, flags) :: Checkbox
+local API_CheckboxFlags = function(label: string?, bit: number, flags: Types.APIState<number>?)
+    return Internal._insert("CheckboxFlags", label, bit, flags) :: Checkbox
 end
 
 return {

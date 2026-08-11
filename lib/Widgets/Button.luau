@@ -133,15 +133,15 @@ Internal._widgetConstructor(
     @tag Widget
 
     @function Button
-    @param text string
+    @param label string?
     @param size UDim2? -- minimum button size, default 0
 
     @return Button
 
-    A clickable button the size of the text with padding. Can listen to the `clicked()` event to determine if it was pressed.
+    A clickable button the size of the label with padding. Can listen to the `clicked()` event to determine if it was pressed.
 ]=]
-local API_Button = function(text: string, size: UDim2?)
-    return Internal._insert("Button", text, size) :: Button
+local API_Button = function(label: string, size: UDim2?)
+    return Internal._insert("Button", label, size) :: Button
 end
 
 --[=[
@@ -149,15 +149,15 @@ end
     @tag Widget
 
     @function SmallButton
-    @param text string
+    @param label string
     @param size UDim2? -- minimum button size, default 0
 
     @return Button
 
     A smaller clickable button, the same as a [Iris.Button](Basic#Button) but without padding. Can listen to the `clicked()` event to determine if it was pressed.
 ]=]
-local API_SmallButton = function(text: string, size: UDim2?)
-    return Internal._insert("SmallButton", text, size) :: Button
+local API_SmallButton = function(label: string, size: UDim2?)
+    return Internal._insert("SmallButton", label, size) :: Button
 end
 
 return {

@@ -135,7 +135,7 @@
     hasChildren = false
     hasState = false
 ## Arguments
-    Label: string
+    Label: string?
     Size: UDim2? = UDim2.fromOffset(0, 0)
 ## Events
     clicked: () -> boolean

@@ -151,7 +151,7 @@ Internal._widgetConstructor(
     @tag HasState
 
     @function RadioButton
-    @param text string
+    @param label string
     @param index any -- unique index for the radio button
     @param state State<any>? -- global state shared by all grouped radio buttons
 
@@ -159,8 +159,8 @@ Internal._widgetConstructor(
 
     A circular selectable button, changing the state to its index argument. Used in conjunction with multiple other RadioButtons sharing the same state to represent one value from multiple options.
 ]=]
-local API_RadioButton = function(text: string, index: any, state: Types.APIState<any>?)
-    return Internal._insert("RadioButton", text, index, state) :: RadioButton
+local API_RadioButton = function(label: string, index: any, state: Types.APIState<any>?)
+    return Internal._insert("RadioButton", label, index, state) :: RadioButton
 end
 
 return {

@@ -14,12 +14,12 @@ local Types = require("../Types")
     .& Widget
     .hovered () -> boolean -- fires when the mouse hovers over any of the widget
 
-    .arguments { Text: string?, Format: string? }
+    .arguments { Label: string?, Format: string? }
     .state { progress: State<number> }
 ]=]
 export type ProgressBar = Types.Widget & {
     arguments: {
-        Text: string?,
+        Label: string?,
         Format: string?,
     },
 
@@ -35,7 +35,7 @@ export type ProgressBar = Types.Widget & {
     .changed () -> boolean -- whenever the progress changes, depending on the state
     .hovered () -> boolean -- fires when the mouse hovers over any of the widget
 
-    .arguments { Text: string, Height: number, Min: number, Max: number, TextOverlay: string }
+    .arguments { Label: string, Height: number, Min: number, Max: number, TextOverlay: string }
     .state { values: State<{ number }>, hovered: State<{ number }?> }
 ]=]
 export type PlotLines = Types.Widget & {
@@ -44,7 +44,7 @@ export type PlotLines = Types.Widget & {
     _tooltip: TextLabel,
 
     arguments: {
-        Text: string,
+        Label: string,
         Height: number,
         Min: number,
         Max: number,
@@ -63,7 +63,7 @@ export type PlotLines = Types.Widget & {
     .& Widget
     .hovered () -> boolean -- fires when the mouse hovers over any of the widget
 
-    .arguments { Text: string, Height: number, Min: number, Max: number, TextOverlay: string, BaseLine: number }
+    .arguments { Label: string, Height: number, Min: number, Max: number, TextOverlay: string, BaseLine: number }
     .state { values: State<{ number }>, hovered: State<number?> }
 ]=]
 export type PlotHistogram = Types.Widget & {
@@ -72,7 +72,7 @@ export type PlotHistogram = Types.Widget & {
     _tooltip: TextLabel,
 
     arguments: {
-        Text: string,
+        Label: string,
         Height: number,
         Min: number,
         Max: number,
@@ -96,7 +96,7 @@ Internal._widgetConstructor(
         hasState = true,
         hasChildren = false,
         numArguments = 2,
-        Arguments = { "Text", "Format", "progress" },
+        Arguments = { "Label", "Format", "progress" },
         Events = {
             ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 return thisWidget.instance
@@ -183,7 +183,7 @@ Internal._widgetConstructor(
                 Value.Text = thisWidget.arguments.Format
             end
 
-            TextLabel.Text = thisWidget.arguments.Text or "Progress Bar"
+            TextLabel.Text = thisWidget.arguments.Label or "Progress Bar"
         end,
         UpdateState = function(thisWidget: ProgressBar)
             local ProgressBar = thisWidget.instance :: Frame
@@ -284,7 +284,7 @@ Internal._widgetConstructor(
         hasState = true,
         hasChildren = false,
         numArguments = 5,
-        Arguments = { "Text", "Height", "Min", "Max", "TextOverlay", "values", "hovered" },
+        Arguments = { "Label", "Height", "Min", "Max", "TextOverlay", "values", "hovered" },
         Events = {
             ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 return thisWidget.instance
@@ -400,7 +400,7 @@ Internal._widgetConstructor(
             local Plot = Background.Plot :: Frame
             local OverlayText: TextLabel = Plot.OverlayText
 
-            TextLabel.Text = thisWidget.arguments.Text or "Plot Lines"
+            TextLabel.Text = thisWidget.arguments.Label or "Plot Lines"
             OverlayText.Text = thisWidget.arguments.TextOverlay or ""
             PlotLines.Size = UDim2.new(1, 0, 0, thisWidget.arguments.Height or 0)
         end,
@@ -537,7 +537,7 @@ Internal._widgetConstructor(
         hasState = true,
         hasChildren = false,
         numArguments = 6,
-        Arguments = { "Text", "Height", "Min", "Max", "TextOverlay", "BaseLine", "values", "hovered" },
+        Arguments = { "Label", "Height", "Min", "Max", "TextOverlay", "BaseLine", "values", "hovered" },
         Events = {
             ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 return thisWidget.instance
@@ -649,7 +649,7 @@ Internal._widgetConstructor(
             local Plot = Background.Plot :: Frame
             local OverlayText: TextLabel = Plot.OverlayText
 
-            TextLabel.Text = thisWidget.arguments.Text or "Plot Histogram"
+            TextLabel.Text = thisWidget.arguments.Label or "Plot Histogram"
             OverlayText.Text = thisWidget.arguments.TextOverlay or ""
             PlotLines.Size = UDim2.new(1, 0, 0, thisWidget.arguments.Height or 0)
         end,
@@ -729,7 +729,7 @@ Internal._widgetConstructor(
     @tag HasState
 
     @function ProgressBar
-    @param text string?
+    @param label string?
     @param format string? -- optional to override with a custom progress such as `29/54`
     @param progress State<number>?
 
@@ -737,8 +737,8 @@ Internal._widgetConstructor(
 
     A progress bar line with a state value to show the current state.
 ]=]
-local API_ProgressBar = function(text: string?, format: string?, progress: Types.APIState<number>?)
-    return Internal._insert("ProgressBar", text, format, progress) :: ProgressBar
+local API_ProgressBar = function(label: string?, format: string?, progress: Types.APIState<number>?)
+    return Internal._insert("ProgressBar", label, format, progress) :: ProgressBar
 end
 
 --[=[
@@ -747,7 +747,7 @@ end
     @tag HasState
 
     @function PlotLines
-    @param text string?
+    @param label string?
     @param height number -- height of the graph
     @param min number? -- minimum value before clipping, default is the minimum value from the values
     @param max number? -- maximum value before clipping, default is the maximum value from the values
@@ -758,11 +758,11 @@ end
     @return PlotLines
 
     A line graph for plotting a single line. Includes hovering to see a specific value on the graph,
-    and automatic scaling. Has an overlay text option at the top of the plot for displaying any
+    and automatic scaling. Has an overlay label option at the top of the plot for displaying any
     information.
 ]=]
-local API_PlotLines = function(text: string?, height: number, min: number?, max: number?, textOverlay: string?, values: Types.APIState<{ number }>?, hovered: Types.APIState<number>?)
-    return Internal._insert("PlotLines", text, height, min, max, textOverlay, values, hovered) :: PlotLines
+local API_PlotLines = function(label: string?, height: number, min: number?, max: number?, textOverlay: string?, values: Types.APIState<{ number }>?, hovered: Types.APIState<number>?)
+    return Internal._insert("PlotLines", label, height, min, max, textOverlay, values, hovered) :: PlotLines
 end
 
 --[=[
@@ -771,7 +771,7 @@ end
     @tag HasState
 
     @function PlotHistogram
-    @param text string?
+    @param label string?
     @param height number -- height of the graph
     @param min number? -- minimum value before clipping, default is the minimum value from the values
     @param max number? -- maximum value before clipping, default is the maximum value from the values
@@ -783,11 +783,11 @@ end
     @return PlotHistogram
 
     A hisogram graph for showing values. Includes hovering to see a specific block on the graph,
-    and automatic scaling. Has an overlay text option at the top of the plot for displaying any
+    and automatic scaling. Has an overlay label option at the top of the plot for displaying any
     information. Also supports a baseline option, which determines where the blocks start from.
 ]=]
-local API_PlotHistogram = function(text: string?, height: number?, min: number?, max: number?, textOverlay: string?, baseline: number?, values: Types.APIState<{ number }>?, hovered: Types.APIState<number>?)
-    return Internal._insert("PlotHistogram", text, height, min, max, textOverlay, baseline, values, hovered) :: PlotHistogram
+local API_PlotHistogram = function(label: string?, height: number?, min: number?, max: number?, textOverlay: string?, baseline: number?, values: Types.APIState<{ number }>?, hovered: Types.APIState<number>?)
+    return Internal._insert("PlotHistogram", label, height, min, max, textOverlay, baseline, values, hovered) :: PlotHistogram
 end
 
 return {

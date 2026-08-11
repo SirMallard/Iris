@@ -459,9 +459,9 @@ local widgetDemos = {
                 -- [Iris.Args.InputNum.NoField] = NoField._value, [Iris.Args.InputNum.NoButtons] = NoButtons._value,
             )
             Iris.PopConfig()
-            Iris.Text("The Value is: " .. InputNum.state.number._value)
+            Iris.Text("The Value is: " .. InputNum.state.value._value)
             if Iris.Button("Randomize Number").clicked() then
-                InputNum.state.number:set(math.random(1, 99))
+                InputNum.state.value:set(math.random(1, 99))
             end
             local NoFieldCheckbox = Iris.Checkbox("NoField", NoField)
             local NoButtonsCheckbox = Iris.Checkbox("NoButtons", NoButtons)
@@ -477,17 +477,16 @@ local widgetDemos = {
             Iris.InputVector3("InputVector3")
             Iris.InputUDim("InputUDim")
             Iris.InputUDim2("InputUDim2")
-            local UseFloats = Iris.State(false)
-            local UseHSV = Iris.State(false)
+            local Flags = Iris.State(0)
             local sharedColor = Iris.State(Color3.new())
             local transparency = Iris.State(0)
             Iris.SliderNum("Transparency", 0.01, 0, 1, nil, transparency)
-            Iris.InputColor3("InputColor3", UseFloats:get(), UseHSV:get(), sharedColor)
-            Iris.InputColor4("InputColor4", UseFloats:get(), UseHSV:get(), sharedColor, transparency)
+            Iris.InputColor3("InputColor3", Flags._value, nil, sharedColor)
+            Iris.InputColor4("InputColor4", Flags._value, nil, sharedColor, transparency)
             Iris.SameLine()
             Iris.Text(`#{sharedColor:get():ToHex()}`)
-            Iris.Checkbox("Use Floats", UseFloats)
-            Iris.Checkbox("Use HSV", UseHSV)
+            Iris.CheckboxFlags("Use Floats", Iris.InputFlags.UseFloats, Flags)
+            Iris.CheckboxFlags("Use HSV", Iris.InputFlags.UseHSV, Flags)
             Iris.End()
 
             Iris.PopConfig()
@@ -684,7 +683,7 @@ local function recursiveWindow(parentCheckboxState)
     Iris.End()
 
     if theCheckbox.value._value then
-        recursiveWindow(theCheckbox.value)
+        recursiveWindow(theCheckbox.check)
     end
 end
 
@@ -1023,13 +1022,10 @@ do
                 }
 
                 for _, vColor in color4s do
-                    local Input = Iris.InputColor4({ vColor }, {
-                        color = Iris.WeakState(Iris._internal._config[vColor .. "Color"]),
-                        transparency = Iris.WeakState(Iris._internal._config[vColor .. "Transparency"]),
-                    })
+                    local Input = Iris.InputColor4(vColor, nil, nil, Iris.WeakState(Iris._internal._config[vColor .. "Color"]), Iris.WeakState(Iris._internal._config[vColor .. "Transparency"]))
                     if Input.changed() then
-                        UpdatedConfig._value[vColor .. "Color"] = Input.color:get()
-                        UpdatedConfig._value[vColor .. "Transparency"] = Input.transparency:get()
+                        UpdatedConfig._value[vColor .. "Color"] = Input.state.color:get()
+                        UpdatedConfig._value[vColor .. "Transparency"] = Input.state.transparency:get()
                     end
                 end
             end,
@@ -1065,7 +1061,7 @@ do
 
                 local TextSize = Iris.SliderNum("Font Size", 1, 4, 20, nil, Iris.WeakState(Iris._internal._config.TextSize))
                 if TextSize.changed() then
-                    UpdatedConfig._value["TextSize"] = TextSize.state.number:get()
+                    UpdatedConfig._value["TextSize"] = TextSize.state.value:get()
                 end
 
                 Iris.SeparatorText("Properties")
@@ -1787,10 +1783,10 @@ local function windowlessDemo()
     end
     Iris.End()
 
-    Iris.Button({})
+    Iris.Button()
     Iris.Tree()
     do
-        Iris.InputText({})
+        Iris.InputText()
     end
     Iris.End()
 

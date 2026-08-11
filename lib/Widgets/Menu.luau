@@ -25,14 +25,14 @@ export type MenuBar = Types.ParentWidget
     .closed () -> boolean -- once when closed
     .hovered () -> boolean -- fires when the mouse hovers over any of the window
 
-    .arguments { Text: string? }
+    .arguments { Label: string? }
     .state { open: State<boolean> }
 ]=]
 export type Menu = Types.ParentWidget & {
     ButtonColors: { [string]: Color3 | number },
 
     arguments: {
-        Text: string?,
+        Label: string?,
     },
 
     state: {
@@ -48,11 +48,11 @@ export type Menu = Types.ParentWidget & {
     .clicked () -> boolean -- fires when a button is clicked
     .hovered () -> boolean -- fires when the mouse hovers over any of the window
 
-    .arguments { Text: string, KeyCode: Enum.KeyCode?, ModifierKey: Enum.ModifierKey? }
+    .arguments { Label: string, KeyCode: Enum.KeyCode?, ModifierKey: Enum.ModifierKey? }
 ]=]
 export type MenuItem = Types.Widget & {
     arguments: {
-        Text: string,
+        Label: string,
         KeyCode: Enum.KeyCode?,
         ModifierKey: Enum.ModifierKey?,
     },
@@ -67,12 +67,12 @@ export type MenuItem = Types.Widget & {
     .unchecked () -> boolean -- once when unchecked
     .hovered () -> boolean -- fires when the mouse hovers over any of the window
 
-    .arguments { Text: string, KeyCode: Enum.KeyCode?, ModifierKey: Enum.ModifierKey? }
+    .arguments { Label: string, KeyCode: Enum.KeyCode?, ModifierKey: Enum.ModifierKey? }
     .state { checked: State<boolean> }
 ]=]
 export type MenuToggle = Types.Widget & {
     arguments: {
-        Text: string,
+        Label: string,
         KeyCode: Enum.KeyCode?,
         ModifierKey: Enum.ModifierKey?,
     },
@@ -89,7 +89,7 @@ local MenuStack: { Menu } = {}
 local function EmptyMenuStack(menuIndex: number?)
     for index = #MenuStack, menuIndex and menuIndex + 1 or 1, -1 do
         local widget = MenuStack[index]
-        widget.state.isOpened:set(false)
+        widget.state.open:set(false)
 
         widget.instance.BackgroundColor3 = Internal._config.HeaderColor
         widget.instance.BackgroundTransparency = 1
@@ -380,7 +380,7 @@ Internal._widgetConstructor(
             else
                 TextLabel = Menu
             end
-            TextLabel.Text = thisWidget.arguments.Text or "Menu"
+            TextLabel.Text = thisWidget.arguments.Label or "Menu"
         end,
         ChildAdded = function(thisWidget: Menu, _thisChild: Types.Widget)
             UpdateChildContainerTransform(thisWidget)
@@ -438,10 +438,10 @@ Internal._widgetConstructor(
         hasState = false,
         hasChildren = false,
         numArguments = 3,
-        Arguments = { "Text", "KeyCode", "ModifierKey" },
+        Arguments = { "Label", "KeyCode", "ModifierKey" },
         Events = {
             ["clicked"] = Utility.EVENTS.click(function(thisWidget: Types.Widget)
-                return thisWidget.instance
+                return thisWidget.instance :: GuiButton
             end),
             ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 return thisWidget.instance
@@ -517,7 +517,7 @@ Internal._widgetConstructor(
             local TextLabel: TextLabel = MenuItem.TextLabel
             local Shortcut: TextLabel = MenuItem.Shortcut
 
-            TextLabel.Text = thisWidget.arguments.Text
+            TextLabel.Text = thisWidget.arguments.Label
             if thisWidget.arguments.KeyCode then
                 if thisWidget.arguments.ModifierKey then
                     Shortcut.Text = thisWidget.arguments.ModifierKey.Name .. " + " .. thisWidget.arguments.KeyCode.Name
@@ -693,7 +693,7 @@ end
     @tag HasState
 
     @function Menu
-    @param text string -- title of the menu
+    @param label string -- title of the menu
     @param open State<boolean? -- state for whether the menu is open
 
     @return Menu
@@ -722,8 +722,8 @@ end
     preventing you from adding any widget as a child, but the behaviour is unexplained and not intended.
     :::
 ]=]
-local API_Menu = function(text: string, open: Types.APIState<boolean>?)
-    return Internal._insert("Menu", text, open) :: Menu
+local API_Menu = function(label: string, open: Types.APIState<boolean>?)
+    return Internal._insert("Menu", label, open) :: Menu
 end
 
 --[=[
@@ -731,7 +731,7 @@ end
     @tag Widget
 
     @function MenuItem
-    @param text string -- title of the item
+    @param label string -- title of the item
     @param keyCode Enum.KeyCode? -- optional keycode to show on the right
     @param modifierKey Enum.ModifierKey? -- optional modifier keycode to show on the right
 
@@ -750,8 +750,8 @@ end
 
     ![Example Menu Item](/Iris/assets/api/menu/basicMenuItem.gif)
 ]=]
-local API_MenuItem = function(text: string, keyCode: Enum.KeyCode?, modifierKey: Enum.ModifierKey?)
-    return Internal._insert("MenuItem", text, keyCode, modifierKey) :: MenuItem
+local API_MenuItem = function(label: string, keyCode: Enum.KeyCode?, modifierKey: Enum.ModifierKey?)
+    return Internal._insert("MenuItem", label, keyCode, modifierKey) :: MenuItem
 end
 
 --[=[
@@ -761,7 +761,7 @@ end
 
     @function MenuToggle
 
-    @param text string -- title of the item
+    @param label string -- title of the item
     @param keyCode Enum.KeyCode? -- optional keycode to show on the right
     @param modifierKey Enum.ModifierKey? -- optional modifier keycode to show on the right
     @param checked State<boolean>? -- state for whether the toggle is checked
@@ -781,8 +781,8 @@ end
 
     ![Example Menu Toggle](/Iris/assets/api/menu/basicMenuToggle.gif)
 ]=]
-local API_MenuToggle = function(text: string, keyCode: Enum.KeyCode?, modifierKey: Enum.ModifierKey?, checked: Types.APIState<boolean>?)
-    return Internal._insert("MenuToggle", text, keyCode, modifierKey, checked) :: MenuToggle
+local API_MenuToggle = function(label: string, keyCode: Enum.KeyCode?, modifierKey: Enum.ModifierKey?, checked: Types.APIState<boolean>?)
+    return Internal._insert("MenuToggle", label, keyCode, modifierKey, checked) :: MenuToggle
 end
 
 return {

@@ -22,14 +22,14 @@ local btest = bit32.btest
     .ctrlClicked () -> boolean -- fires when a button is ctrl clicked
     .hovered () -> boolean -- fires when the mouse hovers over any of the widget
 
-    .arguments { Text: string?, Index: any?, Flags: number }
+    .arguments { Label: string?, Index: any?, Flags: number }
     .state { index: State<any> }
 ]=]
 export type Selectable = Types.Widget & {
     _buttonColors: { [string]: Color3 | number },
 
     arguments: {
-        Text: string?,
+        Label: string?,
         Index: any?,
         Flags: number,
     },
@@ -49,14 +49,14 @@ export type Selectable = Types.Widget & {
     .closed () -> boolean -- once when closed
     .hovered () -> boolean -- fires when the mouse hovers over any of the widget
 
-    .arguments { Text: string?, Flags: number }
+    .arguments { Label: string?, Flags: number }
     .state { index: State<any>, open: State<boolean> }
 ]=]
 export type Combo = Types.ParentWidget & {
     _listLayout: UIListLayout,
 
     arguments: {
-        Text: string?,
+        Label: string?,
         Flags: number,
     },
 
@@ -175,7 +175,7 @@ Internal._widgetConstructor(
         hasState = true,
         hasChildren = false,
         numArguments = 3,
-        Arguments = { "Text", "Index", "Flags", "index" },
+        Arguments = { "Label", "Index", "Flags", "index" },
         Events = {
             ["selected"] = Utility.EVENTS.select,
             ["unselected"] = Utility.EVENTS.unselect,
@@ -260,7 +260,7 @@ Internal._widgetConstructor(
         Update = function(thisWidget: Selectable)
             local Selectable = thisWidget.instance :: Frame
             local SelectableButton: TextButton = Selectable.SelectableButton
-            SelectableButton.Text = thisWidget.arguments.Text or "Selectable"
+            SelectableButton.Text = thisWidget.arguments.Label or "Selectable"
         end,
         UpdateState = function(thisWidget: Selectable)
             local Selectable = thisWidget.instance :: Frame
@@ -291,7 +291,7 @@ Internal._widgetConstructor(
         hasState = true,
         hasChildren = true,
         numArguments = 2,
-        Arguments = { "Text", "Flags", "index", "open" },
+        Arguments = { "Label", "Flags", "index", "open" },
         Events = {
             ["opened"] = Utility.EVENTS.open,
             ["closed"] = Utility.EVENTS.close,
@@ -473,7 +473,7 @@ Internal._widgetConstructor(
             local DropdownButton: TextLabel = PreviewContainer.DropdownButton
             local TextLabel: TextLabel = Iris_Combo.TextLabel
 
-            TextLabel.Text = thisWidget.arguments.Text or "Combo"
+            TextLabel.Text = thisWidget.arguments.Label or "Combo"
 
             if btest(ComboFlags.NoButton, thisWidget.arguments.Flags) then
                 DropdownButton.Visible = false
@@ -548,7 +548,7 @@ Internal._widgetConstructor(
     @tag HasState
 
     @function Selectable
-    @param text string
+    @param label string?
     @param index any -- unique index of selectable value
     @param flags ComboFlags? -- optional bit flags, using Iris.ComboFlags, default is 0
     @param state State<any>? -- a shared state between all selectables
@@ -557,8 +557,8 @@ Internal._widgetConstructor(
 
     An object which can be selected.
 ]=]
-local API_Selectable = function(text: string, index: any, flags: number?, state: Types.APIState<any>?)
-    return Internal._insert("Selectable", text, index, flags or 0, state) :: Selectable
+local API_Selectable = function(label: string?, index: any, flags: number?, state: Types.APIState<any>?)
+    return Internal._insert("Selectable", label, index, flags or 0, state) :: Selectable
 end
 
 --[=[
@@ -568,7 +568,7 @@ end
     @tag HasState
 
     @function Combo
-    @param text string
+    @param label string?
     @param flags number? -- optional bit flags, using Iris.ComboFlags, default is 0
     @param state State<any>? -- index state detailing the current selection
     @param open State<boolean>? -- state for combo box being open
@@ -577,8 +577,8 @@ end
 
     A dropdown menu box to make a selection from a list of values.
 ]=]
-local API_Combo = function(text: string, flags: number?, state: Types.APIState<any>?, open: Types.APIState<boolean>?)
-    return Internal._insert("Combo", text, flags or 0, state, open) :: Combo
+local API_Combo = function(label: string?, flags: number?, state: Types.APIState<any>?, open: Types.APIState<boolean>?)
+    return Internal._insert("Combo", label, flags or 0, state, open) :: Combo
 end
 
 --[=[
@@ -588,7 +588,7 @@ end
     @tag HasState
 
     @function Combo
-    @param text string
+    @param label string?
     @param array { any } -- array to turn into a combo and selectables
     @param flags number? -- optional bit flags, using Iris.ComboFlags, default is 0
     @param state State<any>? -- index state detailing the current selection
@@ -598,8 +598,8 @@ end
 
     A selection box to choose a value from an array.
 ]=]
-local API_ComboArray = function<T>(text: string, array: { any }, flags: number?, state: Types.APIState<any>?, open: Types.APIState<boolean>?)
-    local thisWidget = Internal._insert("Combo", text, flags or 0, state, open) :: Combo
+local API_ComboArray = function<T>(label: string?, array: { any }, flags: number?, state: Types.APIState<any>?, open: Types.APIState<boolean>?)
+    local thisWidget = Internal._insert("Combo", label, flags or 0, state, open) :: Combo
     local sharedIndex = thisWidget.state.index
     for _, Selection in array do
         Internal._insert("Selectable", tostring(Selection), Selection, flags or 0, sharedIndex)
@@ -616,7 +616,7 @@ end
     @tag HasState
 
     @function Combo
-    @param text string
+    @param label string?
     @param enum Enum -- enum to turn into a combo and selectables
     @param flags number? -- optional bit flags, using Iris.ComboFlags, default is 0
     @param state State<any>? -- index state detailing the current selection
@@ -626,8 +626,8 @@ end
 
     A selection box to choose a value from an Enum.
 ]=]
-local API_ComboEnum = function(text: string, enum: Enum, flags: number?, state: Types.APIState<any>?, open: Types.APIState<boolean>?)
-    local thisWidget = Internal._insert("Combo", text, flags or 0, state, open)
+local API_ComboEnum = function(label: string?, enum: Enum, flags: number?, state: Types.APIState<any>?, open: Types.APIState<boolean>?)
+    local thisWidget = Internal._insert("Combo", label, flags or 0, state, open)
     local sharedIndex = thisWidget.state.index
     for _, selection: EnumItem in enum:GetEnumItems() do
         Internal._insert("Selectable", selection.Name, selection, flags or 0, sharedIndex)
