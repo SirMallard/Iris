@@ -1,9 +1,7 @@
---!strict
+const Types = require("./Types")
+const Internal = require("./Internal")
 
-local Types = require("./Types")
-local Internal = require("./Internal")
-
-local Utility = {}
+const Utility = {}
 
 Utility.GuiService = game:GetService("GuiService")
 Utility.RunService = game:GetService("RunService")
@@ -53,9 +51,8 @@ function Utility.isPosInsideRect(pos: Vector2, rectMin: Vector2, rectMax: Vector
     return pos.X >= rectMin.X and pos.X <= rectMax.X and pos.Y >= rectMin.Y and pos.Y <= rectMax.Y
 end
 
+const CURSOR_OFFSET_DIST = 20
 function Utility.findBestWindowPosForPopup(refPos: Vector2, size: Vector2, outerMin: Vector2, outerMax: Vector2)
-    local CURSOR_OFFSET_DIST = 20
-
     if refPos.X + size.X + CURSOR_OFFSET_DIST > outerMax.X then
         if refPos.Y + size.Y + CURSOR_OFFSET_DIST > outerMax.Y then
             -- placed to the top
@@ -76,7 +73,7 @@ function Utility.getScreenSizeForWindow(thisWidget: Types.Widget) -- possible pa
     if thisWidget.instance:IsA("GuiBase2d") then
         return thisWidget.instance.AbsoluteSize
     else
-        local rootParent = thisWidget.instance.Parent
+        const rootParent = thisWidget.instance.Parent
         if rootParent:IsA("GuiBase2d") then
             return rootParent.AbsoluteSize
         else
@@ -90,7 +87,7 @@ function Utility.getScreenSizeForWindow(thisWidget: Types.Widget) -- possible pa
 end
 
 function Utility.extend(superClass: Types.WidgetClass, subClass: Types.WidgetClass): Types.WidgetClass
-    local newClass = table.clone(superClass)
+    const newClass = table.clone(superClass)
     for index, value in subClass do
         newClass[index] = value
     end
@@ -98,7 +95,7 @@ function Utility.extend(superClass: Types.WidgetClass, subClass: Types.WidgetCla
 end
 
 function Utility.UIPadding(parent: GuiObject, padding: Vector2)
-    local UIPaddingInstance = Instance.new("UIPadding")
+    const UIPaddingInstance = Instance.new("UIPadding")
     UIPaddingInstance.PaddingLeft = UDim.new(0, padding.X)
     UIPaddingInstance.PaddingRight = UDim.new(0, padding.X)
     UIPaddingInstance.PaddingTop = UDim.new(0, padding.Y)
@@ -108,7 +105,7 @@ function Utility.UIPadding(parent: GuiObject, padding: Vector2)
 end
 
 function Utility.UIListLayout(parent: GuiObject, fillDirection: Enum.FillDirection, padding: UDim)
-    local UIListLayoutInstance = Instance.new("UIListLayout")
+    const UIListLayoutInstance = Instance.new("UIListLayout")
     UIListLayoutInstance.SortOrder = Enum.SortOrder.LayoutOrder
     UIListLayoutInstance.Padding = padding
     UIListLayoutInstance.FillDirection = fillDirection
@@ -117,7 +114,7 @@ function Utility.UIListLayout(parent: GuiObject, fillDirection: Enum.FillDirecti
 end
 
 function Utility.UIStroke(parent: GuiObject, thickness: number, color: Color3, transparency: number)
-    local UIStrokeInstance = Instance.new("UIStroke")
+    const UIStrokeInstance = Instance.new("UIStroke")
     UIStrokeInstance.Thickness = thickness
     UIStrokeInstance.Color = color
     UIStrokeInstance.Transparency = transparency
@@ -128,14 +125,14 @@ function Utility.UIStroke(parent: GuiObject, thickness: number, color: Color3, t
 end
 
 function Utility.UICorner(parent: GuiObject, rounding: number?)
-    local UICornerInstance = Instance.new("UICorner")
+    const UICornerInstance = Instance.new("UICorner")
     UICornerInstance.CornerRadius = UDim.new(rounding and 0 or 1, rounding or 0)
     UICornerInstance.Parent = parent
     return UICornerInstance
 end
 
 function Utility.UISizeConstraint(parent: GuiObject, minSize: Vector2?, maxSize: Vector2?)
-    local UISizeConstraintInstance = Instance.new("UISizeConstraint")
+    const UISizeConstraintInstance = Instance.new("UISizeConstraint")
     UISizeConstraintInstance.MinSize = minSize or UISizeConstraintInstance.MinSize -- made these optional
     UISizeConstraintInstance.MaxSize = maxSize or UISizeConstraintInstance.MaxSize
     UISizeConstraintInstance.Parent = parent
@@ -145,7 +142,7 @@ end
 -- below uses Internal
 
 function Utility.applyTextStyle(thisInstance: TextLabel | TextButton | TextBox)
-    local guiObject = thisInstance :: any
+    const guiObject = thisInstance :: any
     guiObject.FontFace = Internal._config.TextFont
     guiObject.TextSize = Internal._config.TextSize
     guiObject.TextColor3 = Internal._config.TextColor
@@ -160,7 +157,7 @@ end
 
 function Utility.applyInteractionHighlights(property: "Background" | "Image", button: GuiButton, highlightee: GuiObject, colors: { [string]: any })
     local exitedButton = false
-    local guiObject = highlightee :: any
+    const guiObject = highlightee :: any
     Utility.applyMouseEnter(button, function()
         guiObject[property .. "Color3"] = colors.HoveredColor
         guiObject[property .. "Transparency"] = colors.HoveredTransparency
@@ -202,7 +199,7 @@ end
 
 function Utility.applyInteractionHighlightsWithMultiHighlightee(property: "Background" | "Image", button: GuiButton, highlightees: { { GuiObject | { [string]: Color3 | number } } })
     local exitedButton = false
-    local guiObjects = highlightees :: any
+    const guiObjects = highlightees :: any
     Utility.applyMouseEnter(button, function()
         for _, highlightee in guiObjects do
             highlightee[1][property .. "Color3"] = highlightee[2].HoveredColor
@@ -252,8 +249,8 @@ end
 
 function Utility.applyFrameStyle(thisInstance: GuiObject, noPadding: boolean?, noCorner: boolean?)
     -- padding, border, and rounding optimized to only use what instances are needed, based on style
-    local FrameBorderSize = Internal._config.FrameBorderSize
-    local FrameRounding = Internal._config.FrameRounding
+    const FrameBorderSize = Internal._config.FrameBorderSize
+    const FrameRounding = Internal._config.FrameRounding
     thisInstance.BorderSizePixel = 0
 
     if FrameBorderSize > 0 then
@@ -275,28 +272,28 @@ end
 
 function Utility.applyButtonDown(thisInstance: GuiButton, callback: (x: number, y: number) -> ())
     thisInstance.MouseButton1Down:Connect(function(x: number, y: number)
-        local position = Vector2.new(x, y) - Utility.mouseOffset
+        const position = Vector2.new(x, y) - Utility.mouseOffset
         callback(position.X, position.Y)
     end)
 end
 
 function Utility.applyMouseEnter(thisInstance: GuiObject, callback: (x: number, y: number) -> ())
     thisInstance.MouseEnter:Connect(function(x: number, y: number)
-        local position = Vector2.new(x, y) - Utility.mouseOffset
+        const position = Vector2.new(x, y) - Utility.mouseOffset
         callback(position.X, position.Y)
     end)
 end
 
 function Utility.applyMouseMoved(thisInstance: GuiObject, callback: (x: number, y: number) -> ())
     thisInstance.MouseMoved:Connect(function(x: number, y: number)
-        local position = Vector2.new(x, y) - Utility.mouseOffset
+        const position = Vector2.new(x, y) - Utility.mouseOffset
         callback(position.X, position.Y)
     end)
 end
 
 function Utility.applyMouseLeave(thisInstance: GuiObject, callback: (x: number, y: number) -> ())
     thisInstance.MouseLeave:Connect(function(x: number, y: number)
-        local position = Vector2.new(x, y) - Utility.mouseOffset
+        const position = Vector2.new(x, y) - Utility.mouseOffset
         callback(position.X, position.Y)
     end)
 end
@@ -319,9 +316,9 @@ function Utility.discardState(thisWidget: Types.StateWidget)
     end
 end
 
-function Utility.registerEvent(event: string, callback: (...any) -> ())
+function Utility.registerEvent(event: "InputBegan" | "InputChanged" | "InputEnded", callback: (...any) -> ())
     table.insert(Internal._initFunctions, function()
-        table.insert(Internal._connections, Utility.UserInputService[event]:Connect(callback))
+        table.insert(Internal._connections, ((Utility.UserInputService :: any)[event] :: RBXScriptSignal<InputObject, boolean>):Connect(callback))
     end)
 end
 
@@ -341,7 +338,7 @@ Utility.EVENTS = {
     hover = function(pathToHovered: (thisWidget: Types.Widget) -> GuiObject)
         return {
             ["Init"] = function(thisWidget: Types.Widget & Types.Hovered)
-                local hoveredGuiObject = pathToHovered(thisWidget)
+                const hoveredGuiObject = pathToHovered(thisWidget)
                 Utility.applyMouseEnter(hoveredGuiObject, function()
                     thisWidget._isHoveredEvent = true
                 end)
@@ -431,7 +428,7 @@ Utility.EVENTS = {
     click = function(pathToClicked: (thisWidget: Types.Widget) -> GuiButton)
         return {
             ["Init"] = function(thisWidget: Types.Widget & Types.Clicked)
-                local clickedGuiObject = pathToClicked(thisWidget)
+                const clickedGuiObject = pathToClicked(thisWidget)
                 thisWidget._lastClickedTick = -1
 
                 Utility.applyButtonClick(clickedGuiObject, function()
@@ -447,7 +444,7 @@ Utility.EVENTS = {
     rightClick = function(pathToClicked: (thisWidget: Types.Widget) -> GuiButton)
         return {
             ["Init"] = function(thisWidget: Types.Widget & Types.RightClicked)
-                local clickedGuiObject = pathToClicked(thisWidget)
+                const clickedGuiObject = pathToClicked(thisWidget)
                 thisWidget._lastRightClickedTick = -1
 
                 clickedGuiObject.MouseButton2Click:Connect(function()
@@ -463,14 +460,14 @@ Utility.EVENTS = {
     doubleClick = function(pathToClicked: (thisWidget: Types.Widget) -> GuiButton)
         return {
             ["Init"] = function(thisWidget: Types.Widget & Types.DoubleClicked)
-                local clickedGuiObject = pathToClicked(thisWidget)
+                const clickedGuiObject = pathToClicked(thisWidget)
                 thisWidget._lastClickedTime = -1
                 thisWidget._lastClickedPosition = Vector2.zero
                 thisWidget._lastDoubleClickedTick = -1
 
                 Utility.applyButtonDown(clickedGuiObject, function(x: number, y: number)
-                    local currentTime = Utility.getTime()
-                    local isTimeValid = currentTime - thisWidget._lastClickedTime < Internal._config.MouseDoubleClickTime
+                    const currentTime = Utility.getTime()
+                    const isTimeValid = currentTime - thisWidget._lastClickedTime < Internal._config.MouseDoubleClickTime
                     if isTimeValid and (Vector2.new(x, y) - thisWidget._lastClickedPosition).Magnitude < Internal._config.MouseDoubleClickMaxDist then
                         thisWidget._lastDoubleClickedTick = Internal._cycleTick + 1
                     else
@@ -488,7 +485,7 @@ Utility.EVENTS = {
     ctrlClick = function(pathToClicked: (thisWidget: Types.Widget) -> GuiButton)
         return {
             ["Init"] = function(thisWidget: Types.Widget & Types.CtrlClicked)
-                local clickedGuiObject = pathToClicked(thisWidget)
+                const clickedGuiObject = pathToClicked(thisWidget)
                 thisWidget._lastCtrlClickedTick = -1
 
                 Utility.applyButtonClick(clickedGuiObject, function()

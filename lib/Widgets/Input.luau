@@ -1,11 +1,9 @@
---!strict
+const Internal = require("../Internal")
+const Utility = require("../Widgets")
 
-local Internal = require("../Internal")
-local Utility = require("../Widgets")
+const Types = require("../Types")
 
-local Types = require("../Types")
-
-local btest = bit32.btest
+const btest = bit32.btest
 
 type InputDataTypes = "Num" | "Vector2" | "Vector3" | "UDim" | "UDim2" | "Color3" | "Color4" | "Rect" | "Enum" | "" | string
 type InputDataType = number | Vector2 | Vector3 | UDim | UDim2 | Color3 | Rect | Enum
@@ -132,7 +130,7 @@ export type InputText = Types.Widget & {
     .ReadOnly 1 --
     .MultiLine 2 --
 ]=]
-local InputTextFlags = {
+const InputTextFlags = {
     ReadOnly = 1,
     MultiLine = 2,
 }
@@ -143,7 +141,7 @@ local InputTextFlags = {
     .UseFloats 1 --
     .UseHSV 2 --
 ]=]
-local InputFlags = {
+const InputFlags = {
     UseFloats = 1,
     UseHSV = 2,
 }
@@ -152,7 +150,7 @@ local InputFlags = {
 -- Constants
 ---------------
 
-local defaultIncrements: { [InputDataTypes]: { number } } = {
+local defaultIncrements: { read [InputDataTypes]: { number } } = {
     Num = { 1 },
     Vector2 = { 1, 1 },
     Vector3 = { 1, 1, 1 },

@@ -1,9 +1,9 @@
-local Internal = require("../Internal")
-local Utility = require("../Widgets")
+const Internal = require("../Internal")
+const Utility = require("../Widgets")
 
-local Types = require("../Types")
+const Types = require("../Types")
 
-local btest = bit32.btest
+const btest = bit32.btest
 
 --[=[
     @class Window
@@ -84,7 +84,7 @@ export type Tooltip = Types.Widget & {
     .NoNav 128 -- unused
     .NoMenu 256 -- hide the menubar
 ]=]
-local WindowFlags = {
+const WindowFlags = {
     NoTitleBar = 1,
     NoBackground = 2,
     NoCollapse = 4,

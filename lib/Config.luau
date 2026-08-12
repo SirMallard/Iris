@@ -1,6 +1,4 @@
---!strict
-
-local TemplateConfig = {
+const TemplateConfig = {
     colorDark = { -- Dear, ImGui default dark
         TextColor = Color3.fromRGB(255, 255, 255),
         TextTransparency = 0,

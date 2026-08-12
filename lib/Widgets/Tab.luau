@@ -1,9 +1,9 @@
-local Internal = require("../Internal")
-local Utility = require("../Widgets")
+const Internal = require("../Internal")
+const Utility = require("../Widgets")
 
-local Types = require("../Types")
+const Types = require("../Types")
 
-local btest = bit32.btest
+const btest = bit32.btest
 
 --[=[
     @class Tab
@@ -63,7 +63,7 @@ export type Tab = Types.ParentWidget & {
     @interface TabFlags
     .Hideable 1 -- enables the hide tab button
 ]=]
-local TabFlags = {
+const TabFlags = {
     Hideable = 1,
 }
 

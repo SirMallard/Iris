@@ -1,15 +1,14 @@
---!strict
 --!optimize 2
 
-local Types = require("./Types")
-local Config = require("./Config")
+const Types = require("./Types")
+const Config = require("./Config")
 
 --[=[
     @class Internal
     An internal class within Iris containing all the backend data and functions for Iris to operate.
     It is recommended that you don't generally interact with Internal unless you understand what you are doing.
 ]=]
-local Internal = {}
+const Internal = {}
 
 Internal._version = [[ 2.5.1 ]]
 Internal._paused = false
@@ -44,7 +43,7 @@ Internal._lastVDOM = {} :: { [Types.ID]: Types.Widget }
 Internal._VDOM = {} :: { [Types.ID]: Types.Widget }
 
 Internal._arguments = {} :: { [string]: { string } }
-Internal._events = {} :: { [string]: () -> () }
+Internal._events = {} :: { [string]: () -> boolean }
 
 -- Config
 Internal._rootConfig = {} :: Config.Config -- root style which all widgets derive from
@@ -82,7 +81,7 @@ Internal._cycleCoroutine = coroutine.create(function()
     while Internal._started do
         for _, callback in Internal._connectedFunctions do
             debug.profilebegin("Iris/Connection")
-            local status, _error: string = pcall(callback :: any)
+            const status, _error: string = pcall(callback :: any)
             debug.profileend()
             if not status then
                 -- any error reserts the _stackIndex for the next frame and yields the error.
@@ -141,7 +140,7 @@ end)
     Current value of the state
 ]=]
 
-local StateClass = {}
+const StateClass = {}
 StateClass.__index = StateClass
 
 --[=[
@@ -172,8 +171,9 @@ function StateClass.set<T>(self: Types.State<T>, newValue: T, force: true?)
     self._value = newValue
     self._lastChangeTick = Internal._cycleTick
     for _, thisWidget: Types.Widget in self._connectedWidgets do
-        if thisWidget._lastCycleTick ~= -1 then
-            Internal._widgets[thisWidget.type].UpdateState(thisWidget)
+        const widgetClass = Internal._widgets[thisWidget.type]
+        if thisWidget._lastCycleTick ~= -1 and widgetClass.hasState then
+            widgetClass.UpdateState(thisWidget)
         end
     end
 
@@ -197,7 +197,7 @@ end
     :::
 ]=]
 function StateClass.onChange<T>(self: Types.State<T>, callback: (newValue: T) -> ())
-    local connectionIndex: number = #self._connectedFunctions + 1
+    const connectionIndex: number = #self._connectedFunctions + 1
     self._connectedFunctions[connectionIndex] = callback
     return function()
         self._connectedFunctions[connectionIndex] = nil
@@ -282,7 +282,7 @@ function Internal._cycle(deltaTime: number)
 
     -- if Internal.parentInstance:IsA("GuiBase2d") and math.min(Internal.parentInstance.AbsoluteSize.X,
     --     Internal.parentInstance.AbsoluteSize.Y) < 100 then error("Iris Parent Instance is too small") end
-    local compatibleParent = (Internal._parentInstance:IsA("GuiBase2d") or Internal._parentInstance:IsA("BasePlayerGui"))
+    const compatibleParent = (Internal._parentInstance:IsA("GuiBase2d") or Internal._parentInstance:IsA("BasePlayerGui"))
     if compatibleParent == false then
         error("The Iris parent instance will not display any GUIs.")
     end
@@ -297,11 +297,11 @@ function Internal._cycle(deltaTime: number)
         -- debug.profilebegin("Iris/Cycle/Coroutine")
 
         -- each frame we check on our thread status.
-        local coroutineStatus = coroutine.status(Internal._cycleCoroutine)
+        const coroutineStatus = coroutine.status(Internal._cycleCoroutine)
         if coroutineStatus == "suspended" then
             -- suspended means it yielded, either because it was a complete success or it caught an error in the code.
             -- We run it again for this frame.
-            local _, success, result = coroutine.resume(Internal._cycleCoroutine)
+            const _, success, result = coroutine.resume(Internal._cycleCoroutine)
             if success == false then
                 -- Connected function code errored
                 error(result, 0)
@@ -339,7 +339,7 @@ end
         A dummy function which does nothing. Used as a placeholder for optional methods in a widget class.
         Used in `Internal.WidgetConstructor`
     ]=]
-function Internal._noOp() end
+function Internal._noOp(...): ...any end
 --  Widget
 
 --[=[
@@ -353,69 +353,26 @@ function Internal._noOp() end
         dumb tables containing all the data but no methods to handle any of the data apart from events.
     ]=]
 function Internal._widgetConstructor(type: string, widgetClass: Types.WidgetClass)
-    local Fields = {
-        All = {
-            Required = {
-                "Generate", -- generates the instance.
-                "Discard",
-                "Update",
-
-                -- not methods !
-                "hasChildren",
-                "hasState",
-                "numArguments",
-                "Arguments",
-                "Events",
-            },
-            Optional = {},
-        },
-        State = {
-            Required = {
-                "GenerateState",
-                "UpdateState",
-            },
-            Optional = {},
-        },
-        Children = {
-            Required = {
-                "ChildAdded", -- returns the parent of the child widget.
-            },
-            Optional = {
-                "ChildDiscarded",
-            },
-        },
-    }
-
     -- we ensure all essential functions and properties are present, otherwise the code will break later. some functions
     -- will only be needed if the widget has children or has state.
-    local thisWidgetClass = {} :: Types.WidgetClass
-    for _, field in Fields.All.Required do
-        assert(widgetClass[field] ~= nil, `field {field} is missing from widget {type}, it is required for all widgets`)
-        thisWidgetClass[field] = widgetClass[field]
+    const thisWidgetClass = table.clone(widgetClass)
+    assert(thisWidgetClass.Generate ~= nil, `Generate function is missing from the {type} widget, it is required for all widgets`)
+    assert(thisWidgetClass.Discard ~= nil, `Discard function is missing from the {type} widget, it is required for all widgets`)
+    assert(thisWidgetClass.Update ~= nil, `Update function is missing from the {type} widget, it is required for all widgets`)
+
+    assert(thisWidgetClass.hasState ~= nil, `hasState property is missing from the {type} widget, it is required for all widgets`)
+    assert(thisWidgetClass.hasChildren ~= nil, `hasChildren property is missing from the {type} widget, it is required for all widgets`)
+    assert(thisWidgetClass.numArguments ~= nil, `numArguments property is missing from the {type} widget, it is required for all widgets`)
+    assert(thisWidgetClass.Arguments ~= nil, `Arguments table is missing from the {type} widget, it is required for all widgets`)
+    assert(thisWidgetClass.Events ~= nil, `Events table is missing from the {type} widget, it is required for all widgets`)
+
+    if thisWidgetClass.hasState then
+        assert(thisWidgetClass.GenerateState ~= nil, `GenerateState function is missing from the {type} widget, it is required for all widgets`)
+        assert(thisWidgetClass.UpdateState ~= nil, `UpdateState function is missing from the {type} widget, it is required for all widgets`)
     end
 
-    for _, field in Fields.All.Optional do
-        thisWidgetClass[field] = widgetClass[field] or Internal._noOp
-    end
-
-    if widgetClass.hasState then
-        for _, field in Fields.State.Required do
-            assert(widgetClass[field] ~= nil, `field {field} is missing from widget {type}, it is required for all widgets with state`)
-            thisWidgetClass[field] = widgetClass[field]
-        end
-        for _, field in Fields.State.Optional do
-            thisWidgetClass[field] = widgetClass[field] or Internal._noOp
-        end
-    end
-
-    if widgetClass.hasChildren then
-        for _, field in Fields.Children.Required do
-            assert(widgetClass[field] ~= nil, `field {field} is missing from widget {type}, it is required for all widgets with children`)
-            thisWidgetClass[field] = widgetClass[field]
-        end
-        for _, field in Fields.Children.Optional do
-            thisWidgetClass[field] = widgetClass[field] or Internal._noOp
-        end
+    if thisWidgetClass.hasChildren then
+        assert(thisWidgetClass.ChildAdded ~= nil, `ChildAdded function is missing from the {type} widget, it is required for all widgets`)
     end
 
     -- an internal table of all widgets to the widget class.
@@ -444,11 +401,11 @@ end
         find the previous frame widget if it exists. If no widget exists, a new one is created.
     ]=]
 function Internal._insert(widgetType: string, ...: any)
-    local ID = Internal._getID(3)
+    const ID = Internal._getID(3)
     --debug.profilebegin(ID)
 
     -- fetch the widget class which contains all the functions for the widget.
-    local thisWidgetClass = Internal._widgets[widgetType]
+    const thisWidgetClass = Internal._widgets[widgetType]
 
     if Internal._VDOM[ID] then
         -- widget already created once this frame, so we can append to it.
@@ -464,9 +421,9 @@ function Internal._insert(widgetType: string, ...: any)
             lastWidget = nil
         end
     end
-    local thisWidget = if lastWidget == nil then Internal._genNewWidget(widgetType, ID, ...) else lastWidget
+    const thisWidget = if lastWidget == nil then Internal._genNewWidget(widgetType, ID, ...) else lastWidget
 
-    local parentWidget = thisWidget.parentWidget
+    const parentWidget = thisWidget.parentWidget
 
     if thisWidget.type ~= "Window" and thisWidget.type ~= "Tooltip" then
         if thisWidget.zindex ~= parentWidget.zoffset then
@@ -484,7 +441,7 @@ function Internal._insert(widgetType: string, ...: any)
 
     -- since rows are not instances, but will be removed if not updated, we have to add specific table code.
     if parentWidget.type == "Table" then
-        local Table = parentWidget :: any --Types.Table
+        const Table = parentWidget :: any --Types.Table
         Table._rowCycles[Table._rowIndex] = Internal._cycleTick
     end
 
@@ -494,8 +451,8 @@ function Internal._insert(widgetType: string, ...: any)
         if index > thisWidgetClass.numArguments then
             break
         end
-        local name = thisWidgetClass.Arguments[index]
-        local previous = thisWidget.arguments[name]
+        const name = thisWidgetClass.Arguments[index]
+        const previous = thisWidget.arguments[name]
         if previous ~= argument then
             update = true
         end
@@ -510,7 +467,7 @@ function Internal._insert(widgetType: string, ...: any)
     parentWidget.zoffset += 1
 
     if thisWidgetClass.hasChildren then
-        local thisParent = thisWidget :: Types.ParentWidget
+        const thisParent = thisWidget :: Types.ParentWidget
         -- a parent widget, so we increase our depth.
         thisParent.zoffset = 0
         thisParent.zupdate = false
@@ -539,12 +496,12 @@ end
         update the widget or change state.
     ]=]
 function Internal._genNewWidget(widgetType: string, ID: Types.ID, ...: any)
-    local parentId = Internal._IDStack[Internal._stackIndex]
+    const parentId = Internal._IDStack[Internal._stackIndex]
     local parentWidget = Internal._VDOM[parentId] :: Types.ParentWidget
-    local thisWidgetClass = Internal._widgets[widgetType]
+    const thisWidgetClass = Internal._widgets[widgetType]
 
     -- widgets are just tables with properties.
-    local thisWidget = {
+    const thisWidget = {
         ID = ID,
         type = widgetType,
         _lastCycleTick = Internal._cycleTick,
@@ -561,7 +518,8 @@ function Internal._genNewWidget(widgetType: string, ID: Types.ID, ...: any)
     -- tooltips set their parent in the generation method, so we need to udpate it here
     parentWidget = thisWidget.parentWidget
 
-    thisWidget.instance.Parent = Internal._config.Parent or Internal._widgets[parentWidget.type].ChildAdded(parentWidget, thisWidget)
+    const widgetClass = Internal._widgets[parentWidget.type]
+    thisWidget.instance.Parent = Internal._config.Parent or widgetClass.hasChildren and widgetClass.ChildAdded(parentWidget, thisWidget) or nil
 
     -- we can modify the arguments table, but keep a frozen copy to compare for user-end changes.
     for index, argument in { ... } do
@@ -573,7 +531,7 @@ function Internal._genNewWidget(widgetType: string, ID: Types.ID, ...: any)
     thisWidgetClass.Update(thisWidget)
 
     if thisWidgetClass.hasState then
-        local stateWidget = thisWidget :: Types.StateWidget
+        const stateWidget = thisWidget :: Types.StateWidget
         stateWidget.state = {}
         for index, state: Types.State<any> in { select(thisWidgetClass.numArguments + 1, ...) } do
             if typeof(state) == "table" and getmetatable(state :: any) == StateClass then
@@ -612,8 +570,8 @@ end
         Basically equivalent to the end of `Internal._Insert`.
     ]=]
 function Internal._continueWidget(ID: Types.ID, widgetType: string)
-    local thisWidgetClass = Internal._widgets[widgetType]
-    local thisWidget = Internal._VDOM[ID]
+    const thisWidgetClass = Internal._widgets[widgetType]
+    const thisWidget = Internal._VDOM[ID]
 
     if thisWidgetClass.hasChildren then
         -- a parent widget so we increase our depth.
@@ -635,10 +593,13 @@ end
         at the start before discarding happens.
     ]=]
 function Internal._discardWidget(widgetToDiscard: Types.Widget)
-    local widgetParent = widgetToDiscard.parentWidget
+    const widgetParent = widgetToDiscard.parentWidget
     if widgetParent then
-        -- if the parent needs to update it's children.
-        Internal._widgets[widgetParent.type].ChildDiscarded(widgetParent, widgetToDiscard)
+        const widgetClass = Internal._widgets[widgetParent.type]
+        if widgetClass.hasChildren and widgetClass.ChildDiscarded ~= nil then
+            -- if the parent needs to update it's children.
+            widgetClass.ChildDiscarded(widgetParent, widgetToDiscard)
+        end
     end
 
     -- using the widget class discard function.
@@ -660,13 +621,13 @@ end
         widget if the user does not provide a state.
     ]=]
 function Internal._widgetState<T>(thisWidget: Types.StateWidget, stateName: string, initialValue: T)
-    local ID = thisWidget.ID .. stateName
+    const ID = thisWidget.ID .. stateName
     if Internal._states[ID] then
         Internal._states[ID]._connectedWidgets[thisWidget.ID] = thisWidget
         Internal._states[ID]._lastChangeTick = Internal._cycleTick
         return Internal._states[ID]
     else
-        local newState = {
+        const newState = {
             ID = ID,
             _value = initialValue,
             _lastChangeTick = Internal._cycleTick,
@@ -691,8 +652,8 @@ end
         called so in the first frame, the event connections are set up. Every event is a function which returns a boolean.
     ]=]
 function Internal._eventCall(thisWidget: Types.Widget, eventName: string)
-    local Events = Internal._widgets[thisWidget.type].Events
-    local Event = Events[eventName]
+    const Events = Internal._widgets[thisWidget.type].Events
+    const Event = Events[eventName]
     assert(Event ~= nil, `widget {thisWidget.type} has no event of name {eventName}`)
 
     if thisWidget._trackedEvents[eventName] == nil then
@@ -735,7 +696,7 @@ end
 function Internal._generateEmptyVDOM()
     return {
         ["R"] = Internal._rootWidget,
-    }
+    } :: { [Types.ID]: Types.Widget }
 end
 
 --[=[
@@ -747,7 +708,7 @@ end
     ]=]
 function Internal._generateRootInstance()
     -- unsafe to call before Internal.connect
-    local instance = Internal._widgets["Root"].Generate(Internal._rootWidget)
+    const instance = Internal._widgets["Root"].Generate(Internal._rootWidget)
     instance.Parent = Internal._parentInstance
     Internal._rootWidget.instance = instance
     Internal._rootInstance = instance
@@ -765,14 +726,14 @@ function Internal._generateSelectionImageObject()
         Internal._selectionImageObject:Destroy()
     end
 
-    local SelectionImageObject = Instance.new("Frame")
+    const SelectionImageObject = Instance.new("Frame")
     SelectionImageObject.Position = UDim2.fromOffset(-1, -1)
     SelectionImageObject.Size = UDim2.new(1, 2, 1, 2)
     SelectionImageObject.BackgroundColor3 = Internal._config.SelectionImageObjectColor
     SelectionImageObject.BackgroundTransparency = Internal._config.SelectionImageObjectTransparency
     SelectionImageObject.BorderSizePixel = 0
 
-    local UIStrokeInstance = Instance.new("UIStroke")
+    const UIStrokeInstance = Instance.new("UIStroke")
     UIStrokeInstance.Thickness = 1
     UIStrokeInstance.Color = Internal._config.SelectionImageObjectBorderColor
     UIStrokeInstance.Transparency = Internal._config.SelectionImageObjectBorderTransparency
@@ -780,7 +741,7 @@ function Internal._generateSelectionImageObject()
     UIStrokeInstance.LineJoinMode = Enum.LineJoinMode.Round
     UIStrokeInstance.Parent = SelectionImageObject
 
-    local UICornerInstance = Instance.new("UICorner")
+    const UICornerInstance = Instance.new("UICorner")
     UICornerInstance.CornerRadius = UDim.new(0, 2)
     UICornerInstance.Parent = SelectionImageObject
 
@@ -801,16 +762,16 @@ end
     ]=]
 function Internal._getID(levelsToIgnore: number)
     if Internal._nextWidgetId then
-        local ID = Internal._nextWidgetId
+        const ID = Internal._nextWidgetId
         Internal._nextWidgetId = nil
         return ID
     end
 
-    local i = 1 + (levelsToIgnore or 1)
     local ID = ""
+    local i = 1 + (levelsToIgnore or 1)
     local levelInfo = debug.info(i, "l")
     while levelInfo ~= -1 and levelInfo ~= nil do
-        ID ..= "+" .. levelInfo
+        ID ..= "+" .. tostring(levelInfo)
         i += 1
         levelInfo = debug.info(i, "l")
     end

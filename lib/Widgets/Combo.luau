@@ -1,9 +1,9 @@
-local Internal = require("../Internal")
-local Utility = require("../Widgets")
+const Internal = require("../Internal")
+const Utility = require("../Widgets")
 
-local Types = require("../Types")
+const Types = require("../Types")
 
-local btest = bit32.btest
+const btest = bit32.btest
 
 --[=[
     @class Combo
@@ -73,7 +73,7 @@ export type Combo = Types.ParentWidget & {
     .NoButton 2 -- hide the dropdown button
     .NoPreview 4 -- hide the preview field
 ]=]
-local ComboFlags = {
+const ComboFlags = {
     NoClick = 1,
     NoButton = 2,
     NoPreview = 4,

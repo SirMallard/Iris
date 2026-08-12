@@ -1,9 +1,9 @@
-local Internal = require("../Internal")
-local Utility = require("../Widgets")
+const Internal = require("../Internal")
+const Utility = require("../Widgets")
 
-local Types = require("../Types")
+const Types = require("../Types")
 
-local btest = bit32.btest
+const btest = bit32.btest
 
 --[=[
     @class Table
@@ -78,7 +78,7 @@ export type Table = Types.ParentWidget & {
     .ProportionalWidth 64 -- minimises the width of each column individually
     .LimitTableWidth 128 -- when a fixed width, cut of any unused space
 ]=]
-local TableFlags = {
+const TableFlags = {
     Header = 1,
     RowBackground = 2,
     Borders = bit32.bor(4, 8),

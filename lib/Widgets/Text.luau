@@ -1,9 +1,9 @@
-local Internal = require("../Internal")
-local Utility = require("../Widgets")
+const Internal = require("../Internal")
+const Utility = require("../Widgets")
 
-local Types = require("../Types")
+const Types = require("../Types")
 
-local btest = bit32.btest
+const btest = bit32.btest
 
 --[=[
     @class Text
@@ -49,7 +49,7 @@ export type SeparatorText = Types.Widget & {
     .Wrapped number -- enable text wrapping (value 1)
     .RichText number -- enable rich text formatting (value 2)
 ]=]
-local TextFlags = {
+const TextFlags = {
     Wrapped = 1,
     RichText = 2,
 }

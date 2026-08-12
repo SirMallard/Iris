@@ -1,5 +1,3 @@
---!strict
-
 --[=[
     @within Iris
     @type ID string
@@ -21,16 +19,16 @@ export type ID = string
     .changed (self: State<T>) -> boolean
 ]=]
 export type State<T> = {
-    ID: ID,
+    read ID: ID,
     _value: T,
     _lastChangeTick: number,
-    _connectedWidgets: { [ID]: Widget },
-    _connectedFunctions: { (newValue: T) -> () },
+    read _connectedWidgets: { [ID]: Widget },
+    read _connectedFunctions: { (newValue: T) -> () },
 
-    get: (self: State<T>) -> T,
-    set: (self: State<T>, newValue: T, force: true?) -> (),
-    onChange: (self: State<T>, funcToConnect: (newValue: T) -> ()) -> () -> (),
-    changed: (self: State<T>) -> boolean,
+    read get: (self: State<T>) -> T,
+    read set: (self: State<T>, newValue: T, force: true?) -> (),
+    read onChange: (self: State<T>, funcToConnect: (newValue: T) -> ()) -> () -> (),
+    read changed: (self: State<T>) -> boolean,
 }
 
 export type APIState<T> = State<T> | T
@@ -50,13 +48,13 @@ export type APIState<T> = State<T> | T
     .zindex number
 ]=]
 export type Widget = {
-    ID: ID,
-    type: string,
+    read ID: ID,
+    read type: string,
     _lastCycleTick: number,
-    _trackedEvents: {},
-    parentWidget: ParentWidget,
+    read _trackedEvents: { [string]: boolean },
+    read parentWidget: ParentWidget,
 
-    arguments: { [string]: any },
+    read arguments: { [string]: any },
 
     instance: GuiObject,
     zindex: number,
@@ -88,78 +86,78 @@ export type StateWidget = Widget & {
 
 export type Hovered = {
     _isHoveredEvent: boolean,
-    hovered: () -> boolean,
+    read hovered: () -> boolean,
 }
 
 export type Clicked = {
     _lastClickedTick: number,
-    clicked: () -> boolean,
+    read clicked: () -> boolean,
 }
 
 export type RightClicked = {
     _lastRightClickedTick: number,
-    rightClicked: () -> boolean,
+    read rightClicked: () -> boolean,
 }
 
 export type DoubleClicked = {
     _lastClickedTime: number,
     _lastClickedPosition: Vector2,
     _lastDoubleClickedTick: number,
-    doubleClicked: () -> boolean,
+    read doubleClicked: () -> boolean,
 }
 
 export type CtrlClicked = {
     _lastCtrlClickedTick: number,
-    ctrlClicked: () -> boolean,
+    read ctrlClicked: () -> boolean,
 }
 
 export type Active = {
-    active: () -> boolean,
+    read active: () -> boolean,
 }
 
 export type Checked = {
-    checked: () -> boolean,
+    read checked: () -> boolean,
 }
 
 export type Unchecked = {
-    unchecked: () -> boolean,
+    read unchecked: () -> boolean,
 }
 
 export type Opened = {
-    opened: () -> boolean,
+    read opened: () -> boolean,
 }
 
 export type Closed = {
-    closed: () -> boolean,
+    read closed: () -> boolean,
 }
 
 export type Collapsed = {
-    collapsed: () -> boolean,
+    read collapsed: () -> boolean,
 }
 
 export type Uncollapsed = {
-    uncollapsed: () -> boolean,
+    read uncollapsed: () -> boolean,
 }
 
 export type Selected = {
-    selected: () -> boolean,
+    read selected: () -> boolean,
 }
 
 export type Unselected = {
-    unselected: () -> boolean,
+    read unselected: () -> boolean,
 }
 
 export type Changed = {
-    changed: () -> boolean,
+    read changed: () -> boolean,
 }
 
 export type Editing = {
-    editing: () -> boolean,
+    read editing: () -> boolean,
 }
 
 export type Event = {
-    Init: (Widget) -> (),
-    Get: (Widget) -> boolean,
+    read Init: (Widget) -> (),
+    read Get: (Widget) -> boolean,
 }
 
 export type Events = { [string]: Event }
@@ -167,21 +165,25 @@ export type Events = { [string]: Event }
 -- Widgets
 
 export type WidgetClass = {
-    hasState: boolean,
-    hasChildren: boolean,
-    numArguments: number,
-    Arguments: { string },
-    Events: Events,
+    read numArguments: number,
+    read Arguments: { string },
+    read Events: Events,
 
-    Generate: (thisWidget: Widget) -> GuiObject,
-    Discard: (thisWidget: Widget) -> (),
-    Update: (thisWidget: Widget, ...any) -> (),
-
-    GenerateState: (thisWidget: Widget) -> (),
-    UpdateState: (thisWidget: Widget) -> (),
-
-    ChildAdded: (thisWidget: Widget, thisChild: Widget) -> GuiObject,
-    ChildDiscarded: (thisWidget: Widget, thisChild: Widget) -> (),
-}
+    read Generate: (thisWidget: Widget) -> GuiObject,
+    read Discard: (thisWidget: Widget) -> (),
+    read Update: (thisWidget: Widget, ...any) -> (),
+} & ({
+    read hasState: false,
+} | {
+    read hasState: true,
+    read GenerateState: (thisWidget: Widget) -> (),
+    read UpdateState: (thisWidget: Widget) -> (),
+}) & ({
+    read hasChildren: false,
+} | {
+    read hasChildren: true,
+    read ChildAdded: (thisWidget: Widget, thisChild: Widget) -> GuiObject,
+    read ChildDiscarded: (thisWidget: Widget, thisChild: Widget) -> ()?,
+})
 
 return {}

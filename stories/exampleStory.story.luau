@@ -5,7 +5,7 @@ return function(parent: GuiObject)
 
     Input.SinkFrame.Parent = parent
 
-    Iris._utility.UserInputService = Input
+    Iris._utility.UserInputService = Input :: any
     Iris.UpdateGlobalConfig({
         UseScreenGUIs = false,
     })

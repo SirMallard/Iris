@@ -1,18 +1,16 @@
---!strict
-
-local Iris = require("../Iris")
+const Iris = require("../Iris")
 
 local showMainWindow = Iris.State(true)
-local showRecursiveWindow = Iris.State(false)
-local showRuntimeInfo = Iris.State(false)
-local showStyleEditor = Iris.State(false)
-local showWindowlessDemo = Iris.State(false)
-local showMainMenuBarWindow = Iris.State(false)
-local showDebugWindow = Iris.State(false)
+const showRecursiveWindow = Iris.State(false)
+const showRuntimeInfo = Iris.State(false)
+const showStyleEditor = Iris.State(false)
+const showWindowlessDemo = Iris.State(false)
+const showMainMenuBarWindow = Iris.State(false)
+const showDebugWindow = Iris.State(false)
 
-local showBackground = Iris.State(false)
-local backgroundColour = Iris.State(Color3.fromRGB(115, 140, 152))
-local backgroundTransparency = Iris.State(0)
+const showBackground = Iris.State(false)
+const backgroundColour = Iris.State(Color3.fromRGB(115, 140, 152))
+const backgroundTransparency = Iris.State(0)
 
 table.insert(Iris._internal._initFunctions, function()
     local background = Instance.new("Frame")
@@ -900,7 +898,7 @@ local function mainMenuBarExample()
 end
 
 -- allows users to edit state
-local styleEditor
+local styleEditor: () -> ()
 do
     styleEditor = function()
         local styleList = {
@@ -1797,11 +1795,6 @@ end
 return function()
     local Bitflags = Iris.State(Iris.WindowFlags.NoClose)
 
-    if showMainWindow._value == false then
-        Iris.Checkbox("Open main window", showMainWindow)
-        return
-    end
-
     debug.profilebegin("Iris/Demo/Window")
     local window = Iris.Window("Iris Demo Window", Bitflags._value, Iris.State(Vector2.new(600, 550)), Iris.State(Vector2.new(100, 25)), showMainWindow)
 
@@ -1891,6 +1884,11 @@ return function()
     end
     Iris.End()
     debug.profileend()
+
+    if showMainWindow._value == false then
+        Iris.Checkbox("Open main window", showMainWindow)
+        return window
+    end
 
     if showRecursiveWindow._value then
         recursiveWindow(showRecursiveWindow)

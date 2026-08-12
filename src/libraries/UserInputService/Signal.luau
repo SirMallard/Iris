@@ -22,6 +22,7 @@
 -- Authors:                                                                   --
 --   stravant - July 31st, 2021 - Created the file.                           --
 --------------------------------------------------------------------------------
+--!nocheck
 
 -- The currently idle thread to run the next handler on
 local freeRunnerThread = nil
@@ -91,19 +92,30 @@ setmetatable(Connection, {
     __index = function(_, key)
         error(("Attempt to get Connection::%s (not a valid member)"):format(tostring(key)), 2)
     end,
-    __newindex = function(_, key, _)
+    __newindex = function(_, key)
         error(("Attempt to set Connection::%s (not a valid member)"):format(tostring(key)), 2)
     end,
 })
+
+export type Connection = {
+    Disconnect: (self: Connection) -> (),
+}
+
+export type Signal<T...> = {
+    Connect: (self: Signal<T...>, callback: (T...) -> ()) -> Connection,
+    Once: (self: Signal<T...>, callback: (T...) -> ()) -> Connection,
+    Fire: (self: Signal<T...>, T...) -> (),
+    Wait: (self: Signal<T...>) -> T...,
+}
 
 -- Signal class
 local Signal = {}
 Signal.__index = Signal
 
-function Signal.new()
+function Signal.new<T...>(): Signal<T...>
     return setmetatable({
         _handlerListHead = false,
-    }, Signal)
+    }, Signal) :: any
 end
 
 function Signal:Connect(fn)
@@ -172,7 +184,7 @@ setmetatable(Signal, {
     __index = function(_, key)
         error(("Attempt to get Signal::%s (not a valid member)"):format(tostring(key)), 2)
     end,
-    __newindex = function(_, key, _)
+    __newindex = function(_, key)
         error(("Attempt to set Signal::%s (not a valid member)"):format(tostring(key)), 2)
     end,
 })

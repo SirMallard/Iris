@@ -1,4 +1,4 @@
-local function render(Iris)
+local function render(Iris: unknown)
     Iris.Window("Dev")
     do
         Iris.Table(4, Iris.TableFlags.Header + Iris.TableFlags.RowBackground + Iris.TableFlags.Borders)
@@ -28,9 +28,9 @@ return function(parent: GuiObject)
 
     Input.SinkFrame.Parent = parent
 
-    Iris._utility.UserInputService = Input
-    Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorLight)
-    Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeClear)
+    Iris._utility.UserInputService = Input :: any
+    Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorLight :: any)
+    Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeClear :: any)
     Iris.UpdateGlobalConfig({
         UseScreenGUIs = false,
     })

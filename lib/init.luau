@@ -1,11 +1,10 @@
---!strict
 --!optimize 2
 
-local Types = require("@self/Types")
-local Iris = {}
+const Types = require("@self/Types")
+const Iris = {}
 
-local Internal = require("@self/Internal")
-local Utility = require("@self/Widgets")
+const Internal = require("@self/Internal")
+const Utility = require("@self/Widgets")
 
 Iris._internal = Internal
 Iris._utility = Utility
@@ -53,7 +52,7 @@ Iris._utility = Utility
 
     If the `eventConnection` is `false` then Iris will not create a cycle loop and the user will need to call [Internal._cycle] every frame.
 ]=]
-function Iris.Init(parentInstance: (BasePlayerGui | GuiBase2d)?, eventConnection: (RBXScriptSignal | (() -> number) | false)?, allowMultipleInits: boolean?)
+function Iris.Init(parentInstance: (BasePlayerGui | GuiBase2d)?, eventConnection: (RBXScriptSignal<number> | (() -> number) | false)?, allowMultipleInits: boolean?)
     assert(Internal._shutdown == false, "Iris.Init() cannot be called once shutdown.")
     assert(Internal._started == false or allowMultipleInits == true, "Iris.Init() can only be called once.")
 
@@ -63,7 +62,7 @@ function Iris.Init(parentInstance: (BasePlayerGui | GuiBase2d)?, eventConnection
 
     if parentInstance == nil then
         -- coalesce to playerGui
-        parentInstance = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+        parentInstance = game:GetService("Players").LocalPlayer.PlayerGui
     end
     if eventConnection == nil then
         -- coalesce to Heartbeat
@@ -83,7 +82,7 @@ function Iris.Init(parentInstance: (BasePlayerGui | GuiBase2d)?, eventConnection
     task.spawn(function()
         if typeof(eventConnection) == "function" then
             while Internal._started do
-                local deltaTime = eventConnection()
+                const deltaTime = eventConnection()
                 Internal._cycle(deltaTime)
             end
         elseif eventConnection ~= nil and eventConnection ~= false then
@@ -139,11 +138,11 @@ end
 
     Multiple callbacks can be added to Iris from many different scripts or modules.
 ]=]
-function Iris:Connect(callback: () -> ()): () -> () -- this uses method syntax for no reason.
+function Iris:Connect(callback: (...any) -> ()): () -> () -- this uses method syntax for no reason.
     if Internal._started == false then
         warn("Iris:Connect() was called before calling Iris.Init(); always initialise Iris first.")
     end
-    local connectionIndex = #Internal._connectedFunctions + 1
+    const connectionIndex = #Internal._connectedFunctions + 1
     Internal._connectedFunctions[connectionIndex] = callback
     return function()
         Internal._connectedFunctions[connectionIndex] = nil
@@ -161,8 +160,9 @@ end
     property or by the current parent widget from the stack.
 ]=]
 function Iris.Append(userInstance: GuiObject)
-    local parentWidget = Internal._getParentWidget()
-    local widgetInstanceParent = Internal._config.Parent or Internal._widgets[parentWidget.type].ChildAdded(parentWidget, { type = "userInstance" } :: Types.Widget)
+    const parentWidget = Internal._getParentWidget()
+    local class = Internal._widgets[parentWidget.type]
+    const widgetInstanceParent = Internal._config.Parent or class.hasChildren and class.ChildAdded(parentWidget, { type = "userInstance" } :: Types.Widget) or nil
     userInstance.Parent = widgetInstanceParent
 end
 
@@ -230,7 +230,7 @@ end
     ```
 ]=]
 function Iris.PushConfig(deltaStyle: { [string]: any })
-    local state = Iris.State({ tick = 0 } :: { [string]: any })
+    const state = Iris.State({ tick = 0 } :: { [string]: any })
     if state._value.tick == 0 then
         state:set(deltaStyle)
     else
@@ -285,9 +285,9 @@ end
     TemplateConfig provides a table of default styles and configurations which you may apply to your UI.
 ]=]
 Iris.TemplateConfig = require("@self/Config")
-Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark) -- use colorDark and sizeDefault themes by default
-Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault)
-Iris.UpdateGlobalConfig(Iris.TemplateConfig.utilityDefault)
+Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorDark :: any) -- use colorDark and sizeDefault themes by default
+Iris.UpdateGlobalConfig(Iris.TemplateConfig.sizeDefault :: any)
+Iris.UpdateGlobalConfig(Iris.TemplateConfig.utilityDefault :: any)
 Internal._globalRefreshRequested = false -- UpdatingGlobalConfig changes this to true, leads to Root being generated twice.
 
 --[[
@@ -392,11 +392,11 @@ end
     :::
 ]=]
 function Iris.State<T>(initialValue: T?): Types.State<T>
-    local ID = Internal._getID(2)
+    const ID = Internal._getID(2)
     if Internal._states[ID] then
         return Internal._states[ID]
     end
-    local newState = {
+    const newState = {
         ID = ID,
         _value = initialValue,
         _lastChangeTick = Internal._cycleTick,
@@ -418,7 +418,7 @@ end
     Constructs a new state object, subsequent ID calls will return the same object, except all widgets connected to the state are discarded, the state reverts to the passed initialValue
 ]=]
 function Iris.WeakState<T>(initialValue: T?): Types.State<T>
-    local ID = Internal._getID(2)
+    const ID = Internal._getID(2)
     if Internal._states[ID] then
         if next(Internal._states[ID]._connectedWidgets) == nil then
             Internal._states[ID] = nil
@@ -426,7 +426,7 @@ function Iris.WeakState<T>(initialValue: T?): Types.State<T>
             return Internal._states[ID]
         end
     end
-    local newState = {
+    const newState = {
         ID = ID,
         _value = initialValue,
         _lastChangeTick = Internal._cycleTick,
@@ -477,8 +477,8 @@ end
     :::
 ]=]
 function Iris.VariableState<T>(variable: T, callback: (T) -> ()): Types.State<T>
-    local ID = Internal._getID(2)
-    local state = Internal._states[ID]
+    const ID = Internal._getID(2)
+    const state = Internal._states[ID]
 
     if state then
         if variable ~= state._value then
@@ -487,7 +487,7 @@ function Iris.VariableState<T>(variable: T, callback: (T) -> ()): Types.State<T>
         return state
     end
 
-    local newState = {
+    const newState = {
         ID = ID,
         _value = variable,
         _lastChangeTick = Internal._cycleTick,
@@ -556,9 +556,9 @@ end
     :::
 ]=]
 function Iris.TableState<K, V>(tab: { [K]: V }, key: K, callback: ((newValue: V) -> true?)?): Types.State<V>
-    local value = tab[key]
-    local ID = Internal._getID(2)
-    local state = Internal._states[ID]
+    const value = tab[key]
+    const ID = Internal._getID(2)
+    const state = Internal._states[ID]
 
     -- If the table values changes, then we update the state to match.
     if state then
@@ -568,7 +568,7 @@ function Iris.TableState<K, V>(tab: { [K]: V }, key: K, callback: ((newValue: V)
         return state
     end
 
-    local newState = {
+    const newState = {
         ID = ID,
         _value = value,
         _lastChangeTick = Internal._cycleTick,
@@ -609,12 +609,12 @@ end
     :::
 ]=]
 function Iris.ComputedState<T, U>(firstState: Types.State<T>, onChangeCallback: (firstValue: T) -> U): Types.State<U>
-    local ID = Internal._getID(2)
+    const ID = Internal._getID(2)
 
     if Internal._states[ID] then
         return Internal._states[ID]
     else
-        local newState = {
+        const newState = {
             ID = ID,
             _value = onChangeCallback(firstState._value),
             _lastChangeTick = Internal._cycleTick,
@@ -634,7 +634,7 @@ end
 
 --[=[
     @within Iris
-    @function ShowDemoWindow
+    @function ShowDemoWindow   
 
     ShowDemoWindow is a function which creates a Demonstration window. this window contains many useful utilities for coders,
     and serves as a refrence for using each part of the library. Ideally, the DemoWindow should always be available in your UI.
@@ -672,26 +672,26 @@ end
 ]=]
 Iris.End = Internal._end
 
-local _ = require("@self/Widgets/Root")
-local Window = require("@self/Widgets/Window")
-local Menu = require("@self/Widgets/Menu")
+const _ = require("@self/Widgets/Root")
+const Window = require("@self/Widgets/Window")
+const Menu = require("@self/Widgets/Menu")
 
-local Format = require("@self/Widgets/Format")
+const Format = require("@self/Widgets/Format")
 
-local Text = require("@self/Widgets/Text")
-local Button = require("@self/Widgets/Button")
-local Checkbox = require("@self/Widgets/Checkbox")
-local RadioButton = require("@self/Widgets/RadioButton")
-local Image = require("@self/Widgets/Image")
+const Text = require("@self/Widgets/Text")
+const Button = require("@self/Widgets/Button")
+const Checkbox = require("@self/Widgets/Checkbox")
+const RadioButton = require("@self/Widgets/RadioButton")
+const Image = require("@self/Widgets/Image")
 
-local Tree = require("@self/Widgets/Tree")
-local Tab = require("@self/Widgets/Tab")
+const Tree = require("@self/Widgets/Tree")
+const Tab = require("@self/Widgets/Tab")
 
-local Input = require("@self/Widgets/Input")
-local Combo = require("@self/Widgets/Combo")
-local Plot = require("@self/Widgets/Plot")
+const Input = require("@self/Widgets/Input")
+const Combo = require("@self/Widgets/Combo")
+const Plot = require("@self/Widgets/Plot")
 
-local Table = require("@self/Widgets/Table")
+const Table = require("@self/Widgets/Table")
 
 Iris.WindowFlags = Window.WindowFlags
 Iris.TextFlags = Text.TextFlags
@@ -772,5 +772,9 @@ Iris.PlotLines = Plot.API_PlotLines
 Iris.PlotHistogram = Plot.API_PlotHistogram
 
 export type Iris = typeof(Iris)
+
+export type ID = Types.ID
+export type State<T> = Types.State<T>
+export type Widget = Types.Widget
 
 return Iris

@@ -1,14 +1,13 @@
---! strict
-local Iris = require("./Iris")
-local DemoWindow = require("./Iris/DemoWindow")
-local Input = require("./UserInputService")
+const Iris = require("./Iris")
+const DemoWindow = require("./Iris/DemoWindow")
+const Input = require("./UserInputService")
 
 -- Create the plugin toolbar, button and dockwidget for Iris to work in.
-local widgetInfo = DockWidgetPluginGuiInfo.new(Enum.InitialDockState.Float, false, false, 200, 300)
+const widgetInfo = DockWidgetPluginGuiInfo.new(Enum.InitialDockState.Float, false, false, 200, 300)
 
-local Toolbar = plugin:CreateToolbar("Iris")
-local ToggleButton = Toolbar:CreateButton("Toggle Iris", "Toggle Iris running in a plugin window.", "rbxasset://textures/AnimationEditor/icon_checkmark.png")
-local IrisWidget = plugin:CreateDockWidgetPluginGuiAsync("IrisWidget", widgetInfo)
+const Toolbar = plugin:CreateToolbar("Iris")
+const ToggleButton = Toolbar:CreateButton("Toggle Iris", "Toggle Iris running in a plugin window.", "rbxasset://textures/AnimationEditor/icon_checkmark.png")
+const IrisWidget = plugin:CreateDockWidgetPluginGuiAsync("IrisWidget", widgetInfo)
 
 -- defein the widget and button properties
 IrisWidget.Name = "Iris"
@@ -20,7 +19,7 @@ local IrisEnabled = false
 Input.SinkFrame.Parent = IrisWidget
 
 -- configure a few things within Iris. We need to provide our own UserInputService and change the config.
-Iris._utility.UserInputService = Input
+Iris._utility.UserInputService = Input :: any
 Iris.UpdateGlobalConfig({
     UseScreenGUIs = false,
 })
@@ -31,7 +30,7 @@ Iris.Init(IrisWidget)
 -- We can start defining our code. This just uses the demo window and then forces it to be the same size
 -- as the Plugin Widget. You don't have to do it this way.
 Iris:Connect(function()
-    local window = DemoWindow()
+    local window = DemoWindow(Iris.State(true))
     window.state.size:set(IrisWidget.AbsoluteSize)
     window.state.position:set(Vector2.zero)
 end)

@@ -1,9 +1,9 @@
-local Internal = require("../Internal")
-local Utility = require("../Widgets")
+const Internal = require("../Internal")
+const Utility = require("../Widgets")
 
-local Types = require("../Types")
+const Types = require("../Types")
 
-local btest = bit32.btest
+const btest = bit32.btest
 
 --[=[
     @class Tree
@@ -39,7 +39,7 @@ export type Tree = Types.ParentWidget & {
     .NoIndent 2 -- the child widgets will not be indented underneath
     .DefaultOpen 4 -- initially opens the tree if no state is provided
 ]=]
-local TreeFlags = {
+const TreeFlags = {
     SpanAvailWidth = 1,
     NoIndent = 2,
     DefaultOpen = 4,

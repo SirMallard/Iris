@@ -1,13 +1,13 @@
-local Signal = require("@self/Signal")
+const Signal = require("@self/Signal")
 
-local UserInputService = game:GetService("UserInputService")
+const UserInputService = game:GetService("UserInputService")
 
-local Input = {}
+const Input = {}
 
 Input.X = 0
 Input.Y = 0
 Input.KeyDown = {}
-Input._connections = {}
+Input._connections = {} :: { RBXScriptConnection }
 
 -- This frame will act as our UserInputService detector. Most events should go through it.
 -- it's not perfect, but there's not a better alternative (I think)
