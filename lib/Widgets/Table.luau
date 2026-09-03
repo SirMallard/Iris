@@ -49,7 +49,7 @@ export type Table = Types.ParentWidget & {
     _rowIndex: number,
     _rowContainer: Frame,
     _rowInstances: { Frame },
-    _cellInstances: { { Frame } },
+    _cellInstances: { { GuiObject } },
     _rowBorders: { Frame },
     _columnBorders: { GuiButton },
     _rowCycles: { number },
@@ -118,7 +118,7 @@ local function CalculateMinColumnWidth(thisWidget: Table, index: number)
 end
 
 local function UpdateActiveColumn()
-    if AnyActiveTable == false or ActiveTable == nil then
+    if ActiveTable == nil or AnyActiveTable == false then
         return
     end
 
@@ -481,7 +481,7 @@ Internal._widgetConstructor(
             local Table = thisWidget.instance :: Frame
             local BorderContainer: Frame = Table.BorderContainer
 
-            thisWidget._cellInstances[-1] = table.create(NumColumns)
+            thisWidget._cellInstances[-1] = table.create(NumColumns) :: { GuiObject }
             for index = 1, NumColumns do
                 local Border = GenerateColumnBorder(thisWidget, index, "Light")
                 Border.Visible = btest(TableFlags.InnerBorders, thisWidget.arguments.Flags)
@@ -858,9 +858,9 @@ local API_SetColumnWidth = function(index: number, width: number)
     assert(thisWidget ~= nil, "Iris.SetColumnWidth() can only called when directly within a table.")
     assert((index >= 1) and (index <= thisWidget.arguments.NumColumns), `The index must be between 1 and {thisWidget.arguments.NumColumns}, inclusive.`)
 
-    local oldValue = thisWidget.state.widths.value[index]
-    thisWidget.state.widths.value[index] = width
-    thisWidget.state.widths:set(thisWidget.state.widths.value, width ~= oldValue)
+    local oldValue = thisWidget.state.widths._value[index]
+    thisWidget.state.widths._value[index] = width
+    thisWidget.state.widths:set(thisWidget.state.widths._value, width ~= oldValue)
 end
 
 return {

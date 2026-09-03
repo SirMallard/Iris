@@ -163,7 +163,7 @@ end
 
     Allows the caller to assign the state object a new value, and returns the new value.
 ]=]
-function StateClass.set<T>(self: Types.State<T>, newValue: T, force: true?)
+function StateClass.set<T>(self: Types.State<T>, newValue: T, force: boolean?)
     if newValue == self._value and force ~= true then
         -- no need to update on no change.
         return self._value

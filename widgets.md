@@ -1,196 +1,317 @@
-# Window Iris.Window   
-    hasChildren = true
-    hasState = true
-## Arguments
+# Completion
+
+## Checks
+- Type
+  - Argumets
+    - Optional
+  - States
+    - Optional
+  - Events
+- Constructor
+  - Num Arguments
+  - Arguments
+  - Events
+  - GenerateState
+    - Optional
+    - Default values
+  - Update
+    - Optional
+    - Default values
+- API
+  - Arguments
+    - Optional
+
+## Windows
+- [ ] [Window](#window-iriswindow)
+- [ ] [Tooltip](#tooltip-iristooltip)
+- [ ] [MenuBar](#menubar-irismenubar)
+- [ ] [Menu](#menu-irismenu)
+- [ ] [MenuItem](#menuitem-irismenuitem)
+- [ ] [MenuToggle](#menutoggle-irismenutoggle)
+
+## Formatting
+- [ ] [Separator](#separator-irisseparator)
+- [ ] [Indent](#indent-irisindent)
+- [ ] [SameLine](#sameline-irissameline)
+- [ ] [Group](#group-irisgroup)
+- [ ] [SeparatorText](#separatortext-irisseparatortext)
+  
+## Basic
+- [ ] [Text](#text-iristext)
+- [ ] [Button](#button-irisbutton-smallbutton-irissmallbutton)
+- [ ] [Checkbox](#checkbox-irischeckbox)
+- [ ] [CheckboxFlags](#checkboxflags-irischeckboxflags)
+- [ ] [RadioButton](#radiobutton-irisradiobutton)
+- [ ] [Image](#image-irisimage)
+- [ ] [ImageButton](#imagebutton-irisimagebutton)
+- [ ] [Tree](#tree-iristree-collapsingheader-iriscollapsingheader)
+- [ ] [TabBar](#tabbar-iristabbar)
+- [ ] [Tab](#tab-iristab)
+
+## Inputs
+- [ ] [InputText](#inputtext-irisinputtext)
+- [ ] [InputNum](#inputnum-inputvector2-inputvector3-inputudim-inputudim2-inputrect-irisinput)
+- [ ] [DragNum](#dragnum-dragvector2-dragvector3-dragudim-dragudim2-dragrect-irisdrag)
+- [ ] [InputColor3](#inputcolor3-irisinputcolor3)
+- [ ] [InputColor4](#inputcolor4-irisinputcolor4)
+- [ ] [SliderNum](#slidernum-slidervector2-slidervector3-sliderudim-sliderudim2-sliderrect-irisslidernum)
+- [ ] [Selectable](#selectable-irisselectable)
+  
+## Dropdown
+- [ ] [Combo](#combo-iriscombo)
+- [ ] [ComboArray](#comboarray-iriscombo)
+- [ ] [ComboEnum](#comboenum-iriscombo)
+- [ ] [InputEnum](#inputenum-irisinputenum)
+
+## Plotting
+- [ ] [ProgressBar](#progressbar-irisprogressbar)
+- [ ] [PlotLines](#plotlines-irisplotlines)
+- [ ] [PlotHistogram](#plothistogram-irisplothistogram)
+- [ ] [Table](#table-iristable)
+
+# Widget Properties
+
+## Window `Iris.Window`
+
+- `hasChildren`
+- `hasState`
+
+### Arguments
+
     Title: string
-    Flags: WindowFlags?,
-## Events
+    Flags: WindowFlags? = 0,
+
+### Events
+
     opened: () -> boolean
     closed: () -> boolean
     collapsed: () -> boolean
     uncollapsed: () -> boolean
     hovered: () -> boolean
-## States
+
+### States
+
     size: State<Vector2>? = Vector2.new(400, 300)
     position: State<Vector2>?
     open: State<boolean>? = true
     collapsed: State<boolean>? = false
     scrollDistance: State<number>?
 
+## Tooltip `Iris.Tooltip`
 
-# Tooltip Iris.Tooltip
-    hasChildren = false
-    hasState = false
-## Arguments
+
+### Arguments
+
     Text: string
 
+## MenuBar `Iris.MenuBar`
 
-# MenuBar Iris.MenuBar
-    hasChildren = true
-    hasState = false
+- `hasChildren`
 
+## Menu `Iris.Menu`
 
-# Menu Iris.Menu
-    hasChildren = true
-    hasState = true
-## Arguments
+- `hasChildren`
+- `hasState`
+
+### Arguments
+
     Label: string
-## Events
+
+### Events
+
     clicked: () -> boolean
     opened: () -> boolean
     closed: () -> boolean
     hovered: () -> boolean
-## States
+
+### States
+
     open: State<boolean>?
 
+## MenuItem `Iris.MenuItem`
 
-# MenuItem Iris.MenuItem
-    hasChildren = false
-    hasState = false
-## Arguments
+
+### Arguments
+
     Label: string
     KeyCode: Enum.KeyCode? = nil
     ModifierKey: Enum.ModifierKey? = nil
-## Events
+
+### Events
+
     clicked: () -> boolean
+    rightClicked: () -> boolean
+    doubleClicked: () -> boolean
+    ctrlClicked: () -> boolean
     hovered: () -> boolean
 
+## MenuToggle `Iris.MenuToggle`
 
-# MenuToggle Iris.MenuToggle
-    hasChildren = false
-    hasState = true
-## Arguments
+- `hasState`
+
+### Arguments
+
     Label: string
     KeyCode: Enum.KeyCode? = nil
     ModifierKey: Enum.ModifierKey? = nil
-## Events
+
+### Events
+
     checked: () -> boolean
     unchecked: () -> boolean
     hovered: () -> boolean
-## States
+
+### States
+
     value: State<boolean>?
 
-
-# Separator Iris.Separator
-    hasChildren = false
-    hasState = false
+## Separator `Iris.Separator`
 
 
-# Indent Iris.Indent
-    hasChildren = true
-    hasState = false
-## Arguments
+## Indent `Iris.Indent`
+
+- `hasChildren`
+
+### Arguments
+
     Width: number? = Iris._config.IndentSpacing
-    
 
-# SameLine Iris.SameLine
-    hasChildren = true
-    hasState = false
-## Arguments
+## SameLine `Iris.SameLine`
+
+- `hasChildren`
+
+### Arguments
+
     Width: number? = Iris._config.ItemSpacing.X
     VerticalAlignment: Enum.VerticalAlignment? = Enum.VerticalAlignment.Center
     HorizontalAlignment: Enum.HorizontalAlignment? = Enum.HorizontalAlignment.Center
-    
 
-# Group Iris.Group
-    hasChildren = true
-    hasState = false
+## Group `Iris.Group`
+
+- `hasChildren`
+
+## Text `Iris.Text`
 
 
-# Text Iris.Text
-    hasChildren = false
-    hasState = false
-## Arguments
+### Arguments
+
     Text: string
     Wrapped: boolean? = [CONFIG] = false
     Color: Color3? = Iris._config.TextColor
     RichText: boolean? = [CONFIG] = false
-## Events
+
+### Events
+
     hovered: () -> boolean
 
+## SeparatorText `Iris.SeparatorText`
 
-# SeparatorText Iris.SeparatorText
-    hasChildren = false
-    hasState = false
-## Arguments
-    Text: string
-    
 
-# InputText Iris.InputText
-    hasChildren = false
-    hasState = true
-## Arguments
+### Arguments
+
+    Label: string
+
+## InputText `Iris.InputText`
+
+- `hasState`
+
+### Arguments
+
     Label: string? = "InputText"
     TextHint: string? = ""
-    ReadOnly: boolean? = false
-    MultiLine: boolean? = false
-## Events
-    changed: () -> boolean
-    hovered: () -> boolean
-## States
-    text: State<string>?
-    
+    Flags: InputTextFlags? = 0
 
-# Button Iris.Button, SmallButton Iris.SmallButton
-    hasChildren = false
-    hasState = false
-## Arguments
-    Label: string?
+### Events
+
+    changed: () -> boolean
+    editing: () -> boolean
+    hovered: () -> boolean
+
+### States
+
+    text: State<string>?
+
+## Button `Iris.Button`, SmallButton `Iris.SmallButton`
+
+
+### Arguments
+
+    Label: string
     Size: UDim2? = UDim2.fromOffset(0, 0)
-## Events
+
+### Events
+
     clicked: () -> boolean
     rightClicked: () -> boolean
     doubleClicked: () -> boolean
     ctrlClicked: () -> boolean
     hovered: () -> boolean
-    
 
-# Checkbox Iris.Checkbox
-    hasChildren = false
-    hasState = true
-## Arguments
+## Checkbox `Iris.Checkbox`
+
+- `hasState`
+
+### Arguments
+
     Label: string
-## Events
+
+### Events
+
     checked: () -> boolean
     unchecked: () -> boolean
+    changed: () -> boolean
     hovered: () -> boolean
-## States
+
+### States
+
     value = State<boolean>?
 
-# CheckboxFlags Iris.CheckboxFlags
-    hasChildren = false
-    hasState = true
-## Arguments
+## CheckboxFlags `Iris.CheckboxFlags`
+
+- `hasState`
+
+### Arguments
+
     Label: string
     Bit: number
-## Events
+
+### Events
+
     checked: () -> boolean
     unchecked: () -> boolean
+    changed: () -> boolean
     hovered: () -> boolean
-## States
+
+### States
+
     flags = State<number>?
 
-    
+## RadioButton `Iris.RadioButton`
 
-# RadioButton Iris.RadioButton
-    hasChildren = false
-    hasState = true
-## Arguments
+- `hasState`
+
+### Arguments
+
     Label: string
     Value: any
-## Events
+
+### Events
+
     selected: () -> boolean
     unselected: () -> boolean
     active: () -> boolean
+    changed: () -> boolean
     hovered: () -> boolean
-## States
+
+### States
+
     index = State<any>?
-    
 
-# Image Iris.Image
-    hasChildren = false
-    hasState = false
-## Arguments
+## Image `Iris.Image`
+
+
+### Arguments
+
     Image: string
     Size: UDim2
     Rect: Rect? = Rect.new()
@@ -199,14 +320,16 @@
     TileSize: UDim2? = UDim2.fromScale(1, 1)
     SliceCenter: Rect? = Rect.new()
     SliceScale: number? = 1
-## Events
+
+### Events
+
     hovered: () -> boolean
-    
 
-# ImageButton Iris.ImageButton
-    hasChildren = false
-    hasState = false
-## Arguments
+## ImageButton `Iris.ImageButton`
+
+
+### Arguments
+
     Image: string
     Size: UDim2
     Rect: Rect? = Rect.new()
@@ -215,45 +338,57 @@
     TileSize: UDim2? = UDim2.fromScale(1, 1)
     SliceCenter: Rect? = Rect.new()
     SliceScale: number? = 1
-## Events
+
+### Events
+
     clicked: () -> boolean
     rightClicked: () -> boolean
     doubleClicked: () -> boolean
     ctrlClicked: () -> boolean
     hovered: () -> boolean
-    
 
-# Tree Iris.Tree, CollapsingHeader Iris.CollapsingHeader
+## Tree `Iris.Tree`, CollapsingHeader `Iris.CollapsingHeader`
+
     hasChildren: true
     hasState: true
-## Arguments
+
+### Arguments
+
     Label: string
-    SpanAvailWidth: boolean? = false
-    NoIndent: boolean? = false
-    DefaultOpen: boolean? = false
-## Events
+    Flags: TreeFlags? = 0
+
+### Events
+
     open: () -> boolean
     closed: () -> boolean
     changed: () -> boolean
     hovered: () -> boolean
-## States
+
+### States
+
     open: State<boolean>?
 
+## TabBar `Iris.TabBar`
 
-# TabBar Iris.TabBar
     hasChildren: true
     hasState: true
-## States
+
+### States
+
     index: State<number>?
-    
 
-# Tab Iris.Tab
+## Tab `Iris.Tab`
+
     hasChildren: true
     hasState: true
-## Arguments
+
+### Arguments
+
     Text: string
     Hideable: boolean? = nil
-## Events
+
+### Events
+
     clicked: () -> boolean
     hovered: () -> boolean
     selected: () -> boolean
@@ -261,101 +396,129 @@
     active: () -> boolean
     opened: () -> boolean
     closed: () -> boolean
-    
 
-# InputNum, InputVector2, InputVector3, InputUDim, InputUDim2, InputRect Iris.Input<T>
-    hasChildren = false
-    hasState = true
-## Arguments
+## InputNum, InputVector2, InputVector3, InputUDim, InputUDim2, InputRect `Iris.Input`<T>
+
+- `hasState`
+
+### Arguments
+
     Label: string? = "InputNum"
     Increment: number? = nil
     Min: number? = nil
     Max: number? = nil
     Format: string? | { string }? = [DYNAMIC]
     NoButtons: boolean? = false
-## Events
+
+### Events
+
     changed: () -> boolean
     editing: () -> boolean
     hovered: () -> boolean
-## States
+
+### States
+
     value: State<number>?
 
+## DragNum, DragVector2, DragVector3, DragUDim, DragUDim2, DragRect `Iris.Drag`<T>
 
-# DragNum, DragVector2, DragVector3, DragUDim, DragUDim2, DragRect Iris.Drag<T>
-    hasChildren = false
-    hasState = true
-## Arguments
+- `hasState`
+
+### Arguments
+
     Label: string? = "DragNum"
     Increment: number? = nil
     Min: number? = nil
     Max: number? = nil
     Format: string? | { string }? = [DYNAMIC]
-## Events
+
+### Events
+
     changed: () -> boolean
     editing: () -> boolean
     hovered: () -> boolean
-## States
+
+### States
+
     value: State<number>?
 
+## InputColor3 `Iris.InputColor3`
 
-# InputColor3 Iris.InputColor3
-    hasChildren = false
-    hasState = true
-## Arguments
+- `hasState`
+
+### Arguments
+
     Label: string? = "InputColor3"
     UseFloats: boolean? = false
     UseHSV: boolean? = false
     Format: string? | { string }? = [DYNAMIC]
-## Events
+
+### Events
+
     changed: () -> boolean
     editing: () -> boolean
     hovered: () -> boolean
-## States
-    color: State<Color3>?
-    
 
-# InputColor4 Iris.InputColor4
-    hasChildren = false
-    hasState = true
-## Arguments
+### States
+
+    color: State<Color3>?
+
+## InputColor4 `Iris.InputColor4`
+
+- `hasState`
+
+### Arguments
+
     Label: string? = "InputColor4"
     UseFloats: boolean? = false
     UseHSV: boolean? = false
     Format: string? | { string }? = [DYNAMIC]
-## Events
+
+### Events
+
     changed: () -> boolean
     editing: () -> boolean
     hovered: () -> boolean
-## States
+
+### States
+
     color: State<Color3>?
     transparency: State<number>?
 
+## SliderNum, SliderVector2, SliderVector3, SliderUDim, SliderUDim2, SliderRect `Iris.SliderNum`
 
-# SliderNum, SliderVector2, SliderVector3, SliderUDim, SliderUDim2, SliderRect Iris.SliderNum
-    hasChildren = false
-    hasState = true
-## Arguments
+- `hasState`
+
+### Arguments
+
     Label: string? = "SliderNum"
     Increment: number? = 1
     Min: number? = 0
     Max: number? = 100
     Format: string? | { string }? = [DYNAMIC]
-## Events
+
+### Events
+
     changed: () -> boolean
     editing: () -> boolean
     hovered: () -> boolean
-## States
+
+### States
+
     value: State<number>?
 
+## Selectable `Iris.Selectable`
 
-# Selectable Iris.Selectable
-    hasChildren = false
-    hasState = true
-## Arguments
+- `hasState`
+
+### Arguments
+
     Label: string
     Value: any
     NoClick: boolean? = false
-## Events
+
+### Events
+
     selected: () -> boolean
     unselected: () -> boolean
     active: () -> boolean
@@ -364,135 +527,173 @@
     doubleClicked: () -> boolean
     ctrlClicked: () -> boolean
     hovered: () -> boolean
-## States
+
+### States
+
     index: State<any>
 
+## Combo `Iris.Combo`
 
-# Combo Iris.Combo
-    hasChildren = true
-    hasState = true
-## Arguments
+- `hasChildren`
+- `hasState`
+
+### Arguments
+
     Label: string
-    NoButton: boolean? = false
-    NoPreview: boolean? = false
-## Events
+    Flags: ComboFlags? = 0
+
+### Events
+
     opened: () -> boolean
     closed: () -> boolean
     changed: () -> boolean
     clicked: () -> boolean
     hovered: () -> boolean
-## States
-    index: State<any>
-    open: State<boolean>?
-    
 
-# ComboArray Iris.Combo
-    hasChildren = true
-    hasState = true
-## Arguments
+### States
+
+    index: State<any>?
+    open: State<boolean>?
+
+## ComboArray `Iris.Combo`
+
+- `hasChildren`
+- `hasState`
+
+### Arguments
+
     Label: string
     SelectionArray: { any }
-    NoButton: boolean? = false
-    NoPreview: boolean? = false
-## Events
+    Flags: ComboFlags? = 0
+
+### Events
+
     opened: () -> boolean
     closed: () -> boolean
+    changed: () -> boolean
     clicked: () -> boolean
     hovered: () -> boolean
-## States
-    index: State<any>
-    open: State<boolean>?
-    
 
-# ComboEnum Iris.Combo
-    hasChildren = true
-    hasState = true
-## Arguments
+### States
+
+    index: State<any>?
+    open: State<boolean>?
+
+## ComboEnum `Iris.Combo`
+
+- `hasChildren`
+- `hasState`
+
+### Arguments
+
     Text: string
     EnumType: Enum
-    NoButton: boolean? = false
-    NoPreview: boolean? = false
-## Events
+    Flags: ComboFlags? = 0
+
+### Events
+
     opened: () -> boolean
     closed: () -> boolean
+    changed: () -> boolean
     clicked: () -> boolean
     hovered: () -> boolean
-## States
-    index: State<any>
-    open: State<boolean>?
-    
 
-# InputEnum Iris.InputEnum
-    hasChildren = false
-    hasState = true
-## Arguments
+### States
+
+    index: State<any>?
+    open: State<boolean>?
+
+## InputEnum `Iris.InputEnum`
+
+- `hasState`
+
+### Arguments
+
     Label: string? = "InputEnum"
     EnumType: Enum
-## Events
+
+### Events
+
     numberChanged: () -> boolean
     hovered: () -> boolean
-## States
-    enumItem: EnumItem
-    
 
-# ProgressBar Iris.ProgressBar
-    hasChildren = false
-    hasState = true
-## Arguments
+### States
+
+    enumItem: EnumItem
+
+## ProgressBar `Iris.ProgressBar`
+
+- `hasState`
+
+### Arguments
+
     Label: string? = "Progress Bar"
     Format: string? = nil
-## Events
+
+### Events
+
     hovered: () -> boolean
     changed: () -> boolean
-## States
-    progress: State<number>?
-    
 
-# PlotLines Iris.PlotLines
-    hasChildren = false
-    hasState = true
-## Arguments
+### States
+
+    progress: State<number>?
+
+## PlotLines `Iris.PlotLines`
+
+- `hasState`
+
+### Arguments
+
     Label: string? = "Plot Lines"
     Height: number? = 0
     Min: number? = min
     Max: number? = max
     TextOverlay: string? = ""
-## Events
+
+### Events
+
     hovered: () -> boolean
-## States
+
+### States
+
     values: State<{number}>?
 
+## PlotHistogram `Iris.PlotHistogram`
 
-# PlotHistogram Iris.PlotHistogram
-    hasChildren = false
-    hasState = true
-## Arguments
+- `hasState`
+
+### Arguments
+
     Label: string? = "Plot Histogram"
     Height: number? = 0
     Min: number? = min
     Max: number? = max
     TextOverlay: string? = ""
     BaseLine: number? = 0
-## Events
+
+### Events
+
     hovered: () -> boolean
-## States
+
+### States
+
     values: State<{number}>?
 
+## Table `Iris.Table`
 
-# Table Iris.Table
-    hasChildren = true
-    hasState = false
-## Arguments
+- `hasChildren`
+
+### Arguments
+
     NumColumns: number
-    Header: boolean? = false
-    RowBackground: boolean? = false
-    OuterBorders: boolean? = false
-    InnerBorders: boolean? = false
-    Resizable: boolean? = false
-    FixedWidth: boolean? = false
-    ProportionalWidth: boolean? = false
-    LimitTableWidth: boolean? = false
-## Events
+    Flags: TableFlags? = 0
+
+### Events
+
+    changed: () -> boolean
     hovered: () -> boolean
-## States
+
+### States
+
     widths: State<{ number }>?

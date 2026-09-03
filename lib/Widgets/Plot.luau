@@ -53,7 +53,6 @@ export type PlotLines = Types.Widget & {
 
     state: {
         values: Types.State<{ number }>,
-        hovered: Types.State<{ number }?>,
     },
 } & Types.Hovered
 
@@ -82,7 +81,6 @@ export type PlotHistogram = Types.Widget & {
 
     state: {
         values: Types.State<{ number }>,
-        hovered: Types.State<number?>,
     },
 } & Types.Hovered
 

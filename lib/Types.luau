@@ -14,7 +14,7 @@ export type ID = string
     ._connectedFunctions { (newValue: T) -> () }
 
     .get (self: State<T>) -> T
-    .set (self: State<T>, newValue: T, force: true?) -> ()
+    .set (self: State<T>, newValue: T, force: boolean?) -> ()
     .onChange (self: State<T>, funcToConnect: (newValue: T) -> ()) -> () -> ()
     .changed (self: State<T>) -> boolean
 ]=]
@@ -26,7 +26,7 @@ export type State<T> = {
     read _connectedFunctions: { (newValue: T) -> () },
 
     read get: (self: State<T>) -> T,
-    read set: (self: State<T>, newValue: T, force: true?) -> (),
+    read set: (self: State<T>, newValue: T, force: boolean?) -> (),
     read onChange: (self: State<T>, funcToConnect: (newValue: T) -> ()) -> () -> (),
     read changed: (self: State<T>) -> boolean,
 }
