@@ -21,10 +21,10 @@ local StarterPlayerScripts = game.StarterPlayer.StarterPlayerScripts
 local Iris = require(StarterPlayerScripts.Client.Iris).Init()
 
 Iris:Connect(function()
-    Iris.Window({"My First Window!"})
-        Iris.Text({"Hello, World"})
-        Iris.Button({"Save"})
-        Iris.InputNum({"Input"})
+    Iris.Window("First Window!")
+        Iris.Text("Hello, world!")
+        Iris.Button("Save")
+        Iris.InputNum("Input")
     Iris.End()
 end)
 ```
@@ -43,20 +43,20 @@ Iris:Connect(function()
     -- use a unique window size, rather than default
     local windowSize = Iris.State(Vector2.new(300, 400))
 
-    Iris.Window({"My Second Window"}, {size = windowSize})
-        Iris.Text({"The current time is: " .. time()})
+    Iris.Window("Second Window!", nil, windowSize)
+        Iris.Text(`Current time: {time()}`)
+        
+        Iris.InputText("Enter Text")
 
-        Iris.InputText({"Enter Text"})
-
-        if Iris.Button({"Click me"}).clicked() then
-            print("button was clicked")
+        if Iris.Button("Click me").clicked() then
+            print("Button clicked!")
         end
 
         Iris.InputColor4()
 
         Iris.Tree()
-            for i = 1,8 do
-                Iris.Text({"Text in a loop: " .. i})
+            for i = 1, 8 do
+                Iris.Text(`Text #{i}`)
             end
         Iris.End()
     Iris.End()
@@ -88,7 +88,7 @@ Finally, Iris comes with a demo window, `Iris.ShowDemoWindow`. This window demon
 
 ### Learning Iris
 
-The best way to learn Iris is to look at the `Iris.DemoWindow` example file, which showcases all of Iris' features. The code can be found under `lib\demoWindow.lua`.
+The best way to learn Iris is to look at the `DemoWindow` example file, which showcases all of Iris' features. The code can be found under `lib\DemoWindow.lua`.
 
 ### How it Works
 
