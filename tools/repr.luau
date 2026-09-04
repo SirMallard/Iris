@@ -102,58 +102,57 @@ local function repr(value: unknown, reprSettings: any): string
         INDENT = "\t"
     end
 
-    local v = value --args[1]
     local tabs = INDENT:rep(depth)
 
     if depth == 0 then
         shown = {}
     end
-    if type(v) == "string" then
-        return ("%q"):format(v)
-    elseif type(v) == "number" then
-        if v == math.huge then
+    if type(value) == "string" then
+        return ("%q"):format(value)
+    elseif type(value) == "number" then
+        if value == math.huge then
             return "math.huge"
         end
-        if v == -math.huge then
+        if value == -math.huge then
             return "-math.huge"
         end
-        return tostring(v)
-    elseif type(v) == "boolean" then
-        return tostring(v)
-    elseif type(v) == "nil" then
+        return tostring(value)
+    elseif type(value) == "boolean" then
+        return tostring(value)
+    elseif type(value) == "nil" then
         return "nil"
-    elseif type(v) == "table" and type(v.__tostring) == "function" then
-        return tostring(v.__tostring(v))
-    elseif type(v) == "table" and getmetatable(v) and type(getmetatable(v).__tostring) == "function" then
-        return tostring(getmetatable(v).__tostring(v))
-    elseif type(v) == "table" then
-        if shown[v] then
+    -- elseif type(v) == "table" and type(v.__tostring) == "function" then
+    --     return tostring(v.__tostring(v))
+    -- elseif type(v) == "table" and getmetatable(v) and type(getmetatable(v).__tostring) == "function" then
+    --     return tostring(getmetatable(v).__tostring(v))
+    elseif type(value) == "table" then
+        if shown[value] then
             return "{CYCLIC}"
         end
-        shown[v] = true
+        shown[value] = true
         local str = "{" .. (reprSettings.pretty and ("\n" .. INDENT .. tabs) or "")
         local isArray = true
-        for k, v in pairs(v) do
+        for k, _ in pairs(value) do
             if type(k) ~= "number" then
                 isArray = false
                 break
             end
         end
         if isArray then
-            for i = 1, #v do
+            for i = 1, #value do
                 if i ~= 1 then
                     str = str .. (reprSettings.semicolons and ";" or ",") .. (reprSettings.pretty and ("\n" .. INDENT .. tabs) or " ")
                 end
                 depth = depth + 1
-                str = str .. repr(v[i], reprSettings)
+                str = str .. repr((value :: { unknown })[i], reprSettings)
                 depth = depth - 1
             end
         else
             local keyOrder = {}
             local keyValueStrings = {}
-            for k, v in pairs(v) do
+            for k, v in pairs(value) do
                 depth = depth + 1
-                local kStr = isLuaIdentifier(k) and tostring(k) or "[" .. repr(k, reprSettings) .. "]"
+                local kStr = isLuaIdentifier(tostring(k)) and tostring(k) or "[" .. repr(k, reprSettings) .. "]"
                 local vStr = repr(v, reprSettings)
                 --[[str = str .. ("%s = %s"):format(
 					isLuaIdentifier(k) and k or ("[" .. repr(k, reprSettings) .. "]"),
@@ -175,14 +174,14 @@ local function repr(value: unknown, reprSettings: any): string
                 first = false
             end
         end
-        shown[v] = false
+        shown[value] = false
         if reprSettings.pretty then
             str = str .. "\n" .. tabs
         end
         str = str .. "}"
         return str
     else
-        return "<" .. type(v) .. ">"
+        return "<" .. type(value) .. ">"
     end
 end
 

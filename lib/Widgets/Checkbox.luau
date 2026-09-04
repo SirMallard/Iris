@@ -3,46 +3,24 @@ const Utility = require("../Widgets")
 
 const Types = require("../Types")
 
---[=[
-    @within Basic
-    @interface Checkbox
-    .& Widget
-    .checked () -> boolean -- once when checked
-    .unchecked () -> boolean -- once when unchecked
-    .hovered () -> boolean -- fires when the mouse hovers over any of the widget
-
-    .arguments { Label: string? }
-    .state { checked: State<boolean> }
-]=]
 export type Checkbox = Types.Widget & {
     arguments: {
         Label: string?,
     },
 
     state: {
-        value: Types.State<boolean>,
+        value: Types.State<boolean>, -- checkbox state
     },
 } & Types.Checked & Types.Unchecked & Types.Hovered
 
---[=[
-    @within Basic
-    @interface CheckboxFlags
-    .& Widget
-    .checked () -> boolean -- once when checked
-    .unchecked () -> boolean -- once when unchecked
-    .hovered () -> boolean -- fires when the mouse hovers over any of the widget
-
-    .arguments { Label: string?, Bit: number }
-    .state { flags: State<number> }
-]=]
 export type CheckboxFlags = Types.Widget & {
     arguments: {
         Label: string?,
-        Bit: number,
+        Bit: number, -- bit which the checkbox changes
     },
 
     state: {
-        flags: Types.State<number>,
+        flags: Types.State<number>, -- bit flags state
     },
 } & Types.Checked & Types.Unchecked & Types.Hovered
 
@@ -126,12 +104,12 @@ local abstractCheckbox = {
     end,
     Update = function(thisWidget: Checkbox)
         local Checkbox = thisWidget.instance :: TextButton
-        Checkbox.TextLabel.Text = thisWidget.arguments.Label or "Checkbox"
+        (Checkbox :: any).TextLabel.Text = thisWidget.arguments.Label or "Checkbox"
     end,
     UpdateState = function(thisWidget: Checkbox)
         local Checkbox = thisWidget.instance :: TextButton
-        local Box = Checkbox.Box :: Frame
-        local Checkmark: ImageLabel = Box.Checkmark
+        local Box = (Checkbox :: any).Box :: Frame
+        local Checkmark: ImageLabel = (Box :: any).Checkmark
 
         local checked = false
         if thisWidget.type == "Checkbox" then
@@ -161,6 +139,9 @@ local abstractCheckbox = {
 -- Checkbox
 --------------
 
+--[[
+    A checkable box with a visual tick to represent a boolean true or false state.
+]]
 Internal._widgetConstructor(
     "Checkbox",
     Utility.extend(
@@ -177,6 +158,9 @@ Internal._widgetConstructor(
     )
 )
 
+--[[
+    A checkable box with a visual tick to represent a boolean true or false state.
+]]
 Internal._widgetConstructor(
     "CheckboxFlags",
     Utility.extend(
@@ -192,43 +176,3 @@ Internal._widgetConstructor(
         } :: Types.WidgetClass
     )
 )
-
---[=[
-    @within Basic
-    @tag Widget
-    @tag HasState
-
-    @function Checkbox
-    @param label string?
-    @param check State<boolean>? -- checkbox state
-
-    @return Checkbox
-
-    A checkable box with a visual tick to represent a boolean true or false state.
-]=]
-local API_Checkbox = function(label: string?, check: Types.APIState<boolean>?)
-    return Internal._insert("Checkbox", label, check) :: Checkbox
-end
-
---[=[
-    @within Basic
-    @tag Widget
-    @tag HasState
-
-    @function CheckboxFlags
-    @param label string?
-    @param bit number
-    @param flags State<number>? -- bit flags state
-
-    @return Checkbox
-
-    A checkable box with a visual tick to represent a boolean true or false state.
-]=]
-local API_CheckboxFlags = function(label: string?, bit: number, flags: Types.APIState<number>?)
-    return Internal._insert("CheckboxFlags", label, bit, flags) :: Checkbox
-end
-
-return {
-    API_Checkbox = API_Checkbox,
-    API_CheckboxFlags = API_CheckboxFlags,
-}

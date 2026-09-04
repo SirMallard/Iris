@@ -1,40 +1,22 @@
-const Internal = require("../Internal")
-const Utility = require("../Widgets")
-
-const Types = require("../Types")
-
 --[=[
     @class Format
 
     The format widgets are used to more easily separate and move widgets around.
 ]=]
 
---[=[
-    @within Format
-    @interface Separator
-    .& Widget
-]=]
+const Internal = require("../Internal")
+const Utility = require("../Widgets")
+
+const Types = require("../Types")
+
 export type Separator = Types.Widget
 
---[=[
-    @within Format
-    @interface Indent
-    .& Widget
-
-    .arugments { Width: number? }
-]=]
 export type Indent = Types.ParentWidget & {
     arguments: {
         Width: number?,
     },
 }
---[=[
-    @within Format
-    @interface SameLine
-    .& Widget
 
-    .arguments { Width: number?, VerticalAlignment: Enum.VerticalAlignment?, HorizontalAlignment: Enum.HorizontalAlignment? }
-]=]
 export type SameLine = Types.ParentWidget & {
     arguments: {
         Width: number?,
@@ -42,17 +24,26 @@ export type SameLine = Types.ParentWidget & {
         HorizontalAlignment: Enum.HorizontalAlignment?,
     },
 }
---[=[
-    @within Format
-    @interface Group
-    .& Widget
-]=]
+
 export type Group = Types.ParentWidget
 
 ---------------
 -- Separator
 ---------------
 
+--[[
+    A vertical or horizonal line, depending on the context, which visually seperates widgets.
+
+    ```lua
+    Iris.Window({"Separator Demo"})
+        Iris.Text({"Some text here!"})
+        Iris.Separator()
+        Iris.Text({"This text has been separated!"})
+    Iris.End()
+    ```
+
+    ![Example Separator](/Iris/assets/api/format/basicSeparator.png)
+]]
 Internal._widgetConstructor(
     "Separator",
     {
@@ -89,6 +80,20 @@ Internal._widgetConstructor(
 -- Indent
 ------------
 
+--[[
+    Indents its child widgets.
+
+    ```lua
+    Iris.Window({"Indent Demo"})
+        Iris.Text({"Unindented text!"})
+        Iris.Indent()
+            Iris.Text({"This text has been indented!"})
+        Iris.End()
+    Iris.End()
+    ```
+
+    ![Example Indent](/Iris/assets/api/format/basicIndent.png)
+]]
 Internal._widgetConstructor(
     "Indent",
     {
@@ -113,7 +118,7 @@ Internal._widgetConstructor(
         Update = function(thisWidget: Indent)
             local Indent = thisWidget.instance :: Frame
 
-            Indent.UIPadding.PaddingLeft = UDim.new(0, if thisWidget.arguments.Width then thisWidget.arguments.Width else Internal._config.IndentSpacing)
+            ((Indent :: any).UIPadding :: UIPadding).PaddingLeft = UDim.new(0, if thisWidget.arguments.Width then thisWidget.arguments.Width else Internal._config.IndentSpacing)
         end,
         ChildAdded = function(thisWidget: Indent, _thisChild: Types.Widget)
             return thisWidget.instance
@@ -128,6 +133,22 @@ Internal._widgetConstructor(
 -- SameLine
 --------------
 
+--[[
+    Positions its children in a row, horizontally.
+
+    ```lua
+    Iris.Window({"Same Line Demo"})
+        Iris.Text({"All of these buttons are on the same line!"})
+        Iris.SameLine()
+            Iris.Button({"Button 1"})
+            Iris.Button({"Button 2"})
+            Iris.Button({"Button 3"})
+        Iris.End()
+    Iris.End()
+    ```
+
+    ![Example SameLine](/Iris/assets/api/format/basicSameLine.png)
+]]
 Internal._widgetConstructor(
     "SameLine",
     {
@@ -150,7 +171,7 @@ Internal._widgetConstructor(
         end,
         Update = function(thisWidget: SameLine)
             local Sameline = thisWidget.instance :: Frame
-            local UIListLayout: UIListLayout = Sameline.UIListLayout
+            local UIListLayout: UIListLayout = (Sameline :: any).UIListLayout
 
             UIListLayout.Padding = UDim.new(0, if thisWidget.arguments.Width then thisWidget.arguments.Width else Internal._config.ItemSpacing.X)
             if thisWidget.arguments.VerticalAlignment then
@@ -177,6 +198,9 @@ Internal._widgetConstructor(
 -- Group
 -----------
 
+--[[
+    Layout widget which contains its children as a single group.
+]]
 Internal._widgetConstructor(
     "Group",
     {
@@ -207,107 +231,3 @@ Internal._widgetConstructor(
         end,
     } :: Types.WidgetClass
 )
-
---[=[
-    @within Format
-    @tag Widget
-
-    @function Separator
-
-    @return Separator
-
-    A vertical or horizonal line, depending on the context, which visually seperates widgets.
-
-    ```lua
-    Iris.Window({"Separator Demo"})
-        Iris.Text({"Some text here!"})
-        Iris.Separator()
-        Iris.Text({"This text has been separated!"})
-    Iris.End()
-    ```
-
-    ![Example Separator](/Iris/assets/api/format/basicSeparator.png)
-]=]
-local API_Separator = function()
-    return Internal._insert("Separator") :: Separator
-end
-
---[=[
-    @within Format
-    @tag Widget
-    @tag HasChildren
-
-    @function Indent
-    @param width number? -- indent in pixels, default is config IndentSpacing
-
-    @return Indent
-
-    Indents its child widgets.
-
-    ```lua
-    Iris.Window({"Indent Demo"})
-        Iris.Text({"Unindented text!"})
-        Iris.Indent()
-            Iris.Text({"This text has been indented!"})
-        Iris.End()
-    Iris.End()
-    ```
-
-    ![Example Indent](/Iris/assets/api/format/basicIndent.png)
-]=]
-local API_Indent = function(width: number?)
-    return Internal._insert("Indent", width) :: Indent
-end
-
---[=[
-    @within Format
-    @tag Widget
-    @tag HasChildren
-
-    @function SameLine
-    @param width number? -- horizontal spacing between widgets, default is config ItemSpacing.X
-    @param verticalAlignment Enum.VerticalAlignment? -- default centre alignment
-    @param horizontalAlignment Enum.HorizontalAlignment? -- default left alignment
-
-    @return Format
-
-    Positions its children in a row, horizontally.
-
-    ```lua
-    Iris.Window({"Same Line Demo"})
-        Iris.Text({"All of these buttons are on the same line!"})
-        Iris.SameLine()
-            Iris.Button({"Button 1"})
-            Iris.Button({"Button 2"})
-            Iris.Button({"Button 3"})
-        Iris.End()
-    Iris.End()
-    ```
-
-    ![Example SameLine](/Iris/assets/api/format/basicSameLine.png)
-]=]
-local API_SameLine = function(width: number?, verticalAlignment: Enum.VerticalAlignment?, horizontalAlignment: Enum.HorizontalAlignment?)
-    return Internal._insert("SameLine", width, verticalAlignment, horizontalAlignment) :: SameLine
-end
-
---[=[
-    @within Format
-    @tag Widget
-    @tag HasChildren
-
-    @function Group
-
-    @return Group
-
-    Layout widget which contains its children as a single group.
-]=]
-local API_Group = function()
-    return Internal._insert("Group") :: Group
-end
-
-return {
-    API_Separator = API_Separator,
-    API_Indent = API_Indent,
-    API_SameLine = API_SameLine,
-    API_Group = API_Group,
-}

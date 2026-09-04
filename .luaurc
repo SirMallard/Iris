@@ -5,8 +5,9 @@
     "languageMode": "strict",
     "lintErrors": true,
     "aliases": {
-        "lint": "~/.lute/typedefs/1.0.0/lint",
-        "std": "~/.lute/typedefs/1.0.0/std",
-        "lute": "~/.lute/typedefs/1.0.0/lute"
+        "std": "~/.lute/typedefs/1.0.1/std",
+        "lint": "@std/commands/lint/types",
+        "transform": "@std/commands/transform/types",
+        "lute": "~/.lute/typedefs/1.0.1/lute"
     }
 }

@@ -20,14 +20,14 @@ const Types = require("../Types")
 
 export type Image = Types.Widget & {
     arguments: {
-        Content: Content,
-        Size: UDim2,
-        Rect: Rect?,
-        ScaleType: Enum.ScaleType?,
-        TileSize: UDim2?,
-        SliceCenter: Rect?,
-        SliceScale: number?,
-        ResampleMode: Enum.ResamplerMode?,
+        Content: Content, -- texture content, allowing support for editable images
+        Size: UDim2, -- required size in the window
+        Rect: Rect?, -- default to a zero rect, making no difference (default: Rect.new())
+        ScaleType: Enum.ScaleType?, -- determines type of image scaling, (default: Enum.ScaleType.Stretch)
+        TileSize: UDim2?, -- (default: Enum.ResampleMode.Default)
+        SliceCenter: Rect?, -- only used if ScaleType is Tile, (default: UDim2.fromScale(1, 1))
+        SliceScale: number?, -- only used if ScaleType is Slice, (default: Rect.new())
+        ResampleMode: Enum.ResamplerMode?, -- only used if ScaleType is Slice, (default: 1)
     },
 } & Types.Hovered
 

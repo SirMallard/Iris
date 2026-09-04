@@ -1,29 +1,17 @@
-const Internal = require("../Internal")
-const Utility = require("../Widgets")
-
-const Types = require("../Types")
-
 --[=[
     @class Basic
     Basic Widget API
 ]=]
 
---[=[
-    @within Basic
-    @interface Button
-    .& Widget
-    .clicked () -> boolean -- fires when a button is clicked
-    .rightClicked () -> boolean -- fires when a button is right clicked
-    .doubleClicked () -> boolean -- fires when a button is double clicked
-    .ctrlClicked () -> boolean -- fires when a button is ctrl clicked
-    .hovered () -> boolean -- fires when the mouse hovers over any of the button
+const Internal = require("../Internal")
+const Utility = require("../Widgets")
 
-    .arguments { Label: string?, Size: UDim2? }
-]=]
+const Types = require("../Types")
+
 export type Button = Types.Widget & {
     arguments: {
         Label: string?,
-        Size: UDim2?,
+        Size: UDim2?, -- minimum button size (default: UDim2.new())
     },
 } & Types.Clicked & Types.RightClicked & Types.DoubleClicked & Types.CtrlClicked & Types.Hovered
 
@@ -76,7 +64,7 @@ Utility.abstractButton = {
     Update = function(thisWidget: Button)
         local Button = thisWidget.instance :: TextButton
         Button.Text = thisWidget.arguments.Label or "Button"
-        Button.Size = thisWidget.arguments.Size or UDim2.fromOffset(0, 0)
+        Button.Size = thisWidget.arguments.Size or UDim2.new()
     end,
     Discard = function(thisWidget: Button)
         thisWidget.instance:Destroy()
@@ -87,6 +75,9 @@ Utility.abstractButton = {
 -- Button
 ------------
 
+--[[
+    A clickable button the size of the label with padding. Can listen to the `clicked()` event to determine if it was pressed.
+]]
 Internal._widgetConstructor(
     "Button",
     Utility.extend(
@@ -106,6 +97,9 @@ Internal._widgetConstructor(
 -- SmallButton
 -----------------
 
+--[[
+    A smaller clickable button, the same as a [Iris.Button](Basic#Button) but without padding. Can listen to the `clicked()` event to determine if it was pressed.
+]]
 Internal._widgetConstructor(
     "SmallButton",
     Utility.extend(
@@ -115,7 +109,7 @@ Internal._widgetConstructor(
                 local SmallButton = Utility.abstractButton.Generate(thisWidget)
                 SmallButton.Name = "Iris_SmallButton"
 
-                local uiPadding: UIPadding = SmallButton.UIPadding
+                local uiPadding: UIPadding = (SmallButton :: any).UIPadding
                 uiPadding.PaddingLeft = UDim.new(0, 2)
                 uiPadding.PaddingRight = UDim.new(0, 2)
                 uiPadding.PaddingTop = UDim.new(0, 0)
@@ -126,40 +120,3 @@ Internal._widgetConstructor(
         } :: Types.WidgetClass
     )
 )
-
---[=[
-    @within Basic
-    @tag Widget
-
-    @function Button
-    @param label string?
-    @param size UDim2? -- minimum button size, default 0
-
-    @return Button
-
-    A clickable button the size of the label with padding. Can listen to the `clicked()` event to determine if it was pressed.
-]=]
-local API_Button = function(label: string, size: UDim2?)
-    return Internal._insert("Button", label, size) :: Button
-end
-
---[=[
-    @within Basic
-    @tag Widget
-
-    @function SmallButton
-    @param label string
-    @param size UDim2? -- minimum button size, default 0
-
-    @return Button
-
-    A smaller clickable button, the same as a [Iris.Button](Basic#Button) but without padding. Can listen to the `clicked()` event to determine if it was pressed.
-]=]
-local API_SmallButton = function(label: string, size: UDim2?)
-    return Internal._insert("SmallButton", label, size) :: Button
-end
-
-return {
-    API_Button = API_Button,
-    API_SmallButton = API_SmallButton,
-}

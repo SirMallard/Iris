@@ -1,3 +1,8 @@
+--[=[
+    @class Combo
+    Combo Widget API
+]=]
+
 const Internal = require("../Internal")
 const Utility = require("../Widgets")
 
@@ -5,78 +10,38 @@ const Types = require("../Types")
 
 const btest = bit32.btest
 
---[=[
-    @class Combo
-    Combo Widget API
-]=]
-
---[=[
-    @within Combo
-    @interface Selectable
-    .& Widget
-    .selected () -> boolean -- once when selected
-    .unselected () -> boolean -- once when unselected
-    .clicked () -> boolean -- fires when a button is clicked
-    .rightClicked () -> boolean -- fires when a button is right clicked
-    .doubleClicked () -> boolean -- fires when a button is double clicked
-    .ctrlClicked () -> boolean -- fires when a button is ctrl clicked
-    .hovered () -> boolean -- fires when the mouse hovers over any of the widget
-
-    .arguments { Label: string?, Index: any?, Flags: number }
-    .state { index: State<any> }
-]=]
 export type Selectable = Types.Widget & {
     _buttonColors: { [string]: Color3 | number },
 
     arguments: {
         Label: string?,
-        Index: any?,
-        Flags: number,
+        Index: any?, -- unique index of selectable value
+        Flags: number, -- optional bit flags, using Iris.ComboFlags (default: 0)
     },
 
     state: {
-        index: Types.State<any>,
+        index: Types.State<any>, -- a shared state between all selectables
     },
 } & Types.Selected & Types.Unselected & Types.Clicked & Types.RightClicked & Types.DoubleClicked & Types.CtrlClicked & Types.Hovered
 
---[=[
-    @within Combo
-    @interface Combo
-    .& ParentWidget
-    .clicked () -> boolean -- fires when a button is clicked
-    .changed () -> boolean -- whenever the state changes
-    .opened () -> boolean -- once when opened
-    .closed () -> boolean -- once when closed
-    .hovered () -> boolean -- fires when the mouse hovers over any of the widget
-
-    .arguments { Label: string?, Flags: number }
-    .state { index: State<any>, open: State<boolean> }
-]=]
 export type Combo = Types.ParentWidget & {
     _listLayout: UIListLayout,
 
     arguments: {
         Label: string?,
-        Flags: number,
+        Flags: number, -- optional bit flags, using Iris.ComboFlags (default: 0)
     },
 
     state: {
-        index: Types.State<any>,
-        open: Types.State<boolean>,
+        index: Types.State<any>, -- index state detailing the current selection
+        open: Types.State<boolean>, -- state for combo box being open
     },
 } & Types.Opened & Types.Closed & Types.Changed & Types.Clicked & Types.Hovered
 
---[=[
-    @within Combo
-    @interface ComboFlags
-    .NoClick 1 -- prevents the selectable from being clicked by the user
-    .NoButton 2 -- hide the dropdown button
-    .NoPreview 4 -- hide the preview field
-]=]
 const ComboFlags = {
-    NoClick = 1,
-    NoButton = 2,
-    NoPreview = 4,
+    NoClick = 1, -- prevents the selectable from being clicked by the user
+    NoButton = 2, -- hide the dropdown button
+    NoPreview = 4, -- hide the preview field
 }
 
 local AnyOpenedCombo = false
@@ -86,13 +51,13 @@ local CachedContentSize = 0
 
 local function UpdateChildContainerTransform(thisWidget: Combo)
     local Combo = thisWidget.instance :: Frame
-    local PreviewContainer = Combo.PreviewContainer :: TextButton
+    local PreviewContainer = (Combo :: any).PreviewContainer :: TextButton
     local ChildContainer = thisWidget.childContainer :: ScrollingFrame
 
     local previewPosition = PreviewContainer.AbsolutePosition - Utility.guiOffset
     local previewSize = PreviewContainer.AbsoluteSize
     local borderSize = Internal._config.PopupBorderSize
-    local screenSize: Vector2 = ChildContainer.Parent.AbsoluteSize
+    local screenSize: Vector2 = (ChildContainer.Parent :: GuiObject).AbsoluteSize
 
     local absoluteContentSize = thisWidget._listLayout.AbsoluteContentSize.Y
     CachedContentSize = absoluteContentSize
@@ -126,7 +91,7 @@ local function UpdateComboState(input: InputObject)
     if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.MouseButton2 and input.UserInputType ~= Enum.UserInputType.Touch and input.UserInputType ~= Enum.UserInputType.MouseWheel then
         return
     end
-    if AnyOpenedCombo == false or not OpenedCombo then
+    if not OpenedCombo or AnyOpenedCombo == false then
         return
     end
     if ComboOpenedTick == Internal._cycleTick then
@@ -134,9 +99,9 @@ local function UpdateComboState(input: InputObject)
     end
 
     local MouseLocation = Utility.getMouseLocation()
-    local Combo = OpenedCombo.instance :: Frame
-    local PreviewContainer: TextButton = Combo.PreviewContainer
-    local ChildContainer = OpenedCombo.childContainer
+    local Combo = (OpenedCombo :: any).instance :: Frame
+    local PreviewContainer: TextButton = (Combo :: any).PreviewContainer
+    local ChildContainer = (OpenedCombo :: any).childContainer
     local rectMin = PreviewContainer.AbsolutePosition - Utility.guiOffset
     local rectMax = PreviewContainer.AbsolutePosition - Utility.guiOffset + PreviewContainer.AbsoluteSize
     if Utility.isPosInsideRect(MouseLocation, rectMin, rectMax) then
@@ -169,6 +134,9 @@ Utility.registerEvent("InputChanged", UpdateComboState)
 -- Selectable
 ----------------
 
+--[[
+    An object which can be selected.
+]]
 Internal._widgetConstructor(
     "Selectable",
     {
@@ -186,23 +154,23 @@ Internal._widgetConstructor(
                 end,
             },
             ["clicked"] = Utility.EVENTS.click(function(thisWidget: Types.Widget)
-                local Selectable = thisWidget.instance :: Frame
+                local Selectable = thisWidget.instance :: any
                 return Selectable.SelectableButton
             end),
             ["rightClicked"] = Utility.EVENTS.rightClick(function(thisWidget: Types.Widget)
-                local Selectable = thisWidget.instance :: Frame
+                local Selectable = thisWidget.instance :: any
                 return Selectable.SelectableButton
             end),
             ["doubleClicked"] = Utility.EVENTS.doubleClick(function(thisWidget: Types.Widget)
-                local Selectable = thisWidget.instance :: Frame
+                local Selectable = thisWidget.instance :: any
                 return Selectable.SelectableButton
             end),
             ["ctrlClicked"] = Utility.EVENTS.ctrlClick(function(thisWidget: Types.Widget)
-                local Selectable = thisWidget.instance :: Frame
+                local Selectable = thisWidget.instance :: any
                 return Selectable.SelectableButton
             end),
             ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
-                local Selectable = thisWidget.instance :: Frame
+                local Selectable = thisWidget.instance :: any
                 return Selectable.SelectableButton
             end),
         },
@@ -259,12 +227,12 @@ Internal._widgetConstructor(
         end,
         Update = function(thisWidget: Selectable)
             local Selectable = thisWidget.instance :: Frame
-            local SelectableButton: TextButton = Selectable.SelectableButton
+            local SelectableButton: TextButton = (Selectable :: any).SelectableButton
             SelectableButton.Text = thisWidget.arguments.Label or "Selectable"
         end,
         UpdateState = function(thisWidget: Selectable)
             local Selectable = thisWidget.instance :: Frame
-            local SelectableButton: TextButton = Selectable.SelectableButton
+            local SelectableButton: TextButton = (Selectable :: any).SelectableButton
 
             if thisWidget.state.index._value == thisWidget.arguments.Index or thisWidget.state.index._value == true then
                 thisWidget._buttonColors.Transparency = Internal._config.HeaderTransparency
@@ -276,7 +244,7 @@ Internal._widgetConstructor(
         end,
         Discard = function(thisWidget: Selectable)
             thisWidget.instance:Destroy()
-            Utility.discardState(thisWidget)
+            Utility.discardState(thisWidget :: any)
         end,
     } :: Types.WidgetClass
 )
@@ -285,6 +253,15 @@ Internal._widgetConstructor(
 -- Combo
 -----------
 
+--[[
+    A dropdown menu box to make a selection from a list of values.
+
+    A selection box to choose a value from an array.
+    -- array to turn into a combo and selectables
+
+    A selection box to choose a value from an Enum.
+    -- enum to turn into a combo and selectables
+]]
 Internal._widgetConstructor(
     "Combo",
     {
@@ -297,7 +274,7 @@ Internal._widgetConstructor(
             ["closed"] = Utility.EVENTS.close,
             ["changed"] = Utility.EVENTS.change("index"),
             ["clicked"] = Utility.EVENTS.click(function(thisWidget: Types.Widget)
-                local Combo = thisWidget.instance :: Frame
+                local Combo = thisWidget.instance :: any
                 return Combo.PreviewContainer
             end),
             ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
@@ -468,10 +445,10 @@ Internal._widgetConstructor(
         end,
         Update = function(thisWidget: Combo)
             local Iris_Combo = thisWidget.instance :: Frame
-            local PreviewContainer = Iris_Combo.PreviewContainer :: TextButton
-            local PreviewLabel: TextLabel = PreviewContainer.PreviewLabel
-            local DropdownButton: TextLabel = PreviewContainer.DropdownButton
-            local TextLabel: TextLabel = Iris_Combo.TextLabel
+            local PreviewContainer = (Iris_Combo :: any).PreviewContainer :: TextButton
+            local PreviewLabel: TextLabel = (PreviewContainer :: any).PreviewLabel
+            local DropdownButton: TextLabel = (PreviewContainer :: any).DropdownButton
+            local TextLabel: TextLabel = (Iris_Combo :: any).TextLabel
 
             TextLabel.Text = thisWidget.arguments.Label or "Combo"
 
@@ -497,10 +474,10 @@ Internal._widgetConstructor(
         UpdateState = function(thisWidget: Combo)
             local Combo = thisWidget.instance :: Frame
             local ChildContainer = thisWidget.childContainer :: ScrollingFrame
-            local PreviewContainer = Combo.PreviewContainer :: TextButton
-            local PreviewLabel: TextLabel = PreviewContainer.PreviewLabel
-            local DropdownButton = PreviewContainer.DropdownButton :: TextLabel
-            local Dropdown: ImageLabel = DropdownButton.Dropdown
+            local PreviewContainer = (Combo :: any).PreviewContainer :: TextButton
+            local PreviewLabel: TextLabel = (PreviewContainer :: any).PreviewLabel
+            local DropdownButton = (PreviewContainer :: any).DropdownButton :: TextLabel
+            local Dropdown: ImageLabel = (DropdownButton :: any).Dropdown
 
             if thisWidget.state.open._value then
                 AnyOpenedCombo = true
@@ -541,106 +518,3 @@ Internal._widgetConstructor(
         end,
     } :: Types.WidgetClass
 )
-
---[=[
-    @within Combo
-    @tag Widget
-    @tag HasState
-
-    @function Selectable
-    @param label string?
-    @param index any -- unique index of selectable value
-    @param flags ComboFlags? -- optional bit flags, using Iris.ComboFlags, default is 0
-    @param state State<any>? -- a shared state between all selectables
-
-    @return Selectable
-
-    An object which can be selected.
-]=]
-local API_Selectable = function(label: string?, index: any, flags: number?, state: Types.APIState<any>?)
-    return Internal._insert("Selectable", label, index, flags or 0, state) :: Selectable
-end
-
---[=[
-    @within Combo
-    @tag Widget
-    @tag HasChildren
-    @tag HasState
-
-    @function Combo
-    @param label string?
-    @param flags number? -- optional bit flags, using Iris.ComboFlags, default is 0
-    @param state State<any>? -- index state detailing the current selection
-    @param open State<boolean>? -- state for combo box being open
-
-    @return Combo
-
-    A dropdown menu box to make a selection from a list of values.
-]=]
-local API_Combo = function(label: string?, flags: number?, state: Types.APIState<any>?, open: Types.APIState<boolean>?)
-    return Internal._insert("Combo", label, flags or 0, state, open) :: Combo
-end
-
---[=[
-    @within Combo
-    @tag Widget
-    @tag HasChildren
-    @tag HasState
-
-    @function Combo
-    @param label string?
-    @param array { any } -- array to turn into a combo and selectables
-    @param flags number? -- optional bit flags, using Iris.ComboFlags, default is 0
-    @param state State<any>? -- index state detailing the current selection
-    @param open State<boolean>? -- state for combo box being open
-
-    @return Combo
-
-    A selection box to choose a value from an array.
-]=]
-local API_ComboArray = function<T>(label: string?, array: { any }, flags: number?, state: Types.APIState<any>?, open: Types.APIState<boolean>?)
-    local thisWidget = Internal._insert("Combo", label, flags or 0, state, open) :: Combo
-    local sharedIndex = thisWidget.state.index
-    for _, Selection in array do
-        Internal._insert("Selectable", tostring(Selection), Selection, flags or 0, sharedIndex)
-    end
-    Internal._end()
-
-    return thisWidget
-end
-
---[=[
-    @within Combo
-    @tag Widget
-    @tag HasChildren
-    @tag HasState
-
-    @function Combo
-    @param label string?
-    @param enum Enum -- enum to turn into a combo and selectables
-    @param flags number? -- optional bit flags, using Iris.ComboFlags, default is 0
-    @param state State<any>? -- index state detailing the current selection
-    @param open State<boolean>? -- state for combo box being open
-
-    @return Combo
-
-    A selection box to choose a value from an Enum.
-]=]
-local API_ComboEnum = function(label: string?, enum: Enum, flags: number?, state: Types.APIState<any>?, open: Types.APIState<boolean>?)
-    local thisWidget = Internal._insert("Combo", label, flags or 0, state, open)
-    local sharedIndex = thisWidget.state.index
-    for _, selection: EnumItem in enum:GetEnumItems() do
-        Internal._insert("Selectable", selection.Name, selection, flags or 0, sharedIndex)
-    end
-    Internal._end()
-
-    return thisWidget
-end
-
-return {
-    ComboFlags = ComboFlags,
-    API_Selectable = API_Selectable,
-    API_Combo = API_Combo,
-    API_ComboArray = API_ComboArray,
-    API_ComboEnum = API_ComboEnum,
-}
