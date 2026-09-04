@@ -218,17 +218,17 @@ end
 Internal._stateClass = StateClass
 
 --[[
-        ---------------------------
-            [SECTION] Functions
-        ---------------------------
-    ]]
+    ---------------------------
+        [SECTION] Functions
+    ---------------------------
+]]
 
 --[=[
-        @within Internal
-        @function _cycle
+    @within Internal
+    @function _cycle
 
-        Called every frame to handle all of the widget management. Any previous frame data is ammended and everything updates.
-    ]=]
+    Called every frame to handle all of the widget management. Any previous frame data is ammended and everything updates.
+]=]
 function Internal._cycle(deltaTime: number)
     -- debug.profilebegin("Iris/Cycle")
     if Internal._paused then
@@ -331,27 +331,28 @@ function Internal._cycle(deltaTime: number)
     -- debug.profileend()
 end
 
+-- selene: allow(unused_variable)
 --[=[
-        @within Internal
-        @ignore
-        @function _NoOp
+    @within Internal
+    @ignore
+    @function _NoOp
 
-        A dummy function which does nothing. Used as a placeholder for optional methods in a widget class.
-        Used in `Internal.WidgetConstructor`
-    ]=]
+    A dummy function which does nothing. Used as a placeholder for optional methods in a widget class.
+    Used in `Internal.WidgetConstructor`
+]=]
 function Internal._noOp(...): ...any end
 --  Widget
 
 --[=[
-        @within Internal
-        @function WidgetConstructor
-        @param type string -- name used to denote the widget class.
-        @param widgetClass Types.WidgetClass -- table of methods for the new widget.
+    @within Internal
+    @function WidgetConstructor
+    @param type string -- name used to denote the widget class.
+    @param widgetClass Types.WidgetClass -- table of methods for the new widget.
 
-        For each widget, a widget class is created which handles all the operations of a widget. This removes the class nature
-        of widgets, and simplifies the available functions which can be applied to any widget. The widgets themselves are
-        dumb tables containing all the data but no methods to handle any of the data apart from events.
-    ]=]
+    For each widget, a widget class is created which handles all the operations of a widget. This removes the class nature
+    of widgets, and simplifies the available functions which can be applied to any widget. The widgets themselves are
+    dumb tables containing all the data but no methods to handle any of the data apart from events.
+]=]
 function Internal._widgetConstructor(type: string, widgetClass: Types.WidgetClass)
     -- we ensure all essential functions and properties are present, otherwise the code will break later. some functions
     -- will only be needed if the widget has children or has state.
@@ -390,16 +391,16 @@ function Internal._widgetConstructor(type: string, widgetClass: Types.WidgetClas
 end
 
 --[=[
-        @within Internal
-        @function _Insert
-        @param widgetType: string -- name of widget class.
-        @param arguments { [string]: number } -- arguments of the widget.
-        @param states { [string]: States<any> }? -- states of the widget.
-        @return Widget -- the widget.
+    @within Internal
+    @function _Insert
+    @param widgetType: string -- name of widget class.
+    @param arguments { [string]: number } -- arguments of the widget.
+    @param states { [string]: States<any> }? -- states of the widget.
+    @return Widget -- the widget.
 
-        Every widget is created through _Insert. An ID is generated based on the line of the calling code and is used to
-        find the previous frame widget if it exists. If no widget exists, a new one is created.
-    ]=]
+    Every widget is created through _Insert. An ID is generated based on the line of the calling code and is used to
+    find the previous frame widget if it exists. If no widget exists, a new one is created.
+]=]
 function Internal._insert(widgetType: string, ...: any)
     const ID = Internal._getID(3)
     --debug.profilebegin(ID)
@@ -484,17 +485,17 @@ function Internal._insert(widgetType: string, ...: any)
 end
 
 --[=[
-        @within Internal
-        @function _GenNewWidget
-        @param widgetType string
-        @param arguments { [string]: any } -- arguments of the widget.
-        @param states { [string]: State<any> }? -- states of the widget.
-        @param ID ID -- id of the new widget. Determined in `Internal._Insert`
-        @return Widget -- the newly created widget.
+    @within Internal
+    @function _GenNewWidget
+    @param widgetType string
+    @param arguments { [string]: any } -- arguments of the widget.
+    @param states { [string]: State<any> }? -- states of the widget.
+    @param ID ID -- id of the new widget. Determined in `Internal._Insert`
+    @return Widget -- the newly created widget.
 
-        All widgets are created as tables with properties. The widget class contains the functions to create the UI instances and
-        update the widget or change state.
-    ]=]
+    All widgets are created as tables with properties. The widget class contains the functions to create the UI instances and
+    update the widget or change state.
+]=]
 function Internal._genNewWidget(widgetType: string, ID: Types.ID, ...: any)
     const parentId = Internal._IDStack[Internal._stackIndex]
     local parentWidget = Internal._VDOM[parentId] :: Types.ParentWidget
@@ -559,16 +560,16 @@ function Internal._genNewWidget(widgetType: string, ID: Types.ID, ...: any)
 end
 
 --[=[
-        @within Internal
-        @function _ContinueWidget
-        @param ID ID -- id of the widget.
-        @param widgetType string
-        @return Widget -- the widget.
+    @within Internal
+    @function _ContinueWidget
+    @param ID ID -- id of the widget.
+    @param widgetType string
+    @return Widget -- the widget.
 
-        Since the widget has already been created this frame, we can just add it back to the stack. There is no checking of
-        arguments or states.
-        Basically equivalent to the end of `Internal._Insert`.
-    ]=]
+    Since the widget has already been created this frame, we can just add it back to the stack. There is no checking of
+    arguments or states.
+    Basically equivalent to the end of `Internal._Insert`.
+]=]
 function Internal._continueWidget(ID: Types.ID, widgetType: string)
     const thisWidgetClass = Internal._widgets[widgetType]
     const thisWidget = Internal._VDOM[ID]
@@ -584,14 +585,14 @@ function Internal._continueWidget(ID: Types.ID, widgetType: string)
 end
 
 --[=[
-        @within Internal
-        @function _DiscardWidget
-        @param widgetToDiscard Widget
+    @within Internal
+    @function _DiscardWidget
+    @param widgetToDiscard Widget
 
-        Destroys the widget instance and updates any parent. This happens if the widget was not called in the
-        previous frame. There is no code which needs to update any widget tables since they are already reset
-        at the start before discarding happens.
-    ]=]
+    Destroys the widget instance and updates any parent. This happens if the widget was not called in the
+    previous frame. There is no code which needs to update any widget tables since they are already reset
+    at the start before discarding happens.
+]=]
 function Internal._discardWidget(widgetToDiscard: Types.Widget)
     const widgetParent = widgetToDiscard.parentWidget
     if widgetParent then
@@ -610,16 +611,16 @@ function Internal._discardWidget(widgetToDiscard: Types.Widget)
 end
 
 --[=[
-        @within Internal
-        @function _widgetState
-        @param thisWidget Widget -- widget the state belongs to.
-        @param stateName string
-        @param initialValue any
-        @return State<any> -- the state for the widget.
+    @within Internal
+    @function _widgetState
+    @param thisWidget Widget -- widget the state belongs to.
+    @param stateName string
+    @param initialValue any
+    @return State<any> -- the state for the widget.
 
-        Connects the state to the widget. If no state exists then a new one is created. Called for every state in every
-        widget if the user does not provide a state.
-    ]=]
+    Connects the state to the widget. If no state exists then a new one is created. Called for every state in every
+    widget if the user does not provide a state.
+]=]
 function Internal._widgetState<T>(thisWidget: Types.StateWidget, stateName: string, initialValue: T)
     const ID = thisWidget.ID .. stateName
     if Internal._states[ID] then
@@ -642,15 +643,15 @@ function Internal._widgetState<T>(thisWidget: Types.StateWidget, stateName: stri
 end
 
 --[=[
-        @within Internal
-        @function _EventCall
-        @param thisWidget Widget
-        @param evetName string
-        @return boolean -- the value of the event.
+    @within Internal
+    @function _EventCall
+    @param thisWidget Widget
+    @param evetName string
+    @return boolean -- the value of the event.
 
-        A wrapper for any event on any widget. Automatically, Iris does not initialize events unless they are explicitly
-        called so in the first frame, the event connections are set up. Every event is a function which returns a boolean.
-    ]=]
+    A wrapper for any event on any widget. Automatically, Iris does not initialize events unless they are explicitly
+    called so in the first frame, the event connections are set up. Every event is a function which returns a boolean.
+]=]
 function Internal._eventCall(thisWidget: Types.Widget, eventName: string)
     const Events = Internal._widgets[thisWidget.type].Events
     const Event = Events[eventName]
@@ -664,12 +665,12 @@ function Internal._eventCall(thisWidget: Types.Widget, eventName: string)
 end
 
 --[=[
-        @within Internal
-        @function _GetParentWidget
-        @return Widget -- the parent widget
+    @within Internal
+    @function _GetParentWidget
+    @return Widget -- the parent widget
 
-        Returns the parent widget of the currently active widget, based on the stack depth.
-    ]=]
+    Returns the parent widget of the currently active widget, based on the stack depth.
+]=]
 function Internal._getParentWidget(): Types.ParentWidget
     return Internal._VDOM[Internal._IDStack[Internal._stackIndex]] :: Types.ParentWidget
 end
@@ -686,13 +687,13 @@ end
 -- Generate
 
 --[=[
-        @ignore
-        @within Internal
-        @function _generateEmptyVDOM
-        @return { [ID]: Widget }
+    @ignore
+    @within Internal
+    @function _generateEmptyVDOM
+    @return { [ID]: Widget }
 
-        Creates the VDOM at the start of each frame containing just the root instance.
-    ]=]
+    Creates the VDOM at the start of each frame containing just the root instance.
+]=]
 function Internal._generateEmptyVDOM()
     return {
         ["R"] = Internal._rootWidget,
@@ -700,12 +701,12 @@ function Internal._generateEmptyVDOM()
 end
 
 --[=[
-        @ignore
-        @within Internal
-        @function _generateRootInstance
+    @ignore
+    @within Internal
+    @function _generateRootInstance
 
-        Creates the root instance.
-    ]=]
+    Creates the root instance.
+]=]
 function Internal._generateRootInstance()
     -- unsafe to call before Internal.connect
     const instance = Internal._widgets["Root"].Generate(Internal._rootWidget)
@@ -715,12 +716,12 @@ function Internal._generateRootInstance()
 end
 
 --[=[
-        @ignore
-        @within Internal
-        @function _generateSelctionImageObject
+    @ignore
+    @within Internal
+    @function _generateSelctionImageObject
 
-        Creates the selection object for buttons.
-    ]=]
+    Creates the selection object for buttons.
+]=]
 function Internal._generateSelectionImageObject()
     if Internal._selectionImageObject then
         Internal._selectionImageObject:Destroy()
@@ -751,15 +752,15 @@ end
 -- Utility
 
 --[=[
-        @within Internal
-        @function _getID
-        @param levelsToIgnore number -- used to skip over internal calls to `_getID`.
-        @return ID
+    @within Internal
+    @function _getID
+    @param levelsToIgnore number -- used to skip over internal calls to `_getID`.
+    @return ID
 
-        Generates a unique ID for each widget which is based on the line that the widget is
-        created from. This ensures that the function is heuristic and always returns the same
-        id for the same widget.
-    ]=]
+    Generates a unique ID for each widget which is based on the line that the widget is
+    created from. This ensures that the function is heuristic and always returns the same
+    id for the same widget.
+]=]
 function Internal._getID(levelsToIgnore: number)
     if Internal._nextWidgetId then
         const ID = Internal._nextWidgetId

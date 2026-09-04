@@ -1,14 +1,3 @@
-const Internal = require("../Internal")
-const Utility = require("../Widgets")
-
-const Types = require("../Types")
-
-const btest = bit32.btest
-
-type InputDataTypes = "Num" | "Vector2" | "Vector3" | "UDim" | "UDim2" | "Color3" | "Color4" | "Rect" | "Enum" | "" | string
-type InputDataType = number | Vector2 | Vector3 | UDim | UDim2 | Color3 | Rect | Enum
-type InputType = "Input" | "Drag" | "Slider"
-
 --[=[
     @class Input
     Input Widget API
@@ -46,16 +35,17 @@ type InputType = "Input" | "Drag" | "Slider"
     :::
 ]=]
 
---[=[
-    @within Input
-    @interface Input<T>
-    .& Widget
-    .changed () -> boolean -- whenever the value changes, depending on the state
-    .hovered () -> boolean -- fires when the mouse hovers over any of the input
+const Internal = require("../Internal")
+const Utility = require("../Widgets")
 
-    .arguments { Label: string?, Increment: T, Min: T, Max: T, Format: { string }, Prefix: { string }, Flags: number }
-    .state { number: State<T>, editing: State<number> }
-]=]
+const Types = require("../Types")
+
+const btest = bit32.btest
+
+type InputDataTypes = "Num" | "Vector2" | "Vector3" | "UDim" | "UDim2" | "Color3" | "Color4" | "Rect" | "Enum" | "" | string
+type InputDataType = number | Vector2 | Vector3 | UDim | UDim2 | Color3 | Rect | Enum
+type InputType = "Input" | "Drag" | "Slider"
+
 export type Input<T> = Types.Widget & {
     _lastClickedTime: number,
     _lastClickedPosition: Vector2,
@@ -76,13 +66,6 @@ export type Input<T> = Types.Widget & {
     },
 } & Types.Changed & Types.Editing & Types.Hovered
 
---[=[
-    @within Input
-    @interface InputColor3
-    .& Input<{ number }>
-
-    .state { color: State<Color3>, editing: State<boolean> }
-]=]
 export type InputColor3 = Input<{ number }> & {
     state: {
         color: Types.State<Color3>,
@@ -261,7 +244,7 @@ local function getValueByIndex<T>(value: T, index: number, arguments: any)
             return val.Max.Y
         end
     elseif typeof(val) == "table" then
-        return val[index]
+        return (val :: any)[index]
     end
 
     error(`Incorrect datatype or value: {value} {typeof(value)} {index}.`)
@@ -359,7 +342,7 @@ local function generateAbstract<T>(inputType: InputType, dataType: InputDataType
         end,
         Update = function(thisWidget: Input<T>)
             local Input = thisWidget.instance :: GuiObject
-            local TextLabel: TextLabel = Input.TextLabel
+            local TextLabel: TextLabel = (Input :: any).TextLabel
             TextLabel.Text = thisWidget.arguments.Label or `Input {dataType}`
 
             if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then
@@ -398,9 +381,9 @@ local function generateAbstract<T>(inputType: InputType, dataType: InputDataType
             end
 
             if inputType == "Input" and dataType == "Num" then
-                Input.SubButton.Visible = not thisWidget.arguments.NoButtons
-                Input.AddButton.Visible = not thisWidget.arguments.NoButtons
-                local InputField: TextBox = Input.InputField1
+                ((Input :: any).SubButton :: GuiButton).Visible = not thisWidget.arguments.NoButtons;
+                ((Input :: any).AddButton :: GuiButton).Visible = not thisWidget.arguments.NoButtons
+                local InputField: TextBox = (Input :: any).InputField1
                 local rightPadding = if thisWidget.arguments.NoButtons then 0 else (2 * Internal._config.ItemInnerSpacing.X) + (2 * (Internal._config.TextSize + 2 * Internal._config.FramePadding.Y))
                 InputField.Size = UDim2.new(UDim.new(Internal._config.ContentWidth.Scale, Internal._config.ContentWidth.Offset - rightPadding), Internal._config.ContentHeight)
             end
@@ -408,7 +391,7 @@ local function generateAbstract<T>(inputType: InputType, dataType: InputDataType
             if inputType == "Slider" then
                 for index = 1, components do
                     local SliderField = Input:FindFirstChild("SliderField" .. tostring(index)) :: TextButton
-                    local GrabBar: Frame = SliderField.GrabBar
+                    local GrabBar: Frame = (SliderField :: any).GrabBar
 
                     local increment = thisWidget.arguments.Increment and getValueByIndex(thisWidget.arguments.Increment, index, thisWidget.arguments) or defaultIncrements[dataType][index]
                     local min = thisWidget.arguments.Min and getValueByIndex(thisWidget.arguments.Min, index, thisWidget.arguments) or defaultMin[dataType][index]

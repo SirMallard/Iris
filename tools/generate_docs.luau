@@ -1,4 +1,14 @@
 --[[
+    This file was created using Claude AI. There have been some changes, but
+    most of it is purely Claude-generated. The reasons for doing so were the
+    unfamiliarity to using Lute and the lack of clear examples; the purpose to
+    only generate comments and functions from existing code; and the aim to get
+    a new version of Iris out sooner.
+
+    In general, though, whilst I am not against AI, I am not interested in
+    employing it for writing the actual Iris code. That can instead be left to
+    humans who have a better understanding of the codebase and aims.
+
 	generate_docs.luau
 
 	A `lute transform` script (see https://lute.luau.org/guide/code-transforms.html).
@@ -67,9 +77,17 @@
 		  description, aren't recoverable from syntax -- see TODOs in output.
 ]]
 
-local printer = require("@std/syntax/printer")
-local query = require("@std/syntax/query")
-local utils = require("@std/syntax/utils")
+local Printer = require("@std/syntax/printer")
+local Query = require("@std/syntax/query")
+local Utils = require("@std/syntax/utils")
+local Syntax = require("@std/syntax")
+
+export type Context<Options = { [any]: any }> = {
+    path: string,
+    source: string,
+    parseresult: Syntax.CstParseResult,
+    options: Options,
+}
 
 local INDENT = "    "
 
@@ -81,9 +99,22 @@ local INDENT = "    "
 -- Base types (from the trailing `& Types.X` list) that should be documented
 -- as boolean-returning accessor methods instead of `.& Name` extensions.
 local TRAIT_TYPES: { [string]: string } = {
+    Hovered = "hovered",
+    Clicked = "clicked",
+    RightClicked = "rightClicked",
+    DoubleClicked = "doubleClicked",
+    CtrlClicked = "ctrlClicked",
+    Active = "active",
+    Checked = "checked",
+    Unchecked = "unchecked",
     Opened = "opened",
     Closed = "closed",
-    Hovered = "hovered",
+    Collapsed = "collapsed",
+    Uncollapsed = "uncollapsed",
+    Selected = "selected",
+    Unselected = "unselected",
+    Changed = "changed",
+    Editing = "editing",
 }
 
 -- Base types that imply a doc @tag when extended.
@@ -132,7 +163,7 @@ end
 local function splitTopLevel(s: string, sep: string): { string }
     local parts: { string } = {}
     local depth = 0
-    local current = {}
+    local current: { string } = {}
     for i = 1, #s do
         local c = s:sub(i, i)
         if c == "(" or c == "{" or c == "[" or c == "<" then
@@ -166,6 +197,7 @@ type Field = {
     valueText: string,
     optional: boolean,
     comment: string?,
+    default: string?,
 }
 
 local function parseFields(bodyText: string): { Field }
@@ -207,8 +239,10 @@ local function parseFields(bodyText: string): { Field }
 
             local lastLine = buffer[#buffer]
             local comment = lastLine:match("%-%-%s*(.-)%s*$")
+            local default: string?
             if comment then
-                local commentPos = lastLine:find("%-%-")
+                local commentPos = lastLine:find("%-%-") :: number
+                default = comment:match("%(default: (.+)%)")
                 buffer[#buffer] = lastLine:sub(1, commentPos - 1)
             end
 
@@ -216,13 +250,14 @@ local function parseFields(bodyText: string): { Field }
             code = trim(code)
 
             local name, rawValue = code:match("^([%w_]+)%s*:%s*(.+)$")
-            if name then
+            if name and rawValue and name:sub(1, 1) ~= "_" then
                 local valueText, optional = stripOptional(trim(rawValue))
                 table.insert(fields, {
                     name = name,
                     valueText = valueText,
                     optional = optional,
                     comment = comment and comment ~= "" and comment or nil,
+                    default = default,
                 })
             end
         end
@@ -238,12 +273,12 @@ end
 
 type ConstEntry = { name: string, value: string, comment: string? }
 
-local function parseConstStat(statText: string): (string?, { ConstEntry })
+local function parseConstStat(_node: Syntax.CstStatConst, statText: string): (string?, { ConstEntry })
     -- printer.printNode includes the node's leading trivia (blank lines,
     -- comments), so trim before anchoring on `^const`.
     statText = trim(statText)
     local name, rest = statText:match("^const%s+([%w_]+)%s*=%s*(.+)$")
-    if not name then
+    if not name or not rest then
         return nil, {}
     end
 
@@ -256,13 +291,13 @@ local function parseConstStat(statText: string): (string?, { ConstEntry })
             local comment = line:match("%-%-%s*(.-)%s*$")
             local code = line
             if comment then
-                code = line:sub(1, (line:find("%-%-")) - 1)
+                code = line:sub(1, (line:find("%-%-") :: number) - 1)
             end
             code = trim(code):gsub(",%s*$", "")
             code = trim(code)
 
             local entryName, entryValue = code:match("^([%w_]+)%s*=%s*(.+)$")
-            if entryName then
+            if entryName and entryValue then
                 table.insert(entries, {
                     name = entryName,
                     value = trim(entryValue),
@@ -283,12 +318,12 @@ end
 type ParsedType = {
     name: string,
     extends: { string },
-    traits: { string },
+    events: { string },
     sections: { [string]: { Field } },
     sectionOrder: { string },
 }
 
-local function parseExportedType(statText: string): ParsedType?
+local function parseExportedType(_node: Syntax.CstStatTypeAlias, statText: string): ParsedType?
     -- printer.printNode includes the node's leading trivia (blank lines,
     -- comments), so trim before anchoring on `^export`.
     statText = trim(statText)
@@ -304,7 +339,7 @@ local function parseExportedType(statText: string): ParsedType?
     local rhs = trim(statText:sub(eqPos + 1)):gsub(";%s*$", "")
 
     local extends: { string } = {}
-    local traits: { string } = {}
+    local events: { string } = {}
     local sections: { [string]: { Field } } = {}
     local sectionOrder: { string } = {}
 
@@ -317,7 +352,7 @@ local function parseExportedType(statText: string): ParsedType?
         elseif #part > 0 then
             local ref = stripModulePrefix(part)
             if TRAIT_TYPES[ref] then
-                table.insert(traits, TRAIT_TYPES[ref])
+                table.insert(events, TRAIT_TYPES[ref])
             else
                 table.insert(extends, ref)
             end
@@ -327,7 +362,7 @@ local function parseExportedType(statText: string): ParsedType?
     return {
         name = name,
         extends = extends,
-        traits = traits,
+        events = events,
         sections = sections,
         sectionOrder = sectionOrder,
     }
@@ -338,12 +373,12 @@ end
 --------------------------------------------------------------------------------
 
 local function renderTypeDoc(t: ParsedType): string
-    local lines = { "--[=[", INDENT .. "@within", INDENT .. `@interface {t.name}` }
+    local lines = { "--[=[", INDENT .. "@within [TODO]", INDENT .. `@interface {t.name}` }
 
     for _, ext in t.extends do
         table.insert(lines, `{INDENT}.& {ext}`)
     end
-    for _, method in t.traits do
+    for _, method in t.events do
         table.insert(lines, `{INDENT}.{method} () -> boolean`)
     end
 
@@ -369,7 +404,7 @@ local function renderTypeDoc(t: ParsedType): string
 end
 
 local function renderConstDoc(name: string, entries: { ConstEntry }): string
-    local lines = { "--[=[", INDENT .. "@within", INDENT .. `@interface {name}` }
+    local lines = { "--[=[", INDENT .. "@within [TODO]", INDENT .. `@interface {name}` }
     for _, e in entries do
         local line = `{INDENT}.{e.name} {e.value}`
         if e.comment then
@@ -447,7 +482,7 @@ local function renderApiFunction(t: ParsedType, constTableNames: { [string]: boo
         table.insert(tags, "HasState")
     end
 
-    local docLines = { "--[=[", INDENT .. "@within" }
+    local docLines = { "--[=[", INDENT .. "@within [TODO]" }
     for _, tag in tags do
         table.insert(docLines, `{INDENT}@tag {tag}`)
     end
@@ -466,7 +501,7 @@ local function renderApiFunction(t: ParsedType, constTableNames: { [string]: boo
     -- Free-text descriptions aren't recoverable from the type declaration --
     -- fill this in by hand, or extend the parser to read it from a leading
     -- `---` comment block above `export type ... = ...` in the source file.
-    table.insert(docLines, `{INDENT}TODO: describe {t.name} here.`)
+    table.insert(docLines, `{INDENT}[TODO] describe {t.name} here.`)
     table.insert(docLines, "]=]")
 
     local sigParams, callArgs = {}, {}
@@ -491,14 +526,17 @@ end
 -- and writes the result back (in place, or to --output).
 --------------------------------------------------------------------------------
 
-local function transform(ctx): { [any]: string }
+local function transform(ctx: Context): { [any]: string }
     local parseResult = ctx.parseresult
 
-    local typeAliasNodes = query.findAllFromRoot(parseResult, utils.isStatTypeAlias):mapToArray(function(n)
-        return n
+    local typeAliasNodes = Query.findAllFromRoot(parseResult, Utils.isStatTypeAlias):mapToArray(function(n)
+        return if n.export ~= nil then n else nil
     end)
-    local constNodes = query.findAllFromRoot(parseResult, utils.isStatConst):mapToArray(function(n)
-        return n
+    local constNodes = Query.findAllFromRoot(parseResult, Utils.isStatConst):mapToArray(function(n)
+        if #n.values == 1 then
+            return n.values[1].tag == "table" and n or nil
+        end
+        return nil
     end)
 
     -- First pass: parse every const table (need all their names up front,
@@ -507,7 +545,7 @@ local function transform(ctx): { [any]: string }
     local parsedConsts: { { node: any, name: string, entries: { ConstEntry } } } = {}
     local constTableNames: { [string]: boolean } = {}
     for _, node in constNodes do
-        local name, entries = parseConstStat(printer.printNode(node))
+        local name, entries = parseConstStat(node, Printer.printNode(node))
         if name then
             table.insert(parsedConsts, { node = node, name = name, entries = entries })
             constTableNames[name] = true
@@ -517,7 +555,7 @@ local function transform(ctx): { [any]: string }
     -- First pass, continued: parse every exported type.
     local parsedTypes: { { node: any, parsed: ParsedType } } = {}
     for _, node in typeAliasNodes do
-        local parsed = parseExportedType(printer.printNode(node))
+        local parsed = parseExportedType(node, Printer.printNode(node))
         if parsed then
             table.insert(parsedTypes, { node = node, parsed = parsed })
         end
@@ -535,12 +573,12 @@ local function transform(ctx): { [any]: string }
     -- lines -- confirmed empirically. So the replacement value here is just
     -- "doc block, then the statement's own trimmed text", nothing else.
     for _, c in parsedConsts do
-        replacements[c.node] = renderConstDoc(c.name, c.entries) .. "\n" .. trim(printer.printNode(c.node))
+        replacements[c.node] = renderConstDoc(c.name, c.entries) .. "\n" .. trim(Printer.printNode(c.node))
     end
 
     -- ...and directly above each exported type.
     for _, t in parsedTypes do
-        replacements[t.node] = renderTypeDoc(t.parsed) .. "\n" .. trim(printer.printNode(t.node))
+        replacements[t.node] = renderTypeDoc(t.parsed) .. "\n" .. trim(Printer.printNode(t.node))
     end
 
     -- Append the generated API function + doc block for each type at the
@@ -555,7 +593,7 @@ local function transform(ctx): { [any]: string }
         -- this boundary on its own, so a single extra "\n" here (not "\n\n")
         -- is what actually yields exactly one blank line before the
         -- appended block, matching the blank-line spacing used elsewhere.
-        replacements[parseResult.eof] = printer.printNode(parseResult.eof) .. "\n" .. table.concat(functionBlocks, "\n\n") .. "\n"
+        replacements[parseResult.eof] = Printer.printNode(parseResult.eof) .. "\n" .. table.concat(functionBlocks, "\n\n") .. "\n"
     end
 
     return replacements

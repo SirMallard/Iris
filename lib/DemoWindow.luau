@@ -887,7 +887,7 @@ local function mainMenuBar()
 end
 
 local function mainMenuBarExample()
-    -- local screenSize = Iris._internal._rootWidget.Instance.PseudoWindowScreenGui.AbsoluteSize Iris.Window(
+    -- local screenSize = Iris._internal._rootWidget.instance.PseudoWindowScreenGui.AbsoluteSize Iris.Window(
     -- {[Iris.Args.Window.NoBackground] = true, [Iris.Args.Window.NoTitleBar] = true, [Iris.Args.Window.NoMove] = true,
     -- [Iris.Args.Window.NoResize] = true}, {size = Iris.State(screenSize), position = Iris.State(Vector2.new(0, 0))}
     -- )
