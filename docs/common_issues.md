@@ -16,7 +16,7 @@ Iris can only be initialised once per client. The best way to initialise Iris th
 to place it at the start of one of your first running script. For example you may have:
 ```lua
 ----------------------------------
---- ReplicatedFirst/client.lua or StarterPlayer/StarterPlayerScripts/client.lua
+--- ReplicatedFirst/client.luau or StarterPlayer/StarterPlayerScripts/client.luau
 ----------------------------------
  1| -- code in ReplicatedFirst will execute before other code, so it is best practice 
  2| -- to initialise Iris here even if you are not going to use it.
@@ -76,7 +76,7 @@ outside of an Iris widget, or spawn a new thread. The example below demonstrates
  8| Iris.End()
 
 ------------------------
---- good_example.lua    
+--- good_example.luau    
 ------------------------
  4| local response = "NONE"
  5| 
