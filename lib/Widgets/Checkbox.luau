@@ -1,115 +1,234 @@
-local Types = require(script.Parent.Parent.Types)
+const Internal = require("../Internal")
+const Utility = require("../Widgets")
 
-return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
-    --stylua: ignore
-    Iris.WidgetConstructor("Checkbox", {
-        hasState = true,
-        hasChildren = false,
-        Args = {
-            ["Text"] = 1,
-        },
-        Events = {
-            ["checked"] = {
-                ["Init"] = function(_thisWidget: Types.Checkbox) end,
-                ["Get"] = function(thisWidget: Types.Checkbox)
-                    return thisWidget.lastCheckedTick == Iris._cycleTick
-                end,
-            },
-            ["unchecked"] = {
-                ["Init"] = function(_thisWidget: Types.Checkbox) end,
-                ["Get"] = function(thisWidget: Types.Checkbox)
-                    return thisWidget.lastUncheckedTick == Iris._cycleTick
-                end,
-            },
-            ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
-                return thisWidget.Instance
-            end),
-        },
-        Generate = function(thisWidget: Types.Checkbox)
-            local Checkbox = Instance.new("TextButton")
-            Checkbox.Name = "Iris_Checkbox"
-            Checkbox.AutomaticSize = Enum.AutomaticSize.XY
-            Checkbox.Size = UDim2.fromOffset(0, 0)
-            Checkbox.BackgroundTransparency = 1
-            Checkbox.BorderSizePixel = 0
-            Checkbox.Text = ""
-            Checkbox.AutoButtonColor = false
-            
-            widgets.UIListLayout(Checkbox, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
+const Types = require("../Types")
 
-            local checkboxSize = Iris._config.TextSize + 2 * Iris._config.FramePadding.Y
+--[=[
+    @within Basic
+    @interface Checkbox
+    .& Widget
+    .checked () -> boolean -- once when checked
+    .unchecked () -> boolean -- once when unchecked
+    .hovered () -> boolean -- fires when the mouse hovers over any of the widget
 
-            local Box = Instance.new("Frame")
-            Box.Name = "Box"
-            Box.Size = UDim2.fromOffset(checkboxSize, checkboxSize)
-            Box.BackgroundColor3 = Iris._config.FrameBgColor
-            Box.BackgroundTransparency = Iris._config.FrameBgTransparency
-            
-            widgets.applyFrameStyle(Box, true)
-            widgets.UIPadding(Box, Vector2.new(math.floor(checkboxSize / 10), math.floor(checkboxSize / 10)))
+    .arguments { Label: string? }
+    .state { checked: State<boolean> }
+]=]
+export type Checkbox = Types.Widget & {
+    arguments: {
+        Label: string?,
+    },
 
-            widgets.applyInteractionHighlights("Background", Checkbox, Box, {
-                Color = Iris._config.FrameBgColor,
-                Transparency = Iris._config.FrameBgTransparency,
-                HoveredColor = Iris._config.FrameBgHoveredColor,
-                HoveredTransparency = Iris._config.FrameBgHoveredTransparency,
-                ActiveColor = Iris._config.FrameBgActiveColor,
-                ActiveTransparency = Iris._config.FrameBgActiveTransparency,
-            })
+    state: {
+        value: Types.State<boolean>,
+    },
+} & Types.Checked & Types.Unchecked & Types.Hovered
 
-            Box.Parent = Checkbox
+--[=[
+    @within Basic
+    @interface CheckboxFlags
+    .& Widget
+    .checked () -> boolean -- once when checked
+    .unchecked () -> boolean -- once when unchecked
+    .hovered () -> boolean -- fires when the mouse hovers over any of the widget
 
-            local Checkmark = Instance.new("ImageLabel")
-            Checkmark.Name = "Checkmark"
-            Checkmark.Size = UDim2.fromScale(1, 1)
-            Checkmark.BackgroundTransparency = 1
-            Checkmark.Image = widgets.ICONS.CHECKMARK
-            Checkmark.ImageColor3 = Iris._config.CheckMarkColor
-            Checkmark.ImageTransparency = 1
-            Checkmark.ScaleType = Enum.ScaleType.Fit
+    .arguments { Label: string?, Bit: number }
+    .state { flags: State<number> }
+]=]
+export type CheckboxFlags = Types.Widget & {
+    arguments: {
+        Label: string?,
+        Bit: number,
+    },
 
-            Checkmark.Parent = Box
+    state: {
+        flags: Types.State<number>,
+    },
+} & Types.Checked & Types.Unchecked & Types.Hovered
 
-            widgets.applyButtonClick(Checkbox, function()
-                thisWidget.state.isChecked:set(not thisWidget.state.isChecked.value)
-            end)
+local abstractCheckbox = {
+    hasState = true,
+    hasChildren = false,
+    numArguments = 1,
+    Arguments = { "Label", "checked" },
+    Events = {
+        ["checked"] = Utility.EVENTS.check,
+        ["unchecked"] = Utility.EVENTS.uncheck,
+        ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
+            return thisWidget.instance
+        end),
+    },
+    Generate = function(thisWidget: Checkbox)
+        local Checkbox = Instance.new("TextButton")
+        Checkbox.Name = "Iris_Checkbox"
+        Checkbox.AutomaticSize = Enum.AutomaticSize.XY
+        Checkbox.Size = UDim2.fromOffset(0, 0)
+        Checkbox.BackgroundTransparency = 1
+        Checkbox.BorderSizePixel = 0
+        Checkbox.Text = ""
+        Checkbox.AutoButtonColor = false
 
-            local TextLabel = Instance.new("TextLabel")
-            TextLabel.Name = "TextLabel"
-            TextLabel.AutomaticSize = Enum.AutomaticSize.XY
-            TextLabel.BackgroundTransparency = 1
-            TextLabel.BorderSizePixel = 0
-            TextLabel.LayoutOrder = 1
+        Utility.UIListLayout(Checkbox, Enum.FillDirection.Horizontal, UDim.new(0, Internal._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
-            widgets.applyTextStyle(TextLabel)
-            TextLabel.Parent = Checkbox
+        local checkboxSize = Internal._config.TextSize + 2 * Internal._config.FramePadding.Y
 
-            return Checkbox
-        end,
-        GenerateState = function(thisWidget: Types.Checkbox)
-            if thisWidget.state.isChecked == nil then
-                thisWidget.state.isChecked = Iris._widgetState(thisWidget, "checked", false)
-            end
-        end,
-        Update = function(thisWidget: Types.Checkbox)
-            local Checkbox = thisWidget.Instance :: TextButton
-            Checkbox.TextLabel.Text = thisWidget.arguments.Text or "Checkbox"
-        end,
-        UpdateState = function(thisWidget: Types.Checkbox)
-            local Checkbox = thisWidget.Instance :: TextButton
-            local Box = Checkbox.Box :: Frame
-            local Checkmark: ImageLabel = Box.Checkmark
-            if thisWidget.state.isChecked.value then
-                Checkmark.ImageTransparency = Iris._config.CheckMarkTransparency
-                thisWidget.lastCheckedTick = Iris._cycleTick + 1
+        local Box = Instance.new("Frame")
+        Box.Name = "Box"
+        Box.Size = UDim2.fromOffset(checkboxSize, checkboxSize)
+        Box.BackgroundColor3 = Internal._config.FrameBgColor
+        Box.BackgroundTransparency = Internal._config.FrameBgTransparency
+
+        Utility.applyFrameStyle(Box, true)
+        Utility.UIPadding(Box, Vector2.new(math.floor(checkboxSize / 10), math.floor(checkboxSize / 10)))
+
+        Utility.applyInteractionHighlights("Background", Checkbox, Box, {
+            Color = Internal._config.FrameBgColor,
+            Transparency = Internal._config.FrameBgTransparency,
+            HoveredColor = Internal._config.FrameBgHoveredColor,
+            HoveredTransparency = Internal._config.FrameBgHoveredTransparency,
+            ActiveColor = Internal._config.FrameBgActiveColor,
+            ActiveTransparency = Internal._config.FrameBgActiveTransparency,
+        })
+
+        Box.Parent = Checkbox
+
+        local Checkmark = Instance.new("ImageLabel")
+        Checkmark.Name = "Checkmark"
+        Checkmark.Size = UDim2.fromScale(1, 1)
+        Checkmark.BackgroundTransparency = 1
+        Checkmark.ImageContent = Utility.ICONS.CHECKMARK
+        Checkmark.ImageColor3 = Internal._config.CheckMarkColor
+        Checkmark.ImageTransparency = 1
+        Checkmark.ScaleType = Enum.ScaleType.Fit
+
+        Checkmark.Parent = Box
+
+        Utility.applyButtonClick(Checkbox, function()
+            if thisWidget.type == "Checkbox" then
+                thisWidget.state.value:set(not thisWidget.state.value._value)
             else
-                Checkmark.ImageTransparency = 1
-                thisWidget.lastUncheckedTick = Iris._cycleTick + 1
+                local checkboxFlags: CheckboxFlags = thisWidget :: any
+                checkboxFlags.state.flags:set(bit32.bxor(checkboxFlags.state.flags._value, checkboxFlags.arguments.Bit))
             end
-        end,
-        Discard = function(thisWidget: Types.Checkbox)
-            thisWidget.Instance:Destroy()
-            widgets.discardState(thisWidget)
-        end,
-    } :: Types.WidgetClass)
+        end)
+
+        local TextLabel = Instance.new("TextLabel")
+        TextLabel.Name = "TextLabel"
+        TextLabel.AutomaticSize = Enum.AutomaticSize.XY
+        TextLabel.BackgroundTransparency = 1
+        TextLabel.BorderSizePixel = 0
+        TextLabel.LayoutOrder = 1
+
+        Utility.applyTextStyle(TextLabel)
+        TextLabel.Parent = Checkbox
+
+        return Checkbox
+    end,
+    Update = function(thisWidget: Checkbox)
+        local Checkbox = thisWidget.instance :: TextButton
+        Checkbox.TextLabel.Text = thisWidget.arguments.Label or "Checkbox"
+    end,
+    UpdateState = function(thisWidget: Checkbox)
+        local Checkbox = thisWidget.instance :: TextButton
+        local Box = Checkbox.Box :: Frame
+        local Checkmark: ImageLabel = Box.Checkmark
+
+        local checked = false
+        if thisWidget.type == "Checkbox" then
+            if thisWidget.state.value._value then
+                checked = true
+            end
+        else
+            local checkboxFlags: CheckboxFlags = thisWidget :: any
+            if bit32.btest(checkboxFlags.state.flags._value, checkboxFlags.arguments.Bit) then
+                checked = true
+            end
+        end
+
+        if checked then
+            Checkmark.ImageTransparency = Internal._config.CheckMarkTransparency
+        else
+            Checkmark.ImageTransparency = 1
+        end
+    end,
+    Discard = function(thisWidget: Checkbox)
+        thisWidget.instance:Destroy()
+        Utility.discardState(thisWidget)
+    end,
+} :: Types.WidgetClass
+
+--------------
+-- Checkbox
+--------------
+
+Internal._widgetConstructor(
+    "Checkbox",
+    Utility.extend(
+        abstractCheckbox,
+        {
+            numArguments = 1,
+            Arguments = { "Label", "check" },
+            GenerateState = function(thisWidget: Checkbox)
+                if thisWidget.state.value == nil then
+                    thisWidget.state.value = Internal._widgetState(thisWidget, "value", false)
+                end
+            end,
+        } :: Types.WidgetClass
+    )
+)
+
+Internal._widgetConstructor(
+    "CheckboxFlags",
+    Utility.extend(
+        abstractCheckbox,
+        {
+            numArguments = 2,
+            Arguments = { "Label", "Bit", "flags" },
+            GenerateState = function(thisWidget: CheckboxFlags)
+                if thisWidget.state.flags == nil then
+                    thisWidget.state.flags = Internal._widgetState(thisWidget, "flags", 0)
+                end
+            end,
+        } :: Types.WidgetClass
+    )
+)
+
+--[=[
+    @within Basic
+    @tag Widget
+    @tag HasState
+
+    @function Checkbox
+    @param label string?
+    @param check State<boolean>? -- checkbox state
+
+    @return Checkbox
+
+    A checkable box with a visual tick to represent a boolean true or false state.
+]=]
+local API_Checkbox = function(label: string?, check: Types.APIState<boolean>?)
+    return Internal._insert("Checkbox", label, check) :: Checkbox
 end
+
+--[=[
+    @within Basic
+    @tag Widget
+    @tag HasState
+
+    @function CheckboxFlags
+    @param label string?
+    @param bit number
+    @param flags State<number>? -- bit flags state
+
+    @return Checkbox
+
+    A checkable box with a visual tick to represent a boolean true or false state.
+]=]
+local API_CheckboxFlags = function(label: string?, bit: number, flags: Types.APIState<number>?)
+    return Internal._insert("CheckboxFlags", label, bit, flags) :: Checkbox
+end
+
+return {
+    API_Checkbox = API_Checkbox,
+    API_CheckboxFlags = API_CheckboxFlags,
+}

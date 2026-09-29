@@ -1,38 +1,60 @@
-local Types = require(script.Parent.Parent.Types)
+const Internal = require("../Internal")
+const Utility = require("../Widgets")
 
-return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
-    --stylua: ignore
-    Iris.WidgetConstructor("RadioButton", {
+const Types = require("../Types")
+
+--[=[
+    @within Basic
+    @interface RadioButton
+    .& Widget
+
+    .active () -> boolean -- if the current radio button is selected
+    .selected () -> boolean -- once when selected
+    .unselected () -> boolean -- once when unselected
+    .hovered () -> boolean -- fires when the mouse hovers over any of the widget
+
+    .arguments { Label: string?, Index: any }
+    .state { index: State<any> }
+]=]
+export type RadioButton = Types.Widget & {
+    arguments: {
+        Label: string?,
+        Index: any,
+    },
+
+    state: {
+        index: Types.State<any>,
+    },
+
+    active: () -> boolean,
+} & Types.Selected & Types.Unselected & Types.Active & Types.Hovered
+
+-----------------
+-- RadioButton
+-----------------
+
+Internal._widgetConstructor(
+    "RadioButton",
+    {
         hasState = true,
         hasChildren = false,
-        Args = {
-            ["Text"] = 1,
-            ["Index"] = 2,
-        },
+        numArguments = 2,
+        Arguments = { "Label", "Index", "index" },
         Events = {
-            ["selected"] = {
-                ["Init"] = function(_thisWidget: Types.RadioButton) end,
-                ["Get"] = function(thisWidget: Types.RadioButton)
-                    return thisWidget.lastSelectedTick == Iris._cycleTick
-                end,
-            },
-            ["unselected"] = {
-                ["Init"] = function(_thisWidget: Types.RadioButton) end,
-                ["Get"] = function(thisWidget: Types.RadioButton)
-                    return thisWidget.lastUnselectedTick == Iris._cycleTick
-                end,
-            },
+            ["selected"] = Utility.EVENTS.select,
+            ["unselected"] = Utility.EVENTS.unselect,
             ["active"] = {
-                ["Init"] = function(_thisWidget: Types.RadioButton) end,
-                ["Get"] = function(thisWidget: Types.RadioButton)
-                    return thisWidget.state.index.value == thisWidget.arguments.Index
+                ["Init"] = function(_thisWidget) end,
+                ["Get"] = function(thisWidget: RadioButton)
+                    return thisWidget.state.index._value == thisWidget.arguments.Index
                 end,
             },
-            ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
-                return thisWidget.Instance
+            ["changed"] = Utility.EVENTS.change("index"),
+            ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
+                return thisWidget.instance
             end),
         },
-        Generate = function(thisWidget: Types.RadioButton)
+        Generate = function(thisWidget: RadioButton)
             local RadioButton = Instance.new("TextButton")
             RadioButton.Name = "Iris_RadioButton"
             RadioButton.AutomaticSize = Enum.AutomaticSize.XY
@@ -42,38 +64,38 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             RadioButton.Text = ""
             RadioButton.AutoButtonColor = false
 
-            widgets.UIListLayout(RadioButton, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
+            Utility.UIListLayout(RadioButton, Enum.FillDirection.Horizontal, UDim.new(0, Internal._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
-            local buttonSize = Iris._config.TextSize + 2 * (Iris._config.FramePadding.Y - 1)
+            local buttonSize = Internal._config.TextSize + 2 * (Internal._config.FramePadding.Y - 1)
             local Button = Instance.new("Frame")
             Button.Name = "Button"
             Button.Size = UDim2.fromOffset(buttonSize, buttonSize)
-            Button.BackgroundColor3 = Iris._config.FrameBgColor
-            Button.BackgroundTransparency = Iris._config.FrameBgTransparency
+            Button.BackgroundColor3 = Internal._config.FrameBgColor
+            Button.BackgroundTransparency = Internal._config.FrameBgTransparency
             Button.Parent = RadioButton
 
-            widgets.UICorner(Button)
-            widgets.UIPadding(Button, Vector2.new(math.max(1, math.floor(buttonSize / 5)), math.max(1, math.floor(buttonSize / 5))))
+            Utility.UICorner(Button)
+            Utility.UIPadding(Button, Vector2.new(math.max(1, math.floor(buttonSize / 5)), math.max(1, math.floor(buttonSize / 5))))
 
             local Circle = Instance.new("Frame")
             Circle.Name = "Circle"
             Circle.Size = UDim2.fromScale(1, 1)
-            Circle.BackgroundColor3 = Iris._config.CheckMarkColor
-            Circle.BackgroundTransparency = Iris._config.CheckMarkTransparency
-            widgets.UICorner(Circle)
-            
+            Circle.BackgroundColor3 = Internal._config.CheckMarkColor
+            Circle.BackgroundTransparency = Internal._config.CheckMarkTransparency
+            Utility.UICorner(Circle)
+
             Circle.Parent = Button
 
-            widgets.applyInteractionHighlights("Background", RadioButton, Button, {
-                Color = Iris._config.FrameBgColor,
-                Transparency = Iris._config.FrameBgTransparency,
-                HoveredColor = Iris._config.FrameBgHoveredColor,
-                HoveredTransparency = Iris._config.FrameBgHoveredTransparency,
-                ActiveColor = Iris._config.FrameBgActiveColor,
-                ActiveTransparency = Iris._config.FrameBgActiveTransparency,
+            Utility.applyInteractionHighlights("Background", RadioButton, Button, {
+                Color = Internal._config.FrameBgColor,
+                Transparency = Internal._config.FrameBgTransparency,
+                HoveredColor = Internal._config.FrameBgHoveredColor,
+                HoveredTransparency = Internal._config.FrameBgHoveredTransparency,
+                ActiveColor = Internal._config.FrameBgActiveColor,
+                ActiveTransparency = Internal._config.FrameBgActiveTransparency,
             })
 
-            widgets.applyButtonClick(RadioButton, function()
+            Utility.applyButtonClick(RadioButton, function()
                 thisWidget.state.index:set(thisWidget.arguments.Index)
             end)
 
@@ -83,44 +105,64 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
             TextLabel.BackgroundTransparency = 1
             TextLabel.BorderSizePixel = 0
             TextLabel.LayoutOrder = 1
-            
-            widgets.applyTextStyle(TextLabel)
+
+            Utility.applyTextStyle(TextLabel)
             TextLabel.Parent = RadioButton
 
             return RadioButton
         end,
-        Update = function(thisWidget: Types.RadioButton)
-            local RadioButton = thisWidget.Instance :: TextButton
+        Update = function(thisWidget: RadioButton)
+            local RadioButton = thisWidget.instance :: TextButton
             local TextLabel: TextLabel = RadioButton.TextLabel
 
-            TextLabel.Text = thisWidget.arguments.Text or "Radio Button"
+            TextLabel.Text = thisWidget.arguments.Label or "Radio Button"
             if thisWidget.state then
-                thisWidget.state.index.lastChangeTick = Iris._cycleTick
-                Iris._widgets[thisWidget.type].UpdateState(thisWidget)
+                thisWidget.state.index._lastChangeTick = Internal._cycleTick
+                Internal._widgets[thisWidget.type].UpdateState(thisWidget)
             end
         end,
-        Discard = function(thisWidget: Types.RadioButton)
-            thisWidget.Instance:Destroy()
-            widgets.discardState(thisWidget)
+        Discard = function(thisWidget: RadioButton)
+            thisWidget.instance:Destroy()
+            Utility.discardState(thisWidget)
         end,
-        GenerateState = function(thisWidget: Types.RadioButton)
+        GenerateState = function(thisWidget: RadioButton)
             if thisWidget.state.index == nil then
-                thisWidget.state.index = Iris._widgetState(thisWidget, "index", thisWidget.arguments.Index)
+                thisWidget.state.index = Internal._widgetState(thisWidget, "index", thisWidget.arguments.Index)
             end
         end,
-        UpdateState = function(thisWidget: Types.RadioButton)
-            local RadioButton = thisWidget.Instance :: TextButton
+        UpdateState = function(thisWidget: RadioButton)
+            local RadioButton = thisWidget.instance :: TextButton
             local Button = RadioButton.Button :: Frame
             local Circle: Frame = Button.Circle
 
-            if thisWidget.state.index.value == thisWidget.arguments.Index then
+            if thisWidget.state.index._value == thisWidget.arguments.Index then
                 -- only need to hide the circle
-                Circle.BackgroundTransparency = Iris._config.CheckMarkTransparency
-                thisWidget.lastSelectedTick = Iris._cycleTick + 1
+                Circle.BackgroundTransparency = Internal._config.CheckMarkTransparency
             else
                 Circle.BackgroundTransparency = 1
-                thisWidget.lastUnselectedTick = Iris._cycleTick + 1
             end
         end,
-    } :: Types.WidgetClass)
+    } :: Types.WidgetClass
+)
+
+--[=[
+    @within Basic
+    @tag Widget
+    @tag HasState
+
+    @function RadioButton
+    @param label string
+    @param index any -- unique index for the radio button
+    @param state State<any>? -- global state shared by all grouped radio buttons
+
+    @return RadioButton
+
+    A circular selectable button, changing the state to its index argument. Used in conjunction with multiple other RadioButtons sharing the same state to represent one value from multiple options.
+]=]
+local API_RadioButton = function(label: string, index: any, state: Types.APIState<any>?)
+    return Internal._insert("RadioButton", label, index, state) :: RadioButton
 end
+
+return {
+    API_RadioButton = API_RadioButton,
+}

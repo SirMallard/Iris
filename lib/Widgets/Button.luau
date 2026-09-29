@@ -1,80 +1,118 @@
-local Types = require(script.Parent.Parent.Types)
+const Internal = require("../Internal")
+const Utility = require("../Widgets")
 
-return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
-    local abstractButton = {
-        hasState = false,
-        hasChildren = false,
-        Args = {
-            ["Text"] = 1,
-            ["Size"] = 2,
-        },
-        Events = {
-            ["clicked"] = widgets.EVENTS.click(function(thisWidget: Types.Widget)
-                return thisWidget.Instance
-            end),
-            ["rightClicked"] = widgets.EVENTS.rightClick(function(thisWidget: Types.Widget)
-                return thisWidget.Instance
-            end),
-            ["doubleClicked"] = widgets.EVENTS.doubleClick(function(thisWidget: Types.Widget)
-                return thisWidget.Instance
-            end),
-            ["ctrlClicked"] = widgets.EVENTS.ctrlClick(function(thisWidget: Types.Widget)
-                return thisWidget.Instance
-            end),
-            ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
-                return thisWidget.Instance
-            end),
-        },
-        Generate = function(_thisWidget: Types.Button)
-            local Button = Instance.new("TextButton")
-            Button.AutomaticSize = Enum.AutomaticSize.XY
-            Button.Size = UDim2.fromOffset(0, 0)
-            Button.BackgroundColor3 = Iris._config.ButtonColor
-            Button.BackgroundTransparency = Iris._config.ButtonTransparency
-            Button.AutoButtonColor = false
+const Types = require("../Types")
 
-            widgets.applyTextStyle(Button)
-            Button.TextXAlignment = Enum.TextXAlignment.Center
+--[=[
+    @class Basic
+    Basic Widget API
+]=]
 
-            widgets.applyFrameStyle(Button)
+--[=[
+    @within Basic
+    @interface Button
+    .& Widget
+    .clicked () -> boolean -- fires when a button is clicked
+    .rightClicked () -> boolean -- fires when a button is right clicked
+    .doubleClicked () -> boolean -- fires when a button is double clicked
+    .ctrlClicked () -> boolean -- fires when a button is ctrl clicked
+    .hovered () -> boolean -- fires when the mouse hovers over any of the button
 
-            widgets.applyInteractionHighlights("Background", Button, Button, {
-                Color = Iris._config.ButtonColor,
-                Transparency = Iris._config.ButtonTransparency,
-                HoveredColor = Iris._config.ButtonHoveredColor,
-                HoveredTransparency = Iris._config.ButtonHoveredTransparency,
-                ActiveColor = Iris._config.ButtonActiveColor,
-                ActiveTransparency = Iris._config.ButtonActiveTransparency,
-            })
+    .arguments { Label: string?, Size: UDim2? }
+]=]
+export type Button = Types.Widget & {
+    arguments: {
+        Label: string?,
+        Size: UDim2?,
+    },
+} & Types.Clicked & Types.RightClicked & Types.DoubleClicked & Types.CtrlClicked & Types.Hovered
 
-            return Button
-        end,
-        Update = function(thisWidget: Types.Button)
-            local Button = thisWidget.Instance :: TextButton
-            Button.Text = thisWidget.arguments.Text or "Button"
-            Button.Size = thisWidget.arguments.Size or UDim2.fromOffset(0, 0)
-        end,
-        Discard = function(thisWidget: Types.Button)
-            thisWidget.Instance:Destroy()
-        end,
-    } :: Types.WidgetClass
-    widgets.abstractButton = abstractButton
+Utility.abstractButton = {
+    hasState = false,
+    hasChildren = false,
+    numArguments = 2,
+    Arguments = { "Label", "Size" },
+    Events = {
+        ["clicked"] = Utility.EVENTS.click(function(thisWidget: Types.Widget)
+            return thisWidget.instance :: GuiButton
+        end),
+        ["rightClicked"] = Utility.EVENTS.rightClick(function(thisWidget: Types.Widget)
+            return thisWidget.instance :: GuiButton
+        end),
+        ["doubleClicked"] = Utility.EVENTS.doubleClick(function(thisWidget: Types.Widget)
+            return thisWidget.instance :: GuiButton
+        end),
+        ["ctrlClicked"] = Utility.EVENTS.ctrlClick(function(thisWidget: Types.Widget)
+            return thisWidget.instance :: GuiButton
+        end),
+        ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
+            return thisWidget.instance
+        end),
+    },
+    Generate = function(_thisWidget: Button)
+        local Button = Instance.new("TextButton")
+        Button.AutomaticSize = Enum.AutomaticSize.XY
+        Button.Size = UDim2.fromOffset(0, 0)
+        Button.BackgroundColor3 = Internal._config.ButtonColor
+        Button.BackgroundTransparency = Internal._config.ButtonTransparency
+        Button.AutoButtonColor = false
 
-    --stylua: ignore
-    Iris.WidgetConstructor("Button", widgets.extend(abstractButton, {
-            Generate = function(thisWidget: Types.Button)
-                local Button = abstractButton.Generate(thisWidget)
+        Utility.applyTextStyle(Button)
+        Button.TextXAlignment = Enum.TextXAlignment.Center
+
+        Utility.applyFrameStyle(Button)
+
+        Utility.applyInteractionHighlights("Background", Button, Button, {
+            Color = Internal._config.ButtonColor,
+            Transparency = Internal._config.ButtonTransparency,
+            HoveredColor = Internal._config.ButtonHoveredColor,
+            HoveredTransparency = Internal._config.ButtonHoveredTransparency,
+            ActiveColor = Internal._config.ButtonActiveColor,
+            ActiveTransparency = Internal._config.ButtonActiveTransparency,
+        })
+
+        return Button
+    end,
+    Update = function(thisWidget: Button)
+        local Button = thisWidget.instance :: TextButton
+        Button.Text = thisWidget.arguments.Label or "Button"
+        Button.Size = thisWidget.arguments.Size or UDim2.fromOffset(0, 0)
+    end,
+    Discard = function(thisWidget: Button)
+        thisWidget.instance:Destroy()
+    end,
+} :: Types.WidgetClass
+
+------------
+-- Button
+------------
+
+Internal._widgetConstructor(
+    "Button",
+    Utility.extend(
+        Utility.abstractButton,
+        {
+            Generate = function(thisWidget: Button)
+                local Button = Utility.abstractButton.Generate(thisWidget)
                 Button.Name = "Iris_Button"
 
                 return Button
             end,
-        } :: Types.WidgetClass)
+        } :: Types.WidgetClass
     )
+)
 
-    --stylua: ignore
-    Iris.WidgetConstructor("SmallButton", widgets.extend(abstractButton, {
-            Generate = function(thisWidget: Types.Button)
-                local SmallButton = abstractButton.Generate(thisWidget)
+-----------------
+-- SmallButton
+-----------------
+
+Internal._widgetConstructor(
+    "SmallButton",
+    Utility.extend(
+        Utility.abstractButton,
+        {
+            Generate = function(thisWidget: Button)
+                local SmallButton = Utility.abstractButton.Generate(thisWidget)
                 SmallButton.Name = "Iris_SmallButton"
 
                 local uiPadding: UIPadding = SmallButton.UIPadding
@@ -85,6 +123,43 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
                 return SmallButton
             end,
-        } :: Types.WidgetClass)
+        } :: Types.WidgetClass
     )
+)
+
+--[=[
+    @within Basic
+    @tag Widget
+
+    @function Button
+    @param label string?
+    @param size UDim2? -- minimum button size, default 0
+
+    @return Button
+
+    A clickable button the size of the label with padding. Can listen to the `clicked()` event to determine if it was pressed.
+]=]
+local API_Button = function(label: string, size: UDim2?)
+    return Internal._insert("Button", label, size) :: Button
 end
+
+--[=[
+    @within Basic
+    @tag Widget
+
+    @function SmallButton
+    @param label string
+    @param size UDim2? -- minimum button size, default 0
+
+    @return Button
+
+    A smaller clickable button, the same as a [Iris.Button](Basic#Button) but without padding. Can listen to the `clicked()` event to determine if it was pressed.
+]=]
+local API_SmallButton = function(label: string, size: UDim2?)
+    return Internal._insert("SmallButton", label, size) :: Button
+end
+
+return {
+    API_Button = API_Button,
+    API_SmallButton = API_SmallButton,
+}

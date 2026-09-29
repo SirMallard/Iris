@@ -1,47 +1,87 @@
-local Types = require(script.Parent.Parent.Types)
+const Internal = require("../Internal")
+const Utility = require("../Widgets")
 
-return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
-    local abstractImage = {
-        hasState = false,
-        hasChildren = false,
-        Args = {
-            ["Image"] = 1,
-            ["Size"] = 2,
-            ["Rect"] = 3,
-            ["ScaleType"] = 4,
-            ["ResampleMode"] = 5,
-            ["TileSize"] = 6,
-            ["SliceCenter"] = 7,
-            ["SliceScale"] = 8,
-        },
-        Discard = function(thisWidget: Types.Image)
-            thisWidget.Instance:Destroy()
-        end,
-    } :: Types.WidgetClass
+const Types = require("../Types")
 
-    --stylua: ignore
-    Iris.WidgetConstructor("Image", widgets.extend(abstractImage, {
+--[=[
+    @class Image
+
+    Provides two widgets for Images and ImageButtons, with the same controls as an ImageLabel instance.
+]=]
+
+--[=[
+    @within Image
+    @interface Image
+    .& Widget
+    .hovered () -> boolean -- fires when the mouse hovers over any of the image
+
+    .arguments { Content: Content, Size: UDim2, Rect: Rect?, ScaleType: Enum.ScaleType?, TileSize: UDim2?, SliceCenter: Rect?, SliceScale: number?, ResampleMode: Enum.ResamplerMode? }
+]=]
+
+export type Image = Types.Widget & {
+    arguments: {
+        Content: Content,
+        Size: UDim2,
+        Rect: Rect?,
+        ScaleType: Enum.ScaleType?,
+        TileSize: UDim2?,
+        SliceCenter: Rect?,
+        SliceScale: number?,
+        ResampleMode: Enum.ResamplerMode?,
+    },
+} & Types.Hovered
+
+--[=[
+    @within Image
+    @interface ImageButton_
+    .& Image
+    .clicked () -> boolean -- fires when a button is clicked
+    .rightClicked () -> boolean -- fires when a button is right clicked
+    .doubleClicked () -> boolean -- fires when a button is double clicked
+    .ctrlClicked () -> boolean -- fires when a button is ctrl clicked
+]=]
+export type ImageButton_ = Image & Types.Clicked & Types.RightClicked & Types.DoubleClicked & Types.CtrlClicked
+
+local abstractImage = {
+    hasState = false,
+    hasChildren = false,
+    numArguments = 8,
+    Arguments = { "Content", "Size", "Rect", "ScaleType", "ResampleMode", "TileSize", "SliceCenter", "SliceScale" },
+    Discard = function(thisWidget: Image)
+        thisWidget.instance:Destroy()
+    end,
+} :: Types.WidgetClass
+
+-----------
+-- Image
+-----------
+
+Internal._widgetConstructor(
+    "Image",
+    Utility.extend(
+        abstractImage,
+        {
             Events = {
-                ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
-                    return thisWidget.Instance
+                ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
+                    return thisWidget.instance
                 end),
             },
-            Generate = function(_thisWidget: Types.Image)
+            Generate = function(_thisWidget: Image)
                 local Image = Instance.new("ImageLabel")
                 Image.Name = "Iris_Image"
                 Image.BackgroundTransparency = 1
                 Image.BorderSizePixel = 0
-                Image.ImageColor3 = Iris._config.ImageColor
-                Image.ImageTransparency = Iris._config.ImageTransparency
+                Image.ImageColor3 = Internal._config.ImageColor
+                Image.ImageTransparency = Internal._config.ImageTransparency
 
-                widgets.applyFrameStyle(Image, true)
+                Utility.applyFrameStyle(Image, true)
 
                 return Image
             end,
-            Update = function(thisWidget: Types.Image)
-                local Image = thisWidget.Instance :: ImageLabel
-    
-                Image.Image = thisWidget.arguments.Image or widgets.ICONS.UNKNOWN_TEXTURE
+            Update = function(thisWidget: Image)
+                local Image = thisWidget.instance :: ImageLabel
+
+                Image.ImageContent = thisWidget.arguments.Content or Utility.ICONS.UNKNOWN_TEXTURE
                 Image.Size = thisWidget.arguments.Size
                 if thisWidget.arguments.ScaleType then
                     Image.ScaleType = thisWidget.arguments.ScaleType
@@ -56,76 +96,84 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         end
                     end
                 end
-    
+
                 if thisWidget.arguments.Rect then
                     Image.ImageRectOffset = thisWidget.arguments.Rect.Min
                     Image.ImageRectSize = Vector2.new(thisWidget.arguments.Rect.Width, thisWidget.arguments.Rect.Height)
                 end
-    
+
                 if thisWidget.arguments.ResampleMode then
                     Image.ResampleMode = thisWidget.arguments.ResampleMode
                 end
             end,
-        } :: Types.WidgetClass)
+        } :: Types.WidgetClass
     )
+)
 
-    --stylua: ignore
-    Iris.WidgetConstructor("ImageButton", widgets.extend(abstractImage, {
+-----------------
+-- ImageButton
+-----------------
+
+Internal._widgetConstructor(
+    "ImageButton",
+    Utility.extend(
+        abstractImage,
+        {
             Events = {
-                ["clicked"] = widgets.EVENTS.click(function(thisWidget: Types.Widget)
-                    return thisWidget.Instance
+                ["clicked"] = Utility.EVENTS.click(function(thisWidget: Types.Widget)
+                    return thisWidget.instance
                 end),
-                ["rightClicked"] = widgets.EVENTS.rightClick(function(thisWidget: Types.Widget)
-                    return thisWidget.Instance
+                ["rightClicked"] = Utility.EVENTS.rightClick(function(thisWidget: Types.Widget)
+                    return thisWidget.instance
                 end),
-                ["doubleClicked"] = widgets.EVENTS.doubleClick(function(thisWidget: Types.Widget)
-                    return thisWidget.Instance
+                ["doubleClicked"] = Utility.EVENTS.doubleClick(function(thisWidget: Types.Widget)
+                    return thisWidget.instance
                 end),
-                ["ctrlClicked"] = widgets.EVENTS.ctrlClick(function(thisWidget: Types.Widget)
-                    return thisWidget.Instance
+                ["ctrlClicked"] = Utility.EVENTS.ctrlClick(function(thisWidget: Types.Widget)
+                    return thisWidget.instance
                 end),
-                ["hovered"] = widgets.EVENTS.hover(function(thisWidget: Types.Widget)
-                    return thisWidget.Instance
+                ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
+                    return thisWidget.instance
                 end),
             },
-            Generate = function(_thisWidget: Types.ImageButton)
+            Generate = function(_thisWidget: ImageButton_)
                 local Button = Instance.new("ImageButton")
                 Button.Name = "Iris_ImageButton"
                 Button.AutomaticSize = Enum.AutomaticSize.XY
-                Button.BackgroundColor3 = Iris._config.FrameBgColor
-                Button.BackgroundTransparency = Iris._config.FrameBgTransparency
+                Button.BackgroundColor3 = Internal._config.FrameBgColor
+                Button.BackgroundTransparency = Internal._config.FrameBgTransparency
                 Button.BorderSizePixel = 0
                 Button.Image = ""
                 Button.ImageTransparency = 1
                 Button.AutoButtonColor = false
-                
-                widgets.applyFrameStyle(Button, true)
-                widgets.UIPadding(Button, Vector2.new(Iris._config.ImageBorderSize, Iris._config.ImageBorderSize))
-                
+
+                Utility.applyFrameStyle(Button, true)
+                Utility.UIPadding(Button, Vector2.new(Internal._config.ImageBorderSize, Internal._config.ImageBorderSize))
+
                 local Image = Instance.new("ImageLabel")
                 Image.Name = "ImageLabel"
                 Image.BackgroundTransparency = 1
                 Image.BorderSizePixel = 0
-                Image.ImageColor3 = Iris._config.ImageColor
-                Image.ImageTransparency = Iris._config.ImageTransparency
+                Image.ImageColor3 = Internal._config.ImageColor
+                Image.ImageTransparency = Internal._config.ImageTransparency
                 Image.Parent = Button
 
-                widgets.applyInteractionHighlights("Background", Button, Button, {
-                    Color = Iris._config.FrameBgColor,
-                    Transparency = Iris._config.FrameBgTransparency,
-                    HoveredColor = Iris._config.FrameBgHoveredColor,
-                    HoveredTransparency = Iris._config.FrameBgHoveredTransparency,
-                    ActiveColor = Iris._config.FrameBgActiveColor,
-                    ActiveTransparency = Iris._config.FrameBgActiveTransparency,
+                Utility.applyInteractionHighlights("Background", Button, Button, {
+                    Color = Internal._config.FrameBgColor,
+                    Transparency = Internal._config.FrameBgTransparency,
+                    HoveredColor = Internal._config.FrameBgHoveredColor,
+                    HoveredTransparency = Internal._config.FrameBgHoveredTransparency,
+                    ActiveColor = Internal._config.FrameBgActiveColor,
+                    ActiveTransparency = Internal._config.FrameBgActiveTransparency,
                 })
 
                 return Button
             end,
-            Update = function(thisWidget: Types.ImageButton)
-                local Button = thisWidget.Instance :: TextButton
+            Update = function(thisWidget: ImageButton_)
+                local Button = thisWidget.instance :: TextButton
                 local Image: ImageLabel = Button.ImageLabel
-    
-                Image.Image = thisWidget.arguments.Image or widgets.ICONS.UNKNOWN_TEXTURE
+
+                Image.ImageContent = thisWidget.arguments.Content or Utility.ICONS.UNKNOWN_TEXTURE
                 Image.Size = thisWidget.arguments.Size
                 if thisWidget.arguments.ScaleType then
                     Image.ScaleType = thisWidget.arguments.ScaleType
@@ -140,16 +188,67 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                         end
                     end
                 end
-    
+
                 if thisWidget.arguments.Rect then
                     Image.ImageRectOffset = thisWidget.arguments.Rect.Min
                     Image.ImageRectSize = Vector2.new(thisWidget.arguments.Rect.Width, thisWidget.arguments.Rect.Height)
                 end
-    
+
                 if thisWidget.arguments.ResampleMode then
                     Image.ResampleMode = thisWidget.arguments.ResampleMode
                 end
             end,
-        } :: Types.WidgetClass)
+        } :: Types.WidgetClass
     )
+)
+
+--[=[
+    @within Image
+    @tag Widget
+
+    @function Image
+    @param content Content -- texture content, allowing support for editable images
+    @param size UDim2 -- required size in the window
+    @param rect Rect? -- default to a zero rect, making no difference
+    @param scaleType Enum.ScaleType? -- determines type of image scaling, default is Enum.ScaleType.Stretch
+    @param resampleMode Enum.ResamplerMode? -- default is Enum.ResampleMode.Default
+    @param tileSize UDim2? -- only used if ScaleType is Tile, default is UDim2.fromScale(1, 1)
+    @param sliceCenter Rect? -- only used if ScaleType is Slice, default is empty Rect
+    @param sliceScale number? -- only used if ScaleType is Slice, default is 1
+
+    @return Image
+
+    An image widget for displaying an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image and the rest of the ScaleType functionerties
+    Some of the arguments are only used depending on the ScaleType functionerty
+]=]
+local API_Image = function(content: Content, size: UDim2, rect: Rect?, scaleType: Enum.ScaleType?, resampleMode: Enum.ResamplerMode?, tileSize: UDim2?, sliceCenter: Rect?, sliceScale: number?)
+    return Internal._insert("Image", content, size, rect, scaleType, resampleMode, tileSize, sliceCenter, sliceScale) :: Image
 end
+
+--[=[
+    @within Image
+    @tag Widget
+
+    @function ImageButton
+    @param content Content -- texture content, allowing support for editable images
+    @param size UDim2 -- required size in the window
+    @param rect Rect? -- default to a zero rect, making no difference
+    @param scaleType Enum.ScaleType? -- determines type of image scaling, default is Enum.ScaleType.Stretch
+    @param resampleMode Enum.ResamplerMode? -- default is Enum.ResampleMode.Default
+    @param tileSize UDim2? -- only used if ScaleType is Tile, default is UDim2.fromScale(1, 1)
+    @param sliceCenter Rect? -- only used if ScaleType is Slice, default is empty Rect
+    @param sliceScale number? -- only used if ScaleType is Slice, default is 1
+
+    @return ImageButton
+
+    An image button widget for a button as an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image, and the rest of the ScaleType functionerties
+    Supports all of the events of a regular button.
+]=]
+local API_ImageButton = function(content: Content, size: UDim2, rect: Rect?, scaleType: Enum.ScaleType?, resampleMode: Enum.ResamplerMode?, tileSize: UDim2?, sliceCenter: Rect?, sliceScale: number?)
+    return Internal._insert("ImageButton", content, size, rect, scaleType, resampleMode, tileSize, sliceCenter, sliceScale) :: ImageButton_
+end
+
+return {
+    API_Image = API_Image,
+    API_ImageButton = API_ImageButton,
+}
