@@ -8,7 +8,7 @@ node_modules/
 *.rbxm
 *.rbxmx
 *.lock
-dev.*.lua
+dev.*.luau
 package*
 
 tests/benchmarks
