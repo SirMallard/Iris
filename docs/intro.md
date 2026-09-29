@@ -31,6 +31,7 @@ Iris:Connect(function()
     Iris.End()
 end)
 ```
+
 </div>
 <div style={{"width": "50%", "display": "flex", "justify-content": "center", "align-items": "center"}}>
     <img src="/Iris/assets/docs/simpleExample1.png" />
@@ -38,6 +39,7 @@ end)
 </div>
 
 We can break this code down to explain Iris better:
+
 ```lua
 local StarterPlayerScripts = game.StarterPlayer.StarterPlayerScripts
 -- We first need to initialise Iris once before it is used anywhere. `Init()` will
@@ -99,13 +101,14 @@ Iris:Connect(function()
     Iris.End()
 end)
 ```
+
 </div>
 <div style={{"width":"50%", "display": "flex", "justify-content": "center", "align-items": "center"}}>
     <img src="/Iris/assets/docs/simpleExample2.png" />
 </div>
 </div>
 
-This example has introduced the state object which allows us to control the state or value of Iris widgets and use these values in actual code. This is the bridge between your variables and being able to modify them in Iris. We also demonstrate the tree node which is useful for helping organise your UI tools. 
+This example has introduced the state object which allows us to control the state or value of Iris widgets and use these values in actual code. This is the bridge between your variables and being able to modify them in Iris. We also demonstrate the tree node which is useful for helping organise your UI tools.
 
 ## Adding to your Game
 

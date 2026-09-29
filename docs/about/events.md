@@ -11,6 +11,7 @@ continuous, such as a widget being hovered. Each event is a function which retur
 event has happened that frame or not.
 
 To listen to an event, use the following:
+
 ```lua
 local button = Iris.Button({ "Please click me!" })
 if button.clicked() then
@@ -22,21 +23,21 @@ Events will fire the frame after the initial action happened. This is so that an
 propogate visually. For example on a checkbox:
 
 - [Frames 1 - 60]
-The mouse is elsewhere.
+  The mouse is elsewhere.
 
 - [Frames 61 - 80]
-The user is moving their moues towards the checkbox.
+  The user is moving their moues towards the checkbox.
 
 - [Frame 81 - 100]
-The mouse enters the checkbox.
-The .hovered() event fires because this event will fire on the frame.
+  The mouse enters the checkbox.
+  The .hovered() event fires because this event will fire on the frame.
 
 - [Frame 101]
-The user presses MouseButton1 down on the checkbox.
+  The user presses MouseButton1 down on the checkbox.
 
 - [Frame 102]
-The user releases the MouseButton1.
+  The user releases the MouseButton1.
 
 - [Frame 103]
-The checkbox tick appears.
-The .checked() event fires.
+  The checkbox tick appears.
+  The .checked() event fires.

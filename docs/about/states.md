@@ -33,6 +33,7 @@ function is called, if the variable and state are different, it will choose the 
 is changed, it will use the callback which is designed to update the local variable.
 
 This is best shown with an example:
+
 ```lua
 local myNumber = 5
 
@@ -53,6 +54,7 @@ changes and vice versa. Because tables are shared, we do not need to provide a f
 is instead handled internally.
 
 We can see this with an example:
+
 ```lua
 local data = {
     myNumber = 5

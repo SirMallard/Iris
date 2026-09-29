@@ -18,12 +18,14 @@ initialise Iris from.
 
 We can first test Iris works properly by using the DemoWindow, to display all the widgets in Iris.
 First we'll create a client script under `StarterPlayer.StarterPlayerScipts`, and put this into it:
+
 ```lua
 local Iris = require(path.to.Iris)
 
 Iris.Init()
 Iris:Connect(Iris.ShowDemoWindow)
 ```
+
 If we then run the game, we should see the Iris Demo Window appear on the screen. This shows that Iris
 is working properly and we can start writing our own code. Check [here](./intro.md) for some example code,
 read through the [`DemoWindow.luau`](https://github.com/SirMallard/Iris/blob/main/lib/DemoWindow.luau)
@@ -36,7 +38,8 @@ becomes much clearer and is consistent between all widgets.
 
 We will use a Window as an example because it best demonstrates the API and is used in every Iris project.
 
-The API documentation for a window is as follows and contains all the information we need:  
+The API documentation for a window is as follows and contains all the information we need:
+
 ```lua
 hasChildren = true
 hasState = true
@@ -105,6 +108,7 @@ Iris.Window({"Title", nil, nil, nil, true, nil, nil, true})
 Iris.Window({ [1] = "Title", [5] = true, [8] = true })
 Iris.Window({ [Iris.Args.Window.Title] = "Title", [Iris.Args.Window.NoClose] = true, [Iris.Args.Window.NoResize] = true })
 ```
+
 For the last two, the order no longer matters and the arguments can be placed in any order. The last one uses
 `Iris.Args.[WIDGET].[ARGUMENT]` which contains the index or number for each argument position. It makes it clearer
 which arguments you are using, but at the cost of longer function calls. This is generally only used for widgets
@@ -140,6 +144,7 @@ we use states which are tables to store all the changes.
 :::
 
 Providing a state in Iris is very easy, we first create it and then provide it with the string name to the widget:
+
 ```lua
 local positionState = Iris.State(Vector2.new(100, 100))
 
@@ -151,6 +156,7 @@ created, the window will be positioned at (100, 100) on the screen, but can stil
 provide the state number rather than an index for the state table.
 
 We do not need to provide the state to use the widget, we can just grab it from the created widget:
+
 ```lua
 local window = Iris.Window({ "Positioned Window" })
 

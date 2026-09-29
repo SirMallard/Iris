@@ -1,9 +1,9 @@
-
 # Iris
 
 Iris is an Immediate mode GUI Library for Roblox, Based on [Dear ImGui](https://github.com/ocornut/imgui). It solves the same problems as Dear ImGui: providing a simple and bloat-free UI system, designed for visualisation and debugging. It is fast, portable, and self-contained (no external dependencies).
 
 #### What is Dear ImGui, and why is it important?
+
 Dear ImGui is best known for allowing developers to create content-creation and visualisation and debugging UI. Using the Dear ImGui paradigm (Immediate Mode), UI design is remarkably easy and simple. Because of this, Dear ImGui has been adopted in almost every major game engine from Unity and Unreal Engine to in-house engines from Rockstar and Ubisoft (and now Roblox!).
 
 Iris favors simplicity and productivity; It is designed to simplify UI, streamlining the process for creating visualisation, debug, and data input tools. To accomplish this, Iris offers a different approach to Roblox UI than existing libraries, at the cost of certain features commonly found in more intricate UI libraries. Iris opts to supercede the Roblox UI API, instead having a streamlined Immediate-Mode library and a set of widgets which developers can use to build the UI and tools they need.
@@ -105,6 +105,7 @@ Check out the Dear ImGuis [About the IMGUI paradigm](https://github.com/ocornut/
 ### Extensions
 
 Iris has an amazing community, who have created some extensions to Iris or adding new features. Check them out!
+
 - [ImPlot](https://devforum.roblox.com/t/4301691): a range of 2D graphing and plotting widgets - [LinusKat/ImPlot](https://github.com/LinusKat/ImPlot)
 - [Ceive ImGizmo](https://devforum.roblox.com/t/2470790): a 3D gizmo rendering library - [JakeyWasTaken/CeiveImGizmo](https://github.com/JakeyWasTaken/CeiveImGizmo)
 
@@ -117,4 +118,5 @@ Many thanks to [JakeyWasTaken](https://github.com/JakeyWasTaken), [OverHash](htt
 Inspriation and design: [Omar Cornut](https://www.miracleworld.net/), [Evaera](https://github.com/evaera).
 
 Thanks!
+
 <meta name="google-site-verification" content="Ito4GceH5YJJXReIhx9JMqN0YEDdKePHaylk8H3-9Oo" />

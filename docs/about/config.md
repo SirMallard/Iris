@@ -73,7 +73,6 @@ performance significantly. However, if this the config stays the same, Iris does
 redraw.
 :::
 
-
 ## Configuration
 
 ### Colours

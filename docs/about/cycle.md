@@ -18,6 +18,7 @@ while(not_closed) {
     wait(); // for a 60 fps limit
 }
 ```
+
 Here we start firstly with polling for any input changes, since these affect the game state
 for that frame. We then update the game state which generally includes the majority of a
 game engine, since it would control any user updates, world changes, UI updates and others.
@@ -77,6 +78,7 @@ to put Iris directly into your core game loops.
 
 Say you have a weapon class which is used by every weapon and then also a weapon handler/serivce/system/controller
 for handling all weapons on the client. Integrating Iris may look something similar to this:
+
 ```lua
 ------------------------------------------------------------------------
 --- game.ReplicatedStorage.Modules.Client.Weaopns.WeaponsService.lua
@@ -111,7 +113,7 @@ function WeaponsService.update(deltaTime: number)
             Iris.End()
         end
     Iris.End()
-    
+
     WeaponsService.doSomethingElse()
     Iris.End()
 end

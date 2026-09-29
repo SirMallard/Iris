@@ -8,20 +8,22 @@ When using Iris you may run into different issues. The most common ones are expl
 below and explain why the issue arises and how to fix it.
 
 ## Iris.Init() can only be called once.
+
 :::danger Error
 `Iris.Init() can only be called once.`
 :::
 
 Iris can only be initialised once per client. The best way to initialise Iris then is
 to place it at the start of one of your first running script. For example you may have:
+
 ```lua
 ----------------------------------
 --- ReplicatedFirst/client.luau or StarterPlayer/StarterPlayerScripts/client.luau
 ----------------------------------
- 1| -- code in ReplicatedFirst will execute before other code, so it is best practice 
+ 1| -- code in ReplicatedFirst will execute before other code, so it is best practice
  2| -- to initialise Iris here even if you are not going to use it.
  3| require(game.ReplicatedStorage.Iris).Init()
- 4| 
+ 4|
  5| ...
 
 ----------------------------------------
@@ -30,7 +32,7 @@ to place it at the start of one of your first running script. For example you ma
  1| -- therefore, when you require it any scripts elsewhere it is already initialised
  2| -- and ready to go and you do not need to worry about where to init
  3| local Iris = require(game.ReplicatedStorage.Iris)
- 4| 
+ 4|
  5| -- wrong, you have initialised it twice here
  6| local Iris = require(game.ReplicatedStorage.Iris).Init()
  7|
@@ -45,6 +47,7 @@ order and therefore any client-wide initialisation can happen before anything th
 relies on it does.
 
 ## Iris:Connect() was called before calling Iris.Init(); always initialise Iris first.
+
 :::caution Warn
 `Iris:Connect() was called before calling Iris.Init(); always initialise Iris first.`
 :::
@@ -57,6 +60,7 @@ initalise Iris before any other Iris code runs and therefore you can ensure cons
 ordering.
 
 ## Iris cycleCoroutine took to long to yield. Connected functions should not yield.
+
 :::danger Error
 `Iris cycleCoroutine took to long to yield. Connected functions should not yield.`
 :::
@@ -76,10 +80,10 @@ outside of an Iris widget, or spawn a new thread. The example below demonstrates
  8| Iris.End()
 
 ------------------------
---- good_example.luau    
+--- good_example.luau
 ------------------------
  4| local response = "NONE"
- 5| 
+ 5|
  6| Iris.Window({"Async Window"})
  7|     -- we use another thread to ensure the thread Iris is in will finish before the next frame
  8|     task.spawn(function()
@@ -93,6 +97,7 @@ These examples are fairly simple, but when you are integrating Iris directly int
 it should become much clearer.
 
 ## Too few calls to Iris.End()., Too many calls to Iris.End().
+
 :::danger Error
 `Too few calls to Iris.End().`, `Too many calls to Iris.End().`
 :::
@@ -110,6 +115,7 @@ children and make it clearer to see where an `Iris.End()` statement must go. For
  7| end
  8| Iris.End()
 ```
+
 This makes it clear that an `Iris.End()` statement should always go after an `end` block.
 
 This issue may also arise if some of your code either yields or errors and therefore not all the

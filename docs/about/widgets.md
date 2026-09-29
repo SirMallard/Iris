@@ -20,6 +20,7 @@ operation.
 To create a widget class, use the `WidgetConstructor: (type: string, widgetClass: WidgetClass) -> ()`
 function in `Iris.Internal`. This takes two arguments, a type for the widget, such as Text, InputVector2
 or SameLine, and a widget class table, containing the functions. This WidgetClass is defined as:
+
 ```lua
 export type WidgetClass = {
     -- Required
@@ -82,6 +83,7 @@ corresponds to the index when calling the widget. Therefore, we specify every ar
 a type, or default value.
 
 An example for Window and Button are shown below:
+
 <div style={{"width": "100%", "display": "flex", "flex-direction": "row", "justify-content": "center"}}>
 <div style={{"width": "50%"}}>
 
@@ -100,6 +102,7 @@ Args = {
 
 
 ```
+
 </div>
 <div style={{"width": "50%"}}>
 
@@ -118,13 +121,14 @@ Args = {
     ["NoMenu"] = 10,
 }
 ```
+
 </div>
 </div>
 
 ### Events
 
 Events are used to query the current state of a widget. For a button, it might be the whether it has been
-clicked. For a checkbox, whether it is active or for a window whether it is open. All of these are 
+clicked. For a checkbox, whether it is active or for a window whether it is open. All of these are
 defined to be custom in Iris and called like regular functions on a widget. To do this, we specify a table
 containing all of the possible events.
 
@@ -134,6 +138,7 @@ are so common, such as `hovered()` and `clicked()`, Iris provides shorthands for
 to add to any widget.
 
 If we look at the example Window widget events, we'll see the two common ways:
+
 ```lua
 Events = {
     ["closed"] = {
@@ -196,15 +201,17 @@ actual UI instances that make up the window. It handles all of the styling but d
 widget arguments (this is hande=led in the `Update` function). Any widget interactivity such as events
 for clicks or hovers, which may also change the style, are setup in here. There area few rules which
 the generated UI instances follow:
-1. The root instance should be named "Iris_[WIDGET_TYPE]".
+
+1. The root instance should be named "Iris\_[WIDGET_TYPE]".
 2. The ZIndex and LayoutOrder of the root element are taken from the ZIndex property of the widget.
 3. Returns the root instance.
 4. Widgets are generally sized using AutomaticSize or the config over hard-coded numbers, and therefore
-    scale better
+   scale better
 5. The arguments are never used to modify any instances because if the arguments change then the widget
-    should be able to handle the changes on existing UI rather than creating a new design.
+   should be able to handle the changes on existing UI rather than creating a new design.
 
 The code of a Button best demonstrates this:
+
 ```lua
 Generate = function(thisWidget: Types.Button)
     -- a TextButton is the best option here because it has the correct events
@@ -243,7 +250,7 @@ Generate = function(thisWidget: Types.Button)
     Button.ZIndex = thisWidget.ZIndex
     Button.LayoutOrder = thisWidget.ZIndex
 
-    -- we finally return the instance, which is correctly parented and 
+    -- we finally return the instance, which is correctly parented and
     -- Iris sets the widget.instance property to this root element
     return Button
 end,
@@ -256,7 +263,7 @@ It hsould remove any instances used by the widget. Most of the time, it is possi
 root Instance of the widget, which will close any connections and remove all child instances. If a widget
 has any state objects, you will also need to call the `discardState()` function in the widget utility
 library, which removes any connected states from the widget, allowing the widget to be correctly cleaned
-up. 
+up.
 
 ### Update
 
@@ -266,7 +273,7 @@ created. Within Generate, all possible instances that are used by the widget are
 used to determine which ones are visible and the style of them.
 
 For example, the Text argument of a widget can be updated dynamically, by simply changing the Text value
-for the UI Instance. 
+for the UI Instance.
 
 ## State
 
@@ -275,7 +282,7 @@ These functions are both required for any widget which has a state.
 ### GenerateState
 
 GenerateState will create all of the state objects used by that widget, if they are not provided by
-the user. It is called only once, when the widget is first created. Creating a new state is not just 
+the user. It is called only once, when the widget is first created. Creating a new state is not just
 creating the object, but also linking it to the widget, so that when the state changes, it updates the
 widget. We can use an example to demonstrate the macro function that Iris provides to make this easier,
 as shown in the Checkbox widget:
@@ -306,7 +313,7 @@ widget creation, to properly design the UI before it is first shown.
 :::note
 Any changes to UI due to state should be handled here, and not in the code which updates the state.
 
-For example, if you have a click event within `GenerateState`, such as for a checkbox, which changes 
+For example, if you have a click event within `GenerateState`, such as for a checkbox, which changes
 the state, the code within `UpdateState` should change the UI, such as show a tick, rather than handling
 it in `GenerateState`.
 :::
@@ -334,6 +341,7 @@ We have constructed our widget class, but need to know how to call it. We use th
 We provide the widgetType, as specified in the constructor, and then arguments and states.
 
 For example, we can create a Text widget by calling:
+
 ```lua
 Iris.Internal._Insert("Text", { "Text label" })
 ```
