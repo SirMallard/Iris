@@ -1,27 +1,25 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Types = require(ReplicatedStorage.Iris.PubTypes)
-
 return function(parent: GuiObject)
-    local Iris: Types.Iris = require(ReplicatedStorage.Iris)
-    local Input = require(script.Parent.UserInputService)
+    local Iris = require("@game/ReplicatedStorage/Iris")
+    local DemoWindow = require("@game/ReplicatedStorage/Iris/DemoWindow")
+    local Input = require("./UserInputService")
 
     Input.SinkFrame.Parent = parent
 
-    Iris.Internal._utility.UserInputService = Input
+    Iris._utility.UserInputService = Input :: any
     Iris.UpdateGlobalConfig({
         UseScreenGUIs = false,
     })
-    Iris.Internal._utility.GuiOffset = Input.SinkFrame.AbsolutePosition
-    Iris.Internal._utility.MouseOffset = Input.SinkFrame.AbsolutePosition
+    Iris._utility.guiOffset = Input.SinkFrame.AbsolutePosition
+    Iris._utility.mouseOffset = Input.SinkFrame.AbsolutePosition
     Input.SinkFrame:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
-        Iris.Internal._utility.GuiOffset = Input.SinkFrame.AbsolutePosition
-        Iris.Internal._utility.MouseOffset = Input.SinkFrame.AbsolutePosition
+        Iris._utility.guiOffset = Input.SinkFrame.AbsolutePosition
+        Iris._utility.mouseOffset = Input.SinkFrame.AbsolutePosition
     end)
 
     Iris.Init(parent)
 
     -- Actual Iris code here:
-    Iris:Connect(Iris.ShowDemoWindow)
+    Iris:Connect(DemoWindow)
 
     return function()
         Iris.Shutdown()

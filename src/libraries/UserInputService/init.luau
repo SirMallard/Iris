@@ -1,17 +1,17 @@
-local Signal = require(script.Signal)
+const Signal = require("@self/Signal")
 
-local UserInputService: UserInputService = game:GetService("UserInputService")
+const UserInputService = game:GetService("UserInputService")
 
-local Input = {}
+const Input = {}
 
 Input.X = 0
 Input.Y = 0
 Input.KeyDown = {}
-Input._connections = {}
+Input._connections = {} :: { RBXScriptConnection }
 
 -- This frame will act as our UserInputService detector. Most events should go through it.
 -- it's not perfect, but there's not a better alternative (I think)
-local SinkFrame: Frame = Instance.new("Frame")
+local SinkFrame = Instance.new("Frame")
 SinkFrame.Name = "SinkFrame"
 SinkFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 SinkFrame.Position = UDim2.fromScale(0.5, 0.5)
