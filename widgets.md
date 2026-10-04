@@ -20,7 +20,6 @@
 - API
   - Arguments
     - Optional
-
 ## Windows
 - [ ] [Window](#window-iriswindow)
 - [ ] [Tooltip](#tooltip-iristooltip)

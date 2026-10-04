@@ -62,7 +62,7 @@ function Iris.Init(parentInstance: (BasePlayerGui | GuiBase2d)?, eventConnection
 
     if parentInstance == nil then
         -- coalesce to playerGui
-        parentInstance = game:GetService("Players").LocalPlayer.PlayerGui
+        parentInstance = (game:GetService("Players").LocalPlayer :: any).PlayerGui :: BasePlayerGui
     end
     if eventConnection == nil then
         -- coalesce to Heartbeat
