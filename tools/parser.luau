@@ -1,5 +1,6 @@
 local Syntax = require("@std/syntax")
 local Query = require("@std/syntax/query")
+local Printer = require("@std/syntax/printer")
 local Utils = require("@std/syntax/utils")
 
 export type Context<Options = { [any]: any }> = {
@@ -42,10 +43,8 @@ end
 local Parser = {}
 
 function Parser.parseRecord(record: Syntax.CstTableTypeItemProperty)
-    print(record.key.text)
+    print(`    - {record.key.text} = {Printer.printNode(record.value)}`)
 end
-
-function Parser.parseArguments(arguments) end
 
 function Parser.parseExportTypes(node: Syntax.CstStatTypeAlias)
     assert(node.type.tag == "intersection", "expected combination of widget types")
@@ -53,19 +52,24 @@ function Parser.parseExportTypes(node: Syntax.CstStatTypeAlias)
     print(`- {node.name.text}`)
 
     for _, intersection in node.type.types do
+        print(`  - {intersection.tag}`)
+
         if intersection.tag == "table" then
             for _, record in intersection.entries do
                 assert(record.kind == "property", "expected widget properties")
 
-                if record.key.text == "arguments" then
-                    Query.findAllFromRoot(record, Utils.isTypeTable)
-                elseif record.key.text == "state" then
+                if record.key.text == "arguments" or record.key.text == "state" then
+                    assert(record.value.tag == "table", "expected arguments to be a table")
+                    print(`    - {record.key.text}`)
+                    for _, subRecord in record.value.entries do
+                        assert(subRecord.kind == "property", "expected key-values to be properties")
+                        Parser.parseRecord(subRecord)
+                    end
                 else
                     Parser.parseRecord(record)
                 end
             end
         end
-        print(`  - {intersection.tag}`)
     end
 
     return {}
