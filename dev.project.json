@@ -1,5 +1,6 @@
 {
     "name": "Iris",
+    "emitLegacyScripts": false,
     "tree": {
         "$className": "DataModel",
         "Workspace": {
