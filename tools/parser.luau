@@ -16,10 +16,16 @@ export type Record = {
     description: string?,
 }
 
-export type Widget = {
+export type Body = {
     arguments: { Record },
     state: { Record },
     properties: { Record },
+}
+
+export type Widget = {
+    body: Body,
+    inherit: string,
+    events: { string },
 }
 
 export type FlagEntry = {
@@ -32,47 +38,72 @@ export type Flags = {
     read entries: { FlagEntry },
 }
 
-function isTableExprRecordItem(n: Syntax.CstNode | Syntax.CstTableExprRecordItem): Syntax.CstTableExprRecordItem?
-    return if (n :: Syntax.CstTableExprRecordItem).kind == "record" then n :: Syntax.CstTableExprRecordItem else nil
-end
-
-function isTypeTableItemProperty(n: Syntax.CstNode): Syntax.CstTableTypeItemProperty?
-    return if n.kind == "type" and n.tag == "table" then n.entries else nil
-end
-
 local Parser = {}
 
-function Parser.parseRecord(record: Syntax.CstTableTypeItemProperty)
-    print(`    - {record.key.text} = {Printer.printNode(record.value)}`)
-end
-
-function Parser.parseExportTypes(node: Syntax.CstStatTypeAlias)
-    assert(node.type.tag == "intersection", "expected combination of widget types")
-
-    print(`- {node.name.text}`)
-
-    for _, intersection in node.type.types do
-        print(`  - {intersection.tag}`)
-
-        if intersection.tag == "table" then
-            for _, record in intersection.entries do
-                assert(record.kind == "property", "expected widget properties")
-
-                if record.key.text == "arguments" or record.key.text == "state" then
-                    assert(record.value.tag == "table", "expected arguments to be a table")
-                    print(`    - {record.key.text}`)
-                    for _, subRecord in record.value.entries do
-                        assert(subRecord.kind == "property", "expected key-values to be properties")
-                        Parser.parseRecord(subRecord)
-                    end
-                else
-                    Parser.parseRecord(record)
-                end
+function Parser.parseRecord(record: Syntax.CstTableTypeItemProperty): Record
+    local description = ""
+    if local separator = record.separator then
+        for _, trailing in separator.trailingTrivia do
+            if trailing.tag ~= "whitespace" then
+                description = trailing.text
             end
         end
     end
 
-    return {}
+    return {
+        name = record.key.text,
+        type = Printer.printNode(record.value),
+        description = description,
+    }
+end
+
+function Parser.parseWidgetBodyTable(node: Syntax.CstTypeTable): Body
+    local body = {
+        properties = {},
+        arguments = {},
+        state = {},
+    }
+
+    for _, record in node.entries do
+        assert(record.kind == "property", "expected widget properties")
+
+        if record.key.text == "arguments" or record.key.text == "state" then
+            assert(record.value.tag == "table", "expected arguments to be a table")
+            for _, subRecord in record.value.entries do
+                assert(subRecord.kind == "property", "expected key-values to be properties")
+                table.insert(body[record.key.text], Parser.parseRecord(subRecord))
+            end
+        else
+            table.insert(body.properties, Parser.parseRecord(record))
+        end
+    end
+
+    return body
+end
+
+function Parser.parseExportTypes(node: Syntax.CstStatTypeAlias): Widget
+    assert(node.type.tag == "intersection", "expected combination of widget types")
+
+    local widget = {
+        events = {},
+    }
+
+    for _, intersection in node.type.types do
+        if intersection.tag == "table" then
+            widget.body = Parser.parseWidgetBodyTable(intersection)
+        elseif intersection.tag == "reference" then
+            local name = intersection.name.text
+            if name:sub(-6) == "Widget" then
+                widget.inherit = name
+            else
+                table.insert(widget.events, name)
+            end
+        else
+            warn(`Unsupported \"{intersection.tag}\" found in widget type \"{node.name.text}\", skipping.`)
+        end
+    end
+
+    return widget
 end
 
 function Parser.parseConst(node: Syntax.CstStatConst): Flags
@@ -80,15 +111,20 @@ function Parser.parseConst(node: Syntax.CstStatConst): Flags
     local value = node.values[1]
     assert(value.tag == "table", "only parsing table consts")
 
+    local entries: { FlagEntry } = {}
+    for _, item in value.entries do
+        assert(item.kind == "record", "expected flag to be a record")
+
+        assert(item.value.tag == "number", "flag values must be integers")
+        table.insert(entries, {
+            key = item.key.text,
+            value = item.value.value,
+        })
+    end
+
     return {
         name = variable.name.text,
-        entries = Query.findAllFromRoot(value, isTableExprRecordItem):mapToArray(function(record: Syntax.CstTableExprRecordItem): FlagEntry
-            assert(record.value.tag == "number", "flag values must be integers")
-            return {
-                key = record.key.text,
-                value = record.value.value,
-            }
-        end),
+        entries = entries,
     }
 end
 
@@ -123,7 +159,6 @@ function Parser.parseWidget(context: Context)
         return true
     end)
 
-    print("\nParse exports:")
     local widgets = typeAliasNodes:mapToArray(function(node: Syntax.CstStatTypeAlias): {}
         return Parser.parseExportTypes(node)
     end)
