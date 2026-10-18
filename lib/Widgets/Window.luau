@@ -29,71 +29,39 @@ const btest = bit32.btest
     ```
 ]=]
 
---[=[
-    @within Window
-    @interface Window
-    .& ParentWidget
-    .opened () -> boolean
-    .closed () -> boolean
-    .collapsed () -> boolean
-    .uncollapsed () -> boolean
-    .hovered () -> boolean
-
-    .arguments { Title: string?, Flags: number }
-    .state { size: State<Vector>, position: State<Vector2>, open: State<boolean>, collapsed: State<boolean>, scrollDistance: State<number> }
-]=]
 export type Window = Types.ParentWidget & {
     _usesScreenGuis: boolean,
 
     arguments: {
-        Title: string?,
-        Flags: number,
+        Title: string?, -- titlebar text of the window
+        Flags: number, -- optional bit flags, using Iris.WindowFlags, default is 0
     },
 
     state: {
-        size: Types.State<Vector2>,
-        position: Types.State<Vector2>,
-        open: Types.State<boolean>,
-        collapsed: Types.State<boolean>,
-        scrollDistance: Types.State<number>,
+        size: Types.State<Vector2>, -- state size of the entire window, default is Vector2.new(400, 300)
+        position: Types.State<Vector2>, -- state position relative to the top-left corner
+        open: Types.State<boolean>, -- state for the entire window visible, or closed with just the titlebar, default is true
+        collapsed: Types.State<boolean>, -- state to hide the entire widget, default is true
+        scrollDistance: Types.State<number>, -- state vertical scroll distance down the window
     },
 } & Types.Opened & Types.Closed & Types.Collapsed & Types.Uncollapsed & Types.Hovered
 
---[=[
-    @within Window
-    @interface Tooltip
-    .& Widget
-    .arguments { Text: string }
-]=]
 export type Tooltip = Types.Widget & {
     arguments: {
-        Text: string,
+        Text: string, -- tooltip text
     },
 }
 
---[=[
-    @within Window
-    @interface WindowFlags
-    .NoTitleBar 1 -- hide title bar
-    .NoBackground 2 -- hide background colour
-    .NoCollapse 4 -- hide collapsing button
-    .NoClose 8 -- hide close button
-    .NoMove 16 -- disable drag-to-move functionality
-    .NoScrollbar 32 -- disable scrollbar
-    .NoResize 64 -- disable drag-to-resize functionality
-    .NoNav 128 -- unused
-    .NoMenu 256 -- hide the menubar
-]=]
 const WindowFlags = {
-    NoTitleBar = 1,
-    NoBackground = 2,
-    NoCollapse = 4,
-    NoClose = 8,
-    NoMove = 16,
-    NoScrollbar = 32,
-    NoResize = 64,
-    NoNav = 128,
-    NoMenu = 256,
+    NoTitleBar = 1, -- hide title bar
+    NoBackground = 2, -- hide background colour
+    NoCollapse = 4, -- hide collapsing button
+    NoClose = 8, -- hide close button
+    NoMove = 16, -- disable drag-to-move functionality
+    NoScrollbar = 32, -- disable scrollbar
+    NoResize = 64, -- disable drag-to-resize functionality
+    NoNav = 128, -- unused
+    NoMenu = 256, -- hide the menubar
 }
 
 ---------------
@@ -155,6 +123,14 @@ local function fitPositionToWindowBounds(thisWidget: Window, intendedPosition: V
     )
 end
 
+--[=[
+    @within Iris
+
+    @function SetFocusedWindow
+    @param window Window -- the window to focus
+
+    Sets the focused window to the window provided, which brings it to the front and makes it active.
+]=]
 local function setFocusedWindow(thisWidget: Window?)
     if focusedWindow == thisWidget then
         return
@@ -385,6 +361,16 @@ end)
 -- Tooltip
 -------------
 
+--[=[
+    Displays a text label next to the cursor
+
+    ```lua
+    Iris.Tooltip("My custom tooltip")
+    ```
+
+    ![Basic tooltip example](/Iris/assets/api/window/basicTooltip.png)
+]=]
+
 Internal._widgetConstructor(
     "Tooltip",
     {
@@ -440,6 +426,13 @@ Internal._widgetConstructor(
 -- Window
 ------------
 
+--[=[
+    The top-level widget to contain every other widget within. Made of a titlebar, an optional
+    menubar, and a content area for widgets. Can be moved and resized across the screen, and
+    closed to hide everything except the titlebar.
+
+    Does not contain embedded windows.
+]=]
 Internal._widgetConstructor(
     "Window",
     {
@@ -1151,69 +1144,3 @@ Internal._widgetConstructor(
         end,
     } :: Types.WidgetClass
 )
-
---[=[
-    @within Window
-    @tag Widget
-    @tag HasChildren
-    @tag HasState
-
-    @function Window
-    @param title string -- titlebar text of the window
-    @param flags WindowFlags? -- optional bit flags, using Iris.WindowFlags, default is 0
-    @param size State<Vector>? -- state size of the entire window, default is Vector2.new(400, 300)
-    @param position State<Vector2>? -- state position relative to the top-left corner
-    @param open State<boolean>? -- state for the entire window visible, or closed with just the titlebar, default is true
-    @param collapsed State<boolean?> -- state to hide the entire widget, default is true
-    @param scrollDistance State<number>? -- state vertical scroll distance down the window
-
-    @return Window
-
-    The top-level widget to contain every other widget within. Made of a titlebar, an optional
-    menubar, and a content area for widgets. Can be moved and resized across the screen, and
-    closed to hide everything except the titlebar.
-
-    Does not contain embedded windows.
-]=]
-local API_Window = function(title: string, flags: number?, size: Types.APIState<Vector2>?, position: Types.APIState<Vector2>?, open: Types.APIState<boolean>?, collapsed: Types.APIState<boolean>?, scrollDistance: Types.APIState<number>?)
-    return Internal._insert("Window", title, flags or 0, size, position, open, collapsed, scrollDistance) :: Window
-end
-
---[=[
-    @within Iris
-
-    @function SetFocusedWindow
-    @param window Window -- the window to focus
-
-    Sets the focused window to the window provided, which brings it to the front and makes it active.
-]=]
-local API_SetFocusedWindow = setFocusedWindow
-
---[=[
-    @within Window
-    @tag Widget
-
-    @function Tooltip
-    @param text string -- tooltip text
-
-    @return Tooltip
-
-    Displays a text label next to the cursor
-
-    ```lua
-    Iris.Tooltip("My custom tooltip")
-    ```
-
-    ![Basic tooltip example](/Iris/assets/api/window/basicTooltip.png)
-]=]
-local API_Tooltip = function(text: string)
-    return Internal._insert("Tooltip", text) :: Tooltip
-end
-
-return {
-    WindowFlags = WindowFlags,
-
-    API_Window = API_Window,
-    API_Tooltip = API_Tooltip,
-    API_SetFocusedWindow = API_SetFocusedWindow,
-}

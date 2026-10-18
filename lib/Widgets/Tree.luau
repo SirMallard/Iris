@@ -10,39 +10,21 @@ const btest = bit32.btest
     Tree Widget API
 ]=]
 
---[=[
-    @within Tree
-    @interface Tree
-    .& ParentWidget
-    .opened () -> boolean -- once when opened
-    .closed () -> boolean -- once when closed
-    .hovered () -> boolean -- fires when the mouse hovers over any of the tree label
-
-    .arguments { Label: string, Flags: number }
-    .state { open: State<boolean> }
-]=]
 export type Tree = Types.ParentWidget & {
     arguments: {
         Label: string,
-        Flags: number,
+        Flags: number, -- optional bit flags, using Iris.TreeFlags, default is 0
     },
 
     state: {
-        open: Types.State<boolean>,
+        open: Types.State<boolean>, -- open state
     },
 } & Types.Opened & Types.Closed & Types.Hovered
 
---[=[
-    @within Tree
-    @interface TreeFlags
-    .SpanAvailWidth 1 -- the tree title will fill all horizontal space to the end its parent container
-    .NoIndent 2 -- the child widgets will not be indented underneath
-    .DefaultOpen 4 -- initially opens the tree if no state is provided
-]=]
 const TreeFlags = {
-    SpanAvailWidth = 1,
-    NoIndent = 2,
-    DefaultOpen = 4,
+    SpanAvailWidth = 1, -- the tree title will fill all horizontal space to the end its parent container
+    NoIndent = 2, -- the child widgets will not be indented underneath
+    DefaultOpen = 4, -- initially opens the tree if no state is provided
 }
 
 local abstractTree = {
@@ -92,6 +74,9 @@ local abstractTree = {
 -- Tree
 ----------
 
+--[=[
+    A collapsable container for other widgets, to organise and hide widgets when not needed. The state determines whether the child widgets are visible or not. Clicking on the widget will open or close it.
+]=]
 Internal._widgetConstructor(
     "Tree",
     Utility.extend(
@@ -212,6 +197,9 @@ Internal._widgetConstructor(
 -- CollapsingHeader
 ----------------------
 
+--[=[
+    The same as a Tree Widget, but with a larger title and clearer, used mainly for organsing widgets on the first level of a window.
+]=]
 Internal._widgetConstructor(
     "CollapsingHeader",
     Utility.extend(
@@ -318,48 +306,3 @@ Internal._widgetConstructor(
         } :: Types.WidgetClass
     )
 )
-
---[=[
-    @within Tree
-    @tag Widget
-    @tag HasChildren
-    @tag HasState
-
-    @function Tree
-    @param label string
-    @param flags TreeFlags? -- optional bit flags, using Iris.TreeFlags, default is 0
-    @param open State<boolean>? -- open state
-
-    @return Tree
-
-    A collapsable container for other widgets, to organise and hide widgets when not needed. The state determines whether the child widgets are visible or not. Clicking on the widget will open or close it.
-]=]
-local API_Tree = function(label: string, flags: number?, open: Types.APIState<boolean>?)
-    return Internal._insert("Tree", label, flags or 0, open) :: Tree
-end
-
---[=[
-    @within Tree
-    @tag Widget
-    @tag HasChildren
-    @tag HasState
-
-    @function Tree
-    @param label string
-    @param flags TreeFlags? -- optional bit flags, using Iris.TreeFlags, default is 0
-    @param open State<boolean>? -- open state
-
-    @return Tree
-
-    The same as a Tree Widget, but with a larger title and clearer, used mainly for organsing widgets on the first level of a window.
-
-]=]
-local API_CollapsingHeader = function(label: string, flags: number?, open: Types.APIState<boolean>?)
-    return Internal._insert("CollapsingHeader", label, flags or 0, open) :: Tree
-end
-
-return {
-    TreeFlags = TreeFlags,
-    API_Tree = API_Tree,
-    API_CollapsingHeader = API_CollapsingHeader,
-}

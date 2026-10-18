@@ -10,61 +10,32 @@ const btest = bit32.btest
     Tab Widget API
 ]=]
 
---[=[
-    @within Tab
-    @interface TabBar
-    .& ParentWidget
-    ._tabs { Tab } -- all the tabs under this tab bar
-
-    .state { index: State<number> }
-]=]
 export type TabBar = Types.ParentWidget & {
-    _tabs: { Tab },
+    _tabs: { Tab }, -- all the tabs under this tab bar
 
     state: {
-        index: Types.State<number>,
+        index: Types.State<number>, -- current tab index state
     },
 }
 
---[=[
-    @within Tab
-    @interface Tab
-    .& ParentWidget
-    ._tabIndex number -- unique index of this tab
-    .active () -> boolean -- if the current radio button is selected
-    .clicked () -> boolean -- fires when the tab is clicked
-    .selected () -> boolean -- once when selected
-    .unselected () -> boolean -- once when unselected
-    .opened () -> boolean -- once when opened
-    .closed () -> boolean -- once when closed
-    .hovered () -> boolean -- fires when the mouse hovers over any of the tab button
-
-    .arguments { Label: string, Flags: number }
-    .state { index: State<number>, open: State<boolean> }
-]=]
 export type Tab = Types.ParentWidget & {
     parentWidget: TabBar,
-    _tabIndex: number,
+    _tabIndex: number, -- unique index of this tab
     _buttonColors: { [string]: Color3 | number },
 
     arguments: {
-        Label: string,
-        Flags: number,
+        Label: string, -- tab title
+        Flags: number, -- optional bit flags, using Iris.TabFlags, default is 0
     },
 
     state: {
         index: Types.State<number>,
-        open: Types.State<boolean>,
+        open: Types.State<boolean>, -- unique state if the tab is shown or not
     },
 } & Types.Clicked & Types.Selected & Types.Unselected & Types.Active & Types.Opened & Types.Closed & Types.Hovered
 
---[=[
-    @within Tab
-    @interface TabFlags
-    .Hideable 1 -- enables the hide tab button
-]=]
 const TabFlags = {
-    Hideable = 1,
+    Hideable = 1, -- enables the hide tab button
 }
 
 ---------------
@@ -108,6 +79,12 @@ end
 -- TabBar
 ------------
 
+--[=[
+    Creates a TabBar for putting tabs under. This does not create the tabs but just the container for them to be in.
+    The index state is used to control the current tab and is based on an index starting from 1 rather than the
+    text provided to a Tab. The TabBar will replicate the index to the Tab children .
+
+]=]
 Internal._widgetConstructor(
     "TabBar",
     {
@@ -200,6 +177,13 @@ Internal._widgetConstructor(
 -- Tab
 ---------
 
+--[=[
+    The tab item for use under a TabBar. The TabBar must be the parent and determines the index value. You cannot
+    provide a state for this tab. The optional Hideable argument determines if a tab can be closed, which is
+    controlled by the isOpened state.
+
+    A tab will take up the full horizontal width of the parent and hide any other tabs in the TabBar.
+]=]
 Internal._widgetConstructor(
     "Tab",
     {
@@ -386,52 +370,3 @@ Internal._widgetConstructor(
         end,
     } :: Types.WidgetClass
 )
-
---[=[
-    @within Tab
-    @tag Widget
-    @tag HasChildren
-    @tag HasState
-
-    @function TabBar
-    @param state State<number>? -- current tab index state
-
-    @return TabBar
-
-    Creates a TabBar for putting tabs under. This does not create the tabs but just the container for them to be in.
-    The index state is used to control the current tab and is based on an index starting from 1 rather than the
-    text provided to a Tab. The TabBar will replicate the index to the Tab children .
-
-]=]
-local API_TabBar = function(state: Types.APIState<number>?)
-    return Internal._insert("TabBar", state) :: TabBar
-end
-
---[=[
-    @within Tab
-    @tag Widget
-    @tag HasChildren
-    @tag HasState
-
-    @function Tab
-    @param label string -- tab title
-    @param flags TabFlags? -- optional bit flags, using Iris.TabFlags, default is 0
-    @param shown State<boolean>? -- unique state if the tab is shown or not
-
-    @return Tab
-
-    The tab item for use under a TabBar. The TabBar must be the parent and determines the index value. You cannot
-    provide a state for this tab. The optional Hideable argument determines if a tab can be closed, which is
-    controlled by the isOpened state.
-
-    A tab will take up the full horizontal width of the parent and hide any other tabs in the TabBar.
-]=]
-local API_Tab = function(label: string, flags: number?, shown: Types.APIState<boolean>?)
-    return Internal._insert("Tab", label, flags or 0, shown) :: Tab
-end
-
-return {
-    TabFlags = TabFlags,
-    API_TabBar = API_TabBar,
-    API_Tab = API_Tab,
-}

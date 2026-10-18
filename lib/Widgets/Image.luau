@@ -9,15 +9,6 @@ const Types = require("../Types")
     Provides two widgets for Images and ImageButtons, with the same controls as an ImageLabel instance.
 ]=]
 
---[=[
-    @within Image
-    @interface Image
-    .& Widget
-    .hovered () -> boolean -- fires when the mouse hovers over any of the image
-
-    .arguments { Content: Content, Size: UDim2, Rect: Rect?, ScaleType: Enum.ScaleType?, TileSize: UDim2?, SliceCenter: Rect?, SliceScale: number?, ResampleMode: Enum.ResamplerMode? }
-]=]
-
 export type Image = Types.Widget & {
     arguments: {
         Content: Content, -- texture content, allowing support for editable images
@@ -31,15 +22,6 @@ export type Image = Types.Widget & {
     },
 } & Types.Hovered
 
---[=[
-    @within Image
-    @interface ImageButton_
-    .& Image
-    .clicked () -> boolean -- fires when a button is clicked
-    .rightClicked () -> boolean -- fires when a button is right clicked
-    .doubleClicked () -> boolean -- fires when a button is double clicked
-    .ctrlClicked () -> boolean -- fires when a button is ctrl clicked
-]=]
 export type ImageButton_ = Image & Types.Clicked & Types.RightClicked & Types.DoubleClicked & Types.CtrlClicked
 
 local abstractImage = {
@@ -56,6 +38,10 @@ local abstractImage = {
 -- Image
 -----------
 
+--[=[
+    An image widget for displaying an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image and the rest of the ScaleType functionerties
+    Some of the arguments are only used depending on the ScaleType functionerty
+]=]
 Internal._widgetConstructor(
     "Image",
     Utility.extend(
@@ -114,6 +100,10 @@ Internal._widgetConstructor(
 -- ImageButton
 -----------------
 
+--[=[
+    An image button widget for a button as an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image, and the rest of the ScaleType functionerties
+    Supports all of the events of a regular button.
+]=]
 Internal._widgetConstructor(
     "ImageButton",
     Utility.extend(
@@ -201,54 +191,3 @@ Internal._widgetConstructor(
         } :: Types.WidgetClass
     )
 )
-
---[=[
-    @within Image
-    @tag Widget
-
-    @function Image
-    @param content Content -- texture content, allowing support for editable images
-    @param size UDim2 -- required size in the window
-    @param rect Rect? -- default to a zero rect, making no difference
-    @param scaleType Enum.ScaleType? -- determines type of image scaling, default is Enum.ScaleType.Stretch
-    @param resampleMode Enum.ResamplerMode? -- default is Enum.ResampleMode.Default
-    @param tileSize UDim2? -- only used if ScaleType is Tile, default is UDim2.fromScale(1, 1)
-    @param sliceCenter Rect? -- only used if ScaleType is Slice, default is empty Rect
-    @param sliceScale number? -- only used if ScaleType is Slice, default is 1
-
-    @return Image
-
-    An image widget for displaying an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image and the rest of the ScaleType functionerties
-    Some of the arguments are only used depending on the ScaleType functionerty
-]=]
-local API_Image = function(content: Content, size: UDim2, rect: Rect?, scaleType: Enum.ScaleType?, resampleMode: Enum.ResamplerMode?, tileSize: UDim2?, sliceCenter: Rect?, sliceScale: number?)
-    return Internal._insert("Image", content, size, rect, scaleType, resampleMode, tileSize, sliceCenter, sliceScale) :: Image
-end
-
---[=[
-    @within Image
-    @tag Widget
-
-    @function ImageButton
-    @param content Content -- texture content, allowing support for editable images
-    @param size UDim2 -- required size in the window
-    @param rect Rect? -- default to a zero rect, making no difference
-    @param scaleType Enum.ScaleType? -- determines type of image scaling, default is Enum.ScaleType.Stretch
-    @param resampleMode Enum.ResamplerMode? -- default is Enum.ResampleMode.Default
-    @param tileSize UDim2? -- only used if ScaleType is Tile, default is UDim2.fromScale(1, 1)
-    @param sliceCenter Rect? -- only used if ScaleType is Slice, default is empty Rect
-    @param sliceScale number? -- only used if ScaleType is Slice, default is 1
-
-    @return ImageButton
-
-    An image button widget for a button as an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image, and the rest of the ScaleType functionerties
-    Supports all of the events of a regular button.
-]=]
-local API_ImageButton = function(content: Content, size: UDim2, rect: Rect?, scaleType: Enum.ScaleType?, resampleMode: Enum.ResamplerMode?, tileSize: UDim2?, sliceCenter: Rect?, sliceScale: number?)
-    return Internal._insert("ImageButton", content, size, rect, scaleType, resampleMode, tileSize, sliceCenter, sliceScale) :: ImageButton_
-end
-
-return {
-    API_Image = API_Image,
-    API_ImageButton = API_ImageButton,
-}
