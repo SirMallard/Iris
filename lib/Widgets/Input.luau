@@ -54,15 +54,16 @@ export type Input<T> = Types.Widget & {
     arguments: {
         Label: string?,
         Increment: T,
-        Min: T,
-        Max: T,
-        Format: { string },
+        Min: T, -- minimum value to allow
+        Max: T, -- maximum value to allow
+        Format: { string }, -- Iris will dynamically generate an approriate format
         Prefix: { string },
         Flags: number,
     },
 
     state: {
         value: Types.State<T>,
+        -- read-only for when the state is changing
     },
 } & Types.Changed & Types.Editing & Types.Hovered
 
@@ -72,58 +73,29 @@ export type InputColor3 = Input<{ number }> & {
     },
 }
 
---[=[
-    @within Input
-    @interface InputColor4
-    .& InputColor3
-
-    .state { transparency: State<number> }
-]=]
 export type InputColor4 = InputColor3 & {
     state: {
         transparency: Types.State<number>,
     },
 }
 
---[=[
-    @within Text
-    @interface InputText
-    .& Widget
-    .changed () -> boolean -- whenever the value changes, depending on the state
-    .hovered () -> boolean -- fires when the mouse hovers over any of the input
-
-    .arguments  { Label: string?, TextHint: string?, Flags: number }
-    .state { text: State<string> }
-]=]
 export type InputText = Types.Widget & {
     arguments: {
         Label: string?,
-        TextHint: string?,
-        Flags: number,
+        TextHint: string?, -- a hint to display when the text box is empty
+        Flags: number, -- optional bit flags, using Iris.InputTextFlags, default is 0
     },
 
     state: {
-        text: Types.State<string>,
+        text: Types.State<string>, -- state containing the text
     },
 } & Types.Changed & Types.Editing & Types.Hovered
 
---[=[
-    @within Text
-    @interface InputTextFlags
-    .ReadOnly 1 --
-    .MultiLine 2 --
-]=]
 const InputTextFlags = {
     ReadOnly = 1,
     MultiLine = 2,
 }
 
---[=[
-    @within Input
-    @interface InputFlags
-    .UseFloats 1 --
-    .UseHSV 2 --
-]=]
 const InputFlags = {
     UseFloats = 1,
     UseHSV = 2,
@@ -1218,35 +1190,171 @@ end
 do
     local inputNum: Types.WidgetClass = generateInputScalar("Num", 1, 0)
     table.insert(inputNum.Arguments, 6, "NoButtons")
+    --[=[
+        An input box for numbers. The number can be either an integer or a float.
+    ]=]
     Internal._widgetConstructor("InputNum", inputNum)
 end
+
+--[=[
+    An input box for Vector2s. The numbers can be either an integer or a float.
+]=]
 Internal._widgetConstructor("InputVector2", generateInputScalar("Vector2", 2, Vector2.zero))
+
+--[=[
+    An input box for Vector3s. The numbers can be either an integer or a float.
+]=]
 Internal._widgetConstructor("InputVector3", generateInputScalar("Vector3", 3, Vector3.zero))
+
+--[=[
+    An input box for UDim. The Scale box will be a float and the Offset box will be
+    an integer, unless specified differently.
+]=]
 Internal._widgetConstructor("InputUDim", generateInputScalar("UDim", 2, UDim.new()))
+
+--[=[
+    An input box for UDim2. The Scale boxes will be floats and the Offset boxes will be
+    integers, unless specified differently.
+]=]
 Internal._widgetConstructor("InputUDim2", generateInputScalar("UDim2", 4, UDim2.new()))
+
+--[=[
+    An input box for Rect. The numbers will default to integers, unless specified differently.
+]=]
 Internal._widgetConstructor("InputRect", generateInputScalar("Rect", 4, Rect.new(0, 0, 0, 0)))
 
+--[=[
+    @class Drag
+    Drag Widget API
+
+    A draggable widget for each datatype. Allows direct typing input but also dragging values by clicking and holding.
+
+    See [Input] for more details on the arguments.
+]=]
+
+--[=[
+    A field which allows the user to click and drag their cursor to enter a number.
+    You can ctrl + click to directly input a number, like InputNum.
+    You can hold Shift to increase speed, and Alt to decrease speed when dragging.
+]=]
 Internal._widgetConstructor("DragNum", generateDragScalar("Num", 1, 0))
+
+--[=[
+    A field which allows the user to click and drag their cursor to enter a Vector2.
+    You can ctrl + click to directly input a Vector2, like InputVector2.
+    You can hold Shift to increase speed, and Alt to decrease speed when dragging.
+]=]
 Internal._widgetConstructor("DragVector2", generateDragScalar("Vector2", 2, Vector2.zero))
+
+--[=[
+    A field which allows the user to click and drag their cursor to enter a Vector3.
+    You can ctrl + click to directly input a Vector3, like InputVector3.
+    You can hold Shift to increase speed, and Alt to decrease speed when dragging.
+]=]
 Internal._widgetConstructor("DragVector3", generateDragScalar("Vector3", 3, Vector3.zero))
+
+--[=[
+    A field which allows the user to click and drag their cursor to enter a UDim.
+    You can ctrl + click to directly input a UDim, like InputUDim.
+    You can hold Shift to increase speed, and Alt to decrease speed when dragging.
+]=]
 Internal._widgetConstructor("DragUDim", generateDragScalar("UDim", 2, UDim.new()))
+
+--[=[
+    A field which allows the user to click and drag their cursor to enter a UDim2.
+    You can ctrl + click to directly input a UDim2, like InputUDim2.
+    You can hold Shift to increase speed, and Alt to decrease speed when dragging.
+]=]
 Internal._widgetConstructor("DragUDim2", generateDragScalar("UDim2", 4, UDim2.new()))
+
+--[=[
+    A field which allows the user to click and drag their cursor to enter a Rect.
+    You can ctrl + click to directly input a Rect, like InputRect.
+    You can hold Shift to increase speed, and Alt to decrease speed when dragging.
+]=]
 Internal._widgetConstructor("DragRect", generateDragScalar("Rect", 4, Rect.new(0, 0, 0, 0)))
 
+--[=[
+    An input box for Color3. The input boxes are draggable between 0 and 255 or if UseFloats then between 0 and 1.
+    Input can also be done using HSV instead of the default RGB.
+    If no format argument is provided then a default R, G, B or H, S, V prefix is applied.
+]=]
 Internal._widgetConstructor("InputColor3", generateColorDragScalar("Color3", Color3.fromRGB(0, 0, 0)))
+
+--[=[
+    An input box for Color4. Color4 is a combination of Color3 and a fourth transparency argument.
+    It has two states for this purpose.
+    The input boxes are draggable between 0 and 255 or if UseFloats then between 0 and 1.
+    Input can also be done using HSV instead of the default RGB.
+    If no format argument is provided then a default R, G, B, T or H, S, V, T prefix is applied.
+]=]
 Internal._widgetConstructor("InputColor4", generateColorDragScalar("Color4", Color3.fromRGB(0, 0, 0), 0))
 
+--[=[
+    @class Slider
+    Slider Widget API
+
+    A draggable widget with a visual bar constrained between a min and max for each datatype.
+    Allows direct typing input but also dragging the slider by clicking and holding anywhere in the box.
+
+    See [Input] for more details on the arguments.
+]=]
+
+--[=[
+    A field which allows the user to slide a grip to enter a number within a range.
+    You can ctrl + click to directly input a number, like InputNum.
+]=]
 Internal._widgetConstructor("SliderNum", generateSliderScalar("Num", 1, 0))
+
+--[=[
+    A field which allows the user to slide a grip to enter a Vector2 within a range.
+    You can ctrl + click to directly input a Vector2, like InputVector2.
+]=]
 Internal._widgetConstructor("SliderVector2", generateSliderScalar("Vector2", 2, Vector2.zero))
+
+--[=[
+    A field which allows the user to slide a grip to enter a Vector3 within a range.
+    You can ctrl + click to directly input a Vector3, like InputVector3.
+]=]
 Internal._widgetConstructor("SliderVector3", generateSliderScalar("Vector3", 3, Vector3.zero))
+
+--[=[
+    A field which allows the user to slide a grip to enter a UDim within a range.
+    You can ctrl + click to directly input a UDim, like InputUDim.
+]=]
 Internal._widgetConstructor("SliderUDim", generateSliderScalar("UDim", 2, UDim.new()))
+
+--[=[
+    A field which allows the user to slide a grip to enter a UDim2 within a range.
+    You can ctrl + click to directly input a UDim2, like InputUDim2.
+]=]
 Internal._widgetConstructor("SliderUDim2", generateSliderScalar("UDim2", 4, UDim2.new()))
+
+--[=[
+    A field which allows the user to slide a grip to enter a Rect within a range.
+    You can ctrl + click to directly input a Rect, like InputRect.
+]=]
 Internal._widgetConstructor("SliderRect", generateSliderScalar("Rect", 4, Rect.new(0, 0, 0, 0)))
 -- Internal._widgetConstructor("SliderEnum", generateSliderScalar("Enum", 4, 0))
 
 --------------
 -- InpuText
 --------------
+
+--[=[
+    A field which allows the user to enter text.
+
+    ```lua
+    Iris.Window({"Input Text Demo"})
+        local inputtedText = Iris.State("")
+
+        Iris.InputText({"Enter text here:"}, {text = inputtedText})
+        Iris.Text({"You entered: " .. inputtedText:get()})
+    Iris.End()
+    ```
+
+    ![Example Input Text](/Iris/assets/api/text/basicInputText.gif)
+]=]
 
 Internal._widgetConstructor(
     "InputText",
@@ -1336,543 +1444,3 @@ Internal._widgetConstructor(
         end,
     } :: Types.WidgetClass
 )
-
--- todo: update documentation
---[=[
-    @within Text
-    @tag Widget
-    @tag HasState
-
-    @function InputText
-    @param label string?
-    @param textHint string? -- a hint to display when the text box is empty
-    @param flags InputTextFlags? -- optional bit flags, using Iris.InputTextFlags, default is 0
-    @param textBuffer State<string>? -- state containing the text
-
-    @return InputText
-
-    A field which allows the user to enter text.
-
-    ```lua
-    Iris.Window({"Input Text Demo"})
-        local inputtedText = Iris.State("")
-
-        Iris.InputText({"Enter text here:"}, {text = inputtedText})
-        Iris.Text({"You entered: " .. inputtedText:get()})
-    Iris.End()
-    ```
-
-    ![Example Input Text](/Iris/assets/api/text/basicInputText.gif)
-]=]
-local API_InputText = function(label: string?, textHint: string?, flags: number?, textBuffer: Types.APIState<string>?)
-    return Internal._insert("InputText", label, textHint, flags or 0, textBuffer) :: InputText
-end
-
---[=[
-    @within Input
-    @tag Widget
-    @tag HasState
-
-    @function InputNum
-    @param label string?
-    @param increment number?
-    @param min number? -- minimum value to allow
-    @param max number? -- maximum value to allow
-    @param format string? | { string }? -- Iris will dynamically generate an approriate format
-    @param value State<number>?
-    @param editing State<boolean>? -- read-only for when the state is changing
-
-    @return Input<number>
-
-    An input box for numbers. The number can be either an integer or a float.
-]=]
-local API_InputNum = function(label: string?, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.APIState<number>?, editing: Types.APIState<boolean>?)
-    return Internal._insert("InputNum", label, increment, min, max, format, value, editing) :: Input<number>
-end
-
---[=[
-    @within Input
-    @tag Widget
-    @tag HasState
-
-    @function InputVector2
-    @param label string?
-    @param increment Vector2?
-    @param min Vector2? -- minimum value to allow
-    @param max Vector2? -- maximum value to allow
-    @param format string? | { string }? -- Iris will dynamically generate an approriate format
-    @param value State<Vector2>?
-    @param editing State<boolean>? -- read-only for when the state is changing
-
-    @return Input<Vector2>
-
-    An input box for Vector2s. The numbers can be either an integer or a float.
-]=]
-local API_InputVector2 = function(label: string?, increment: Vector2?, min: Vector2?, max: Vector2?, format: string? | { string }?, value: Types.APIState<Vector2>?, editing: Types.APIState<boolean>?)
-    return Internal._insert("InputVector2", label, increment, min, max, format, value, editing) :: Input<Vector2>
-end
-
---[=[
-    @within Input
-    @tag Widget
-    @tag HasState
-
-    @function InputVector3
-    @param label string?
-    @param increment Vector3?
-    @param min Vector3? -- minimum value to allow
-    @param max Vector3? -- maximum value to allow
-    @param format string? | { string }? -- Iris will dynamically generate an approriate format
-    @param value State<Vector3>?
-    @param editing State<boolean>? -- read-only for when the state is changing
-
-    @return Input<Vector3>
-
-    An input box for Vector3s. The numbers can be either an integer or a float.
-]=]
-local API_InputVector3 = function(label: string?, increment: Vector3?, min: Vector3?, max: Vector3?, format: string? | { string }?, value: Types.APIState<Vector3>?, editing: Types.APIState<boolean>?)
-    return Internal._insert("InputVector3", label, increment, min, max, format, value, editing) :: Input<Vector3>
-end
-
---[=[
-    @within Input
-    @tag Widget
-    @tag HasState
-
-    @function InputUDim
-    @param label string?
-    @param increment UDim?
-    @param min UDim? -- minimum value to allow
-    @param max UDim? -- maximum value to allow
-    @param format string? | { string }? -- Iris will dynamically generate an approriate format
-    @param value State<UDim>?
-    @param editing State<boolean>? -- read-only for when the state is changing
-
-    @return Input<UDim>
-
-    An input box for UDim. The Scale box will be a float and the Offset box will be
-    an integer, unless specified differently.
-]=]
-local API_InputUDim = function(label: string?, increment: UDim?, min: UDim?, max: UDim?, format: string? | { string }?, value: Types.APIState<UDim>?, editing: Types.APIState<boolean>?)
-    return Internal._insert("InputUDim", label, increment, min, max, format, value, editing) :: Input<UDim>
-end
-
---[=[
-    @within Input
-    @tag Widget
-    @tag HasState
-
-    @function InputUDim2
-    @param label string?
-    @param increment UDim2?
-    @param min UDim2? -- minimum value to allow
-    @param max UDim2? -- maximum value to allow
-    @param format string? | { string }? -- Iris will dynamically generate an approriate format
-    @param value State<UDim2>?
-    @param editing State<boolean>? -- read-only for when the state is changing
-
-    @return Input<UDim2>
-
-    An input box for UDim2. The Scale boxes will be floats and the Offset boxes will be
-    integers, unless specified differently.
-]=]
-local API_InputUDim2 = function(label: string?, increment: UDim2?, min: UDim2?, max: UDim2?, format: string? | { string }?, value: Types.APIState<UDim2>?, editing: Types.APIState<boolean>?)
-    return Internal._insert("InputUDim2", label, increment, min, max, format, value, editing) :: Input<UDim2>
-end
-
---[=[
-    @within Input
-    @tag Widget
-    @tag HasState
-
-    @function InputRect
-    @param label string?
-    @param increment Rect?
-    @param min Rect? -- minimum value to allow
-    @param max Rect? -- maximum value to allow
-    @param format string? | { string }? -- Iris will dynamically generate an approriate format
-    @param value State<Rect>?
-    @param editing State<boolean>? -- read-only for when the state is changing
-
-    @return Input<Rect>
-
-    An input box for Rect. The numbers will default to integers, unless specified differently.
-]=]
-local API_InputRect = function(label: string?, increment: Rect?, min: Rect?, max: Rect?, format: string? | { string }?, value: Types.APIState<Rect>?, editing: Types.APIState<boolean>?)
-    return Internal._insert("InputRect", label, increment, min, max, format, value, editing) :: Input<Rect>
-end
-
---[=[
-    @class Drag
-    Drag Widget API
-
-    A draggable widget for each datatype. Allows direct typing input but also dragging values by clicking and holding.
-
-    See [Input] for more details on the arguments.
-]=]
-
---[=[
-    @within Drag
-    @tag Widget
-    @tag HasState
-
-    @function DragNum
-    @param label string?
-    @param increment number?
-    @param min number? -- minimum value to allow
-    @param max number? -- maximum value to allow
-    @param format string? | { string }? -- Iris will dynamically generate an approriate format
-    @param value State<number>?
-    @param editing State<boolean>? -- read-only for when the state is changing
-
-    @return Input<number>
-
-    A field which allows the user to click and drag their cursor to enter a number.
-    You can ctrl + click to directly input a number, like InputNum.
-    You can hold Shift to increase speed, and Alt to decrease speed when dragging.
-]=]
-local API_DragNum = function(label: string?, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.APIState<number>?, editing: Types.APIState<boolean>?)
-    return Internal._insert("DragNum", label, increment, min, max, format, value, editing) :: Input<number>
-end
-
---[=[
-    @within Drag
-    @tag Widget
-    @tag HasState
-
-    @function DragVector2
-    @param label string?
-    @param increment Vector2?
-    @param min Vector2? -- minimum value to allow
-    @param max Vector2? -- maximum value to allow
-    @param format string? | { string }? -- Iris will dynamically generate an approriate format
-    @param value State<Vector2>?
-    @param editing State<boolean>? -- read-only for when the state is changing
-
-    @return Input<Vector2>
-
-    A field which allows the user to click and drag their cursor to enter a Vector2.
-    You can ctrl + click to directly input a Vector2, like InputVector2.
-    You can hold Shift to increase speed, and Alt to decrease speed when dragging.
-
-]=]
-local API_DragVector2 = function(label: string?, increment: Vector2?, min: Vector2?, max: Vector2?, format: string? | { string }?, value: Types.APIState<Vector2>?, editing: Types.APIState<boolean>?)
-    return Internal._insert("DragVector2", label, increment, min, max, format, value, editing) :: Input<Vector2>
-end
-
---[=[
-    @within Drag
-    @tag Widget
-    @tag HasState
-
-    @function DragVector3
-    @param label string?
-    @param increment Vector3?
-    @param min Vector3? -- minimum value to allow
-    @param max Vector3? -- maximum value to allow
-    @param format string? | { string }? -- Iris will dynamically generate an approriate format
-    @param value State<Vector3>?
-    @param editing State<boolean>? -- read-only for when the state is changing
-
-    @return Input<Vector3>
-
-    A field which allows the user to click and drag their cursor to enter a Vector3.
-    You can ctrl + click to directly input a Vector3, like InputVector3.
-    You can hold Shift to increase speed, and Alt to decrease speed when dragging.
-    ]=]
-local API_DragVector3 = function(label: string?, increment: Vector3?, min: Vector3?, max: Vector3?, format: string? | { string }?, value: Types.APIState<Vector3>?, editing: Types.APIState<boolean>?)
-    return Internal._insert("DragVector3", label, increment, min, max, format, value, editing) :: Input<Vector3>
-end
-
---[=[
-    @within Drag
-    @tag Widget
-    @tag HasState
-
-    @function DragUDim
-    @param label string?
-    @param increment UDim?
-    @param min UDim? -- minimum value to allow
-    @param max UDim? -- maximum value to allow
-    @param format string? | { string }? -- Iris will dynamically generate an approriate format
-    @param value State<UDim>?
-    @param editing State<boolean>? -- read-only for when the state is changing
-
-    @return Input<UDim>
-
-    A field which allows the user to click and drag their cursor to enter a UDim.
-    You can ctrl + click to directly input a UDim, like InputUDim.
-    You can hold Shift to increase speed, and Alt to decrease speed when dragging.
-]=]
-local API_DragUDim = function(label: string?, increment: UDim?, min: UDim?, max: UDim?, format: string? | { string }?, value: Types.APIState<UDim>?, editing: Types.APIState<boolean>?)
-    return Internal._insert("DragUDim", label, increment, min, max, format, value, editing) :: Input<UDim>
-end
-
---[=[
-    @within Drag
-    @tag Widget
-    @tag HasState
-
-    @function DragUDim2
-    @param label string?
-    @param increment UDim2?
-    @param min UDim2? -- minimum value to allow
-    @param max UDim2? -- maximum value to allow
-    @param format string? | { string }? -- Iris will dynamically generate an approriate format
-    @param value State<UDim2>?
-    @param editing State<boolean>? -- read-only for when the state is changing
-
-    @return Input<UDim2>
-
-    A field which allows the user to click and drag their cursor to enter a UDim2.
-    You can ctrl + click to directly input a UDim2, like InputUDim2.
-    You can hold Shift to increase speed, and Alt to decrease speed when dragging.
-]=]
-local API_DragUDim2 = function(label: string?, increment: UDim2?, min: UDim2?, max: UDim2?, format: string? | { string }?, value: Types.APIState<UDim2>?, editing: Types.APIState<boolean>?)
-    return Internal._insert("DragUDim2", label, increment, min, max, format, value, editing) :: Input<UDim2>
-end
-
---[=[
-    @within Drag
-    @tag Widget
-    @tag HasState
-
-    @function DragRect
-    @param label string?
-    @param increment Rect?
-    @param min Rect? -- minimum value to allow
-    @param max Rect? -- maximum value to allow
-    @param format string? | { string }? -- Iris will dynamically generate an approriate format
-    @param value State<Rect>?
-    @param editing State<boolean>? -- read-only for when the state is changing
-
-    @return Input<Rect>
-
-    A field which allows the user to click and drag their cursor to enter a Rect.
-    You can ctrl + click to directly input a Rect, like InputRect.
-    You can hold Shift to increase speed, and Alt to decrease speed when dragging.
-]=]
-local API_DragRect = function(label: string?, increment: Rect?, min: Rect?, max: Rect?, format: string? | { string }?, value: Types.APIState<Rect>?, editing: Types.APIState<boolean>?)
-    return Internal._insert("DragRect", label, increment, min, max, format, value, editing) :: Input<Rect>
-end
-
---[=[
-    @within Input
-    @tag Widget
-    @tag HasState
-
-    @function InputColor3
-    @param label string?
-    @param flags number? -- optional bit flags, using Iris.InputFlags, default is 0
-    @param format string? | { string }? -- Iris will dynamically generate an approriate format
-    @param color State<Color3>?
-    @param editing State<boolean>?
-
-    @return InputColor3
-
-    An input box for Color3. The input boxes are draggable between 0 and 255 or if UseFloats then between 0 and 1.
-    Input can also be done using HSV instead of the default RGB.
-    If no format argument is provided then a default R, G, B or H, S, V prefix is applied.
-]=]
-local API_InputColor3 = function(label: string?, flags: number?, format: string? | { string }?, color: Types.APIState<Color3>?, editing: Types.APIState<boolean>?)
-    return Internal._insert("InputColor3", label, flags or 0, format, color, editing) :: InputColor3
-end
-
---[=[
-    @within Input
-    @tag Widget
-    @tag HasState
-
-    @function InputColor4
-    @param label string?
-    @param flags number? -- optional bit flags, using Iris.InputFlags, default is 0
-    @param format string? | { string }? -- Iris will dynamically generate an approriate format
-    @param color State<Color3>?
-    @param transparency State<number>?
-    @param editing State<boolean>?
-
-    @return InputColor4
-
-    An input box for Color4. Color4 is a combination of Color3 and a fourth transparency argument.
-    It has two states for this purpose.
-    The input boxes are draggable between 0 and 255 or if UseFloats then between 0 and 1.
-    Input can also be done using HSV instead of the default RGB.
-    If no format argument is provided then a default R, G, B, T or H, S, V, T prefix is applied.
-]=]
-local API_InputColor4 = function(label: string?, flags: number?, format: string? | { string }?, color: Types.APIState<Color3>?, transparency: Types.APIState<number>?, editing: Types.APIState<boolean>?)
-    return Internal._insert("InputColor4", label, flags or 0, format, color, transparency, editing) :: InputColor4
-end
-
---[=[
-    @class Slider
-    Slider Widget API
-
-    A draggable widget with a visual bar constrained between a min and max for each datatype.
-    Allows direct typing input but also dragging the slider by clicking and holding anywhere in the box.
-
-    See [Input] for more details on the arguments.
-]=]
-
---[=[
-    @within Slider
-    @tag Widget
-    @tag HasState
-
-    @function SliderNum
-    @param label string?
-    @param increment number?
-    @param min number? -- minimum value to allow
-    @param max number? -- maximum value to allow
-    @param format string? | { string }? -- Iris will dynamically generate an approriate format
-    @param value State<number>?
-    @param editing State<boolean>? -- read-only for when the state is changing
-
-    @return Input<number>
-
-    A field which allows the user to slide a grip to enter a number within a range.
-    You can ctrl + click to directly input a number, like InputNum.
-]=]
-local API_SliderNum = function(label: string?, increment: number?, min: number?, max: number?, format: string? | { string }?, value: Types.APIState<number>?, editing: Types.APIState<boolean>?)
-    return Internal._insert("SliderNum", label, increment, min, max, format, value, editing) :: Input<number>
-end
-
---[=[
-    @within Slider
-    @tag Widget
-    @tag HasState
-
-    @function SliderVector2
-    @param label string?
-    @param increment Vector2?
-    @param min Vector2? -- minimum value to allow
-    @param max Vector2? -- maximum value to allow
-    @param format string? | { string }? -- Iris will dynamically generate an approriate format
-    @param value State<Vector2>?
-    @param editing State<boolean>? -- read-only for when the state is changing
-
-    @return Input<Vector2>
-
-    A field which allows the user to slide a grip to enter a Vector2 within a range.
-    You can ctrl + click to directly input a Vector2, like InputVector2.
-]=]
-local API_SliderVector2 = function(label: string?, increment: Vector2?, min: Vector2?, max: Vector2?, format: string? | { string }?, value: Types.APIState<Vector2>?, editing: Types.APIState<boolean>?)
-    return Internal._insert("SliderVector2", label, increment, min, max, format, value, editing) :: Input<Vector2>
-end
-
---[=[
-    @within Slider
-    @tag Widget
-    @tag HasState
-
-    @function SliderVector3
-    @param label string?
-    @param increment Vector3?
-    @param min Vector3? -- minimum value to allow
-    @param max Vector3? -- maximum value to allow
-    @param format string? | { string }? -- Iris will dynamically generate an approriate format
-    @param value State<Vector3>?
-    @param editing State<boolean>? -- read-only for when the state is changing
-
-    @return Input<Vector3>
-
-    A field which allows the user to slide a grip to enter a Vector3 within a range.
-    You can ctrl + click to directly input a Vector3, like InputVector3.
-]=]
-local API_SliderVector3 = function(label: string?, increment: Vector3?, min: Vector3?, max: Vector3?, format: string? | { string }?, value: Types.APIState<Vector3>?, editing: Types.APIState<boolean>?)
-    return Internal._insert("SliderVector3", label, increment, min, max, format, value, editing) :: Input<Vector3>
-end
-
---[=[
-    @within Slider
-    @tag Widget
-    @tag HasState
-
-    @function SliderUDim
-    @param label string?
-    @param increment UDim?
-    @param min UDim? -- minimum value to allow
-    @param max UDim? -- maximum value to allow
-    @param format string? | { string }? -- Iris will dynamically generate an approriate format
-    @param value State<UDim>?
-    @param editing State<boolean>? -- read-only for when the state is changing
-
-    @return Input<UDim>
-
-    A field which allows the user to slide a grip to enter a UDim within a range.
-    You can ctrl + click to directly input a UDim, like InputUDim.
-]=]
-local API_SliderUDim = function(label: string?, increment: UDim?, min: UDim?, max: UDim?, format: string? | { string }?, value: Types.APIState<UDim>?, editing: Types.APIState<boolean>?)
-    return Internal._insert("SliderUDim", label, increment, min, max, format, value, editing) :: Input<UDim>
-end
-
---[=[
-    @within Slider
-    @tag Widget
-    @tag HasState
-
-    @function SliderUDim2
-    @param label string?
-    @param increment UDim2?
-    @param min UDim2? -- minimum value to allow
-    @param max UDim2? -- maximum value to allow
-    @param format string? | { string }? -- Iris will dynamically generate an approriate format
-    @param value State<UDim2>?
-    @param editing State<boolean>? -- read-only for when the state is changing
-
-    @return Input<UDim2>
-
-    A field which allows the user to slide a grip to enter a UDim2 within a range.
-    You can ctrl + click to directly input a UDim2, like InputUDim2.
-]=]
-local API_SliderUDim2 = function(label: string?, increment: UDim2?, min: UDim2?, max: UDim2?, format: string? | { string }?, value: Types.APIState<UDim2>?, editing: Types.APIState<boolean>?)
-    return Internal._insert("SliderUDim2", label, increment, min, max, format, value, editing) :: Input<UDim2>
-end
-
---[=[
-    @within Slider
-    @tag Widget
-    @tag HasState
-
-    @function SliderRect
-    @param label string?
-    @param increment Rect?
-    @param min Rect? -- minimum value to allow
-    @param max Rect? -- maximum value to allow
-    @param format string? | { string }? -- Iris will dynamically generate an approriate format
-    @param value State<Rect>?
-    @param editing State<boolean>? -- read-only for when the state is changing
-
-    @return Input<Rect>
-
-    A field which allows the user to slide a grip to enter a Rect within a range.
-    You can ctrl + click to directly input a Rect, like InputRect.
-]=]
-local API_SliderRect = function(label: string?, increment: Rect?, min: Rect?, max: Rect?, format: string? | { string }?, value: Types.APIState<Rect>?, editing: Types.APIState<boolean>?)
-    return Internal._insert("SliderRect", label, increment, min, max, format, value, editing) :: Input<Rect>
-end
-
-return {
-    InputFlags = InputFlags,
-    InputTextFlags = InputTextFlags,
-    API_InputText = API_InputText,
-    API_InputNum = API_InputNum,
-    API_InputVector2 = API_InputVector2,
-    API_InputVector3 = API_InputVector3,
-    API_InputUDim = API_InputUDim,
-    API_InputUDim2 = API_InputUDim2,
-    API_InputRect = API_InputRect,
-    API_DragNum = API_DragNum,
-    API_DragVector2 = API_DragVector2,
-    API_DragVector3 = API_DragVector3,
-    API_DragUDim = API_DragUDim,
-    API_DragUDim2 = API_DragUDim2,
-    API_DragRect = API_DragRect,
-    API_InputColor3 = API_InputColor3,
-    API_InputColor4 = API_InputColor4,
-    API_SliderNum = API_SliderNum,
-    API_SliderVector2 = API_SliderVector2,
-    API_SliderVector3 = API_SliderVector3,
-    API_SliderUDim = API_SliderUDim,
-    API_SliderUDim2 = API_SliderUDim2,
-    API_SliderRect = API_SliderRect,
-}

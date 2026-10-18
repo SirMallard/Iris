@@ -8,19 +8,10 @@ const Types = require("../Types")
     Plot Widget API
 ]=]
 
---[=[
-    @within Plot
-    @interface ProgressBar
-    .& Widget
-    .hovered () -> boolean -- fires when the mouse hovers over any of the widget
-
-    .arguments { Label: string?, Format: string? }
-    .state { progress: State<number> }
-]=]
 export type ProgressBar = Types.Widget & {
     arguments: {
         Label: string?,
-        Format: string?,
+        Format: string?, -- optional to override with a custom progress such as `29/54`
     },
 
     state: {
@@ -28,16 +19,6 @@ export type ProgressBar = Types.Widget & {
     },
 } & Types.Changed & Types.Hovered
 
---[=[
-    @within Plot
-    @interface PlotLines
-    .& Widget
-    .changed () -> boolean -- whenever the progress changes, depending on the state
-    .hovered () -> boolean -- fires when the mouse hovers over any of the widget
-
-    .arguments { Label: string, Height: number, Min: number, Max: number, TextOverlay: string }
-    .state { values: State<{ number }>, hovered: State<{ number }?> }
-]=]
 export type PlotLines = Types.Widget & {
     _lines: { Frame },
     _hoveredLine: Frame | false,
@@ -45,26 +26,17 @@ export type PlotLines = Types.Widget & {
 
     arguments: {
         Label: string,
-        Height: number,
-        Min: number,
-        Max: number,
-        TextOverlay: string,
+        Height: number, -- height of the graph
+        Min: number, -- minimum value before clipping, default is the minimum value from the values
+        Max: number, -- maximum value before clipping, default is the maximum value from the values
+        TextOverlay: string, -- additional string to overlay on the top
     },
 
     state: {
-        values: Types.State<{ number }>,
+        values: Types.State<{ number }>, -- state representing a list of numbers
     },
 } & Types.Hovered
 
---[=[
-    @within Plot
-    @interface PlotHistogram
-    .& Widget
-    .hovered () -> boolean -- fires when the mouse hovers over any of the widget
-
-    .arguments { Label: string, Height: number, Min: number, Max: number, TextOverlay: string, BaseLine: number }
-    .state { values: State<{ number }>, hovered: State<number?> }
-]=]
 export type PlotHistogram = Types.Widget & {
     _blocks: { Frame },
     _hoveredBlock: Frame | false,
@@ -72,15 +44,15 @@ export type PlotHistogram = Types.Widget & {
 
     arguments: {
         Label: string,
-        Height: number,
-        Min: number,
-        Max: number,
-        TextOverlay: string,
-        BaseLine: number,
+        Height: number, -- height of the graph
+        Min: number, -- minimum value before clipping, default is the minimum value from the values
+        Max: number, -- maximum value before clipping, default is the maximum value from the values
+        TextOverlay: string, -- additional string to overlay on the top
+        BaseLine: number, -- the level at which the bars start from, default is 0
     },
 
     state: {
-        values: Types.State<{ number }>,
+        values: Types.State<{ number }>, -- state representing a list of numbers
     },
 } & Types.Hovered
 
@@ -88,6 +60,9 @@ export type PlotHistogram = Types.Widget & {
 -- ProgressBar
 -----------------
 
+--[=[
+    A progress bar line with a state value to show the current state.
+]=]
 Internal._widgetConstructor(
     "ProgressBar",
     {
@@ -276,6 +251,11 @@ end
 -- PlotLines
 ---------------
 
+--[=[
+    A line graph for plotting a single line. Includes hovering to see a specific value on the graph,
+    and automatic scaling. Has an overlay label option at the top of the plot for displaying any
+    information.
+]=]
 Internal._widgetConstructor(
     "PlotLines",
     {
@@ -529,6 +509,12 @@ end
 -- PlotHistogram
 -------------------
 
+--[=[
+    A hisogram graph for showing values. Includes hovering to see a specific block on the graph,
+    and automatic scaling. Has an overlay label option at the top of the plot for displaying any
+    information. Also supports a baseline option, which determines where the blocks start from.
+]=]
+
 Internal._widgetConstructor(
     "PlotHistogram",
     {
@@ -720,76 +706,3 @@ Internal._widgetConstructor(
         end,
     } :: Types.WidgetClass
 )
-
---[=[
-    @within Plot
-    @tag Widget
-    @tag HasState
-
-    @function ProgressBar
-    @param label string?
-    @param format string? -- optional to override with a custom progress such as `29/54`
-    @param progress State<number>?
-
-    @return ProgressBar
-
-    A progress bar line with a state value to show the current state.
-]=]
-local API_ProgressBar = function(label: string?, format: string?, progress: Types.APIState<number>?)
-    return Internal._insert("ProgressBar", label, format, progress) :: ProgressBar
-end
-
---[=[
-    @within Plot
-    @tag Widget
-    @tag HasState
-
-    @function PlotLines
-    @param label string?
-    @param height number -- height of the graph
-    @param min number? -- minimum value before clipping, default is the minimum value from the values
-    @param max number? -- maximum value before clipping, default is the maximum value from the values
-    @param textOverlay string? -- additional string to overlay on the top
-    @param values State<{ number }>? -- state representing a list of numbers
-    @param hovered State<number>? -- read-only state to get the currently hovered value
-
-    @return PlotLines
-
-    A line graph for plotting a single line. Includes hovering to see a specific value on the graph,
-    and automatic scaling. Has an overlay label option at the top of the plot for displaying any
-    information.
-]=]
-local API_PlotLines = function(label: string?, height: number, min: number?, max: number?, textOverlay: string?, values: Types.APIState<{ number }>?, hovered: Types.APIState<number>?)
-    return Internal._insert("PlotLines", label, height, min, max, textOverlay, values, hovered) :: PlotLines
-end
-
---[=[
-    @within Plot
-    @tag Widget
-    @tag HasState
-
-    @function PlotHistogram
-    @param label string?
-    @param height number -- height of the graph
-    @param min number? -- minimum value before clipping, default is the minimum value from the values
-    @param max number? -- maximum value before clipping, default is the maximum value from the values
-    @param textOverlay string? -- additional string to overlay on the top
-    @param baseline number? -- the level at which the bars start from, default is 0
-    @param values State<{ number }>? -- state representing a list of numbers
-    @param hovered State<number>? -- read-only state to get the currently hovered value
-
-    @return PlotHistogram
-
-    A hisogram graph for showing values. Includes hovering to see a specific block on the graph,
-    and automatic scaling. Has an overlay label option at the top of the plot for displaying any
-    information. Also supports a baseline option, which determines where the blocks start from.
-]=]
-local API_PlotHistogram = function(label: string?, height: number?, min: number?, max: number?, textOverlay: string?, baseline: number?, values: Types.APIState<{ number }>?, hovered: Types.APIState<number>?)
-    return Internal._insert("PlotHistogram", label, height, min, max, textOverlay, baseline, values, hovered) :: PlotHistogram
-end
-
-return {
-    API_ProgressBar = API_ProgressBar,
-    API_PlotLines = API_PlotLines,
-    API_PlotHistogram = API_PlotHistogram,
-}
