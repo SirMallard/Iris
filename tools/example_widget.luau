@@ -2,7 +2,7 @@ const Internal = require("../lib/Internal")
 
 const Types = require("../lib/Types")
 
-export type ExampleWidget = Types.ParentWidget & {
+export type AllExampleWidget = Types.ParentWidget & {
     Record: boolean,
     Comment: unknown, -- an example property comment
 
@@ -13,7 +13,7 @@ export type ExampleWidget = Types.ParentWidget & {
         Optional: number?,
         Roblox: Vector2,
         Enum: Enum.Button,
-        Comment: unknown, -- an example argument comment
+        ArgumentComment: unknown, -- an example argument comment
         --[[
             another comment
         ]]
@@ -22,9 +22,11 @@ export type ExampleWidget = Types.ParentWidget & {
 
     state: {
         State: Types.State<boolean>,
-        Comment: Types.State<unknown>, -- an example state comment
+        StateComment: Types.State<unknown>, -- an example state comment
     },
 } & Types.Opened & Types.Closed & Types.Hovered
+
+export type NoneExampleWidget = Types.Widget
 
 const Flags = {
     Flag = 1,
@@ -38,7 +40,3 @@ local _ExampleWidget = {}
 ----------
 
 Internal._noOp()
-
-return {
-    Flags = Flags,
-}
