@@ -4,44 +4,54 @@ local Printer = require("@std/syntax/printer")
 local Utils = require("@std/syntax/utils")
 
 export type Context<Options = { [any]: any }> = {
-    path: string,
-    source: string,
-    parseresult: Syntax.CstParseResult,
-    options: Options,
+    read path: string,
+    read source: string,
+    read parseresult: Syntax.CstParseResult,
+    read options: Options,
 }
 
 export type Record = {
-    name: string,
-    type: string,
-    description: string?,
+    read name: string,
+    read type: string,
+    read description: string?,
 }
 
 export type Body = {
-    arguments: { Record },
-    state: { Record },
-    properties: { Record },
+    read arguments: { Record },
+    read state: { Record },
+    read properties: { Record },
 }
 
 export type Widget = {
-    body: Body,
+    read name: string,
+    body: Body?,
     inherit: string,
-    events: { string },
+    read events: { string },
+    read node: Syntax.CstStatTypeAlias,
 }
 
 export type FlagEntry = {
-    read key: string,
+    read name: string,
     read value: number,
+    read description: string?,
 }
 
 export type Flags = {
     read name: string,
     read entries: { FlagEntry },
+    read node: Syntax.CstStatConst,
+}
+
+export type FileParse = {
+    widgets: { Widget },
+    flags: { Flags },
+    node: Syntax.CstEof,
 }
 
 local Parser = {}
 
 function Parser.parseRecord(record: Syntax.CstTableTypeItemProperty): Record
-    local description = ""
+    local description
     if local separator = record.separator then
         for _, trailing in separator.trailingTrivia do
             if trailing.tag ~= "whitespace" then
@@ -82,12 +92,21 @@ function Parser.parseWidgetBodyTable(node: Syntax.CstTypeTable): Body
 end
 
 function Parser.parseExportTypes(node: Syntax.CstStatTypeAlias): Widget
-    assert(node.type.tag == "intersection", "expected combination of widget types")
-
-    local widget = {
+    local widget: Widget = {
+        name = node.name.text,
+        inherit = "",
         events = {},
+        node = node,
     }
 
+    if node.type.tag == "reference" then
+        local name = node.type.name.text
+        assert(name:sub(-6) == "Widget", "expected widget to be just a widget type")
+        widget.inherit = name
+        return widget
+    end
+
+    assert(node.type.tag == "intersection", "expected combination of widget types")
     for _, intersection in node.type.types do
         if intersection.tag == "table" then
             widget.body = Parser.parseWidgetBodyTable(intersection)
@@ -115,26 +134,37 @@ function Parser.parseConst(node: Syntax.CstStatConst): Flags
     for _, item in value.entries do
         assert(item.kind == "record", "expected flag to be a record")
 
+        local description
+        if local separator = item.separator then
+            for _, trailing in separator.trailingTrivia do
+                if trailing.tag ~= "whitespace" then
+                    description = trailing.text
+                end
+            end
+        end
+
         assert(item.value.tag == "number", "flag values must be integers")
         table.insert(entries, {
-            key = item.key.text,
+            name = item.key.text,
             value = item.value.value,
+            description = description,
         })
     end
 
     return {
         name = variable.name.text,
         entries = entries,
+        node = node,
     }
 end
 
-function Parser.parseWidget(context: Context)
+function Parser.parseWidget(context: Context): FileParse
     local typeAliasNodes = Query.findAllFromRoot(context.parseresult, Utils.isStatTypeAlias):filter(function(node)
         if node.export == nil then
             return false
         end
 
-        if node.type.tag ~= "intersection" then
+        if node.type.tag ~= "intersection" and node.type.tag ~= "reference" then
             return false
         end
 
@@ -159,17 +189,18 @@ function Parser.parseWidget(context: Context)
         return true
     end)
 
-    local widgets = typeAliasNodes:mapToArray(function(node: Syntax.CstStatTypeAlias): {}
+    local widgets = typeAliasNodes:mapToArray(function(node: Syntax.CstStatTypeAlias): Widget
         return Parser.parseExportTypes(node)
     end)
 
-    local flags = constNodes:mapToArray(function(node: Syntax.CstStatConst): {}
+    local flags = constNodes:mapToArray(function(node: Syntax.CstStatConst): Flags
         return Parser.parseConst(node)
     end)
 
     return {
         widgets = widgets,
         flags = flags,
+        node = context.parseresult.eof,
     }
 end
 
