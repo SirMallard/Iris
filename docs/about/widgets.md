@@ -12,8 +12,8 @@ class whereby the changes are applied onto any widget passed to the function.
 ## Creating a Widget Class
 
 To declare or construct a widget we create a 'widget class', that is, the functions which take in a
-widget and make changes to it. This widget class is where all the functionality of a a widget is
-added and therefore needs to be declared or constucted in advance. The class widget is itself a table
+widget and make changes to it. This widget class is where all the functionality of a widget is
+added and therefore needs to be declared or constructed in advance. The class widget is itself a table
 of data and functions but conforming to a specification which includes the necessary functions for
 operation.
 
@@ -52,7 +52,7 @@ provided to it are updated. And others are only needed if the widget has state o
 
 ## Understanding the Widget Lifecycle
 
-When a widget is called, Iris will try to find the widget from the preivous frame using a VDOM table
+When a widget is called, Iris will try to find the widget from the previous frame using a VDOM table
 and an ID dependent on the line it was called from. If the widget was called for the first time, then
 Iris must generate a new widget. It does this by firstly generating the widget structure, being a table
 with a few properties. It then generates the UI instances, by calling the `Generate` function of the
@@ -128,7 +128,7 @@ clicked. For a checkbox, whether it is active or for a window whether it is open
 defined to be custom in Iris and called like regular functions on a widget. To do this, we specify a table
 containing all of the possible events.
 
-Each event is a string index for a table conaining to functions: an `Init` function, to setup any
+Each event is a string index for a table containing to functions: an `Init` function, to setup any
 prerequisites; and a `Get` function, which returns the value when the event is called. Because some events
 are so common, such as `hovered()` and `clicked()`, Iris provides shorthands for these, making them easier
 to add to any widget.
@@ -168,7 +168,7 @@ Events = {
 ```
 
 The hovered event here used a macro utility, which takes a function that returns the Instance to check for
-hovering on. It then sets up the `MouseHover` events for us, and returns the two functions so that th event
+hovering on. It then sets up the `MouseHover` events for us, and returns the two functions so that the event
 is setup correctly. This is the easiest way, since we only need to provide the UI Instance.
 
 The other events are added manually. They each work by checking whether an event has fired on this tick.
@@ -185,16 +185,16 @@ a Window, Tree or SameLine widget, this must be true. If not, it must be specifi
 
 ### hasState
 
-If your widget will take in valuse and possibliy modify them in the widget and return them back, then
-the widget will use state objects and therefore must be set to true. Otherwise it must be sepcified as
+If your widget will take in values and possibly modify them in the widget and return them back, then
+the widget will use state objects and therefore must be set to true. Otherwise it must be specified as
 false.
 
 ### Generate
 
 The `Generate` function is called whenever a widget is first called and is responsible for creating the
 actual UI instances that make up the window. It handles all of the styling but does not use the
-widget arguments (this is hande=led in the `Update` function). Any widget interactivity such as events
-for clicks or hovers, which may also change the style, are setup in here. There area few rules which
+widget arguments (this is handled in the `Update` function). Any widget interactivity such as events
+for clicks or hovers, which may also change the style, are setup in here. There are a few rules which
 the generated UI instances follow:
 1. The root instance should be named "Iris_[WIDGET_TYPE]".
 2. The ZIndex and LayoutOrder of the root element are taken from the ZIndex property of the widget.
@@ -209,8 +209,8 @@ The code of a Button best demonstrates this:
 Generate = function(thisWidget: Types.Button)
     -- a TextButton is the best option here because it has the correct events
     local Button: TextButton = Instance.new("TextButton")
-    -- we rely on auomatic size
-    Button.Size = UDim2.fromOfset(0, 0)
+    -- we rely on automatic size
+    Button.Size = UDim2.fromOffset(0, 0)
     -- using the config values
     Button.BackgroundColor3 = Iris._config.ButtonColor
     Button.BackgroundTransparency = Iris._config.ButtonTransparency
