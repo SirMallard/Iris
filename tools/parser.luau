@@ -42,6 +42,12 @@ export type Flags = {
     read node: Syntax.CstStatConst,
 }
 
+export type Constructor = {
+    read name: string,
+    read comment: string?,
+    read node: Syntax.CstExprCall
+}
+
 export type APIFunction = {
     read name: string,
     read node: Syntax.CstStatLocalFunction
@@ -49,6 +55,7 @@ export type APIFunction = {
 
 export type FileParse = {
     widgets: { Widget },
+    constructors: { Constructor },
     flags: { Flags },
     node: Syntax.CstEof,
     apiFunctions: { APIFunction }
@@ -164,16 +171,34 @@ function Parser.parseConst(node: Syntax.CstStatConst): Flags
     }
 end
 
-function Parser.parseFunctionCall(node: Syntax.CstExprCall)
+function Parser.parseFunctionCall(node: Syntax.CstExprCall): Constructor
     local func = node.func
+    local arguments = node.arguments
     assert(func.tag == "indexname", "expected a function call")
     assert(func.expression.tag == "local", "expected a local Internal call")
+    assert(#arguments == 2, "expected two arguments to widget constructor")
 
+    local name = arguments[1]
+    assert(name.tag == "string", "expected widget name to be a string")
+    
     local trivia = func.expression.token.leadingTrivia
 
     -- if #trivia > 0 and 
 
-    print(Printer.printNode(func.expression.token.leadingTrivia[1]))
+    local comment = nil
+    for i = #trivia, 1, -1 do
+        if trivia[i].tag == "blockcomment" then
+            comment = trivia[i].text
+            break
+        end
+    end
+
+    
+    return {
+        name = name.value.text,
+        comment = comment,
+        node = node
+    }
 end
 
 function Parser.parseLocalFunction(node: Syntax.CstStatLocalFunction): APIFunction
@@ -249,7 +274,7 @@ function Parser.parseWidget(context: Context): FileParse
         return Parser.parseConst(node)
     end)
 
-    local widgetConstructors = exprCallNodes:mapToArray(function(node: Syntax.CstExprCall): any
+    local widgetConstructors = exprCallNodes:mapToArray(function(node: Syntax.CstExprCall): Constructor
         return Parser.parseFunctionCall(node)
     end)
 
@@ -259,6 +284,7 @@ function Parser.parseWidget(context: Context): FileParse
 
     return {
         widgets = widgets,
+        constructors = widgetConstructors,
         flags = flags,
         apiFunctions = apiFunctions,
         node = context.parseresult.eof,
