@@ -3,7 +3,7 @@ const Internal = require("../lib/Internal")
 const Types = require("../lib/Types")
 
 --[=[
-    @within example_widget
+    @within nil
     @interface AllExampleWidget
     .& ParentWidget
     .Record boolean nil
@@ -15,7 +15,6 @@ const Types = require("../lib/Types")
     .arguments { Boolean: boolean, Number: number, String: string, Optional: number?, Roblox: Vector2, Enum: Enum.Button, ArgumentComment: unknown }
     .state { State: Types.State<boolean>, StateComment: Types.State<unknown> }
 ]=]
-
 export type AllExampleWidget = Types.ParentWidget & {
     Record: boolean,
     Comment: unknown, -- an example property comment
@@ -42,11 +41,10 @@ export type AllExampleWidget = Types.ParentWidget & {
 
 
 --[=[
-    @within example_widget
+    @within nil
     @interface NoneExampleWidget
     .& Widget
 ]=]
-
 export type NoneExampleWidget = Types.Widget
 
 
@@ -56,22 +54,32 @@ export type NoneExampleWidget = Types.Widget
     .Flag 1 nil
     .Comment 2 -- an example flag comment
 ]=]
-
 const Flags = {
     Flag = 1,
     Comment = 2, -- an example flag comment
 }
 
 
-local _ExampleWidget = {}
-
 ----------
 -- Tree
 ----------
 
-Internal._noOp()
+Internal._widgetConstructor("Example", {} :: any)
+
+--[[
+    An example widget constructor description
+]]
+Internal._widgetConstructor("ExampleComment", {} :: any)
+
+--[[
+    An example API function description
+]]
+local function API_ExampleFunction(Parameter: boolean, ...)
+    return
+end
+
 --[=[
-    @within example_widget
+    @within nil
     @tag Widget
     @tag HasChildren
     @tag HasState
@@ -94,7 +102,7 @@ local API_AllExampleWidget = function(boolean: boolean, number: number, string: 
 end
 
 --[=[
-    @within example_widget
+    @within nil
     @tag Widget
 
     @function NoneExampleWidget
@@ -106,7 +114,8 @@ local API_NoneExampleWidget = function()
 end
 
 return {
-     Flags = Flags,
-     API_AllExampleWidget = API_AllExampleWidget,
-     API_NoneExampleWidget = API_NoneExampleWidget,
+    Flags = Flags,
+    API_AllExampleWidget = API_AllExampleWidget,
+    API_NoneExampleWidget = API_NoneExampleWidget,
+    API_ExampleFunction = API_ExampleFunction,
 }

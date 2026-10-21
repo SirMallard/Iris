@@ -57,7 +57,7 @@ local function generateWidgetInterface(widget: Parser.Widget, group: string)
     return table.concat(interface, LE)
 end
 
-local function generateWidgetFunction(widget: Parser.Widget, group: string)
+local function generateWidgetFunction(widget: Parser.Widget, constructor: Parser.Constructor?, group: string)
     local body = widget.body
     local arguments: { Parser.Record } = if body then body.arguments else {}
     local states: { Parser.Record } = if body then body.state else {}
@@ -87,6 +87,10 @@ local function generateWidgetFunction(widget: Parser.Widget, group: string)
 
     table.insert(api, "")
     table.insert(api, `{TAB}@return {widget.name}`)
+
+    if constructor and constructor.comment then
+        table.insert(api, "")
+    end
 
     table.insert(api, "]=]")
 
@@ -130,20 +134,24 @@ local function generateReturnStatement(parsed: Parser.FileParse)
     }
 
     for _, flags in parsed.flags do
-        table.insert(statement, `{TAB} {flags.name} = {flags.name},`)
+        table.insert(statement, `{TAB}{flags.name} = {flags.name},`)
     end
 
     for _, widget in parsed.widgets do
-        table.insert(statement, `{TAB} API_{widget.name} = API_{widget.name},`)
+        table.insert(statement, `{TAB}API_{widget.name} = API_{widget.name},`)
+    end
+
+    for _, func in parsed.apiFunctions do
+        table.insert(statement, `{TAB}{func.name} = {func.name},`)
     end
 
     table.insert(statement, "}")
 
-    return table.concat(statement, LE)
+    return table.concat(statement, LE) .. LE
 end
 
 local function generateReplacement(text: string, node: Syntax.CstNode): string
-    return text .. LE .. Printer.printNode(node)
+    return text .. Printer.printNode(node)
 end
 
 local function transform(context: Parser.Context): { [Syntax.CstNode]: string }
@@ -158,8 +166,15 @@ local function transform(context: Parser.Context): { [Syntax.CstNode]: string }
     local endStatements = {}
 
     for _, widget in parsed.widgets do
+        local constructor = nil
+        for _, cons in parsed.constructors do
+            if cons.name == widget.name then
+                constructor = cons
+                break
+            end
+        end
         replacements[widget.node] = generateReplacement(generateWidgetInterface(widget, group), widget.node)
-        table.insert(endStatements, generateWidgetFunction(widget, group))
+        table.insert(endStatements, generateWidgetFunction(widget, constructor, group))
     end
 
     for _, flags in parsed.flags do
@@ -167,10 +182,9 @@ local function transform(context: Parser.Context): { [Syntax.CstNode]: string }
     end
 
     table.insert(endStatements, generateReturnStatement(parsed))
-    replacements[parsed.node :: Syntax.CstNode] = generateReplacement(table.concat(endStatements, LE .. LE), parsed.node)
+    replacements[parsed.node :: Syntax.CstNode] = generateReplacement(LE .. table.concat(endStatements, LE .. LE), parsed.node)
 
-    -- return replacements
-    return {}
+    return replacements
 end
 
 return transform
