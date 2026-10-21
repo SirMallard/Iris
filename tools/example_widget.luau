@@ -33,10 +33,20 @@ const Flags = {
     Comment = 2, -- an example flag comment
 }
 
-local _ExampleWidget = {}
-
 ----------
 -- Tree
 ----------
 
-Internal._noOp()
+Internal._widgetConstructor("Example", {} :: any)
+
+--[[
+    An example widget constructor description
+]]
+Internal._widgetConstructor("ExampleComment", {} :: any)
+
+--[[
+    An example API function description
+]]
+local function API_ExampleFunction(Parameter: boolean, ...)
+    return
+end
