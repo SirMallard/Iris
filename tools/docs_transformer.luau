@@ -169,7 +169,8 @@ local function transform(context: Parser.Context): { [Syntax.CstNode]: string }
     table.insert(endStatements, generateReturnStatement(parsed))
     replacements[parsed.node :: Syntax.CstNode] = generateReplacement(table.concat(endStatements, LE .. LE), parsed.node)
 
-    return replacements
+    -- return replacements
+    return {}
 end
 
 return transform

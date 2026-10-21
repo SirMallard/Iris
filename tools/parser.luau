@@ -42,10 +42,16 @@ export type Flags = {
     read node: Syntax.CstStatConst,
 }
 
+export type APIFunction = {
+    read name: string,
+    read node: Syntax.CstStatLocalFunction
+}
+
 export type FileParse = {
     widgets: { Widget },
     flags: { Flags },
     node: Syntax.CstEof,
+    apiFunctions: { APIFunction }
 }
 
 local Parser = {}
@@ -158,6 +164,25 @@ function Parser.parseConst(node: Syntax.CstStatConst): Flags
     }
 end
 
+function Parser.parseFunctionCall(node: Syntax.CstExprCall)
+    local func = node.func
+    assert(func.tag == "indexname", "expected a function call")
+    assert(func.expression.tag == "local", "expected a local Internal call")
+
+    local trivia = func.expression.token.leadingTrivia
+
+    -- if #trivia > 0 and 
+
+    print(Printer.printNode(func.expression.token.leadingTrivia[1]))
+end
+
+function Parser.parseLocalFunction(node: Syntax.CstStatLocalFunction): APIFunction
+    return {
+        name = node.name.name.text,
+        node = node
+    }
+end
+
 function Parser.parseWidget(context: Context): FileParse
     local typeAliasNodes = Query.findAllFromRoot(context.parseresult, Utils.isStatTypeAlias):filter(function(node)
         if node.export == nil then
@@ -188,6 +213,33 @@ function Parser.parseWidget(context: Context): FileParse
 
         return true
     end)
+    local exprCallNodes = Query.findAllFromRoot(context.parseresult, Utils.isExprCall):filter(function(node)
+        if node.func.tag ~= "indexname" then
+            return false
+        end
+
+        if node.func.expression.tag ~= "local" then
+            return false
+        end
+
+        if node.func.index.text ~= "_widgetConstructor" then
+            return false
+        end
+
+        if node.func.expression["local"].name.text ~= "Internal" then
+            return false
+        end
+
+        return true
+    end)
+
+    local functionNodes = Query.findAllFromRoot(context.parseresult, Utils.isStatLocalFunction):filter(function(node)
+        if node.name.name.text:sub(1, 4) ~= "API_" then
+            return false
+        end
+
+        return true
+    end)
 
     local widgets = typeAliasNodes:mapToArray(function(node: Syntax.CstStatTypeAlias): Widget
         return Parser.parseExportTypes(node)
@@ -197,9 +249,18 @@ function Parser.parseWidget(context: Context): FileParse
         return Parser.parseConst(node)
     end)
 
+    local widgetConstructors = exprCallNodes:mapToArray(function(node: Syntax.CstExprCall): any
+        return Parser.parseFunctionCall(node)
+    end)
+
+    local apiFunctions = functionNodes:mapToArray(function(node: Syntax.CstStatLocalFunction): APIFunction
+        return Parser.parseLocalFunction(node)
+    end)
+
     return {
         widgets = widgets,
         flags = flags,
+        apiFunctions = apiFunctions,
         node = context.parseresult.eof,
     }
 end
