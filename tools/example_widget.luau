@@ -14,10 +14,6 @@ export type AllExampleWidget = Types.ParentWidget & {
         Roblox: Vector2,
         Enum: Enum.Button,
         ArgumentComment: unknown, -- an example argument comment
-        --[[
-            another comment
-        ]]
-        -- one more
     },
 
     state: {
@@ -37,16 +33,16 @@ const Flags = {
 -- Tree
 ----------
 
-Internal._widgetConstructor("Example", {} :: any)
+Internal._widgetConstructor("AllExampleWidget", {} :: any)
 
---[[
+--[=[
     An example widget constructor description
-]]
-Internal._widgetConstructor("ExampleComment", {} :: any)
+]=]
+Internal._widgetConstructor("NoneExampleWidget", {} :: any)
 
---[[
+--[=[
     An example API function description
-]]
+]=]
 local function API_ExampleFunction(Parameter: boolean, ...)
     return
 end
