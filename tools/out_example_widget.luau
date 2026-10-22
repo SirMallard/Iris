@@ -3,7 +3,7 @@ const Internal = require("../lib/Internal")
 const Types = require("../lib/Types")
 
 --[=[
-    @within nil
+    @within example_widget
     @interface AllExampleWidget
     .& ParentWidget
     .Record boolean nil
@@ -27,10 +27,6 @@ export type AllExampleWidget = Types.ParentWidget & {
         Roblox: Vector2,
         Enum: Enum.Button,
         ArgumentComment: unknown, -- an example argument comment
-        --[[
-            another comment
-        ]]
-        -- one more
     },
 
     state: {
@@ -41,7 +37,7 @@ export type AllExampleWidget = Types.ParentWidget & {
 
 
 --[=[
-    @within nil
+    @within example_widget
     @interface NoneExampleWidget
     .& Widget
 ]=]
@@ -64,22 +60,22 @@ const Flags = {
 -- Tree
 ----------
 
-Internal._widgetConstructor("Example", {} :: any)
+Internal._widgetConstructor("AllExampleWidget", {} :: any)
 
---[[
+--[=[
     An example widget constructor description
-]]
-Internal._widgetConstructor("ExampleComment", {} :: any)
+]=]
+Internal._widgetConstructor("NoneExampleWidget", {} :: any)
 
---[[
+--[=[
     An example API function description
-]]
+]=]
 local function API_ExampleFunction(Parameter: boolean, ...)
     return
 end
 
 --[=[
-    @within nil
+    @within example_widget
     @tag Widget
     @tag HasChildren
     @tag HasState
@@ -102,12 +98,16 @@ local API_AllExampleWidget = function(boolean: boolean, number: number, string: 
 end
 
 --[=[
-    @within nil
+    @within example_widget
     @tag Widget
 
     @function NoneExampleWidget
 
     @return NoneExampleWidget
+
+
+    An example widget constructor description
+
 ]=]
 local API_NoneExampleWidget = function()
     return Internal._insert("NoneExampleWidget") :: NoneExampleWidget

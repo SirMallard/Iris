@@ -90,6 +90,8 @@ local function generateWidgetFunction(widget: Parser.Widget, constructor: Parser
 
     if constructor and constructor.comment then
         table.insert(api, "")
+        local cleaned = constructor.comment:gsub("--%[=%[", ""):gsub("]=]", "")
+        table.insert(api, cleaned)
     end
 
     table.insert(api, "]=]")
