@@ -139,9 +139,9 @@ local abstractCheckbox = {
 -- Checkbox
 --------------
 
---[[
+--[=[
     A checkable box with a visual tick to represent a boolean true or false state.
-]]
+]=]
 Internal._widgetConstructor(
     "Checkbox",
     Utility.extend(
@@ -158,9 +158,9 @@ Internal._widgetConstructor(
     )
 )
 
---[[
+--[=[
     A checkable box with a visual tick to represent a boolean true or false state.
-]]
+]=]
 Internal._widgetConstructor(
     "CheckboxFlags",
     Utility.extend(

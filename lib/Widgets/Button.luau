@@ -75,9 +75,9 @@ Utility.abstractButton = {
 -- Button
 ------------
 
---[[
+--[=[
     A clickable button the size of the label with padding. Can listen to the `clicked()` event to determine if it was pressed.
-]]
+]=]
 Internal._widgetConstructor(
     "Button",
     Utility.extend(
@@ -97,9 +97,9 @@ Internal._widgetConstructor(
 -- SmallButton
 -----------------
 
---[[
+--[=[
     A smaller clickable button, the same as a [Iris.Button](Basic#Button) but without padding. Can listen to the `clicked()` event to determine if it was pressed.
-]]
+]=]
 Internal._widgetConstructor(
     "SmallButton",
     Utility.extend(

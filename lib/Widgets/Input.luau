@@ -926,9 +926,9 @@ end
 -- Slider<T>
 ---------------
 
---[[
-        Slider
-    ]]
+--[=[
+    Slider
+]=]
 local generateSliderScalar: <T>(dataType: InputDataTypes, components: number, defaultValue: T) -> Types.WidgetClass
 do
     local AnyActiveSlider = false

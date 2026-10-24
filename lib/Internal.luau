@@ -95,10 +95,10 @@ Internal._cycleCoroutine = coroutine.create(function()
 end)
 
 --[[
-        -----------------------
-            [SECTION] State
-        -----------------------
-    ]]
+    -----------------------
+        [SECTION] State
+    -----------------------
+]]
 
 --[=[
     @class State

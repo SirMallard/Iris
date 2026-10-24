@@ -134,9 +134,9 @@ Utility.registerEvent("InputChanged", UpdateComboState)
 -- Selectable
 ----------------
 
---[[
+--[=[
     An object which can be selected.
-]]
+]=]
 Internal._widgetConstructor(
     "Selectable",
     {
@@ -253,7 +253,7 @@ Internal._widgetConstructor(
 -- Combo
 -----------
 
---[[
+--[=[
     A dropdown menu box to make a selection from a list of values.
 
     A selection box to choose a value from an array.
@@ -261,7 +261,7 @@ Internal._widgetConstructor(
 
     A selection box to choose a value from an Enum.
     -- enum to turn into a combo and selectables
-]]
+]=]
 Internal._widgetConstructor(
     "Combo",
     {

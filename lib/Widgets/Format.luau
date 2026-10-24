@@ -31,7 +31,7 @@ export type Group = Types.ParentWidget
 -- Separator
 ---------------
 
---[[
+--[=[
     A vertical or horizonal line, depending on the context, which visually seperates widgets.
 
     ```lua
@@ -43,7 +43,7 @@ export type Group = Types.ParentWidget
     ```
 
     ![Example Separator](/Iris/assets/api/format/basicSeparator.png)
-]]
+]=]
 Internal._widgetConstructor(
     "Separator",
     {
@@ -80,7 +80,7 @@ Internal._widgetConstructor(
 -- Indent
 ------------
 
---[[
+--[=[
     Indents its child widgets.
 
     ```lua
@@ -93,7 +93,7 @@ Internal._widgetConstructor(
     ```
 
     ![Example Indent](/Iris/assets/api/format/basicIndent.png)
-]]
+]=]
 Internal._widgetConstructor(
     "Indent",
     {
@@ -133,7 +133,7 @@ Internal._widgetConstructor(
 -- SameLine
 --------------
 
---[[
+--[=[
     Positions its children in a row, horizontally.
 
     ```lua
@@ -148,7 +148,7 @@ Internal._widgetConstructor(
     ```
 
     ![Example SameLine](/Iris/assets/api/format/basicSameLine.png)
-]]
+]=]
 Internal._widgetConstructor(
     "SameLine",
     {
@@ -198,9 +198,9 @@ Internal._widgetConstructor(
 -- Group
 -----------
 
---[[
+--[=[
     Layout widget which contains its children as a single group.
-]]
+]=]
 Internal._widgetConstructor(
     "Group",
     {
