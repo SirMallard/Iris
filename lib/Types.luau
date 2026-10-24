@@ -186,4 +186,6 @@ export type WidgetClass = {
     read ChildDiscarded: (thisWidget: Widget, thisChild: Widget) -> ()?,
 })
 
+export type UIInstance<T> = T & { UIPadding: UIPadding, TextLabel: TextLabel }
+
 return {}

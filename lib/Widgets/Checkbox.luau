@@ -4,6 +4,8 @@ const Utility = require("../Widgets")
 const Types = require("../Types")
 
 export type Checkbox = Types.Widget & {
+    instance: Types.UIInstance<TextButton>,
+
     arguments: {
         Label: string?,
     },
@@ -16,11 +18,11 @@ export type Checkbox = Types.Widget & {
 export type CheckboxFlags = Types.Widget & {
     arguments: {
         Label: string?,
-        Bit: number, -- bit which the checkbox changes
+        Bit: number, -- bit which the checkbox control
     },
 
     state: {
-        flags: Types.State<number>, -- bit flags state
+        flags: Types.State<number>, -- bit flags state, as a number
     },
 } & Types.Checked & Types.Unchecked & Types.Hovered
 
@@ -103,8 +105,8 @@ local abstractCheckbox = {
         return Checkbox
     end,
     Update = function(thisWidget: Checkbox)
-        local Checkbox = thisWidget.instance :: TextButton
-        (Checkbox :: any).TextLabel.Text = thisWidget.arguments.Label or "Checkbox"
+        local Checkbox = thisWidget.instance :: Types.UIInstance<TextButton>
+        Checkbox.TextLabel.Text = thisWidget.arguments.Label or "Checkbox"
     end,
     UpdateState = function(thisWidget: Checkbox)
         local Checkbox = thisWidget.instance :: TextButton
@@ -141,6 +143,8 @@ local abstractCheckbox = {
 
 --[=[
     A checkable box with a visual tick to represent a boolean true or false state.
+
+    Pressing the widget will switch the state, and fire the `checked()` or `unchecked()` events.
 ]=]
 Internal._widgetConstructor(
     "Checkbox",
@@ -159,7 +163,9 @@ Internal._widgetConstructor(
 )
 
 --[=[
-    A checkable box with a visual tick to represent a boolean true or false state.
+    A checkable box with a visual tick to represent the value of a single bit in a number state.
+
+    Pressing the widget will flip the value of the specified `Bit` in the `flags` state, and fire the `checked()` or `unchecked()` event.
 ]=]
 Internal._widgetConstructor(
     "CheckboxFlags",

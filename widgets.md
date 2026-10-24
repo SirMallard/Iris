@@ -37,9 +37,9 @@
   
 ## Basic
 - [ ] [Text](#text-iristext)
-- [ ] [Button](#button-irisbutton-smallbutton-irissmallbutton)
-- [ ] [Checkbox](#checkbox-irischeckbox)
-- [ ] [CheckboxFlags](#checkboxflags-irischeckboxflags)
+- [X] [Button](#button-irisbutton-smallbutton-irissmallbutton)
+- [X] [Checkbox](#checkbox-irischeckbox)
+- [X] [CheckboxFlags](#checkboxflags-irischeckboxflags)
 - [ ] [RadioButton](#radiobutton-irisradiobutton)
 - [ ] [Image](#image-irisimage)
 - [ ] [ImageButton](#imagebutton-irisimagebutton)

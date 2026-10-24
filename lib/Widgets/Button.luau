@@ -1,16 +1,18 @@
---[=[
-    @class Basic
-    Basic Widget API
-]=]
-
 const Internal = require("../Internal")
 const Utility = require("../Widgets")
 
 const Types = require("../Types")
 
+--[=[
+    @class Basic
+    Basic Widget API
+]=]
+
 export type Button = Types.Widget & {
+    instance: Types.UIInstance<TextButton>,
+
     arguments: {
-        Label: string?,
+        Label: string?, --
         Size: UDim2?, -- minimum button size (default: UDim2.new())
     },
 } & Types.Clicked & Types.RightClicked & Types.DoubleClicked & Types.CtrlClicked & Types.Hovered
@@ -62,7 +64,7 @@ Utility.abstractButton = {
         return Button
     end,
     Update = function(thisWidget: Button)
-        local Button = thisWidget.instance :: TextButton
+        local Button = thisWidget.instance
         Button.Text = thisWidget.arguments.Label or "Button"
         Button.Size = thisWidget.arguments.Size or UDim2.new()
     end,
@@ -76,7 +78,9 @@ Utility.abstractButton = {
 ------------
 
 --[=[
-    A clickable button the size of the label with padding. Can listen to the `clicked()` event to determine if it was pressed.
+    A pressable button the size of the label with padding. Can be given a minmum size using the `Size` argument.
+
+    Use the `clicked()` event to check if the button was pressed.
 ]=]
 Internal._widgetConstructor(
     "Button",
@@ -98,7 +102,9 @@ Internal._widgetConstructor(
 -----------------
 
 --[=[
-    A smaller clickable button, the same as a [Iris.Button](Basic#Button) but without padding. Can listen to the `clicked()` event to determine if it was pressed.
+    The same as [Iris.Button](Basic#Button) but without any padding.
+
+    Use the `clicked()` event to check if the button was pressed.
 ]=]
 Internal._widgetConstructor(
     "SmallButton",
@@ -106,10 +112,10 @@ Internal._widgetConstructor(
         Utility.abstractButton,
         {
             Generate = function(thisWidget: Button)
-                local SmallButton = Utility.abstractButton.Generate(thisWidget)
+                local SmallButton = Utility.abstractButton.Generate(thisWidget) :: Types.UIInstance<TextButton>
                 SmallButton.Name = "Iris_SmallButton"
 
-                local uiPadding: UIPadding = (SmallButton :: any).UIPadding
+                local uiPadding = SmallButton.UIPadding
                 uiPadding.PaddingLeft = UDim.new(0, 2)
                 uiPadding.PaddingRight = UDim.new(0, 2)
                 uiPadding.PaddingTop = UDim.new(0, 0)

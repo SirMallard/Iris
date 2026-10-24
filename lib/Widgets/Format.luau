@@ -1,7 +1,7 @@
 --[=[
     @class Format
 
-    The format widgets are used to more easily separate and move widgets around.
+    A collection of widgets for laying out other widgets, embedded as children.
 ]=]
 
 const Internal = require("../Internal")
@@ -13,7 +13,7 @@ export type Separator = Types.Widget
 
 export type Indent = Types.ParentWidget & {
     arguments: {
-        Width: number?,
+        Width: number?, -- pixels to indent by,
     },
 }
 
@@ -35,11 +35,9 @@ export type Group = Types.ParentWidget
     A vertical or horizonal line, depending on the context, which visually seperates widgets.
 
     ```lua
-    Iris.Window({"Separator Demo"})
-        Iris.Text({"Some text here!"})
-        Iris.Separator()
-        Iris.Text({"This text has been separated!"})
-    Iris.End()
+    Iris.Text("Some text here!")
+    Iris.Separator()
+    Iris.Text("This text has been separated!")
     ```
 
     ![Example Separator](/Iris/assets/api/format/basicSeparator.png)
@@ -84,11 +82,9 @@ Internal._widgetConstructor(
     Indents its child widgets.
 
     ```lua
-    Iris.Window({"Indent Demo"})
-        Iris.Text({"Unindented text!"})
-        Iris.Indent()
-            Iris.Text({"This text has been indented!"})
-        Iris.End()
+    Iris.Text("Unindented text!")
+    Iris.Indent()
+        Iris.Text("This text has been indented!")
     Iris.End()
     ```
 
@@ -116,9 +112,9 @@ Internal._widgetConstructor(
             return Indent
         end,
         Update = function(thisWidget: Indent)
-            local Indent = thisWidget.instance :: Frame
+            local Indent = thisWidget.instance :: Types.UIInstance<Frame>
 
-            ((Indent :: any).UIPadding :: UIPadding).PaddingLeft = UDim.new(0, if thisWidget.arguments.Width then thisWidget.arguments.Width else Internal._config.IndentSpacing)
+            Indent.UIPadding.PaddingLeft = UDim.new(0, if thisWidget.arguments.Width then thisWidget.arguments.Width else Internal._config.IndentSpacing)
         end,
         ChildAdded = function(thisWidget: Indent, _thisChild: Types.Widget)
             return thisWidget.instance
