@@ -237,7 +237,10 @@ export type Internal = {
 
     -- State
     _states: { [ID]: State<any> },
-    _discardedStates: { [ID]: State<any> },
+    _discardedStates: { State<any> },
+    _discardedTicks: { number },
+    _discardedHead: number,
+    _discardedTail: number,
     _stateLifetime: number,
 
     -- Callback

@@ -109,59 +109,116 @@ return function()
     describe("Widget states", function()
         local Internal = Iris.Internal
         local widgetState
+        local startTick
+
+        local function queued()
+            return Internal._discardedTail - Internal._discardedHead + 1
+        end
+
+        local function release()
+            widgetState.ConnectedWidgets["TestWidget"] = nil
+            Internal._releaseState(widgetState)
+        end
 
         beforeEach(function()
+            startTick = Internal._cycleTick
             widgetState = Internal._widgetState({ ID = "TestWidget", type = "Test" }, "value", 0)
         end)
 
         afterEach(function()
+            Internal._cycleTick = startTick
             Internal._states[widgetState.ID] = nil
-            Internal._discardedStates[widgetState.ID] = nil
+            table.clear(Internal._discardedStates)
+            table.clear(Internal._discardedTicks)
+            Internal._discardedHead = 1
+            Internal._discardedTail = 0
         end)
 
         it("SHOULD be kept while a widget is connected", function()
             Internal._releaseState(widgetState)
-            expect(Internal._discardedStates[widgetState.ID]).to.equal(nil)
+            expect(queued()).to.equal(0)
+
+            Internal._cycleTick += Internal._stateLifetime + 1
             Internal._collectStates()
             expect(Internal._states[widgetState.ID]).to.equal(widgetState)
         end)
         it("SHOULD be kept shortly after the widget is discarded", function()
-            widgetState.ConnectedWidgets["TestWidget"] = nil
-            Internal._releaseState(widgetState)
-            expect(Internal._discardedStates[widgetState.ID]).to.equal(widgetState)
+            release()
+            expect(queued()).to.equal(1)
 
+            Internal._cycleTick += Internal._stateLifetime - 1
             Internal._collectStates()
             expect(Internal._states[widgetState.ID]).to.equal(widgetState)
+            expect(queued()).to.equal(1)
         end)
         it("SHOULD be removed once the lifetime has passed", function()
-            widgetState.ConnectedWidgets["TestWidget"] = nil
-            Internal._releaseState(widgetState)
-            widgetState.discardedTick -= Internal._stateLifetime + 1
+            release()
 
+            Internal._cycleTick += Internal._stateLifetime
             Internal._collectStates()
             expect(Internal._states[widgetState.ID]).to.equal(nil)
-            expect(Internal._discardedStates[widgetState.ID]).to.equal(nil)
+            expect(queued()).to.equal(0)
         end)
         it("SHOULD be reused if a widget reconnects in time", function()
-            widgetState.ConnectedWidgets["TestWidget"] = nil
-            Internal._releaseState(widgetState)
+            release()
 
             local reused = Internal._widgetState({ ID = "TestWidget", type = "Test" }, "value", 1)
             expect(reused).to.equal(widgetState)
-            expect(Internal._discardedStates[widgetState.ID]).to.equal(nil)
+
+            -- the entry expires, but the state is in use so it must stay.
+            Internal._cycleTick += Internal._stateLifetime + 1
+            Internal._collectStates()
+            expect(Internal._states[widgetState.ID]).to.equal(widgetState)
+            expect(queued()).to.equal(0)
+        end)
+        it("SHOULD use the latest release, not an earlier one", function()
+            release()
+            Internal._widgetState({ ID = "TestWidget", type = "Test" }, "value", 1)
+
+            -- released again later, so the first queue entry is out of date.
+            Internal._cycleTick += Internal._stateLifetime - 5
+            release()
+            Internal._cycleTick += 10
+            Internal._collectStates()
+            expect(Internal._states[widgetState.ID]).to.equal(widgetState)
+
+            Internal._cycleTick += Internal._stateLifetime
+            Internal._collectStates()
+            expect(Internal._states[widgetState.ID]).to.equal(nil)
+            expect(queued()).to.equal(0)
+        end)
+        it("SHOULD only visit the expired states", function()
+            local other = Internal._widgetState({ ID = "OtherWidget", type = "Test" }, "value", 0)
+            release()
+            Internal._cycleTick += 5
+            other.ConnectedWidgets["OtherWidget"] = nil
+            Internal._releaseState(other)
+
+            -- only the first has expired, the second is still waiting.
+            Internal._cycleTick += Internal._stateLifetime - 5
+            Internal._collectStates()
+            expect(Internal._states[widgetState.ID]).to.equal(nil)
+            expect(Internal._states[other.ID]).to.equal(other)
+            expect(queued()).to.equal(1)
+
+            Internal._cycleTick += 5
+            Internal._collectStates()
+            expect(Internal._states[other.ID]).to.equal(nil)
+            expect(queued()).to.equal(0)
         end)
         it("SHOULD be kept if a function is connected to it", function()
             widgetState:onChange(function() end)
-            widgetState.ConnectedWidgets["TestWidget"] = nil
-            Internal._releaseState(widgetState)
-            widgetState.discardedTick -= Internal._stateLifetime + 1
+            release()
 
+            Internal._cycleTick += Internal._stateLifetime + 1
             Internal._collectStates()
             expect(Internal._states[widgetState.ID]).to.equal(widgetState)
         end)
         it("SHOULD never remove a user state", function()
             Internal._releaseState(state)
-            expect(Internal._discardedStates[state.ID]).to.equal(nil)
+            expect(queued()).to.equal(0)
+
+            Internal._cycleTick += Internal._stateLifetime + 1
             Internal._collectStates()
             expect(Internal._states[state.ID]).to.equal(state)
         end)

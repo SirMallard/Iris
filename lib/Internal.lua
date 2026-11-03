@@ -53,7 +53,12 @@ return function(Iris: Types.Iris): Types.Internal
 
     -- State
     Internal._states = {} -- Iris.States
-    Internal._discardedStates = {} -- widget states which no widget is connected to, waiting to be removed from _states
+    -- widget states which no widget is connected to, waiting to be removed from _states. This is a queue ordered by the
+    -- tick they were released on, with the tick of each entry kept in the matching index of _discardedTicks.
+    Internal._discardedStates = {}
+    Internal._discardedTicks = {}
+    Internal._discardedHead = 1
+    Internal._discardedTail = 0
     Internal._stateLifetime = 1800 -- cycles a widget state is kept after its last widget was discarded
 
     -- Callback
@@ -697,7 +702,6 @@ return function(Iris: Types.Iris): Types.Internal
         if Internal._states[ID] then
             Internal._states[ID].ConnectedWidgets[thisWidget.ID] = thisWidget
             Internal._states[ID].lastChangeTick = Internal._cycleTick
-            Internal._discardedStates[ID] = nil
             return Internal._states[ID]
         else
             local newState = {
@@ -732,7 +736,10 @@ return function(Iris: Types.Iris): Types.Internal
         end
 
         state.discardedTick = Internal._cycleTick
-        Internal._discardedStates[state.ID] = state
+
+        Internal._discardedTail += 1
+        Internal._discardedStates[Internal._discardedTail] = state
+        Internal._discardedTicks[Internal._discardedTail] = state.discardedTick
     end
 
     --[=[
@@ -742,16 +749,44 @@ return function(Iris: Types.Iris): Types.Internal
         Removes the widget states which have not been used by any widget for `_stateLifetime` cycles. Called every cycle.
         A state is kept if it was reconnected to a widget, or if a function is connected to it with `:onChange()`,
         since the user may still be holding a reference to it.
+
+        The queue is ordered by release tick, so only the entries at the front which have expired are visited and the
+        cost does not depend on how many states are waiting. A state which is released again after being reconnected
+        has an older entry which no longer matches its `discardedTick`, and that entry is skipped.
     ]=]
     function Internal._collectStates()
-        for ID, state in Internal._discardedStates do
-            if Internal._states[ID] ~= state or next(state.ConnectedWidgets) ~= nil or next(state.ConnectedFunctions) ~= nil then
-                Internal._discardedStates[ID] = nil
-            elseif Internal._cycleTick - state.discardedTick >= Internal._stateLifetime then
-                Internal._states[ID] = nil
-                Internal._discardedStates[ID] = nil
+        local queue = Internal._discardedStates
+        local ticks = Internal._discardedTicks
+        local head = Internal._discardedHead
+        local tail = Internal._discardedTail
+
+        while head <= tail do
+            local state = queue[head]
+            local tick = ticks[head]
+
+            if state.discardedTick == tick then
+                if Internal._cycleTick - tick < Internal._stateLifetime then
+                    -- everything after this was released later, so none of it has expired.
+                    break
+                end
+
+                if Internal._states[state.ID] == state and next(state.ConnectedWidgets) == nil and next(state.ConnectedFunctions) == nil then
+                    Internal._states[state.ID] = nil
+                end
             end
+
+            queue[head] = nil
+            ticks[head] = nil
+            head += 1
         end
+
+        if head > tail then
+            -- empty, so we start from the beginning to keep the indexes small.
+            head = 1
+            tail = 0
+        end
+        Internal._discardedHead = head
+        Internal._discardedTail = tail
     end
 
     --[=[
