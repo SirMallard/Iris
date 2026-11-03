@@ -406,7 +406,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 thisWidget.state.isOpened = Iris._widgetState(thisWidget, "isOpened", false)
             end
             
-            thisWidget.state.index:onChange(function()
+            thisWidget.disconnectIndexChanged = thisWidget.state.index:onChange(function()
                 thisWidget.lastChangedTick = Iris._cycleTick + 1
                 if thisWidget.state.isOpened.value then
                     thisWidget.state.isOpened:set(false)
@@ -483,6 +483,9 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 OpenedCombo = nil
                 AnyOpenedCombo = false
             end
+
+            -- the callback holds the widget, so it must not outlive it on a state which is kept.
+            thisWidget.disconnectIndexChanged()
 
             thisWidget.Instance:Destroy()
             thisWidget.ChildContainer:Destroy()

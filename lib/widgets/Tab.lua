@@ -117,6 +117,7 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         end,
         Discard = function(thisWidget: Types.TabBar)
             thisWidget.Instance:Destroy()
+            widgets.discardState(thisWidget)
         end,
     } :: Types.WidgetClass)
 

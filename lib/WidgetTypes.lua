@@ -14,6 +14,8 @@ export type State<T> = {
     lastChangeTick: number,
     ConnectedWidgets: { [ID]: Widget },
     ConnectedFunctions: { (newValue: T) -> () },
+    widgetOwned: boolean?, -- created by a widget rather than the user, so it is removed once unused.
+    discardedTick: number?,
 
     get: (self: State<T>) -> T,
     set: (self: State<T>, newValue: T, force: true?) -> (),
@@ -434,6 +436,7 @@ export type Combo = ParentWidget & {
         isOpened: State<boolean>,
     },
 
+    disconnectIndexChanged: () -> (),
     UIListLayout: UIListLayout,
 } & Opened & Closed & Changed & Clicked & Hovered
 

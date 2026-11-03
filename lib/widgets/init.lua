@@ -317,6 +317,7 @@ return function(Iris: Types.Internal)
     function widgets.discardState(thisWidget: Types.StateWidget)
         for _, state in thisWidget.state do
             state.ConnectedWidgets[thisWidget.ID] = nil
+            Iris._releaseState(state)
         end
     end
 
