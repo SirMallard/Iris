@@ -13,15 +13,15 @@ export type Separator = Types.Widget
 
 export type Indent = Types.ParentWidget & {
     arguments: {
-        Width: number?, -- pixels to indent by,
+        Width: number?, -- indentation width in pixels (default: Config.IndentSpacing)
     },
 }
 
 export type SameLine = Types.ParentWidget & {
     arguments: {
-        Width: number?,
-        VerticalAlignment: Enum.VerticalAlignment?,
-        HorizontalAlignment: Enum.HorizontalAlignment?,
+        Width: number?, -- gap between widgets in pixels (default: Config.ItemSpacing)
+        VerticalAlignment: Enum.VerticalAlignment?, -- vertical alignment (default: Enum.VerticalAlignment.Top)
+        HorizontalAlignment: Enum.HorizontalAlignment?, -- horizontal alignment (default: Enum.HorizontalAlignment.Left)
     },
 }
 
@@ -32,7 +32,11 @@ export type Group = Types.ParentWidget
 ---------------
 
 --[=[
-    A vertical or horizonal line, depending on the context, which visually seperates widgets.
+    A vertical or horizonal line, depending on the context, which visually
+    seperates widgets.
+
+    The only time this widget is vertical is when directly parented under a
+    SameLine widget.
 
     ```lua
     Iris.Text("Some text here!")
@@ -79,7 +83,7 @@ Internal._widgetConstructor(
 ------------
 
 --[=[
-    Indents its child widgets.
+    Indents any child widgets, by the Width argument, or the config default.
 
     ```lua
     Iris.Text("Unindented text!")
@@ -112,9 +116,9 @@ Internal._widgetConstructor(
             return Indent
         end,
         Update = function(thisWidget: Indent)
-            local Indent = thisWidget.instance :: Types.UIInstance<Frame>
+            local Indent = thisWidget.instance :: Frame
 
-            Indent.UIPadding.PaddingLeft = UDim.new(0, if thisWidget.arguments.Width then thisWidget.arguments.Width else Internal._config.IndentSpacing)
+            ((Indent :: any).UIPadding :: UIPadding).PaddingLeft = UDim.new(0, if thisWidget.arguments.Width then thisWidget.arguments.Width else Internal._config.IndentSpacing)
         end,
         ChildAdded = function(thisWidget: Indent, _thisChild: Types.Widget)
             return thisWidget.instance
@@ -130,16 +134,19 @@ Internal._widgetConstructor(
 --------------
 
 --[=[
-    Positions its children in a row, horizontally.
+    Aligns any children horizontally, rather than the default vertical.
+
+    The Width argument determines the spacing between widgets, defaulting to
+    `Config.ItemSpacing`. The Vertical and HorizontalAlignment arguments
+    determine the positioning inside the widget, assuming it is full width, and
+    scales its height with children elements, defaulting to Top Left
 
     ```lua
-    Iris.Window({"Same Line Demo"})
-        Iris.Text({"All of these buttons are on the same line!"})
-        Iris.SameLine()
-            Iris.Button({"Button 1"})
-            Iris.Button({"Button 2"})
-            Iris.Button({"Button 3"})
-        Iris.End()
+    Iris.Text("All of these buttons are on the same line, below this one!")
+    Iris.SameLine()
+        Iris.Button("Button 1")
+        Iris.Button("Button 2")
+        Iris.Button("Button 3")
     Iris.End()
     ```
 
@@ -169,17 +176,9 @@ Internal._widgetConstructor(
             local Sameline = thisWidget.instance :: Frame
             local UIListLayout: UIListLayout = (Sameline :: any).UIListLayout
 
-            UIListLayout.Padding = UDim.new(0, if thisWidget.arguments.Width then thisWidget.arguments.Width else Internal._config.ItemSpacing.X)
-            if thisWidget.arguments.VerticalAlignment then
-                UIListLayout.VerticalAlignment = thisWidget.arguments.VerticalAlignment
-            else
-                UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-            end
-            if thisWidget.arguments.HorizontalAlignment then
-                UIListLayout.HorizontalAlignment = thisWidget.arguments.HorizontalAlignment
-            else
-                UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-            end
+            UIListLayout.Padding = UDim.new(0, thisWidget.arguments.Width or Internal._config.ItemSpacing.X)
+            UIListLayout.VerticalAlignment = thisWidget.arguments.VerticalAlignment or Enum.VerticalAlignment.Top
+            UIListLayout.HorizontalAlignment = thisWidget.arguments.HorizontalAlignment or Enum.HorizontalAlignment.Left
         end,
         ChildAdded = function(thisWidget: SameLine, _thisChild: Types.Widget)
             return thisWidget.instance
@@ -196,6 +195,8 @@ Internal._widgetConstructor(
 
 --[=[
     Layout widget which contains its children as a single group.
+
+    Useful for separating widget instances without affecting the positioning.
 ]=]
 Internal._widgetConstructor(
     "Group",

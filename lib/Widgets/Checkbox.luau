@@ -4,7 +4,7 @@ const Utility = require("../Widgets")
 const Types = require("../Types")
 
 export type Checkbox = Types.Widget & {
-    instance: Types.UIInstance<TextButton>,
+    instance: TextButton,
 
     arguments: {
         Label: string?,
@@ -105,8 +105,8 @@ local abstractCheckbox = {
         return Checkbox
     end,
     Update = function(thisWidget: Checkbox)
-        local Checkbox = thisWidget.instance :: Types.UIInstance<TextButton>
-        Checkbox.TextLabel.Text = thisWidget.arguments.Label or "Checkbox"
+        local Checkbox = thisWidget.instance :: TextButton
+        ((Checkbox :: any).TextLabel :: TextLabel).Text = thisWidget.arguments.Label or "Checkbox"
     end,
     UpdateState = function(thisWidget: Checkbox)
         local Checkbox = thisWidget.instance :: TextButton
@@ -125,11 +125,7 @@ local abstractCheckbox = {
             end
         end
 
-        if checked then
-            Checkmark.ImageTransparency = Internal._config.CheckMarkTransparency
-        else
-            Checkmark.ImageTransparency = 1
-        end
+        Checkmark.ImageTransparency = if checked then Internal._config.CheckMarkTransparency else 1
     end,
     Discard = function(thisWidget: Checkbox)
         thisWidget.instance:Destroy()

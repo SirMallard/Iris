@@ -29,14 +29,14 @@
 - [ ] [MenuToggle](#menutoggle-irismenutoggle)
 
 ## Formatting
-- [ ] [Separator](#separator-irisseparator)
-- [ ] [Indent](#indent-irisindent)
-- [ ] [SameLine](#sameline-irissameline)
-- [ ] [Group](#group-irisgroup)
-- [ ] [SeparatorText](#separatortext-irisseparatortext)
+- [X] [Separator](#separator-irisseparator)
+- [X] [Indent](#indent-irisindent)
+- [X] [SameLine](#sameline-irissameline)
+- [X] [Group](#group-irisgroup)
+- [X] [SeparatorText](#separatortext-irisseparatortext)
   
 ## Basic
-- [ ] [Text](#text-iristext)
+- [X] [Text](#text-iristext)
 - [X] [Button](#button-irisbutton-smallbutton-irissmallbutton)
 - [X] [Checkbox](#checkbox-irischeckbox)
 - [X] [CheckboxFlags](#checkboxflags-irischeckboxflags)

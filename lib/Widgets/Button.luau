@@ -9,7 +9,7 @@ const Types = require("../Types")
 ]=]
 
 export type Button = Types.Widget & {
-    instance: Types.UIInstance<TextButton>,
+    instance: TextButton,
 
     arguments: {
         Label: string?, --
@@ -112,10 +112,10 @@ Internal._widgetConstructor(
         Utility.abstractButton,
         {
             Generate = function(thisWidget: Button)
-                local SmallButton = Utility.abstractButton.Generate(thisWidget) :: Types.UIInstance<TextButton>
+                local SmallButton = Utility.abstractButton.Generate(thisWidget) :: TextButton
                 SmallButton.Name = "Iris_SmallButton"
 
-                local uiPadding = SmallButton.UIPadding
+                local uiPadding: UIPadding = (SmallButton :: any).UIPadding
                 uiPadding.PaddingLeft = UDim.new(0, 2)
                 uiPadding.PaddingRight = UDim.new(0, 2)
                 uiPadding.PaddingTop = UDim.new(0, 0)

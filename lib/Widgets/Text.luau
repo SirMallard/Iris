@@ -8,14 +8,12 @@ const btest = bit32.btest
 --[=[
     @class Text
 
-    Widgets to show basic text within Iris. Do not have an extra functionality beyond text.
-
-    Can be configured to change the text colour, allow Rich Text support, or allowing the text to wrap.
+    Widgets to show blocks or lines of formatted text.
 ]=]
 
 export type Text = Types.Widget & {
     arguments: {
-        Text: string,
+        Text: string, --
         Flags: number, -- optional bit flags, using Iris.TextFlags, default 0
         Color: Color3?, -- overwrite default text colour
     },
@@ -37,14 +35,18 @@ const TextFlags = {
 ----------
 
 --[=[
-    A text label to display the text argument.
-    The Wrapped argument will make the text wrap around if it is cut off by its parent.
-    The Color argument will change the color of the text, by default it is defined in the configuration file.
+    A text label to display the text argument, including any formatting applied
+    to it.
+
+    The flags argument supports wrapped text or Rich Text, which are also
+    configurable globally in the config.
+
+    The color argument changes the default text colour, the same as calling
+    `Iris.PushConfig` with `TextColor`.
 
     ```lua
-    Iris.Window({"Text Demo"})
-        Iris.Text({"This is regular text"})
-    Iris.End()
+    Iris.Text("This is regular text")
+    Iris.Text("<b>This is blue, bold text!<b>", Iris.TextFlags.RichText, Color3.fromRGB(0, 0, 255))
     ```
 
     ![Example Text](/Iris/assets/api/text/basicText.png)
@@ -96,17 +98,17 @@ Internal._widgetConstructor(
 -------------------
 
 --[=[
-    Similar to [Iris.Separator](Format#Separator) but with a text label to be used as a header
-    when an [Iris.Tree](Tree#Tree) or [Iris.CollapsingHeader](Tree#CollapsingHeader) is not apfunctionriate
+    Similar to [Iris.Separator](Format#Separator) but with a text label to be
+    used as a header, when an [Iris.Tree](Tree#Tree) or [Iris.CollapsingHeader](Tree#CollapsingHeader)
+    is not appropriate.
 
-    Visually a full width thin line with a text label clipping out part of the line.
+    Visually a full width thin line with a text label overlayed on top. The
+    text is aligned to the left, with a small padding.
 
     ```lua
-    Iris.Window({"Separator Text Demo"})
-        Iris.Text({"Regular Text"})
-        Iris.SeparatorText({"This is a separator with text"})
-        Iris.Text({"More Regular Text"})
-    Iris.End()
+    Iris.Text("Regular Text")
+    Iris.SeparatorText("Separator between sections")
+    Iris.Text("More Regular Text")
     ```
 
     ![Example Separator Text](/Iris/assets/api/text/basicSeparatorText.png)
@@ -133,9 +135,9 @@ Internal._widgetConstructor(
             SeparatorText.ClipsDescendants = true
 
             Utility.UIPadding(SeparatorText, Vector2.new(0, Internal._config.SeparatorTextPadding.Y))
-            Utility.UIListLayout(SeparatorText, Enum.FillDirection.Horizontal, UDim.new(0, Internal._config.ItemSpacing.X))
+            Utility.UIListLayout(SeparatorText, Enum.FillDirection.Horizontal, UDim.new(0, Internal._config.ItemSpacing.X));
 
-            SeparatorText.UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+            ((SeparatorText :: any).UIListLayout :: UIListLayout).VerticalAlignment = Enum.VerticalAlignment.Center
 
             local TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
@@ -173,10 +175,9 @@ Internal._widgetConstructor(
         end,
         Update = function(thisWidget: SeparatorText)
             local SeparatorText = thisWidget.instance :: Frame
-            local TextLabel: TextLabel = SeparatorText.TextLabel
-            if thisWidget.arguments.Text == nil then
-                error("Text argument is required for Iris.SeparatorText().", 5)
-            end
+            local TextLabel: TextLabel = (SeparatorText :: any).TextLabel
+            assert(thisWidget.arguments.Text ~= nil, "Text argument is required for Iris.SeparatorText().")
+
             TextLabel.Text = thisWidget.arguments.Text
         end,
         Discard = function(thisWidget: SeparatorText)
