@@ -6,7 +6,8 @@ const Types = require("../Types")
 --[=[
     @class Image
 
-    Provides two widgets for Images and ImageButtons, with the same controls as an ImageLabel instance.
+    Provides two widgets: Images and ImageButtons, with the same controls as an
+    ImageLabel and ImageButton instances, respectively.
 ]=]
 
 export type Image = Types.Widget & {
@@ -22,7 +23,9 @@ export type Image = Types.Widget & {
     },
 } & Types.Hovered
 
-export type ImageButton_ = Image & Types.Clicked & Types.RightClicked & Types.DoubleClicked & Types.CtrlClicked
+export type ImageButton_ = Image & {
+    instance: ImageButton,
+} & Types.Clicked & Types.RightClicked & Types.DoubleClicked & Types.CtrlClicked
 
 local abstractImage = {
     hasState = false,
@@ -39,8 +42,12 @@ local abstractImage = {
 -----------
 
 --[=[
-    An image widget for displaying an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image and the rest of the ScaleType functionerties
-    Some of the arguments are only used depending on the ScaleType functionerty
+    An Image widget for displaying image content, given a Content object and a
+    size. The widget also supports Rect Offset and Size for cropping and the
+    rest of the ScaleType functions.
+
+    It effectively supports all the reguilar image properties that an
+    ImageLabel has.
 ]=]
 Internal._widgetConstructor(
     "Image",
@@ -101,8 +108,12 @@ Internal._widgetConstructor(
 -----------------
 
 --[=[
-    An image button widget for a button as an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image, and the rest of the ScaleType functionerties
-    Supports all of the events of a regular button.
+    An Image Button widget for a displaying image content on a button, given
+    the size. The widget also supports Rect Offset and Size for cropping and
+    the rest of the ScaleType functions.
+    
+    It effectively supports all the reguilar image properties and button
+    properties that an ImageButton has.
 ]=]
 Internal._widgetConstructor(
     "ImageButton",
@@ -110,16 +121,16 @@ Internal._widgetConstructor(
         abstractImage,
         {
             Events = {
-                ["clicked"] = Utility.EVENTS.click(function(thisWidget: Types.Widget)
+                ["clicked"] = Utility.EVENTS.click(function(thisWidget: ImageButton_)
                     return thisWidget.instance
                 end),
-                ["rightClicked"] = Utility.EVENTS.rightClick(function(thisWidget: Types.Widget)
+                ["rightClicked"] = Utility.EVENTS.rightClick(function(thisWidget: ImageButton_)
                     return thisWidget.instance
                 end),
-                ["doubleClicked"] = Utility.EVENTS.doubleClick(function(thisWidget: Types.Widget)
+                ["doubleClicked"] = Utility.EVENTS.doubleClick(function(thisWidget: ImageButton_)
                     return thisWidget.instance
                 end),
-                ["ctrlClicked"] = Utility.EVENTS.ctrlClick(function(thisWidget: Types.Widget)
+                ["ctrlClicked"] = Utility.EVENTS.ctrlClick(function(thisWidget: ImageButton_)
                     return thisWidget.instance
                 end),
                 ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
@@ -160,8 +171,8 @@ Internal._widgetConstructor(
                 return Button
             end,
             Update = function(thisWidget: ImageButton_)
-                local Button = thisWidget.instance :: TextButton
-                local Image: ImageLabel = Button.ImageLabel
+                local Button = thisWidget.instance :: ImageButton
+                local Image: ImageLabel = (Button :: any).ImageLabel
 
                 Image.ImageContent = thisWidget.arguments.Content or Utility.ICONS.UNKNOWN_TEXTURE
                 Image.Size = thisWidget.arguments.Size
