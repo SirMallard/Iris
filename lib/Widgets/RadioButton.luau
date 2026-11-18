@@ -5,23 +5,34 @@ const Types = require("../Types")
 
 export type RadioButton = Types.Widget & {
     arguments: {
-        Label: string?,
-        Index: any, -- unique index for the radio button
+        Label: string?, --
+        Value: any, -- value of the state when active
     },
 
     state: {
-        index: Types.State<any>, -- global state shared by all grouped radio buttons
+        value: Types.State<any>, -- global state set to the value of the active button
     },
 
-    active: () -> boolean,
-} & Types.Selected & Types.Unselected & Types.Active & Types.Hovered
+    instance: TextButton,
+} & Types.Selected & Types.Unselected & Types.Active & Types.Clicked & Types.Changed & Types.Hovered
 
 -----------------
 -- RadioButton
 -----------------
 
 --[=[
-    A circular selectable button, changing the state to its index argument. Used in conjunction with multiple other RadioButtons sharing the same state to represent one value from multiple options.
+    A circular selectable button, changing the value state to its Value
+    argument, when clicked.
+    
+    Used with multiple other RadioButtons sharing the same state to produce
+    a list of selectable options.
+
+    ```lua
+    Iris.Text("Select a fruit:")
+    local state = Iris.State("")
+    Iris.RadioButton("Apple", "Apple", state)
+    Iris.RadioButton("")
+    ```
 ]=]
 Internal._widgetConstructor(
     "RadioButton",
@@ -29,17 +40,20 @@ Internal._widgetConstructor(
         hasState = true,
         hasChildren = false,
         numArguments = 2,
-        Arguments = { "Label", "Index", "index" },
+        Arguments = { "Label", "Value", "value" },
         Events = {
             ["selected"] = Utility.EVENTS.select,
             ["unselected"] = Utility.EVENTS.unselect,
             ["active"] = {
                 ["Init"] = function(_thisWidget) end,
                 ["Get"] = function(thisWidget: RadioButton)
-                    return thisWidget.state.index._value == thisWidget.arguments.Index
+                    return thisWidget.state.value._value == thisWidget.arguments.Value
                 end,
             },
-            ["changed"] = Utility.EVENTS.change("index"),
+            ["clicked"] = Utility.EVENTS.click(function(thisWidget)
+                return thisWidget.instance :: TextButton
+            end),
+            ["changed"] = Utility.EVENTS.change("value"),
             ["hovered"] = Utility.EVENTS.hover(function(thisWidget)
                 return thisWidget.instance
             end),
@@ -86,7 +100,7 @@ Internal._widgetConstructor(
             })
 
             Utility.applyButtonClick(RadioButton, function()
-                thisWidget.state.index:set(thisWidget.arguments.Index)
+                thisWidget.state.value:set(thisWidget.arguments.Value)
             end)
 
             local TextLabel = Instance.new("TextLabel")
@@ -102,30 +116,30 @@ Internal._widgetConstructor(
             return RadioButton
         end,
         Update = function(thisWidget: RadioButton)
-            local RadioButton = thisWidget.instance :: TextButton
-            local TextLabel: TextLabel = RadioButton.TextLabel
+            local RadioButton = thisWidget.instance
+            local TextLabel: TextLabel = (RadioButton :: any).TextLabel
 
             TextLabel.Text = thisWidget.arguments.Label or "Radio Button"
             if thisWidget.state then
-                thisWidget.state.index._lastChangeTick = Internal._cycleTick
-                Internal._widgets[thisWidget.type].UpdateState(thisWidget)
+                thisWidget.state.value._lastChangeTick = Internal._cycleTick;
+                (Internal._widgets[thisWidget.type] :: any).UpdateState(thisWidget)
             end
         end,
         Discard = function(thisWidget: RadioButton)
             thisWidget.instance:Destroy()
-            Utility.discardState(thisWidget)
+            Utility.discardState(thisWidget :: any)
         end,
         GenerateState = function(thisWidget: RadioButton)
-            if thisWidget.state.index == nil then
-                thisWidget.state.index = Internal._widgetState(thisWidget, "index", thisWidget.arguments.Index)
+            if thisWidget.state.value == nil then
+                thisWidget.state.value = Internal._widgetState(thisWidget, "value", thisWidget.arguments.Value)
             end
         end,
         UpdateState = function(thisWidget: RadioButton)
-            local RadioButton = thisWidget.instance :: TextButton
-            local Button = RadioButton.Button :: Frame
-            local Circle: Frame = Button.Circle
+            local RadioButton = thisWidget.instance
+            local Button: Frame = (RadioButton :: any).Button
+            local Circle: Frame = (Button :: any).Circle
 
-            if thisWidget.state.index._value == thisWidget.arguments.Index then
+            if thisWidget.state.value._value == thisWidget.arguments.Value then
                 -- only need to hide the circle
                 Circle.BackgroundTransparency = Internal._config.CheckMarkTransparency
             else
